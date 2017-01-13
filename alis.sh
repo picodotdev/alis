@@ -19,7 +19,7 @@ set -e
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # This script is hosted in https://github.com/picodotdev/alis. For new features,
-# improvements and bugs fill a issue GitHub or make a pull request.
+# improvements and bugs fill an issue in GitHub or make a pull request.
 #
 # Please, don't ask for support for this script in Arch Linux forums, first read
 # the Arch Linux wiki [1], the Installation Guide [2] and the General
@@ -31,17 +31,11 @@ set -e
 
 # Usage:
 # # loadkeys es
-# # wget -O alis.sh https://raw.githubusercontent.com/picodotdev/alis/master/alis.conf
+# # wget -O alis.conf https://raw.githubusercontent.com/picodotdev/alis/master/alis.conf
 # # vim alis.conf
 # # wget -O alis.sh https://raw.githubusercontent.com/picodotdev/alis/master/alis.sh
 # # chmod +x alis.sh
 # # ./alis.sh
-
-# TODO: ncurses/tty2
-# DONE: warning, BIOS, UEFI, GRUB, WIFI, LVM, encrypt, ssd trim, virtualbox, intel-microcode, user, yaourt, custom packages,
-#       custom yaourt packages, network ping, software/desktop (GDM, KDE, XFCE, Mate, Cinnamon, LXDE), no-lvm, no-encrypt, do reboot = false, only base
-#       check variables, kernels lts grsec, swap (file), sistema de archivos (btrfs, XFS)
-# MAY:  startx Manually Wayland/Xorg sessions, Enable early KMS, suspend, wifi (wep)
 
 # alis variables (no configuration, don't edit)
 BIOS_TYPE=""
@@ -81,7 +75,7 @@ function check_variables() {
     check_variables_value "USER_NAME" "$USER_NAME"
     check_variables_value "USER_PASSWORD" "$USER_PASSWORD"
     check_variables_boolean "YAOURT" "$YAOURT"
-    check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde"
+    check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde" "false"
     check_variables_list "DISPLAY_DRIVER" "$DISPLAY_DRIVER" "xf86-video-intel xf86-video-amdgpu xf86-video-ati nvidia nvidia-340xx nvidia-304xx xf86-video-nouveau" "false"
     check_variables_boolean "REBOOT" "$REBOOT"
 }

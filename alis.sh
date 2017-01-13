@@ -177,7 +177,6 @@ function network_install() {
         exit
     fi
 }
-PARTITION_BOOT="/dev/sda1"
 
 function partition() {
     sgdisk --zap-all $DEVICE

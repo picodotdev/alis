@@ -1,6 +1,6 @@
 # alis
 
-Arch Linux Install Script (alis) installs unnatended, automated and customized Arch Linux system.
+Arch Linux Install Script (alis) installs unattended, automated and customized Arch Linux system.
 
 For new features, improvements and bugs fill an issue in GitHub or make a pull request.
 

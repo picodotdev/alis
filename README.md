@@ -36,7 +36,11 @@ You can test it in a VirtualBox virtual machine.
 * Start the system with lastest Arch Linux installation media
 * wget -O alis.conf https://raw.githubusercontent.com/picodotdev/alis/master/alis.conf
 * nano alis.conf
-* # Edit variables values with your preferences
+* Edit alis.conf and change variables values with your preferences
 * wget -O alis.sh https://raw.githubusercontent.com/picodotdev/alis/master/alis.sh
 * chmod +x alis.sh
 * ./alis.sh
+
+### TODO
+
+* Custom shell interpreter

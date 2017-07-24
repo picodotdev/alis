@@ -46,4 +46,7 @@ You can test it in a VirtualBox virtual machine.
 
 * Custom shell interpreter
 * Custom kernel compression
-* Install packages after desktop environment
+* Retry failed package download error
+* Add multiple users, up to ¿5? users
+* Add user/s to sudoers
+* Ncurses with Vala (ValaNcurses.vala, commands output to file, copy file to installed system?)

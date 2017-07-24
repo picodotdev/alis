@@ -327,29 +327,6 @@ function virtualbox() {
     fi
 }
 
-function packages() {
-    if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
-        arch-chroot /mnt pacman -Sy --noconfirm btrfs-progs
-    fi
-
-    if [ "$YAOURT" == "true" -o -n "$PACKAGES_YAOURT" ]; then
-        echo "" >> /mnt/etc/pacman.conf
-        echo "[archlinuxfr]" >> /mnt/etc/pacman.conf
-        echo "SigLevel=Optional TrustAll" >> /mnt/etc/pacman.conf
-        echo "Server=http://repo.archlinux.fr/\$arch" >> /mnt/etc/pacman.conf
-
-        arch-chroot /mnt pacman -Sy --noconfirm yaourt
-    fi
-
-    if [ -n "$PACKAGES_PACMAN" ]; then
-        arch-chroot /mnt pacman -Sy --noconfirm --needed $PACKAGES_PACMAN
-    fi
-
-    if [ -n "$PACKAGES_YAOURT" ]; then
-        arch-chroot /mnt yaourt -S --noconfirm --needed $PACKAGES_YAOURT
-    fi
-}
-
 function mkinitcpio() {
     if [ "$LVM" == "true" -a -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
         arch-chroot /mnt sed -i 's/ filesystems / lvm2 encrypt keymap filesystems /' /etc/mkinitcpio.conf
@@ -428,7 +405,7 @@ function desktop_environment() {
             ;;
     esac
 
-    arch-chroot /mnt pacman -Sy --noconfirm xorg-server xorg-server-utils xorg-apps $DISPLAY_DRIVER mesa $MESA_LIBGL
+    arch-chroot /mnt pacman -Sy --noconfirm xorg-server xorg-apps $DISPLAY_DRIVER mesa $MESA_LIBGL
 
     case "$DESKTOP_ENVIRONMENT" in
         "gnome" )
@@ -483,6 +460,29 @@ function desktop_environment_lxde() {
     arch-chroot /mnt systemctl enable lxdm.service
 }
 
+function packages() {
+    if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
+        arch-chroot /mnt pacman -Sy --noconfirm btrfs-progs
+    fi
+
+    if [ "$YAOURT" == "true" -o -n "$PACKAGES_YAOURT" ]; then
+        echo "" >> /mnt/etc/pacman.conf
+        echo "[archlinuxfr]" >> /mnt/etc/pacman.conf
+        echo "SigLevel=Optional TrustAll" >> /mnt/etc/pacman.conf
+        echo "Server=http://repo.archlinux.fr/\$arch" >> /mnt/etc/pacman.conf
+
+        arch-chroot /mnt pacman -Sy --noconfirm yaourt
+    fi
+
+    if [ -n "$PACKAGES_PACMAN" ]; then
+        arch-chroot /mnt pacman -Sy --noconfirm --needed $PACKAGES_PACMAN
+    fi
+
+    if [ -n "$PACKAGES_YAOURT" ]; then
+        arch-chroot /mnt yaourt -S --noconfirm --needed $PACKAGES_YAOURT
+    fi
+}
+
 function end() {
     umount -R /mnt
     reboot
@@ -503,13 +503,13 @@ function main() {
     if [ "$VIRTUALBOX" == "true" ]; then
         virtualbox
     fi
-    packages
     user
     mkinitcpio
     bootloader
     if [ "$DESKTOP_ENVIRONMENT" != "" ]; then
         desktop_environment
     fi
+    packages
     if [ "$REBOOT" == "true" ]; then
         end
     fi

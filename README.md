@@ -28,7 +28,7 @@ You can test it in a VirtualBox virtual machine.
 * yaourt installation
 * Custom packages installation
 * Desktop environments (GDM, KDE, XFCE, Mate, Cinnamon, LXDE), display managers (GDM, SDDM, Lightdm, lxdm) and no desktop environments
-* Additional kernels installation (linux-lts, linux-grsec, linux-zen)
+* Additional kernels installation (linux-lts, linux-hardened, linux-zen)
 * Kernels compression
 * Graphics controllers (intel, nvidia, amd) with early KMS start
 * GRUB bootloader

@@ -17,18 +17,20 @@ You can test it in a VirtualBox virtual machine.
 * UEFI
 * LVM and no LVM
 * _root_ partition encrypted and no encrypted
+* LVM on LUKS when LVM and encrypted
 * File system formats ext4, btrfs (no swap), xfs
 * File swap
 * WPA WIFI network installation
 * TRIM for SSD storage
 * VirtualBox guest utils
 * Intel processors microcode
-* User creation
+* Users creation and add to sudoers
 * yaourt installation
 * Custom packages installation
 * Desktop environments (GDM, KDE, XFCE, Mate, Cinnamon, LXDE), display managers (GDM, SDDM, Lightdm, lxdm) and no desktop environments
 * Additional kernels installation (linux-lts, linux-grsec, linux-zen)
-* Graphics controllers (intel, nvidia, amd)
+* Custom kernel compression
+* Graphics controllers (intel, nvidia, amd) with early KMS start
 * GRUB bootloader
 
 ### Usage
@@ -44,9 +46,7 @@ You can test it in a VirtualBox virtual machine.
 
 ### TODO
 
+* GRUB theme
 * Custom shell interpreter
-* Custom kernel compression
 * Retry failed package download error
-* Add multiple users, up to ¿5? users
-* Add user/s to sudoers
 * Ncurses with Vala (ValaNcurses.vala, commands output to file, copy file to installed system?)

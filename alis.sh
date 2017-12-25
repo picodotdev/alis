@@ -52,12 +52,17 @@ ALLOW_DISCARDS=""
 CPU_INTEL=""
 VIRTUALBOX=""
 GRUB_CMDLINE_LINUX=""
+ADDITIONAL_USER_NAMES_ARRAY=()
+ADDITIONAL_USER_PASSWORDS_ARRAY=()
+MODULES=""
 
 RED='\033[0;31m'
 NC='\033[0m'
 
 function configuration_install() {
     source alis.conf
+    ADDITIONAL_USER_NAMES_ARRAY=($ADDITIONAL_USER_NAMES)
+    ADDITIONAL_USER_PASSWORDS_ARRAY=($ADDITIONAL_USER_PASSWORDS)
 }
 
 function check_variables() {
@@ -74,6 +79,7 @@ function check_variables() {
     check_variables_value "HOSTNAME" "$HOSTNAME"
     check_variables_value "USER_NAME" "$USER_NAME"
     check_variables_value "USER_PASSWORD" "$USER_PASSWORD"
+    check_variables_size "ADDITIONAL_USER_PASSWORDS" "${#ADDITIONAL_USER_NAMES_ARRAY[@]}" "${#ADDITIONAL_USER_PASSWORDS_ARRAY[@]}"
     check_variables_boolean "YAOURT" "$YAOURT"
     check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde" "false"
     check_variables_list "DISPLAY_DRIVER" "$DISPLAY_DRIVER" "xf86-video-intel xf86-video-amdgpu xf86-video-ati nvidia nvidia-340xx nvidia-304xx xf86-video-nouveau" "false"
@@ -106,6 +112,16 @@ function check_variables_list() {
 
     if [ "$VALUE" != "" -a -z "$(echo "$VALUES" | grep -F -w "$VALUE")" ]; then
         echo "$NAME environment variable value [$VALUE] must be in [$VALUES]."
+        exit
+    fi
+}
+
+function check_variables_size() {
+    NAME=$1
+    SIZE_EXPECT=$2
+    SIZE=$3
+    if [ "$SIZE_EXPECT" != "$SIZE" ]; then
+        echo "$NAME array size [$SIZE] must be [$SIZE_EXPECT]."
         exit
     fi
 }
@@ -328,6 +344,17 @@ function virtualbox() {
 }
 
 function mkinitcpio() {
+    if [ "$DISPLAY_DRIVER" == "xf86-video-intel" ]; then
+        MODULES="i915"
+    elif [ "$DISPLAY_DRIVER" == "xf86-video-amdgpu" ]; then
+        MODULES="amdgpu"
+    elif [ "$DISPLAY_DRIVER" == "xf86-video-ati" ]; then
+        MODULES="radeon"
+    elif [ "$DISPLAY_DRIVER" == "xf86-video-nouveau" ]; then
+        MODULES="nouveau"
+    fi
+    arch-chroot /mnt sed -i "s/MODULES=()/MODULES=($MODULES)/" /etc/mkinitcpio.conf
+
     if [ "$LVM" == "true" -a -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
         arch-chroot /mnt sed -i 's/ filesystems / lvm2 encrypt keymap filesystems /' /etc/mkinitcpio.conf
     elif [ "$LVM" == "true" ]; then
@@ -335,7 +362,11 @@ function mkinitcpio() {
     elif [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
         arch-chroot /mnt sed -i 's/ filesystems / encrypt keymap filesystems /' /etc/mkinitcpio.conf
     fi
-    arch-chroot /mnt sed -i 's/#COMPRESSION="gzip"/COMPRESSION="gzip"/' /etc/mkinitcpio.conf
+
+    if [ "$KERNELS_COMPRESSION" != "" ]; then
+        arch-chroot /mnt sed -i "s/#COMPRESSION=\"$KERNELS_COMPRESSION\"/COMPRESSION=\"$KERNELS_COMPRESSION\"/" /etc/mkinitcpio.conf
+    fi
+
     arch-chroot /mnt mkinitcpio -P
 }
 
@@ -353,8 +384,13 @@ function bootloader() {
     fi
 
     arch-chroot /mnt pacman -Sy --noconfirm grub dosfstools
+    #arch-chroot /mnt sed -i 's/GRUB_DEFAULT=0/GRUB_DEFAULT=saved/' /etc/default/grub
+    #arch-chroot /mnt sed -i 's/#GRUB_SAVEDEFAULT="true"/GRUB_SAVEDEFAULT="true"/' /etc/default/grub
     arch-chroot /mnt sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="quiet"/GRUB_CMDLINE_LINUX_DEFAULT=""/' /etc/default/grub
     arch-chroot /mnt sed -i 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="'$GRUB_CMDLINE_LINUX'"/' /etc/default/grub
+	#arch-chroot /mnt echo "" >> /etc/default/grub
+	#arch-chroot /mnt echo "# Custom alis" >> /etc/default/grub
+	#arch-chroot /mnt echo GRUB_DISABLE_SUBMENU=y >> /etc/default/grub
 
     if [ "$BIOS_TYPE" == "uefi" ]; then
         arch-chroot /mnt pacman -Sy --noconfirm efibootmgr
@@ -372,7 +408,19 @@ function bootloader() {
     arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 }
 
-function user() {
+function users() {
+    create_user $USER_NAME $USER_PASSWORD
+
+    for i in ${!ADDITIONAL_USER_NAMES_ARRAY[@]}; do
+        create_user ${ADDITIONAL_USER_NAMES_ARRAY[$i]} ${ADDITIONAL_USER_PASSWORDS_ARRAY[$i]}
+    done
+
+	arch-chroot /mnt sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
+}
+
+function create_user() {
+	USER_NAME=$1
+	USER_PASSWORD=$2
     arch-chroot /mnt useradd -m -G wheel,storage,optical -s /bin/bash $USER_NAME
     printf "$USER_PASSWORD\n$USER_PASSWORD" | arch-chroot /mnt passwd $USER_NAME
 }
@@ -391,7 +439,7 @@ function desktop_environment() {
         "xf86-video-nouveau" )
             MESA_LIBGL="mesa-libgl"
             ;;
-        "nvidia" )
+         "nvidia" )
             MESA_LIBGL="nvidia-libgl"
             ;;
         "nvidia-340xx" )
@@ -503,7 +551,7 @@ function main() {
     if [ "$VIRTUALBOX" == "true" ]; then
         virtualbox
     fi
-    user
+    users
     mkinitcpio
     bootloader
     if [ "$DESKTOP_ENVIRONMENT" != "" ]; then

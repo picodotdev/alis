@@ -172,7 +172,12 @@ function facts() {
     fi
 }
 
-function network_install() {
+function prepare() {
+	timedatectl set-ntp true
+	configure_network
+}
+
+function configure_network() {
     if [ -n "$WIFI_INTERFACE" ]; then
         cp /etc/netctl/examples/wireless-wpa /etc/netctl
       	chmod 600 /etc/netctl
@@ -395,7 +400,7 @@ function bootloader() {
     if [ "$BIOS_TYPE" == "uefi" ]; then
         arch-chroot /mnt pacman -Sy --noconfirm efibootmgr
         arch-chroot /mnt grub-install --target=x86_64-efi --bootloader-id=grub --efi-directory=/boot --recheck
-        #arch-chroot /mnt efibootmgr --create --disk $DEVICE --part $PARTITION_BOOT_NUMBER --loader /EFI/grub/grubx64.efi --label "GRUB"
+        #arch-chroot /mnt efibootmgr --create --disk $DEVICE --part $PARTITION_BOOT_NUMBER --loader /EFI/grub/grubx64.efi --label "GRUB Boot Manager"
     fi
     if [ "$BIOS_TYPE" == "bios" ]; then
         arch-chroot /mnt grub-install --target=i386-pc --recheck $DEVICE
@@ -542,7 +547,7 @@ function main() {
     warning
     init
     facts
-    network_install
+    prepare
     partition
     install
     kernels

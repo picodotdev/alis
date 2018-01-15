@@ -46,7 +46,18 @@ You can test it in a VirtualBox virtual machine.
 
 ### TODO
 
+* systemd-boot?
+* /boot/efi/EFI?
+* GNOME, fuente de entrada (teclado), https://unix.stackexchange.com/questions/316998/how-to-change-keyboard-layout-in-gnome-3-from-command-line, https://askubuntu.com/questions/276509/change-gsettings-without-running-x-and-unity
+> gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'es')]"
+* GNOME, KDE autologin
+> ??? gsettings set org.gnome.desktop.lockdown disable-lock-screen true
+* Common packages SSH, bluethooth, ntfs-3g, dosfstools, ...
+* Not delete everything, specific partitions
 * GRUB theme
+* Icon theme (numix), antergos GNOME theme
+* rEFInd
 * Custom shell interpreter
 * Retry failed package download error
 * Ncurses with Vala (ValaNcurses.vala, commands output to file, copy file to installed system?)
+* Review https://linuxgnublog.org/es/instalacion-de-arch-linux/, https://github.com/erm2587/ArchLinuxInstaller

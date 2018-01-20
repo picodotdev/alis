@@ -37,18 +37,22 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 
 ### Installation
 
-* \# Start the system with lastest Arch Linux installation media
-* # loadkeys [keymap]
-* # curl -s "https://raw.githubusercontent.com/picodotdev/alis/master/download.sh" | bash
-* \# Edit alis.conf and change variables values with your preferences
-* # vim alis.conf
-* # ./alis.sh
+```
+# # Start the system with lastest Arch Linux installation media
+# loadkeys [keymap]
+# curl -s "https://raw.githubusercontent.com/picodotdev/alis/master/download.sh" | bash
+# # Edit alis.conf and change variables values with your preferences
+# vim alis.conf
+# ./alis.sh
+```
 
 ### Recovery
 
-* \# Start the system with lastest Arch Linux installation media
-* # loadkeys [keymap]
-* # curl -s "https://raw.githubusercontent.com/picodotdev/alis/master/download.sh" | bash
-* \# Edit alis.conf and change variables values with your preferences
-* # vim alis-recovery.conf
-* # ./alis-recovery.sh
+```
+# # Start the system with lastest Arch Linux installation media
+# loadkeys [keymap]
+# curl -s "https://raw.githubusercontent.com/picodotdev/alis/master/download.sh" | bash
+# # Edit alis.conf and change variables values with your preferences
+# vim alis-recovery.conf
+# ./alis-recovery.sh
+```

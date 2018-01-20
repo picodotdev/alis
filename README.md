@@ -12,7 +12,7 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 ### Features
 
 * GPT
-* UEFI
+* UEFI, BIOS
 * LVM and no LVM
 * _root_ partition encrypted and no encrypted
 * LVM on LUKS when LVM and encrypted
@@ -50,7 +50,7 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 # # Start the system with lastest Arch Linux installation media
 # loadkeys [keymap]
 # curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash
-# # Edit alis.conf and change variables values with your preferences
+# # Edit alis-recovery.conf and change variables values with your preferences
 # vim alis-recovery.conf
 # ./alis-recovery.sh
 ```

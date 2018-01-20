@@ -812,25 +812,25 @@ function main() {
     fi
     packages
     if [ "$REBOOT" == "true" ]; then
-        KEY=""
-        echo -e "${GREEN}Arch Linux installed successfully\!${NC}"
+        echo -e "${GREEN}Arch Linux installed successfully"'!'"${NC}"
         echo ""
+        KEY="reboot"
         for (( i = 15; i >= 1; i-- )); do
-            read -r -s -n 1 -t 1 -p $'Rebooting in $i seconds... Press any key to abort.\n' KEY
-            if [ $? -eq 0 ]; then
+            read -r -s -n 1 -t 1 -p "Rebooting in $i seconds... Press any key to abort."$'\n' KEY
+            if [ "$KEY" != 'reboot' ]; then
                 break
             fi
         done
-        if [ $? -eq 0 ]; then
+        if [ "$KEY" == 'reboot' ]; then
             end
         else
             echo ""
-            echo "You will must do a explicit reboot (umount -R /mnt, reboot)."
+            echo "Restart aborted. You will must do a explicit reboot (umount -R /mnt, reboot)."
             echo ""
         fi
     else
        echo ""
-       echo -e "${GREEN}Arch Linux installed successfully\!${NC}"
+       echo -e "${GREEN}Arch Linux installed successfully"'!'"${NC}"
        echo ""
        echo "You will must do a explicit reboot (umount -R /mnt, reboot)."
        echo ""

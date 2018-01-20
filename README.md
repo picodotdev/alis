@@ -7,13 +7,13 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 Please, don't ask for support for this script in Arch Linux forums, first read
 the [Arch Linux wiki](https://wiki.archlinux.org), the [Installation Guide](https://wiki.archlinux.org/index.php/Installation_guide) and the [General
 Recomendations](https://wiki.archlinux.org/index.php/General_recommendations), later
-compare the commands with those of this script.
+compare the those commands with the commands of this script.
 
-You can test it in a VirtualBox virtual machine.
+For new features, improvements and bugs fill an issue in GitHub or make a pull request. You can test it in a VirtualBox virtual machine. If you test it in real hardware please send me an email to pico.dev@gmail.com with the machine description and tell me if something goes wrong or all works fine. [Pull request](https://github.com/picodotdev/alis/pulls) and [new feature request](https://github.com/picodotdev/alis/issues) are welcome!
 
 ### Features
 
-* BIOS with GPT
+* GPT
 * UEFI
 * LVM and no LVM
 * _root_ partition encrypted and no encrypted
@@ -31,33 +31,24 @@ You can test it in a VirtualBox virtual machine.
 * Additional kernels installation (linux-lts, linux-hardened, linux-zen)
 * Kernels compression
 * Graphics controllers (intel, nvidia, amd) with early KMS start
-* GRUB bootloader
+* GRUB, rEFInd, systemd-boot bootloaders
+* Script for download installation and recovery scripts and configuration files
+* Wait after installation for a abortable reboot
 
-### Usage
+### Installation
 
 * \# Start the system with lastest Arch Linux installation media
-* $ loadkeys [keymap]
-* $ wget https://raw.githubusercontent.com/picodotdev/alis/master/alis.conf
-* $ nano alis.conf
+* # loadkeys [keymap]
+* # curl -s "https://raw.githubusercontent.com/picodotdev/alis/master/download.sh" | bash
 * \# Edit alis.conf and change variables values with your preferences
-* $ wget https://raw.githubusercontent.com/picodotdev/alis/master/alis.sh
-* $ chmod +x alis.sh
-* $ ./alis.sh
+* # vim alis.conf
+* # ./alis.sh
 
-### TODO
+### Recovery
 
-* systemd-boot?
-* /boot/efi/EFI?
-* GNOME, fuente de entrada (teclado), https://unix.stackexchange.com/questions/316998/how-to-change-keyboard-layout-in-gnome-3-from-command-line, https://askubuntu.com/questions/276509/change-gsettings-without-running-x-and-unity
-> gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'es')]"
-* GNOME, KDE autologin
-> ??? gsettings set org.gnome.desktop.lockdown disable-lock-screen true
-* Common packages SSH, bluethooth, ntfs-3g, dosfstools, ...
-* Not delete everything, specific partitions
-* GRUB theme
-* Icon theme (numix), antergos GNOME theme
-* rEFInd
-* Custom shell interpreter
-* Retry failed package download error
-* Ncurses with Vala (ValaNcurses.vala, commands output to file, copy file to installed system?)
-* Review https://linuxgnublog.org/es/instalacion-de-arch-linux/, https://github.com/erm2587/ArchLinuxInstaller
+* \# Start the system with lastest Arch Linux installation media
+* # loadkeys [keymap]
+* # curl -s "https://raw.githubusercontent.com/picodotdev/alis/master/download.sh" | bash
+* \# Edit alis.conf and change variables values with your preferences
+* # vim alis-recovery.conf
+* # ./alis-recovery.sh

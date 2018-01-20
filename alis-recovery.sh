@@ -39,7 +39,7 @@ set -e
 
 # Usage:
 # # loadkeys es
-# # curl -s "https://raw.githubusercontent.com/picodotdev/alis/master/download.sh" | bash
+# # curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash
 # # vim alis.conf
 # # ./alis-recovery.sh
 

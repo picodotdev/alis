@@ -38,7 +38,7 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 ```
 # # Start the system with lastest Arch Linux installation media
 # loadkeys [keymap]
-# curl -s "https://raw.githubusercontent.com/picodotdev/alis/master/download.sh" | bash
+# curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash
 # # Edit alis.conf and change variables values with your preferences
 # vim alis.conf
 # ./alis.sh
@@ -49,8 +49,12 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 ```
 # # Start the system with lastest Arch Linux installation media
 # loadkeys [keymap]
-# curl -s "https://raw.githubusercontent.com/picodotdev/alis/master/download.sh" | bash
+# curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash
 # # Edit alis.conf and change variables values with your preferences
 # vim alis-recovery.conf
 # ./alis-recovery.sh
 ```
+
+### Arch Linux Installation Media
+
+https://www.archlinux.org/download/

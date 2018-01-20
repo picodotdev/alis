@@ -35,7 +35,7 @@ set -e
 
 # Usage:
 # # loadkeys es
-# # curl -s "https://raw.githubusercontent.com/picodotdev/alis/master/download.sh" | bash
+# # curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash
 # # vim alis.conf
 # # ./alis.sh
 
@@ -139,7 +139,7 @@ function check_variables_size() {
 function warning() {
     echo -e "${LIGHT_BLUE}Welcome to Arch Linux Install Script${NC}"
     echo ""
-    echo -e "${RED}Warning\!${NC}"
+    echo -e "${RED}Warning"'!'"${NC}"
     echo -e "${RED}This script deletes all partitions of the persistent${NC}"
     echo -e "${RED}storage and continuing all your data in it will be lost.${NC}"
     echo ""

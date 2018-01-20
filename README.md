@@ -2,8 +2,6 @@
 
 Arch Linux Install Script (alis) installs unattended, automated and customized Arch Linux system.
 
-For new features, improvements and bugs fill an issue in GitHub or make a pull request.
-
 Please, don't ask for support for this script in Arch Linux forums, first read
 the [Arch Linux wiki](https://wiki.archlinux.org), the [Installation Guide](https://wiki.archlinux.org/index.php/Installation_guide) and the [General
 Recomendations](https://wiki.archlinux.org/index.php/General_recommendations), later

@@ -42,7 +42,7 @@ Currently these scripts are for me but maybe they are useful for you too.
 ```
 # # Start the system with lastest Arch Linux installation media
 # loadkeys [keymap]
-# curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash
+# curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash, or with URL shortener curl -sL https://bit.ly/2F3CATp | bash
 # # Edit alis.conf and change variables values with your preferences
 # vim alis.conf
 # ./alis.sh
@@ -53,7 +53,7 @@ Currently these scripts are for me but maybe they are useful for you too.
 ```
 # # Start the system with lastest Arch Linux installation media
 # loadkeys [keymap]
-# curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash
+# curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash, or with URL shortener curl -sL https://bit.ly/2F3CATp | bash
 # # Edit alis-recovery.conf and change variables values with your last installation with alis
 # vim alis-recovery.conf
 # ./alis-recovery.sh

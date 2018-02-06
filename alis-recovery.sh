@@ -67,6 +67,7 @@ ADDITIONAL_USER_NAMES_ARRAY=()
 ADDITIONAL_USER_PASSWORDS_ARRAY=()
 MODULES=""
 
+LOG="alis-recovery.log"
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 LIGHT_BLUE='\033[1;34m'
@@ -142,7 +143,14 @@ function warning() {
 }
 
 function init() {
+    init_log
     loadkeys $KEYS
+}
+
+function init_log() {
+    exec > >(tee -a $LOG)
+    exec 2> >(tee -a $LOG >&2)
+    set -o xtrace
 }
 
 function facts() {
@@ -164,6 +172,27 @@ function facts() {
 
     if [ -n "$(lspci | grep -i virtualbox)" ]; then
         VIRTUALBOX="true"
+    fi
+}
+
+function prepare() {
+    prepare_partition
+}
+
+function prepare_partition() {
+    if [ -d /mnt/boot ]; then
+        umount /mnt/boot
+        umount /mnt
+    fi
+    if [ -e /dev/mapper/root ]; then
+        if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
+            cryptsetup close root
+        fi
+    fi
+    if [ -e /dev/mapper/lvm ]; then
+        if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
+            cryptsetup close lvm
+        fi
     fi
 }
 
@@ -242,6 +271,7 @@ function main() {
     warning
     init
     facts
+    prepare
     partition
     recovery
 }

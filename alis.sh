@@ -63,6 +63,7 @@ ADDITIONAL_USER_NAMES_ARRAY=()
 ADDITIONAL_USER_PASSWORDS_ARRAY=()
 MODULES=""
 
+LOG="alis.log"
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 LIGHT_BLUE='\033[1;34m'
@@ -157,7 +158,14 @@ function warning() {
 }
 
 function init() {
+    init_log
     loadkeys $KEYS
+}
+
+function init_log() {
+    exec > >(tee -a $LOG)
+    exec 2> >(tee -a $LOG >&2)
+    set -o xtrace
 }
 
 function facts() {
@@ -192,8 +200,30 @@ function check_facts() {
 }
 
 function prepare() {
-	timedatectl set-ntp true
-	configure_network
+    prepare_partition
+    timedatectl set-ntp true
+    configure_network
+}
+
+function prepare_partition() {
+    if [ -d /mnt/boot ]; then
+        umount /mnt/boot
+        umount /mnt
+    fi
+    if [ -e /dev/mapper/root ]; then
+        if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
+            cryptsetup close root
+        fi
+    fi
+    if [ -e /dev/mapper/lvm ]; then
+        lvremove --force lvm/lvroot
+        vgremove --force /dev/mapper/lvm
+        pvremove /dev/mapper/lvm
+        if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
+            cryptsetup close lvm
+        fi
+    fi
+    partprobe /dev/sda
 }
 
 function configure_network() {

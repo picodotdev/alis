@@ -795,6 +795,14 @@ function packages() {
         arch-chroot /mnt pacman -Sy --noconfirm btrfs-progs
     fi
 
+    if [ -n "$PACKAGES_PACMAN" ]; then
+        arch-chroot /mnt pacman -Sy --noconfirm --needed $PACKAGES_PACMAN
+    fi
+
+    packages_yaourt
+}
+
+function packages_yaourt() {
     if [ "$YAOURT" == "true" -o -n "$PACKAGES_YAOURT" ]; then
         echo "" >> /mnt/etc/pacman.conf
         echo "[archlinuxfr]" >> /mnt/etc/pacman.conf
@@ -804,18 +812,42 @@ function packages() {
         arch-chroot /mnt pacman -Sy --noconfirm yaourt
     fi
 
-    if [ -n "$PACKAGES_PACMAN" ]; then
-        arch-chroot /mnt pacman -Sy --noconfirm --needed $PACKAGES_PACMAN
-    fi
-
     if [ -n "$PACKAGES_YAOURT" ]; then
         arch-chroot /mnt yaourt -S --noconfirm --needed $PACKAGES_YAOURT
     fi
 }
 
+function terminate() {
+    mkdir -p /mnt/var/log
+    cp "$LOG" "/mnt/var/log/$LOG"
+}
+
 function end() {
-    umount -R /mnt
-    reboot
+    if [ "$REBOOT" == "true" ]; then
+        echo -e "${GREEN}Arch Linux installed successfully"'!'"${NC}"
+        echo ""
+        KEY="reboot"
+        for (( i = 15; i >= 1; i-- )); do
+            read -r -s -n 1 -t 1 -p "Rebooting in $i seconds... Press any key to abort."$'\n' KEY
+            if [ "$KEY" != 'reboot' ]; then
+                break
+            fi
+        done
+        if [ "$KEY" == 'reboot' ]; then
+            umount -R /mnt
+            reboot
+        else
+            echo ""
+            echo "Restart aborted. You will must do a explicit reboot (umount -R /mnt, reboot)."
+            echo ""
+        fi
+    else
+       echo ""
+       echo -e "${GREEN}Arch Linux installed successfully"'!'"${NC}"
+       echo ""
+       echo "You will must do a explicit reboot (umount -R /mnt, reboot)."
+       echo ""
+    fi
 }
 
 function main() {
@@ -841,30 +873,8 @@ function main() {
         desktop_environment
     fi
     packages
-    if [ "$REBOOT" == "true" ]; then
-        echo -e "${GREEN}Arch Linux installed successfully"'!'"${NC}"
-        echo ""
-        KEY="reboot"
-        for (( i = 15; i >= 1; i-- )); do
-            read -r -s -n 1 -t 1 -p "Rebooting in $i seconds... Press any key to abort."$'\n' KEY
-            if [ "$KEY" != 'reboot' ]; then
-                break
-            fi
-        done
-        if [ "$KEY" == 'reboot' ]; then
-            end
-        else
-            echo ""
-            echo "Restart aborted. You will must do a explicit reboot (umount -R /mnt, reboot)."
-            echo ""
-        fi
-    else
-       echo ""
-       echo -e "${GREEN}Arch Linux installed successfully"'!'"${NC}"
-       echo ""
-       echo "You will must do a explicit reboot (umount -R /mnt, reboot)."
-       echo ""
-    fi
+    terminate
+    end
 }
 
 main

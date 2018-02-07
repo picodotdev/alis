@@ -273,7 +273,7 @@ function main() {
     facts
     prepare
     partition
-    recovery
+    #recovery
 }
 
 main

@@ -35,7 +35,7 @@ set -e
 
 # Usage:
 # # loadkeys es
-# # curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash
+# # curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash, or with URL shortener curl -sL https://bit.ly/2F3CATp | bash
 # # vim alis.conf
 # # ./alis.sh
 
@@ -54,7 +54,6 @@ UUID_ROOT=""
 PARTUUID_BOOT=""
 PARTUUID_ROOT=""
 DEVICE_TRIM=""
-ALLOW_DISCARDS=""
 CPU_INTEL=""
 VIRTUALBOX=""
 CMDLINE_LINUX_ROOT=""
@@ -201,8 +200,12 @@ function check_facts() {
 
 function prepare() {
     prepare_partition
-    timedatectl set-ntp true
+    configure_time
     configure_network
+}
+
+function configure_time() {
+    timedatectl set-ntp true
 }
 
 function prepare_partition() {
@@ -362,9 +365,9 @@ function install() {
 }
 
 function kernels() {
-    arch-chroot /mnt pacman -Sy --noconfirm linux-headers
+    pacman_install "linux-headers"
     if [ -n "$KERNELS" ]; then
-        arch-chroot /mnt pacman -Sy --noconfirm $KERNELS
+        pacman_install "$KERNELS"
     fi
 }
 
@@ -399,15 +402,15 @@ function configuration() {
 }
 
 function network() {
-    arch-chroot /mnt pacman -Sy --noconfirm networkmanager
+    pacman_install "networkmanager"
     arch-chroot /mnt systemctl enable NetworkManager.service
 }
 
 function virtualbox() {
     if [ -z "$KERNELS" ]; then
-        arch-chroot /mnt pacman -Sy --noconfirm virtualbox-guest-utils virtualbox-guest-modules-arch
+        pacman_install "virtualbox-guest-utils virtualbox-guest-modules-arch"
     else
-        arch-chroot /mnt pacman -Sy --noconfirm virtualbox-guest-utils virtualbox-guest-dkms
+        pacman_install "virtualbox-guest-utils virtualbox-guest-dkms"
     fi
 }
 
@@ -444,8 +447,11 @@ function mkinitcpio() {
 }
 
 function bootloader() {
+    BOOTLOADER_DEVICE_ROOT_MAPPER=""
+    BOOTLOADER_ALLOW_DISCARDS=""
+
     if [ "$CPU_INTEL" == "true" -a "$VIRTUALBOX" != "true" ]; then
-        arch-chroot /mnt pacman -Sy --noconfirm intel-ucode
+        pacman_install "intel-ucode"
     fi
 
     if [ "$LVM" == "true" ]; then
@@ -454,11 +460,11 @@ function bootloader() {
         CMDLINE_LINUX_ROOT="root=PARTUUID=$PARTUUID_ROOT"
     fi
     if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
+        BOOTLOADER_DEVICE_ROOT_MAPPER=":$DEVICE_ROOT_MAPPER"
         if [ "$DEVICE_TRIM" == "true" ]; then
-            ALLOW_DISCARDS=":allow-discards"
+            BOOTLOADER_ALLOW_DISCARDS=":allow-discards"
         fi
-
-        CMDLINE_LINUX="cryptdevice=PARTUUID=$PARTUUID_ROOT:lvm$ALLOW_DISCARDS"
+        CMDLINE_LINUX="cryptdevice=PARTUUID=$PARTUUID_ROOT$BOOTLOADER_DEVICE_ROOT_MAPPER$BOOTLOADER_ALLOW_DISCARDS"
     fi
 
     case "$BOOTLOADER" in
@@ -475,7 +481,7 @@ function bootloader() {
 }
 
 function grub() {
-    arch-chroot /mnt pacman -Sy --noconfirm grub dosfstools
+    pacman_install "grub dosfstools"
     arch-chroot /mnt sed -i 's/GRUB_DEFAULT=0/GRUB_DEFAULT=saved/' /etc/default/grub
     arch-chroot /mnt sed -i 's/#GRUB_SAVEDEFAULT="true"/GRUB_SAVEDEFAULT="true"/' /etc/default/grub
     arch-chroot /mnt sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="quiet"/GRUB_CMDLINE_LINUX_DEFAULT=""/' /etc/default/grub
@@ -485,7 +491,7 @@ function grub() {
     echo "GRUB_DISABLE_SUBMENU=y" >> /mnt/etc/default/grub
 
     if [ "$BIOS_TYPE" == "uefi" ]; then
-        arch-chroot /mnt pacman -Sy --noconfirm efibootmgr
+        pacman_install "efibootmgr"
         arch-chroot /mnt grub-install --target=x86_64-efi --bootloader-id=grub --efi-directory=$ESP_DIRECTORY --recheck
         #arch-chroot /mnt efibootmgr --create --disk $DEVICE --part $PARTITION_BOOT_NUMBER --loader /EFI/grub/grubx64.efi --label "GRUB Boot Manager"
     fi
@@ -501,7 +507,7 @@ function grub() {
 }
 
 function refind() {
-    arch-chroot /mnt pacman -Sy --noconfirm refind-efi
+    pacman_install "refind-efi"
     arch-chroot /mnt refind-install
 
     arch-chroot /mnt rm /boot/refind_linux.conf
@@ -735,7 +741,7 @@ function desktop_environment() {
             ;;
     esac
 
-    arch-chroot /mnt pacman -Sy --noconfirm xorg-server xorg-apps $DISPLAY_DRIVER mesa $MESA_LIBGL
+    pacman_install "xorg-server xorg-apps $DISPLAY_DRIVER mesa $MESA_LIBGL"
 
     case "$DESKTOP_ENVIRONMENT" in
         "gnome" )
@@ -760,43 +766,43 @@ function desktop_environment() {
 }
 
 function desktop_environment_gnome() {
-    arch-chroot /mnt pacman -Sy --noconfirm gnome gnome-extra
+    pacman_install "gnome gnome-extra"
     arch-chroot /mnt systemctl enable gdm.service
 }
 
 function desktop_environment_kde() {
-    arch-chroot /mnt pacman -Sy --noconfirm plasma-meta kde-applications-meta
+    pacman_install "plasma-meta kde-applications-meta"
     arch-chroot /mnt sed -i 's/Current=.*/Current=breeze/' /etc/sddm.conf
     arch-chroot /mnt systemctl enable sddm.service
 }
 
 function desktop_environment_xfce() {
-    arch-chroot /mnt pacman -Sy --noconfirm xfce4 xfce4-goodies lightdm lightdm-gtk-greeter
+    pacman_install "xfce4 xfce4-goodies lightdm lightdm-gtk-greeter"
     arch-chroot /mnt systemctl enable lightdm.service
 }
 
 function desktop_environment_mate() {
-    arch-chroot /mnt pacman -Sy --noconfirm mate mate-extra lightdm lightdm-gtk-greeter
+    pacman_install "mate mate-extra lightdm lightdm-gtk-greeter"
     arch-chroot /mnt systemctl enable lightdm.service
 }
 
 function desktop_environment_cinnamon() {
-    arch-chroot /mnt pacman -Sy --noconfirm cinnamon lightdm lightdm-gtk-greeter
+    pacman_install "cinnamon lightdm lightdm-gtk-greeter"
     arch-chroot /mnt systemctl enable lightdm.service
 }
 
 function desktop_environment_lxde() {
-    arch-chroot /mnt pacman -Sy --noconfirm lxde lxdm
+    pacman_install "clxde lxdm"
     arch-chroot /mnt systemctl enable lxdm.service
 }
 
 function packages() {
     if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
-        arch-chroot /mnt pacman -Sy --noconfirm btrfs-progs
+        pacman_install "btrfs-progs"
     fi
 
     if [ -n "$PACKAGES_PACMAN" ]; then
-        arch-chroot /mnt pacman -Sy --noconfirm --needed $PACKAGES_PACMAN
+        pacman_install "$PACKAGES_PACMAN"
     fi
 
     packages_yaourt
@@ -809,11 +815,11 @@ function packages_yaourt() {
         echo "SigLevel=Optional TrustAll" >> /mnt/etc/pacman.conf
         echo "Server=http://repo.archlinux.fr/\$arch" >> /mnt/etc/pacman.conf
 
-        arch-chroot /mnt pacman -Sy --noconfirm yaourt
+        pacman_install "yaourt"
     fi
 
     if [ -n "$PACKAGES_YAOURT" ]; then
-        arch-chroot /mnt yaourt -S --noconfirm --needed $PACKAGES_YAOURT
+        yaourt_install "$PACKAGES_YAOURT"
     fi
 }
 
@@ -848,6 +854,32 @@ function end() {
        echo "You will must do a explicit reboot (umount -R /mnt, reboot)."
        echo ""
     fi
+}
+
+function pacman_install() {
+    PACKAGES=$1
+    for VARIABLE in {1..5}
+    do
+        arch-chroot /mnt pacman -Sy --noconfirm $PACKAGES
+        if [ $? == 0 ]; then
+            break
+        else
+            sleep 10
+        fi
+    done
+}
+
+function yaourt_install() {
+    PACKAGES=$1
+    for VARIABLE in {1..5}
+    do
+        arch-chroot /mnt bash -c "echo -e \"$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n\" | su $USER_NAME yaourt -Sy --noconfirm --needed $PACKAGES"
+        if [ $? == 0 ]; then
+            break
+        else
+            sleep 10
+        fi
+    done
 }
 
 function main() {

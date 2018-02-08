@@ -27,8 +27,9 @@ Currently these scripts are for me but maybe they are useful for you too.
 * VirtualBox guest utils
 * Intel processors microcode
 * Users creation and add to sudoers
+* Common and custom packages installation
 * yaourt installation
-* Custom packages installation
+* Retry packages download on conection/mirror error
 * Desktop environments (GDM, KDE, XFCE, Mate, Cinnamon, LXDE), display managers (GDM, SDDM, Lightdm, lxdm) and no desktop environments
 * Additional kernels installation (linux-lts, linux-hardened, linux-zen)
 * Kernels compression
@@ -62,3 +63,49 @@ Currently these scripts are for me but maybe they are useful for you too.
 ### Arch Linux Installation Media
 
 https://www.archlinux.org/download/
+
+### Reference
+
+* https://wiki.archlinux.org/index.php/Installation_guide
+* https://wiki.archlinux.org/index.php/Main_page
+* https://wiki.archlinux.org/index.php/General_recommendations
+* https://wiki.archlinux.org/index.php/List_of_applications
+* https://wiki.archlinux.org/index.php/Network_configuration
+* https://wiki.archlinux.org/index.php/Wireless_network_configuration
+* https://wiki.archlinux.org/index.php/NetworkManager
+* https://wiki.archlinux.org/index.php/Solid_State_Drives
+* https://wiki.archlinux.org/index.php/Partitioning
+* https://wiki.archlinux.org/index.php/Fstab
+* https://wiki.archlinux.org/index.php/Swap
+* https://wiki.archlinux.org/index.php/Unified_Extensible_Firmware_Interface
+* https://wiki.archlinux.org/index.php/EFI_System_Partition
+* https://wiki.archlinux.org/index.php/File_systems
+* https://wiki.archlinux.org/index.php/Ext4
+* https://wiki.archlinux.org/index.php/Persistent_block_device_naming
+* https://wiki.archlinux.org/index.php/LVM
+* https://wiki.archlinux.org/index.php/Dm-crypt
+* https://wiki.archlinux.org/index.php/Dm-crypt/Device_encryption
+* https://wiki.archlinux.org/index.php/Pacman
+* https://wiki.archlinux.org/index.php/Mirrors
+* https://wiki.archlinux.org/index.php/VirtualBox
+* https://wiki.archlinux.org/index.php/Mkinitcpio
+* https://wiki.archlinux.org/index.php/Intel_graphics
+* https://wiki.archlinux.org/index.php/NVIDIA
+* https://wiki.archlinux.org/index.php/ATI
+* https://wiki.archlinux.org/index.php/Kernels
+* https://wiki.archlinux.org/index.php/Kernel_mode_setting
+* https://wiki.archlinux.org/index.php/Kernel_parameters
+* https://wiki.archlinux.org/index.php/Category:Boot_loaders
+* https://wiki.archlinux.org/index.php/GRUB
+* https://wiki.archlinux.org/index.php/REFInd
+* https://wiki.archlinux.org/index.php/Systemd-boot
+* https://wiki.archlinux.org/index.php/Systemd
+* https://wiki.archlinux.org/index.php/Microcode
+* https://wiki.archlinux.org/index.php/Wayland
+* https://wiki.archlinux.org/index.php/Xorg
+* https://wiki.archlinux.org/index.php/Desktop_environment
+* https://wiki.archlinux.org/index.php/GNOME
+* https://wiki.archlinux.org/index.php/KDE
+* https://wiki.archlinux.org/index.php/Xfce
+* http://tldp.org/LDP/Bash-Beginners-Guide/html/
+* http://tldp.org/LDP/abs/html/

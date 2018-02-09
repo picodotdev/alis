@@ -85,6 +85,7 @@ https://www.archlinux.org/download/
 * https://wiki.archlinux.org/index.php/LVM
 * https://wiki.archlinux.org/index.php/Dm-crypt
 * https://wiki.archlinux.org/index.php/Dm-crypt/Device_encryption
+* https://wiki.archlinux.org/index.php/Dm-crypt/Encrypting_an_entire_system
 * https://wiki.archlinux.org/index.php/Pacman
 * https://wiki.archlinux.org/index.php/Mirrors
 * https://wiki.archlinux.org/index.php/VirtualBox

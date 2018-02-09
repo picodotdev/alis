@@ -45,10 +45,12 @@ PARTITION_BIOS=""
 PARTITION_BOOT=""
 PARTITION_ROOT=""
 DEVICE_ROOT=""
-DEVICE_ROOT_MAPPER=""
+LVM_VOLUME_PHISICAL="lvm"
+LVM_VOLUME_GROUP="vg"
+LVM_VOLUME_LOGICAL="root"
 BOOT_DIRECTORY=""
 ESP_DIRECTORY=""
-PARTITION_BOOT_NUMBER=0
+#PARTITION_BOOT_NUMBER=0
 UUID_BOOT=""
 UUID_ROOT=""
 PARTUUID_BOOT=""
@@ -213,20 +215,20 @@ function prepare_partition() {
         umount /mnt/boot
         umount /mnt
     fi
-    if [ -e /dev/mapper/root ]; then
+    if [ -e "/dev/mapper/$LVM_VOLUME_LOGICAL" ]; then
         if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
-            cryptsetup close root
+            cryptsetup close $LVM_VOLUME_LOGICAL
         fi
     fi
-    if [ -e /dev/mapper/lvm ]; then
-        lvremove --force lvm/lvroot
-        vgremove --force /dev/mapper/lvm
-        pvremove /dev/mapper/lvm
+    if [ -e "/dev/mapper/$LVM_VOLUME_PHISICAL" ]; then
+        lvremove --force "$LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL"
+        vgremove --force "/dev/mapper/$LVM_VOLUME_GROUP"
+        pvremove "/dev/mapper/$LVM_VOLUME_PHISICAL"
         if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
-            cryptsetup close lvm
+            cryptsetup close $LVM_VOLUME_PHISICAL
         fi
     fi
-    partprobe /dev/sda
+    partprobe $DEVICE
 }
 
 function configure_network() {
@@ -256,47 +258,38 @@ function partition() {
     wipefs -a $DEVICE
 
     if [ "$BIOS_TYPE" == "uefi" ]; then
-        PARTITION_BOOT="/dev/sda1"
-        PARTITION_ROOT="/dev/sda2"
-        PARTITION_BOOT_NUMBER=1
-        DEVICE_ROOT="/dev/sda2"
-        DEVICE_ROOT_MAPPER="root"
+        PARTITION_BOOT="${DEVICE}1"
+        PARTITION_ROOT="${DEVICE}2"
+        #PARTITION_BOOT_NUMBER=1
+        DEVICE_ROOT="${DEVICE}2"
 
         parted -s $DEVICE mklabel gpt mkpart primary fat32 1MiB 512MiB mkpart primary $FILE_SYSTEM_TYPE 512MiB 100% set 1 boot on
         sgdisk -t=1:ef00 $DEVICE
     fi
 
     if [ "$BIOS_TYPE" == "bios" ]; then
-        PARTITION_BIOS="/dev/sda1"
-        PARTITION_BOOT="/dev/sda2"
-        PARTITION_ROOT="/dev/sda3"
-        PARTITION_BOOT_NUMBER=2
-        DEVICE_ROOT="/dev/sda3"
-        DEVICE_ROOT_MAPPER="root"
+        PARTITION_BIOS="${DEVICE}1"
+        PARTITION_BOOT="${DEVICE}2"
+        PARTITION_ROOT="${DEVICE}3"
+        #PARTITION_BOOT_NUMBER=2
+        DEVICE_ROOT="${DEVICE}3"
 
         parted -s $DEVICE mklabel gpt mkpart primary fat32 1MiB 128MiB mkpart primary $FILE_SYSTEM_TYPE 128MiB 512MiB mkpart primary $FILE_SYSTEM_TYPE 512MiB 100% set 1 boot on
         sgdisk -t=1:ef02 $DEVICE
     fi
 
-    if [ "$LVM" == "true" ]; then
-        DEVICE_ROOT_MAPPER="lvm"
-    fi
-
     if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
         echo -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" | cryptsetup --key-size=512 --key-file=- luksFormat $PARTITION_ROOT
-        echo -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" | cryptsetup --key-file=- open $PARTITION_ROOT $DEVICE_ROOT_MAPPER
+        echo -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" | cryptsetup --key-file=- open $PARTITION_ROOT $LVM_VOLUME_PHISICAL
         sleep 5
-
-        DEVICE_ROOT="/dev/mapper/$DEVICE_ROOT_MAPPER"
     fi
 
     if [ "$LVM" == "true" ]; then
-        pvcreate /dev/mapper/$DEVICE_ROOT_MAPPER
-        vgcreate lvm /dev/mapper/$DEVICE_ROOT_MAPPER
-        lvcreate -l 100%FREE -n lvroot $DEVICE_ROOT_MAPPER
+        pvcreate /dev/mapper/$LVM_VOLUME_PHISICAL
+        vgcreate $LVM_VOLUME_GROUP /dev/mapper/$LVM_VOLUME_PHISICAL
+        lvcreate -l 100%FREE -n $LVM_VOLUME_LOGICAL $LVM_VOLUME_GROUP
 
-        DEVICE_ROOT_MAPPER="lvm-lvroot"
-        DEVICE_ROOT="/dev/mapper/$DEVICE_ROOT_MAPPER"
+        DEVICE_ROOT="/dev/mapper/$LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL"
     fi
 
     if [ "$BIOS_TYPE" == "uefi" ]; then
@@ -390,8 +383,8 @@ function configuration() {
     arch-chroot /mnt hwclock --systohc
     sed -i "s/#$LOCALE/$LOCALE/" /mnt/etc/locale.gen
     arch-chroot /mnt locale-gen
-    echo $LANG > /mnt/etc/locale.conf
-    echo $KEYMAP > /mnt/etc/vconsole.conf
+    echo -e "$LANG\n$LANGUAGE" > /mnt/etc/locale.conf
+    echo -e "$KEYMAP\n$FONT\n$FONT_MAP" > /mnt/etc/vconsole.conf
     echo $HOSTNAME > /mnt/etc/hostname
 
     if [ -n "$SWAP_SIZE" ]; then
@@ -432,11 +425,13 @@ function mkinitcpio() {
     arch-chroot /mnt sed -i "s/MODULES=()/MODULES=($MODULES)/" /etc/mkinitcpio.conf
 
     if [ "$LVM" == "true" -a -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
-        arch-chroot /mnt sed -i 's/ filesystems / lvm2 encrypt keymap filesystems /' /etc/mkinitcpio.conf
+        arch-chroot /mnt sed -i 's/ block / keyboard keymap block /' /etc/mkinitcpio.conf
+        arch-chroot /mnt sed -i 's/ filesystems keyboard / encrypt lvm2 filesystems /' /etc/mkinitcpio.conf
     elif [ "$LVM" == "true" ]; then
         arch-chroot /mnt sed -i 's/ filesystems / lvm2 filesystems /' /etc/mkinitcpio.conf
     elif [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
-        arch-chroot /mnt sed -i 's/ filesystems / encrypt keymap filesystems /' /etc/mkinitcpio.conf
+        arch-chroot /mnt sed -i 's/ block / keyboard keymap block /' /etc/mkinitcpio.conf
+        arch-chroot /mnt sed -i 's/ filesystems keyboard / encrypt filesystems /' /etc/mkinitcpio.conf
     fi
 
     if [ "$KERNELS_COMPRESSION" != "" ]; then
@@ -447,7 +442,6 @@ function mkinitcpio() {
 }
 
 function bootloader() {
-    BOOTLOADER_DEVICE_ROOT_MAPPER=""
     BOOTLOADER_ALLOW_DISCARDS=""
 
     if [ "$CPU_INTEL" == "true" -a "$VIRTUALBOX" != "true" ]; then
@@ -460,11 +454,10 @@ function bootloader() {
         CMDLINE_LINUX_ROOT="root=PARTUUID=$PARTUUID_ROOT"
     fi
     if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
-        BOOTLOADER_DEVICE_ROOT_MAPPER=":$DEVICE_ROOT_MAPPER"
         if [ "$DEVICE_TRIM" == "true" ]; then
             BOOTLOADER_ALLOW_DISCARDS=":allow-discards"
         fi
-        CMDLINE_LINUX="cryptdevice=PARTUUID=$PARTUUID_ROOT$BOOTLOADER_DEVICE_ROOT_MAPPER$BOOTLOADER_ALLOW_DISCARDS"
+        CMDLINE_LINUX="cryptdevice=PARTUUID=$PARTUUID_ROOT:$LVM_VOLUME_PHISICAL$BOOTLOADER_ALLOW_DISCARDS"
     fi
 
     case "$BOOTLOADER" in
@@ -873,7 +866,7 @@ function yaourt_install() {
     PACKAGES=$1
     for VARIABLE in {1..5}
     do
-        arch-chroot /mnt bash -c "echo -e \"$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n\" | su $USER_NAME yaourt -Sy --noconfirm --needed $PACKAGES"
+        arch-chroot /mnt bash -c "echo -e \"$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n\" | su $USER_NAME -c \"yaourt -Sy --noconfirm --needed $PACKAGES\""
         if [ $? == 0 ]; then
             break
         else

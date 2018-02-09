@@ -49,7 +49,9 @@ PARTITION_BIOS=""
 PARTITION_BOOT=""
 PARTITION_ROOT=""
 DEVICE_ROOT=""
-DEVICE_ROOT_MAPPER=""
+LVM_PHISICAL_VOLUME="lvm"
+LVM_VOLUME_GROUP="vg"
+LVM_VOLUME_LOGICAL="root"
 BOOT_DIRECTORY=""
 ESP_DIRECTORY=""
 PARTITION_BOOT_NUMBER=0
@@ -184,14 +186,14 @@ function prepare_partition() {
         umount /mnt/boot
         umount /mnt
     fi
-    if [ -e /dev/mapper/root ]; then
+    if [ -e "/dev/mapper/$LVM_VOLUME_LOGICAL" ]; then
         if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
-            cryptsetup close root
+            cryptsetup close $LVM_VOLUME_LOGICAL
         fi
     fi
-    if [ -e /dev/mapper/lvm ]; then
+    if [ -e "/dev/mapper/$LVM_PHISICAL_VOLUME" ]; then
         if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
-            cryptsetup close lvm
+            cryptsetup close $LVM_PHISICAL_VOLUME
         fi
     fi
 }

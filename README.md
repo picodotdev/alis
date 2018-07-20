@@ -28,7 +28,7 @@ Currently these scripts are for me but maybe they are useful for you too.
 * Intel processors microcode
 * Users creation and add to sudoers
 * Common and custom packages installation
-* yaourt installation
+* AUR utility installation (aurman, yay)
 * Retry packages download on conection/mirror error
 * Desktop environments (GDM, KDE, XFCE, Mate, Cinnamon, LXDE), display managers (GDM, SDDM, Lightdm, lxdm) and no desktop environments
 * Additional kernels installation (linux-lts, linux-hardened, linux-zen)

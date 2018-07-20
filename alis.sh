@@ -92,7 +92,7 @@ function check_variables() {
     check_variables_value "USER_PASSWORD" "$USER_PASSWORD"
     check_variables_size "ADDITIONAL_USER_PASSWORDS" "${#ADDITIONAL_USER_NAMES_ARRAY[@]}" "${#ADDITIONAL_USER_PASSWORDS_ARRAY[@]}"
     check_variables_list "BOOTLOADER" "$BOOTLOADER" "grub refind systemd"
-    check_variables_boolean "YAOURT" "$YAOURT"
+    check_variables_list "AUR" "$AUR" "aurman yay"
     check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde" "false"
     check_variables_list "DISPLAY_DRIVER" "$DISPLAY_DRIVER" "xf86-video-intel xf86-video-amdgpu xf86-video-ati nvidia nvidia-340xx nvidia-304xx xf86-video-nouveau" "false"
     check_variables_boolean "REBOOT" "$REBOOT"
@@ -186,9 +186,9 @@ function facts() {
         CPU_INTEL="true"
     fi
 
-    if [ -n "$(lspci | grep -i virtualbox)" ]; then
-        VIRTUALBOX="true"
-    fi
+#    if [ -n "$(lspci | grep -i virtualbox)" ]; then
+#        VIRTUALBOX="true"
+#    fi
 }
 
 function check_facts() {
@@ -798,21 +798,27 @@ function packages() {
         pacman_install "$PACKAGES_PACMAN"
     fi
 
-    packages_yaourt
+    packages_aur
 }
 
-function packages_yaourt() {
-    if [ "$YAOURT" == "true" -o -n "$PACKAGES_YAOURT" ]; then
-        echo "" >> /mnt/etc/pacman.conf
-        echo "[archlinuxfr]" >> /mnt/etc/pacman.conf
-        echo "SigLevel=Optional TrustAll" >> /mnt/etc/pacman.conf
-        echo "Server=http://repo.archlinux.fr/\$arch" >> /mnt/etc/pacman.conf
+function packages_aur() {
+    if [ -n "$AUR" -o -n "$PACKAGES_AUR" ]; then
+        pacman_install "git"
 
-        pacman_install "yaourt"
+        arch-chroot /mnt sed -i 's/%wheel ALL=(ALL) ALL/%wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers
+        case "$AUR" in
+            "aurman" )
+                arch-chroot /mnt bash -c "echo -e \"$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n\" | su $USER_NAME -c \"cd /home/$USER_NAME && git clone https://aur.archlinux.org/$AUR.git && gpg --recv-key 465022E743D71E39 && (cd $AUR && makepkg -si --noconfirm) && rm -rf $AUR\""
+                ;;
+            "yay" )
+                arch-chroot /mnt bash -c "echo -e \"$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n\" | su $USER_NAME -c \"cd /home/$USER_NAME && git clone https://aur.archlinux.org/$AUR.git && (cd $AUR && makepkg -si --noconfirm) && rm -rf $AUR\""
+                ;;
+        esac
+        arch-chroot /mnt sed -i 's/%wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
     fi
 
-    if [ -n "$PACKAGES_YAOURT" ]; then
-        yaourt_install "$PACKAGES_YAOURT"
+    if [ -n "$PACKAGES_AUR" ]; then
+        aur_install "$PACKAGES_AUR"
     fi
 }
 
@@ -853,7 +859,7 @@ function pacman_install() {
     PACKAGES=$1
     for VARIABLE in {1..5}
     do
-        arch-chroot /mnt pacman -Sy --noconfirm $PACKAGES
+        arch-chroot /mnt pacman -Syu --noconfirm $PACKAGES
         if [ $? == 0 ]; then
             break
         else
@@ -862,11 +868,11 @@ function pacman_install() {
     done
 }
 
-function yaourt_install() {
+function aur_install() {
     PACKAGES=$1
     for VARIABLE in {1..5}
     do
-        arch-chroot /mnt bash -c "echo -e \"$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n\" | su $USER_NAME -c \"yaourt -Sy --noconfirm --needed $PACKAGES\""
+        arch-chroot /mnt bash -c "echo -e \"$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n\" | su $USER_NAME -c \"$AUR -Syu --noconfirm --needed $PACKAGES\""
         if [ $? == 0 ]; then
             break
         else

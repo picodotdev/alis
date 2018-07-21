@@ -78,6 +78,7 @@ function configuration_install() {
 
 function check_variables() {
     check_variables_value "KEYS" "$KEYS"
+    check_variables_boolean "LOG" "$LOG"
     check_variables_value "DEVICE" "$DEVICE"
     check_variables_boolean "LVM" "$LVM"
     check_variables_list "FILE_SYSTEM_TYPE" "$FILE_SYSTEM_TYPE" "ext4 btrfs xfs"
@@ -164,8 +165,10 @@ function init() {
 }
 
 function init_log() {
-    exec > >(tee -a $LOG)
-    exec 2> >(tee -a $LOG >&2)
+    if [ "$LOG" == "true" ]; then
+        exec > >(tee -a $LOG)
+        exec 2> >(tee -a $LOG >&2)
+    fi
     set -o xtrace
 }
 
@@ -823,8 +826,10 @@ function packages_aur() {
 }
 
 function terminate() {
-    mkdir -p /mnt/var/log
-    cp "$LOG" "/mnt/var/log/$LOG"
+    if [ "$LOG" == "true" ]; then
+        mkdir -p /mnt/var/log
+        cp "$LOG" "/mnt/var/log/$LOG"
+    fi
 }
 
 function end() {

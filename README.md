@@ -60,6 +60,10 @@ Currently these scripts are for me but maybe they are useful for you too.
 # ./alis-recovery.sh
 ```
 
+### Vídeo
+
+[![Vídeo](https://img.youtube.com/vi/Typc3vVXuxY/0.jpg)](https://www.youtube.com/watch?v=Typc3vVXuxY)
+
 ### Arch Linux Installation Media
 
 https://www.archlinux.org/download/

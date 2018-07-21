@@ -836,14 +836,22 @@ function end() {
     if [ "$REBOOT" == "true" ]; then
         echo -e "${GREEN}Arch Linux installed successfully"'!'"${NC}"
         echo ""
-        KEY="reboot"
-        for (( i = 15; i >= 1; i-- )); do
-            read -r -s -n 1 -t 1 -p "Rebooting in $i seconds... Press any key to abort."$'\n' KEY
-            if [ "$KEY" != 'reboot' ]; then
-                break
-            fi
-        done
-        if [ "$KEY" == 'reboot' ]; then
+
+        REBOOT="true"
+        if [ "$LOG" == "false" ]; then
+            set +e
+            KEY="reboot"
+            for (( i = 15; i >= 1; i-- )); do
+                read -r -s -n 1 -t 1 -p "Rebooting in $i seconds... Press any key to abort."$'\n' KEY
+                if [ "$KEY" != 'reboot' ]; then
+                    REBOOT="false"
+                    break
+                fi
+            done
+            set -e
+        fi
+
+        if [ "$REBOOT" == 'true' ]; then
             umount -R /mnt
             reboot
         else

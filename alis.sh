@@ -840,10 +840,9 @@ function end() {
         REBOOT="true"
         if [ "$LOG" == "false" ]; then
             set +e
-            KEY="reboot"
             for (( i = 15; i >= 1; i-- )); do
                 read -r -s -n 1 -t 1 -p "Rebooting in $i seconds... Press any key to abort."$'\n' KEY
-                if [ "$KEY" != 'reboot' ]; then
+                if [ $? -eq 0 ]; then
                     REBOOT="false"
                     break
                 fi

@@ -81,7 +81,7 @@ As another form of log.
 # ./alis-recovery.sh
 ```
 
-### Vídeo
+### Video
 
 [![asciicast](https://asciinema.org/a/192878.png)](https://asciinema.org/a/192878)
 

@@ -83,7 +83,7 @@ As another form of log.
 
 ### Video
 
-[![asciicast](https://asciinema.org/a/192878.png)](https://asciinema.org/a/192878)
+[![asciicast](https://asciinema.org/a/192880.png)](https://asciinema.org/a/192880)
 
 ### Arch Linux Installation Media
 

@@ -40,7 +40,7 @@ set -e
 # Usage:
 # # loadkeys es
 # # curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash, or with URL shortener curl -sL https://bit.ly/2F3CATp | bash
-# # vim alis.conf
+# # vim alis-recovery.conf
 # # ./alis-recovery.sh
 
 # global variables (no configuration, don't edit)
@@ -69,7 +69,6 @@ ADDITIONAL_USER_NAMES_ARRAY=()
 ADDITIONAL_USER_PASSWORDS_ARRAY=()
 MODULES=""
 
-LOG="alis-recovery.log"
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 LIGHT_BLUE='\033[1;34m'
@@ -145,14 +144,7 @@ function warning() {
 }
 
 function init() {
-    init_log
     loadkeys $KEYS
-}
-
-function init_log() {
-    exec > >(tee -a $LOG)
-    exec 2> >(tee -a $LOG >&2)
-    set -o xtrace
 }
 
 function facts() {

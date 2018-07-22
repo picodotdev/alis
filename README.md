@@ -36,6 +36,7 @@ Currently these scripts are for me but maybe they are useful for you too.
 * Graphics controllers (intel, nvidia, amd) with early KMS start
 * GRUB, rEFInd, systemd-boot bootloaders
 * Script for download installation and recovery scripts and configuration files
+* Installation log with all commands executed and output in a file and/or asciinema video
 * Wait after installation for a abortable reboot
 
 ### Installation
@@ -46,6 +47,8 @@ Currently these scripts are for me but maybe they are useful for you too.
 # curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash, or with URL shortener curl -sL https://bit.ly/2F3CATp | bash
 # # Edit alis.conf and change variables values with your preferences
 # vim alis.conf
+# # Optional asciinema video
+# ./alis-asciinema.sh
 # ./alis.sh
 ```
 
@@ -57,6 +60,8 @@ Currently these scripts are for me but maybe they are useful for you too.
 # curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash, or with URL shortener curl -sL https://bit.ly/2F3CATp | bash
 # # Edit alis-recovery.conf and change variables values with your last installation with alis
 # vim alis-recovery.conf
+# # Optional asciinema video
+# ./alis-asciinema-recovery.sh
 # ./alis-recovery.sh
 ```
 

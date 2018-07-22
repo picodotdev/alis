@@ -40,6 +40,7 @@ set -e
 # # ./alis.sh
 
 # global variables (no configuration, don't edit)
+ASCIINEMA=""
 BIOS_TYPE=""
 PARTITION_BIOS=""
 PARTITION_BOOT=""
@@ -177,6 +178,12 @@ function facts() {
         BIOS_TYPE="uefi"
     else
         BIOS_TYPE="bios"
+    fi
+
+    if [ -f alis.asciinema ]; then
+        ASCIINEMA="true"
+    else
+        ASCIINEMA="false"
     fi
 
     if [ -n "$(hdparm -I $DEVICE | grep TRIM)" ]; then
@@ -838,32 +845,42 @@ function end() {
         echo ""
 
         REBOOT="true"
-        if [ "$LOG" == "false" ]; then
+        if [ "$ASCIINEMA" == "false" ]; then
             set +e
             for (( i = 15; i >= 1; i-- )); do
                 read -r -s -n 1 -t 1 -p "Rebooting in $i seconds... Press any key to abort."$'\n' KEY
                 if [ $? -eq 0 ]; then
+                    echo ""
+                    echo "Restart aborted. You will must do a explicit reboot (./alis-reboot.sh)."
+                    echo ""
                     REBOOT="false"
                     break
                 fi
             done
             set -e
+        else
+            echo ""
+            echo "Restart aborted. You will must terminate asciinema recording and do a explicit reboot (exit, ./alis-reboot.sh)."
+            echo ""
+            REBOOT="false"
         fi
 
         if [ "$REBOOT" == 'true' ]; then
             umount -R /mnt
             reboot
-        else
-            echo ""
-            echo "Restart aborted. You will must do a explicit reboot (umount -R /mnt, reboot)."
-            echo ""
         fi
     else
-       echo ""
-       echo -e "${GREEN}Arch Linux installed successfully"'!'"${NC}"
-       echo ""
-       echo "You will must do a explicit reboot (umount -R /mnt, reboot)."
-       echo ""
+        echo ""
+        echo -e "${GREEN}Arch Linux installed successfully"'!'"${NC}"
+        if [ "$ASCIINEMA" == "false" ]; then
+            echo ""
+            echo "You will must do a explicit reboot (./alis-reboot.sh)."
+            echo ""
+        else
+            echo ""
+            echo "You will must terminate asciinema recording and do a explicit reboot (exit, ./alis-reboot.sh)."
+            echo ""
+        fi
     fi
 }
 

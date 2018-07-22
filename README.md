@@ -47,9 +47,21 @@ Currently these scripts are for me but maybe they are useful for you too.
 # curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash, or with URL shortener curl -sL https://bit.ly/2F3CATp | bash
 # # Edit alis.conf and change variables values with your preferences
 # vim alis.conf
-# # Optional asciinema video
-# ./alis-asciinema.sh
 # ./alis.sh
+```
+
+### Installation with asciinema
+
+```
+# # Start the system with lastest Arch Linux installation media
+# loadkeys [keymap]
+# curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash, or with URL shortener curl -sL https://bit.ly/2F3CATp | bash
+# ./alis-asciinema.sh
+# # Edit alis.conf and change variables values with your preferences
+# vim alis.conf
+# ./alis.sh
+# exit
+# ./alis-reboot.sh
 ```
 
 ### Recovery

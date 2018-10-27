@@ -196,9 +196,9 @@ function facts() {
         CPU_INTEL="true"
     fi
 
-#    if [ -n "$(lspci | grep -i virtualbox)" ]; then
-#        VIRTUALBOX="true"
-#    fi
+    if [ -n "$(lspci | grep -i virtualbox)" ]; then
+        VIRTUALBOX="true"
+    fi
 }
 
 function check_facts() {
@@ -409,13 +409,13 @@ function network() {
     arch-chroot /mnt systemctl enable NetworkManager.service
 }
 
-function virtualbox() {
-    if [ -z "$KERNELS" ]; then
-        pacman_install "virtualbox-guest-utils virtualbox-guest-modules-arch"
-    else
-        pacman_install "virtualbox-guest-utils virtualbox-guest-dkms"
-    fi
-}
+#function virtualbox() {
+#    if [ -z "$KERNELS" ]; then
+#        pacman_install "virtualbox-guest-utils virtualbox-guest-modules-arch"
+#    else
+#        pacman_install "virtualbox-guest-utils virtualbox-guest-dkms"
+#    fi
+#}
 
 function mkinitcpio() {
     case "$DISPLAY_DRIVER" in
@@ -923,9 +923,9 @@ function main() {
     kernels
     configuration
     network
-    if [ "$VIRTUALBOX" == "true" ]; then
-        virtualbox
-    fi
+#    if [ "$VIRTUALBOX" == "true" ]; then
+#        virtualbox
+#    fi
     users
     mkinitcpio
     bootloader

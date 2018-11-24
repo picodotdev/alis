@@ -63,7 +63,6 @@ CMDLINE_LINUX_ROOT=""
 CMDLINE_LINUX=""
 ADDITIONAL_USER_NAMES_ARRAY=()
 ADDITIONAL_USER_PASSWORDS_ARRAY=()
-MODULES=""
 
 LOG="alis.log"
 RED='\033[0;31m'
@@ -96,7 +95,11 @@ function check_variables() {
     check_variables_list "BOOTLOADER" "$BOOTLOADER" "grub refind systemd"
     check_variables_list "AUR" "$AUR" "aurman yay"
     check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde" "false"
-    check_variables_list "DISPLAY_DRIVER" "$DISPLAY_DRIVER" "xf86-video-intel xf86-video-amdgpu xf86-video-ati nvidia nvidia-340xx nvidia-304xx xf86-video-nouveau" "false"
+    check_variables_list "DISPLAY_DRIVER" "$DISPLAY_DRIVER" "intel amdgpu ati nvidia nvidia-lts nvidia-390xx nvidia-390xx-lts nvidia-340xx nvidia-340xx-lts nouveau" "false"
+    check_variables_boolean "KMS" "$KMS"
+    check_variables_boolean "DISPLAY_DRIVER_DDX" "$DISPLAY_DRIVER_DDX"
+    check_variables_boolean "DISPLAY_DRIVER_HARDWARE_ACCELERATION" "$DISPLAY_DRIVER_HARDWARE_ACCELERATION"
+    check_variables_list "DISPLAY_DRIVER_HARDWARE_ACCELERATION_INTEL" "$DISPLAY_DRIVER_HARDWARE_ACCELERATION_INTEL" "intel-media-driver libva-intel-driver" "false"
     check_variables_boolean "REBOOT" "$REBOOT"
 }
 
@@ -364,7 +367,13 @@ function install() {
     if [ -n "$PACMAN_MIRROR" ]; then
         echo "Server=$PACMAN_MIRROR" > /etc/pacman.d/mirrorlist
     fi
+    sed -i 's/#Color/Color/' /etc/pacman.conf
+    sed -i 's/#TotalDownload/TotalDownload/' /etc/pacman.conf
+
     pacstrap /mnt base base-devel
+
+    sed -i 's/#Color/Color/' /mnt/etc/pacman.conf
+    sed -i 's/#TotalDownload/TotalDownload/' /mnt/etc/pacman.conf
 }
 
 function kernels() {
@@ -409,30 +418,36 @@ function network() {
     arch-chroot /mnt systemctl enable NetworkManager.service
 }
 
-#function virtualbox() {
-#    if [ -z "$KERNELS" ]; then
-#        pacman_install "virtualbox-guest-utils virtualbox-guest-modules-arch"
-#    else
-#        pacman_install "virtualbox-guest-utils virtualbox-guest-dkms"
-#    fi
-#}
+function virtualbox() {
+    if [ -z "$KERNELS" ]; then
+        pacman_install "virtualbox-guest-utils virtualbox-guest-modules-arch"
+    else
+        pacman_install "virtualbox-guest-utils virtualbox-guest-dkms"
+    fi
+}
 
 function mkinitcpio() {
-    case "$DISPLAY_DRIVER" in
-        "xf86-video-intel" )
-            MODULES="i915"
-            ;;
-        "xf86-video-amdgpu" )
-            MODULES="amdgpu"
-            ;;
-        "xf86-video-ati" )
-            MODULES="radeon"
-            ;;
-        "xf86-video-nouveau" )
-            MODULES="nouveau"
-            ;;
-    esac
-    arch-chroot /mnt sed -i "s/MODULES=()/MODULES=($MODULES)/" /etc/mkinitcpio.conf
+    MODULES=""
+    if [ "$KMS" == "true" ]; then
+        case "$DISPLAY_DRIVER" in
+            "intel" )
+                MODULES="i915"
+                ;;
+            "nvidia" | "nvidia-390xx" | "nvidia-390xx-lts" )
+                MODULES="nvidia nvidia_modeset nvidia_uvm nvidia_drm"
+                ;;
+            "amdgpu" )
+                MODULES="amdgpu"
+                ;;
+            "ati" )
+                MODULES="radeon"
+                ;;
+            "nouveau" )
+                MODULES="nouveau"
+                ;;
+        esac
+        arch-chroot /mnt sed -i "s/MODULES=()/MODULES=($MODULES)/" /etc/mkinitcpio.conf
+    fi
 
     if [ "$LVM" == "true" -a -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
         arch-chroot /mnt sed -i 's/ block / keyboard keymap block /' /etc/mkinitcpio.conf
@@ -457,7 +472,6 @@ function bootloader() {
     if [ "$CPU_INTEL" == "true" -a "$VIRTUALBOX" != "true" ]; then
         pacman_install "intel-ucode"
     fi
-
     if [ "$LVM" == "true" ]; then
         CMDLINE_LINUX_ROOT="root=$DEVICE_ROOT"
     else
@@ -468,6 +482,13 @@ function bootloader() {
             BOOTLOADER_ALLOW_DISCARDS=":allow-discards"
         fi
         CMDLINE_LINUX="cryptdevice=PARTUUID=$PARTUUID_ROOT:$LVM_VOLUME_PHISICAL$BOOTLOADER_ALLOW_DISCARDS"
+    fi
+    if [ "$KMS" == "true" ]; then
+        case "$DISPLAY_DRIVER" in
+            "nvidia" | "nvidia-390xx" | "nvidia-390xx-lts" )
+                CMDLINE_LINUX="$CMDLINE_LINUX nvidia-drm.modeset=1"
+                ;;
+        esac
     fi
 
     case "$BOOTLOADER" in
@@ -717,34 +738,82 @@ function create_user() {
 }
 
 function desktop_environment() {
+    PACKAGES_DRIVER=""
+    PACKAGES_DDX=""
+    PACKAGES_VULKAN=""
+    PACKAGES_HARDWARE_ACCELERATION=""
     case "$DISPLAY_DRIVER" in
-        "xf86-video-intel" )
-            MESA_LIBGL="mesa-libgl"
+        "nvidia" )
+            PACKAGES_DRIVER="nvidia nvidia-dkms"
             ;;
-        "xf86-video-ati" )
-            MESA_LIBGL="mesa-libgl"
+        "nvidia-lts" )
+            PACKAGES_DRIVER="nvidia-lts nvidia-dkms"
             ;;
-        "xf86-video-amdgpu" )
-            MESA_LIBGL="mesa-libgl"
+        "nvidia-390xx" )
+            PACKAGES_DRIVER="nvidia-390xx nvidia-390xx-dkms"
             ;;
-        "xf86-video-nouveau" )
-            MESA_LIBGL="mesa-libgl"
-            ;;
-         "nvidia" )
-            MESA_LIBGL="nvidia-libgl"
+        "nvidia-390xx-lts" )
+            PACKAGES_DRIVER="nvidia-390xx-lts nvidia-390xx-dkms"
             ;;
         "nvidia-340xx" )
-            MESA_LIBGL="nvidia-340xx-libgl"
+            PACKAGES_DRIVER="nvidia-340xx nvidia-340xx-dkms"
             ;;
-        "nvidia-304xx" )
-            MESA_LIBGL="nvidia-304xx-libgl"
-            ;;
-        * )
-            MESA_LIBGL="mesa-libgl"
+        "nvidia-340xx-lts" )
+            PACKAGES_DRIVER="nvidia-340xx-lts nvidia-340xx-dkms"
             ;;
     esac
-
-    pacman_install "xorg-server xorg-apps $DISPLAY_DRIVER mesa $MESA_LIBGL"
+    if [ "$DISPLAY_DRIVER_DDX" == "true" ]; then
+        case "$DISPLAY_DRIVER" in
+            "intel" )
+                PACKAGES_DDX="xf86-video-intel"
+                ;;
+            "amdgpu" )
+                PACKAGES_DDX="xf86-video-amdgpu"
+                ;;
+            "ati" )
+                PACKAGES_DDX="xf86-video-ati"
+                ;;
+            "nouveau" )
+                PACKAGES_DDX="xf86-video-nouveau"
+                ;;
+        esac
+    fi
+    if [ "$VULKAN" == "true" ]; then
+        case "$DISPLAY_DRIVER" in
+            "intel" )
+                PACKAGES_VULKAN="vulkan-icd-loader vulkan-intel"
+                ;;
+            "amdgpu" )
+                PACKAGES_VULKAN="vulkan-icd-loader vulkan-radeon"
+                ;;
+            "ati" )
+                PACKAGES_VULKAN=""
+                ;;
+            "nouveau" )
+                PACKAGES_VULKAN=""
+                ;;
+        esac
+    fi
+    if [ "$DISPLAY_DRIVER_HARDWARE_ACCELERATION" == "true" ]; then
+        case "$DISPLAY_DRIVER" in
+            "intel" )
+                PACKAGES_HARDWARE_ACCELERATION="intel-media-driver"
+                if [ -n "$DISPLAY_DRIVER_HARDWARE_ACCELERATION_INTEL" ]; then
+                    PACKAGES_HARDWARE_ACCELERATION=$DISPLAY_DRIVER_HARDWARE_ACCELERATION_INTEL
+                fi
+                ;;
+            "amdgpu" )
+                PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
+                ;;
+            "ati" )
+                PACKAGES_HARDWARE_ACCELERATION="mesa-vdpau"
+                ;;
+            "nouveau" )
+                PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
+                ;;
+        esac
+    fi
+    pacman_install "mesa $PACKAGES_DRIVER $PACKAGES_DDX $PACKAGES_VULKAN $PACKAGES_HARDWARE_ACCELERATION"
 
     case "$DESKTOP_ENVIRONMENT" in
         "gnome" )
@@ -866,6 +935,7 @@ function end() {
         fi
 
         if [ "$REBOOT" == 'true' ]; then
+            umount -R /mnt/boot
             umount -R /mnt
             reboot
         fi
@@ -923,9 +993,9 @@ function main() {
     kernels
     configuration
     network
-#    if [ "$VIRTUALBOX" == "true" ]; then
-#        virtualbox
-#    fi
+    if [ "$VIRTUALBOX" == "true" ]; then
+        virtualbox
+    fi
     users
     mkinitcpio
     bootloader

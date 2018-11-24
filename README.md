@@ -35,7 +35,7 @@ Currently these scripts are for me but maybe they are useful for you too.
 * Desktop environments (GDM, KDE, XFCE, Mate, Cinnamon, LXDE), display managers (GDM, SDDM, Lightdm, lxdm) and no desktop environments
 * Additional kernels installation (linux-lts, linux-hardened, linux-zen)
 * Kernels compression
-* Graphics controllers (intel, nvidia, amd) with early KMS start
+* Graphics controllers (intel, nvidia, amd) with optionaly early KMS start
 * GRUB, rEFInd, systemd-boot bootloaders
 * Script for download installation and recovery scripts and configuration files
 * Installation log with all commands executed and output in a file and/or asciinema video
@@ -117,8 +117,10 @@ https://www.archlinux.org/download/
 * https://wiki.archlinux.org/index.php/VirtualBox
 * https://wiki.archlinux.org/index.php/Mkinitcpio
 * https://wiki.archlinux.org/index.php/Intel_graphics
-* https://wiki.archlinux.org/index.php/NVIDIA
+* https://wiki.archlinux.org/index.php/AMDGPU
 * https://wiki.archlinux.org/index.php/ATI
+* https://wiki.archlinux.org/index.php/NVIDIA
+* https://wiki.archlinux.org/index.php/Nouveau
 * https://wiki.archlinux.org/index.php/Kernels
 * https://wiki.archlinux.org/index.php/Kernel_mode_setting
 * https://wiki.archlinux.org/index.php/Kernel_parameters

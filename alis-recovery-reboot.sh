@@ -12,5 +12,6 @@ if [ -f alis-recovery.asciinema ]; then
     cp alis-recovery.asciinema /mnt/var/log/alis-recovery.asciinema
 fi
 
+umount -R /mnt/boot
 umount -R /mnt
 reboot

@@ -17,15 +17,14 @@ Currently these scripts are for me but maybe they are useful for you too.
 
 ### Features
 
-* GPT
-* UEFI, BIOS
+* GPT, UEFI, BIOS
 * LVM and no LVM
 * _root_ partition encrypted and no encrypted
 * LVM on LUKS when LVM and encrypted
 * File system formats ext4, btrfs (no swap), xfs
 * Optional file swap
 * WPA WIFI network installation
-* TRIM for SSD storage
+* Periodic TRIM for SSD storage
 * VirtualBox guest utils
 * Intel processors microcode
 * Users creation and add to sudoers

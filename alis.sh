@@ -341,7 +341,7 @@ function partition() {
     PARTITION_OPTIONS=""
 
     if [ "$DEVICE_TRIM" == "true" ]; then
-        PARTITION_OPTIONS="defaults,noatime,discard"
+        PARTITION_OPTIONS="defaults,noatime"
     fi
 
     mount -o "$PARTITION_OPTIONS" "$DEVICE_ROOT" /mnt
@@ -374,6 +374,10 @@ function install() {
 
     sed -i 's/#Color/Color/' /mnt/etc/pacman.conf
     sed -i 's/#TotalDownload/TotalDownload/' /mnt/etc/pacman.conf
+
+    if [ "$DEVICE_TRIM" == "true" ]; then
+        arch-chroot /mnt systemctl enable fstrim.timer
+    fi
 }
 
 function kernels() {
@@ -393,8 +397,7 @@ function configuration() {
     fi
 
     if [ "$DEVICE_TRIM" == "true" ]; then
-        sed -i 's/relatime/noatime,discard/' /mnt/etc/fstab
-        sed -i 's/swap defaults/swap defaults,discard/' /mnt/etc/fstab
+        sed -i 's/relatime/noatime/' /mnt/etc/fstab
         sed -i 's/issue_discards = 0/issue_discards = 1/' /mnt/etc/lvm/lvm.conf
     fi
 

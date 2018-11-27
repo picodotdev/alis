@@ -18,6 +18,7 @@ Currently these scripts are for me but maybe they are useful for you too.
 ### Features
 
 * GPT, UEFI, BIOS
+* Support for SATA and NVMe
 * LVM and no LVM
 * _root_ partition encrypted and no encrypted
 * LVM on LUKS when LVM and encrypted
@@ -98,6 +99,7 @@ https://www.archlinux.org/download/
 * https://wiki.archlinux.org/index.php/Wireless_network_configuration
 * https://wiki.archlinux.org/index.php/NetworkManager
 * https://wiki.archlinux.org/index.php/Solid_State_Drives
+* https://wiki.archlinux.org/index.php/Solid_state_drive/NVMe
 * https://wiki.archlinux.org/index.php/Partitioning
 * https://wiki.archlinux.org/index.php/Fstab
 * https://wiki.archlinux.org/index.php/Swap

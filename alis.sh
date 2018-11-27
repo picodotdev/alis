@@ -56,6 +56,8 @@ UUID_BOOT=""
 UUID_ROOT=""
 PARTUUID_BOOT=""
 PARTUUID_ROOT=""
+DEVICE_SATA=""
+DEVICE_NVME=""
 DEVICE_TRIM=""
 CPU_INTEL=""
 VIRTUALBOX=""
@@ -197,6 +199,14 @@ function facts() {
         DEVICE_TRIM="false"
     fi
 
+    DEVICE_SATA="false"
+    DEVICE_NVME="false"
+    if [ -n "$(echo $DEVICE | grep \"^/dev/sda\")" ]; then
+        DEVICE_SATA="true"
+    elif [ -n "$(echo $DEVICE | grep \"^/dev/nvme\")" ]; them
+        DEVICE_NVME="true"
+    fi
+
     if [ -n "$(lscpu | grep GenuineIntel)" ]; then
         CPU_INTEL="true"
     fi
@@ -273,21 +283,36 @@ function partition() {
     wipefs -a $DEVICE
 
     if [ "$BIOS_TYPE" == "uefi" ]; then
-        PARTITION_BOOT="${DEVICE}1"
-        PARTITION_ROOT="${DEVICE}2"
-        #PARTITION_BOOT_NUMBER=1
-        DEVICE_ROOT="${DEVICE}2"
+        if [ "$DEVICE_SATA" == "true" ]; then
+            PARTITION_BOOT="${DEVICE}1"
+            PARTITION_ROOT="${DEVICE}2"
+            #PARTITION_BOOT_NUMBER=1
+            DEVICE_ROOT="${DEVICE}2"
+        elif [ "$DEVICE_NVME" == "true" ]; them
+            PARTITION_BOOT="${DEVICE}p1"
+            PARTITION_ROOT="${DEVICE}p2"
+            #PARTITION_BOOT_NUMBER=1
+            DEVICE_ROOT="${DEVICE}p2"
+        fi
 
         parted -s $DEVICE mklabel gpt mkpart primary fat32 1MiB 512MiB mkpart primary $FILE_SYSTEM_TYPE 512MiB 100% set 1 boot on
         sgdisk -t=1:ef00 $DEVICE
     fi
 
     if [ "$BIOS_TYPE" == "bios" ]; then
-        PARTITION_BIOS="${DEVICE}1"
-        PARTITION_BOOT="${DEVICE}2"
-        PARTITION_ROOT="${DEVICE}3"
-        #PARTITION_BOOT_NUMBER=2
-        DEVICE_ROOT="${DEVICE}3"
+        if [ "$DEVICE_SATA" == "true" ]; then
+            PARTITION_BIOS="${DEVICE}1"
+            PARTITION_BOOT="${DEVICE}2"
+            PARTITION_ROOT="${DEVICE}3"
+            #PARTITION_BOOT_NUMBER=2
+            DEVICE_ROOT="${DEVICE}3"
+        elif [ "$DEVICE_NVME" == "true" ]; them
+            PARTITION_BIOS="${DEVICE}p1"
+            PARTITION_BOOT="${DEVICE}p2"
+            PARTITION_ROOT="${DEVICE}p3"
+            #PARTITION_BOOT_NUMBER=2
+            DEVICE_ROOT="${DEVICE}p3"
+        fi
 
         parted -s $DEVICE mklabel gpt mkpart primary fat32 1MiB 128MiB mkpart primary $FILE_SYSTEM_TYPE 128MiB 512MiB mkpart primary $FILE_SYSTEM_TYPE 512MiB 100% set 1 boot on
         sgdisk -t=1:ef02 $DEVICE
@@ -309,35 +334,18 @@ function partition() {
 
     if [ "$BIOS_TYPE" == "uefi" ]; then
         wipefs -a $PARTITION_BOOT
+        wipefs -a $DEVICE_ROOT
         mkfs.fat -n ESP -F32 $PARTITION_BOOT
-        if [ "$FILE_SYSTEM_TYPE" == "ext4" ]; then
-            wipefs -a $DEVICE_ROOT
-            mkfs."$FILE_SYSTEM_TYPE" -L root -E discard $DEVICE_ROOT
-        else
-            wipefs -a $DEVICE_ROOT
-            mkfs."$FILE_SYSTEM_TYPE" -L root $DEVICE_ROOT
-        fi
+        mkfs."$FILE_SYSTEM_TYPE" -L root $DEVICE_ROOT
     fi
 
     if [ "$BIOS_TYPE" == "bios" ]; then
         wipefs -a $PARTITION_BIOS
+        wipefs -a $PARTITION_BOOT
+        wipefs -a $DEVICE_ROOT
         mkfs.fat -n BIOS -F32 $PARTITION_BIOS
-        if [ "$FILE_SYSTEM_TYPE" == "ext4" ]; then
-            wipefs -a $PARTITION_BOOT
-            wipefs -a $DEVICE_ROOT
-            mkfs."$FILE_SYSTEM_TYPE" -L boot -E discard $PARTITION_BOOT
-            mkfs."$FILE_SYSTEM_TYPE" -L root -E discard $DEVICE_ROOT
-        elif [ "$FILE_SYSTEM_TYPE" == "xfs" ]; then
-            wipefs -a $PARTITION_BOOT
-            wipefs -a $DEVICE_ROOT
-            mkfs."$FILE_SYSTEM_TYPE" -L boot -f $PARTITION_BOOT
-            mkfs."$FILE_SYSTEM_TYPE" -L root -f $DEVICE_ROOT
-        else
-            wipefs -a $PARTITION_BOOT
-            wipefs -a $DEVICE_ROOT
-            mkfs."$FILE_SYSTEM_TYPE" -L boot $PARTITION_BOOT
-            mkfs."$FILE_SYSTEM_TYPE" -L root $DEVICE_ROOT
-        fi
+        mkfs."$FILE_SYSTEM_TYPE" -L boot $PARTITION_BOOT
+        mkfs."$FILE_SYSTEM_TYPE" -L root $DEVICE_ROOT
     fi
 
     PARTITION_OPTIONS=""

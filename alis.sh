@@ -78,6 +78,27 @@ function configuration_install() {
     ADDITIONAL_USER_PASSWORDS_ARRAY=($ADDITIONAL_USER_PASSWORDS)
 }
 
+function sanitize_variables() {
+    DEVICE=$(sanitize_variable "$DEVICE")
+    KERNELS=$(sanitize_variable "$KERNELS")
+    KERNELS_COMPRESSION=$(sanitize_variable "$KERNELS_COMPRESSION")
+    DESKTOP_ENVIRONMENT=$(sanitize_variable "$DESKTOP_ENVIRONMENT")
+    DISPLAY_DRIVER=$(sanitize_variable "$DISPLAY_DRIVER")
+    DISPLAY_DRIVER_HARDWARE_ACCELERATION_INTEL=$(sanitize_variable "$DISPLAY_DRIVER_HARDWARE_ACCELERATION_INTEL")
+    PACKAGES_PACMAN=$(sanitize_variable "$PACKAGES_PACMAN")
+    AUR=$(sanitize_variable "$AUR")
+    PACKAGES_AUR=$(sanitize_variable "$PACKAGES_AUR")
+}
+
+function sanitize_variable() {
+    VARIABLE=$1
+    VARIABLE=$(echo $VARIABLE | sed "s/![^ ]*//g") # remove disabled packages
+    VARIABLE=$(echo $VARIABLE | sed "s/ {2,}/ /g") # remove innecesary white spaces
+    VARIABLE=$(echo $VARIABLE | sed 's/^[[:space:]]*//') # trim leading
+    VARIABLE=$(echo $VARIABLE | sed 's/[[:space:]]*$//') # trim trailing
+    echo "$VARIABLE"
+}
+
 function check_variables() {
     check_variables_value "KEYS" "$KEYS"
     check_variables_boolean "LOG" "$LOG"
@@ -995,6 +1016,7 @@ function aur_install() {
 
 function main() {
     configuration_install
+    sanitize_variables
     check_variables
     warning
     init

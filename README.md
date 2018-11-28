@@ -95,6 +95,7 @@ https://www.archlinux.org/download/
 * https://wiki.archlinux.org/index.php/Main_page
 * https://wiki.archlinux.org/index.php/General_recommendations
 * https://wiki.archlinux.org/index.php/List_of_applications
+* https://wiki.archlinux.org/index.php/Intel_NUC
 * https://wiki.archlinux.org/index.php/Network_configuration
 * https://wiki.archlinux.org/index.php/Wireless_network_configuration
 * https://wiki.archlinux.org/index.php/NetworkManager

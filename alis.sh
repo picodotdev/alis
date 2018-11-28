@@ -318,6 +318,9 @@ function partition() {
 
         parted -s $DEVICE mklabel gpt mkpart primary fat32 1MiB 512MiB mkpart primary $FILE_SYSTEM_TYPE 512MiB 100% set 1 boot on
         sgdisk -t=1:ef00 $DEVICE
+        if [ "$LVM" == "true" ]; then
+            sgdisk -t=2:8e00 $DEVICE
+        fi
     fi
 
     if [ "$BIOS_TYPE" == "bios" ]; then
@@ -337,6 +340,9 @@ function partition() {
 
         parted -s $DEVICE mklabel gpt mkpart primary fat32 1MiB 128MiB mkpart primary $FILE_SYSTEM_TYPE 128MiB 512MiB mkpart primary $FILE_SYSTEM_TYPE 512MiB 100% set 1 boot on
         sgdisk -t=1:ef02 $DEVICE
+        if [ "$LVM" == "true" ]; then
+            sgdisk -t=3:8e00 $DEVICE
+        fi
     fi
 
     if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then

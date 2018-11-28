@@ -92,8 +92,8 @@ function sanitize_variables() {
 
 function sanitize_variable() {
     VARIABLE=$1
-    VARIABLE=$(echo $VARIABLE | sed "s/![^ ]*//g") # remove disabled packages
-    VARIABLE=$(echo $VARIABLE | sed "s/ {2,}/ /g") # remove innecesary white spaces
+    VARIABLE=$(echo $VARIABLE | sed "s/![^ ]*//g") # remove disabled
+    VARIABLE=$(echo $VARIABLE | sed "s/ {2,}/ /g") # remove unnecessary white spaces
     VARIABLE=$(echo $VARIABLE | sed 's/^[[:space:]]*//') # trim leading
     VARIABLE=$(echo $VARIABLE | sed 's/[[:space:]]*$//') # trim trailing
     echo "$VARIABLE"

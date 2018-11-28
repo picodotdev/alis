@@ -222,9 +222,9 @@ function facts() {
 
     DEVICE_SATA="false"
     DEVICE_NVME="false"
-    if [ -n "$(echo $DEVICE | grep \"^/dev/sda\")" ]; then
+    if [ -n "$(echo $DEVICE | grep "^/dev/sda")" ]; then
         DEVICE_SATA="true"
-    elif [ -n "$(echo $DEVICE | grep \"^/dev/nvme\")" ]; them
+    elif [ -n "$(echo $DEVICE | grep "^/dev/nvme")" ]; then
         DEVICE_NVME="true"
     fi
 
@@ -309,7 +309,7 @@ function partition() {
             PARTITION_ROOT="${DEVICE}2"
             #PARTITION_BOOT_NUMBER=1
             DEVICE_ROOT="${DEVICE}2"
-        elif [ "$DEVICE_NVME" == "true" ]; them
+        elif [ "$DEVICE_NVME" == "true" ]; then
             PARTITION_BOOT="${DEVICE}p1"
             PARTITION_ROOT="${DEVICE}p2"
             #PARTITION_BOOT_NUMBER=1
@@ -327,7 +327,7 @@ function partition() {
             PARTITION_ROOT="${DEVICE}3"
             #PARTITION_BOOT_NUMBER=2
             DEVICE_ROOT="${DEVICE}3"
-        elif [ "$DEVICE_NVME" == "true" ]; them
+        elif [ "$DEVICE_NVME" == "true" ]; then
             PARTITION_BIOS="${DEVICE}p1"
             PARTITION_BOOT="${DEVICE}p2"
             PARTITION_ROOT="${DEVICE}p3"

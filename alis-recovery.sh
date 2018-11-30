@@ -44,30 +44,30 @@ set -e
 # # ./alis-recovery.sh
 
 # global variables (no configuration, don't edit)
+ASCIINEMA=""
 BIOS_TYPE=""
 PARTITION_BIOS=""
 PARTITION_BOOT=""
 PARTITION_ROOT=""
 DEVICE_ROOT=""
-LVM_PHISICAL_VOLUME="lvm"
+LVM_VOLUME_PHISICAL="lvm"
 LVM_VOLUME_GROUP="vg"
 LVM_VOLUME_LOGICAL="root"
 BOOT_DIRECTORY=""
 ESP_DIRECTORY=""
-PARTITION_BOOT_NUMBER=0
+#PARTITION_BOOT_NUMBER=0
 UUID_BOOT=""
 UUID_ROOT=""
 PARTUUID_BOOT=""
 PARTUUID_ROOT=""
-DEVICE_TRIM=""
-ALLOW_DISCARDS=""
+DEVICE_SATA=""
+DEVICE_NVME=""
 CPU_INTEL=""
 VIRTUALBOX=""
 CMDLINE_LINUX_ROOT=""
 CMDLINE_LINUX=""
 ADDITIONAL_USER_NAMES_ARRAY=()
 ADDITIONAL_USER_PASSWORDS_ARRAY=()
-MODULES=""
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -78,10 +78,24 @@ function configuration_install() {
     source alis-recovery.conf
 }
 
+function sanitize_variables() {
+    DEVICE=$(sanitize_variable "$DEVICE")
+}
+
+function sanitize_variable() {
+    VARIABLE=$1
+    VARIABLE=$(echo $VARIABLE | sed "s/![^ ]*//g") # remove disabled
+    VARIABLE=$(echo $VARIABLE | sed "s/ {2,}/ /g") # remove unnecessary white spaces
+    VARIABLE=$(echo $VARIABLE | sed 's/^[[:space:]]*//') # trim leading
+    VARIABLE=$(echo $VARIABLE | sed 's/[[:space:]]*$//') # trim trailing
+    echo "$VARIABLE"
+}
+
 function check_variables() {
     check_variables_value "KEYS" "$KEYS"
     check_variables_value "DEVICE" "$DEVICE"
     check_variables_boolean "LVM" "$LVM"
+    check_variables_equals "PARTITION_ROOT_ENCRYPTION_PASSWORD" "PARTITION_ROOT_ENCRYPTION_PASSWORD_RETYPE" "$PARTITION_ROOT_ENCRYPTION_PASSWORD" "$PARTITION_ROOT_ENCRYPTION_PASSWORD_RETYPE"
     check_variables_value "PING_HOSTNAME" "$PING_HOSTNAME"
 }
 
@@ -115,6 +129,17 @@ function check_variables_list() {
     fi
 }
 
+function check_variables_equals() {
+    NAME1=$1
+    NAME2=$2
+    VALUE1=$3
+    VALUE2=$4
+    if [ "$VALUE1" != "$VALUE2" ]; then
+        echo "$NAME1 and $NAME2 must be equal [$VALUE1, $VALUE2]."
+        exit
+    fi
+}
+
 function check_variables_size() {
     NAME=$1
     SIZE_EXPECT=$2
@@ -130,7 +155,7 @@ function warning() {
     echo ""
     echo "Once finalized recovery tasks execute following commands: exit, umount -R /mnt, reboot."
     echo ""
-    read -p "Do you want to continue? [y/n] " yn
+    read -p "Do you want to continue? [y/N] " yn
     case $yn in
         [Yy]* )
             ;;
@@ -144,7 +169,12 @@ function warning() {
 }
 
 function init() {
+    init_log
     loadkeys $KEYS
+}
+
+function init_log() {
+    set -o xtrace
 }
 
 function facts() {
@@ -154,10 +184,12 @@ function facts() {
         BIOS_TYPE="bios"
     fi
 
-    if [ -n "$(hdparm -I $DEVICE | grep TRIM)" ]; then
-        DEVICE_TRIM="true"
-    else
-        DEVICE_TRIM="false"
+    DEVICE_SATA="false"
+    DEVICE_NVME="false"
+    if [ -n "$(echo $DEVICE | grep "^/dev/sda")" ]; then
+        DEVICE_SATA="true"
+    elif [ -n "$(echo $DEVICE | grep "^/dev/nvme")" ]; then
+        DEVICE_NVME="true"
     fi
 
     if [ -n "$(lscpu | grep GenuineIntel)" ]; then
@@ -183,9 +215,9 @@ function prepare_partition() {
             cryptsetup close $LVM_VOLUME_LOGICAL
         fi
     fi
-    if [ -e "/dev/mapper/$LVM_PHISICAL_VOLUME" ]; then
+    if [ -e "/dev/mapper/$LVM_VOLUME_PHISICAL" ]; then
         if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
-            cryptsetup close $LVM_PHISICAL_VOLUME
+            cryptsetup close $LVM_VOLUME_PHISICAL
         fi
     fi
 }
@@ -213,46 +245,57 @@ function configure_network() {
 
 function partition() {
     if [ "$BIOS_TYPE" == "uefi" ]; then
-        PARTITION_BOOT="/dev/sda1"
-        PARTITION_ROOT="/dev/sda2"
-        PARTITION_BOOT_NUMBER=1
-        DEVICE_ROOT="/dev/sda2"
-        DEVICE_ROOT_MAPPER="root"
+        if [ "$DEVICE_SATA" == "true" ]; then
+            PARTITION_BOOT="${DEVICE}1"
+            PARTITION_ROOT="${DEVICE}2"
+            #PARTITION_BOOT_NUMBER=1
+            DEVICE_ROOT="${DEVICE}2"
+        fi
+        
+        if [ "$DEVICE_NVME" == "true" ]; then
+            PARTITION_BOOT="${DEVICE}p1"
+            PARTITION_ROOT="${DEVICE}p2"
+            #PARTITION_BOOT_NUMBER=1
+            DEVICE_ROOT="${DEVICE}p2"
+        fi
     fi
 
     if [ "$BIOS_TYPE" == "bios" ]; then
-        PARTITION_BIOS="/dev/sda1"
-        PARTITION_BOOT="/dev/sda2"
-        PARTITION_ROOT="/dev/sda3"
-        PARTITION_BOOT_NUMBER=2
-        DEVICE_ROOT="/dev/sda3"
-        DEVICE_ROOT_MAPPER="root"
-    fi
-
-    if [ "$LVM" == "true" ]; then
-        DEVICE_ROOT_MAPPER="lvm"
+        if [ "$DEVICE_SATA" == "true" ]; then
+            PARTITION_BIOS="${DEVICE}1"
+            PARTITION_BOOT="${DEVICE}2"
+            PARTITION_ROOT="${DEVICE}3"
+            #PARTITION_BOOT_NUMBER=2
+            DEVICE_ROOT="${DEVICE}3"
+        fi
+        
+        if [ "$DEVICE_NVME" == "true" ]; then
+            PARTITION_BIOS="${DEVICE}p1"
+            PARTITION_BOOT="${DEVICE}p2"
+            PARTITION_ROOT="${DEVICE}p3"
+            #PARTITION_BOOT_NUMBER=2
+            DEVICE_ROOT="${DEVICE}p3"
+        fi
     fi
 
     if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
-        echo -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" | cryptsetup --key-file=- open $PARTITION_ROOT $DEVICE_ROOT_MAPPER
+        echo -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" | cryptsetup --key-file=- open $PARTITION_ROOT $LVM_VOLUME_PHISICAL
         sleep 5
-
-        DEVICE_ROOT="/dev/mapper/$DEVICE_ROOT_MAPPER"
     fi
 
     if [ "$LVM" == "true" ]; then
-        DEVICE_ROOT_MAPPER="lvm-lvroot"
+        DEVICE_ROOT_MAPPER="$LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL"
         DEVICE_ROOT="/dev/mapper/$DEVICE_ROOT_MAPPER"
     fi
 
-    MOUNT_OPTIONS=""
+    PARTITION_OPTIONS=""
 
     if [ "$DEVICE_TRIM" == "true" ]; then
-        MOUNT_OPTIONS="defaults,noatime,discard"
+        PARTITION_OPTIONS="defaults,noatime"
     fi
 
-    mount -o "$MOUNT_OPTIONS" $DEVICE_ROOT /mnt
-    mount -o "$MOUNT_OPTIONS" $PARTITION_BOOT /mnt/boot
+    mount -o "$PARTITION_OPTIONS" $DEVICE_ROOT /mnt
+    mount -o "$PARTITION_OPTIONS" $PARTITION_BOOT /mnt/boot
 }
 
 function recovery() {
@@ -261,6 +304,7 @@ function recovery() {
 
 function main() {
     configuration_install
+    sanitize_variables
     check_variables
     warning
     init

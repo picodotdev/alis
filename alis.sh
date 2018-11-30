@@ -58,7 +58,6 @@ PARTUUID_BOOT=""
 PARTUUID_ROOT=""
 DEVICE_SATA=""
 DEVICE_NVME=""
-DEVICE_TRIM=""
 CPU_INTEL=""
 VIRTUALBOX=""
 CMDLINE_LINUX_ROOT=""
@@ -80,6 +79,8 @@ function configuration_install() {
 
 function sanitize_variables() {
     DEVICE=$(sanitize_variable "$DEVICE")
+    FILE_SYSTEM_TYPE=$(sanitize_variable "$FILE_SYSTEM_TYPE")
+    SWAP_SIZE=$(sanitize_variable "$SWAP_SIZE")
     KERNELS=$(sanitize_variable "$KERNELS")
     KERNELS_COMPRESSION=$(sanitize_variable "$KERNELS_COMPRESSION")
     DESKTOP_ENVIRONMENT=$(sanitize_variable "$DESKTOP_ENVIRONMENT")
@@ -104,6 +105,7 @@ function check_variables() {
     check_variables_boolean "LOG" "$LOG"
     check_variables_value "DEVICE" "$DEVICE"
     check_variables_boolean "LVM" "$LVM"
+    check_variables_equals "PARTITION_ROOT_ENCRYPTION_PASSWORD" "PARTITION_ROOT_ENCRYPTION_PASSWORD_RETYPE" "$PARTITION_ROOT_ENCRYPTION_PASSWORD" "$PARTITION_ROOT_ENCRYPTION_PASSWORD_RETYPE"
     check_variables_list "FILE_SYSTEM_TYPE" "$FILE_SYSTEM_TYPE" "ext4 btrfs xfs"
     check_variables_value "PING_HOSTNAME" "$PING_HOSTNAME"
     check_variables_value "PACMAN_MIRROR" "$PACMAN_MIRROR"
@@ -116,6 +118,8 @@ function check_variables() {
     check_variables_value "HOSTNAME" "$HOSTNAME"
     check_variables_value "USER_NAME" "$USER_NAME"
     check_variables_value "USER_PASSWORD" "$USER_PASSWORD"
+    check_variables_equals "ROOT_PASSWORD" "ROOT_PASSWORD_RETYPE" "$ROOT_PASSWORD" "$ROOT_PASSWORD_RETYPE"
+    check_variables_equals "USER_PASSWORD" "USER_PASSWORD_RETYPE" "$USER_PASSWORD" "$USER_PASSWORD_RETYPE"
     check_variables_size "ADDITIONAL_USER_PASSWORDS" "${#ADDITIONAL_USER_NAMES_ARRAY[@]}" "${#ADDITIONAL_USER_PASSWORDS_ARRAY[@]}"
     check_variables_list "BOOTLOADER" "$BOOTLOADER" "grub refind systemd"
     check_variables_list "AUR" "$AUR" "aurman yay"
@@ -158,6 +162,17 @@ function check_variables_list() {
     fi
 }
 
+function check_variables_equals() {
+    NAME1=$1
+    NAME2=$2
+    VALUE1=$3
+    VALUE2=$4
+    if [ "$VALUE1" != "$VALUE2" ]; then
+        echo "$NAME1 and $NAME2 must be equal [$VALUE1, $VALUE2]."
+        exit
+    fi
+}
+
 function check_variables_size() {
     NAME=$1
     SIZE_EXPECT=$2
@@ -175,7 +190,7 @@ function warning() {
     echo -e "${RED}This script deletes all partitions of the persistent${NC}"
     echo -e "${RED}storage and continuing all your data in it will be lost.${NC}"
     echo ""
-    read -p "Do you want to continue? [y/n] " yn
+    read -p "Do you want to continue? [y/N] " yn
     case $yn in
         [Yy]* )
             ;;
@@ -189,6 +204,10 @@ function warning() {
 }
 
 function init() {
+    echo ""
+    echo -e "${LIGHT_BLUE}# init() step${NC}"
+    echo ""
+
     init_log
     loadkeys $KEYS
 }
@@ -202,6 +221,10 @@ function init_log() {
 }
 
 function facts() {
+    echo ""
+    echo -e "${LIGHT_BLUE}# facts() step${NC}"
+    echo ""
+
     if [ -d /sys/firmware/efi ]; then
         BIOS_TYPE="uefi"
     else
@@ -212,12 +235,6 @@ function facts() {
         ASCIINEMA="true"
     else
         ASCIINEMA="false"
-    fi
-
-    if [ -n "$(hdparm -I $DEVICE | grep TRIM)" ]; then
-        DEVICE_TRIM="true"
-    else
-        DEVICE_TRIM="false"
     fi
 
     DEVICE_SATA="false"
@@ -247,8 +264,12 @@ function check_facts() {
 }
 
 function prepare() {
-    prepare_partition
+    echo ""
+    echo -e "${LIGHT_BLUE}# prepare() step${NC}"
+    echo ""
+
     configure_time
+    prepare_partition
     configure_network
 }
 
@@ -300,6 +321,10 @@ function configure_network() {
 }
 
 function partition() {
+    echo ""
+    echo -e "${LIGHT_BLUE}# partition() step${NC}"
+    echo ""
+
     sgdisk --zap-all $DEVICE
     wipefs -a $DEVICE
 
@@ -309,7 +334,9 @@ function partition() {
             PARTITION_ROOT="${DEVICE}2"
             #PARTITION_BOOT_NUMBER=1
             DEVICE_ROOT="${DEVICE}2"
-        elif [ "$DEVICE_NVME" == "true" ]; then
+        fi
+
+        if [ "$DEVICE_NVME" == "true" ]; then
             PARTITION_BOOT="${DEVICE}p1"
             PARTITION_ROOT="${DEVICE}p2"
             #PARTITION_BOOT_NUMBER=1
@@ -330,7 +357,9 @@ function partition() {
             PARTITION_ROOT="${DEVICE}3"
             #PARTITION_BOOT_NUMBER=2
             DEVICE_ROOT="${DEVICE}3"
-        elif [ "$DEVICE_NVME" == "true" ]; then
+        fi
+
+        if [ "$DEVICE_NVME" == "true" ]; then
             PARTITION_BIOS="${DEVICE}p1"
             PARTITION_BOOT="${DEVICE}p2"
             PARTITION_ROOT="${DEVICE}p3"
@@ -346,7 +375,7 @@ function partition() {
     fi
 
     if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
-        echo -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" | cryptsetup --key-size=512 --key-file=- luksFormat $PARTITION_ROOT
+        echo -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" | cryptsetup --key-size=512 --key-file=- luksFormat --type luks2 $PARTITION_ROOT
         echo -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" | cryptsetup --key-file=- open $PARTITION_ROOT $LVM_VOLUME_PHISICAL
         sleep 5
     fi
@@ -401,6 +430,10 @@ function partition() {
 }
 
 function install() {
+    echo ""
+    echo -e "${LIGHT_BLUE}# install() step${NC}"
+    echo ""
+
     if [ -n "$PACMAN_MIRROR" ]; then
         echo "Server=$PACMAN_MIRROR" > /etc/pacman.d/mirrorlist
     fi
@@ -418,6 +451,10 @@ function install() {
 }
 
 function kernels() {
+    echo ""
+    echo -e "${LIGHT_BLUE}# kernels() step${NC}"
+    echo ""
+
     pacman_install "linux-headers"
     if [ -n "$KERNELS" ]; then
         pacman_install "$KERNELS"
@@ -425,6 +462,10 @@ function kernels() {
 }
 
 function configuration() {
+    echo ""
+    echo -e "${LIGHT_BLUE}# configuration() step${NC}"
+    echo ""
+
     genfstab -U /mnt >> /mnt/etc/fstab
 
     if [ -n "$SWAP_SIZE" -a "$FILE_SYSTEM_TYPE" != "btrfs" ]; then
@@ -454,11 +495,19 @@ function configuration() {
 }
 
 function network() {
+    echo ""
+    echo -e "${LIGHT_BLUE}# network() step${NC}"
+    echo ""
+
     pacman_install "networkmanager"
     arch-chroot /mnt systemctl enable NetworkManager.service
 }
 
 function virtualbox() {
+    echo ""
+    echo -e "${LIGHT_BLUE}# virtualbox() step${NC}"
+    echo ""
+
     if [ -z "$KERNELS" ]; then
         pacman_install "virtualbox-guest-utils virtualbox-guest-modules-arch"
     else
@@ -467,8 +516,12 @@ function virtualbox() {
 }
 
 function mkinitcpio() {
-    MODULES=""
+    echo ""
+    echo -e "${LIGHT_BLUE}# mkinitcpio() step${NC}"
+    echo ""
+
     if [ "$KMS" == "true" ]; then
+        MODULES=""
         case "$DISPLAY_DRIVER" in
             "intel" )
                 MODULES="i915"
@@ -490,12 +543,12 @@ function mkinitcpio() {
     fi
 
     if [ "$LVM" == "true" -a -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
-        arch-chroot /mnt sed -i 's/ block / keyboard keymap block /' /etc/mkinitcpio.conf
+        arch-chroot /mnt sed -i 's/ block / block keyboard keymap /' /etc/mkinitcpio.conf
         arch-chroot /mnt sed -i 's/ filesystems keyboard / encrypt lvm2 filesystems /' /etc/mkinitcpio.conf
     elif [ "$LVM" == "true" ]; then
         arch-chroot /mnt sed -i 's/ filesystems / lvm2 filesystems /' /etc/mkinitcpio.conf
     elif [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
-        arch-chroot /mnt sed -i 's/ block / keyboard keymap block /' /etc/mkinitcpio.conf
+        arch-chroot /mnt sed -i 's/ block / block keyboard keymap /' /etc/mkinitcpio.conf
         arch-chroot /mnt sed -i 's/ filesystems keyboard / encrypt filesystems /' /etc/mkinitcpio.conf
     fi
 
@@ -507,6 +560,10 @@ function mkinitcpio() {
 }
 
 function bootloader() {
+    echo ""
+    echo -e "${LIGHT_BLUE}# bootloader() step${NC}"
+    echo ""
+
     BOOTLOADER_ALLOW_DISCARDS=""
 
     if [ "$CPU_INTEL" == "true" -a "$VIRTUALBOX" != "true" ]; then
@@ -680,9 +737,14 @@ function systemd() {
     echo "Exec = /usr/bin/bootctl update" >> /mnt/etc/pacman.d/hooks/systemd-boot.hook
 
     SYSTEMD_MICROCODE=""
+    SYSTEMD_OPTIONS=""
 
     if [ "$CPU_INTEL" == "true" -a "$VIRTUALBOX" != "true" ]; then
         SYSTEMD_MICROCODE="/intel-ucode.img"
+    fi
+
+    if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
+       SYSTEMD_OPTIONS="rd.luks.options=discard"
     fi
 
     echo "title Arch Linux" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux.conf"
@@ -691,7 +753,7 @@ function systemd() {
         echo "initrd $SYSTEMD_MICROCODE" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux.conf"
     fi
     echo "initrd /initramfs-linux.img" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux.conf"
-    echo "options initrd=initramfs-linux.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux.conf"
+    echo "options initrd=initramfs-linux.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX $SYSTEMD_OPTIONS" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux.conf"
 
     echo "title Arch Linux (fallback)" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-fallback.conf"
     echo "efi /vmlinuz-linux" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-fallback.conf"
@@ -699,7 +761,7 @@ function systemd() {
         echo "initrd $SYSTEMD_MICROCODE" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-fallback.conf"
     fi
     echo "initrd /initramfs-linux-fallback.img" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-fallback.conf"
-    echo "options initrd=initramfs-linux-fallback.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-fallback.conf"
+    echo "options initrd=initramfs-linux-fallback.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX $SYSTEMD_OPTIONS" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-fallback.conf"
 
     if [[ $KERNELS =~ .*linux-lts.* ]]; then
         echo "title Arch Linux (lts)" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-lts.conf"
@@ -708,7 +770,7 @@ function systemd() {
             echo "initrd $SYSTEMD_MICROCODE" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux.conf"
         fi
         echo "initrd /initramfs-linux-lts.img" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-lts.conf"
-        echo "options initrd=initramfs-linux-lts.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-lts.conf"
+        echo "options initrd=initramfs-linux-lts.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX $SYSTEMD_OPTIONS" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-lts.conf"
 
         echo "title Arch Linux (lts-fallback)" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-lts-fallback.conf"
         echo "efi /vmlinuz-linux-lts" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-lts-fallback.conf"
@@ -716,7 +778,7 @@ function systemd() {
             echo "initrd $SYSTEMD_MICROCODE" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-lts-fallback.conf"
         fi
         echo "initrd /initramfs-linux-lts-fallback.img" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-lts-fallback.conf"
-        echo "options initrd=initramfs-linux-lts-fallback.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-lts-fallback.conf"
+        echo "options initrd=initramfs-linux-lts-fallback.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX $SYSTEMD_OPTIONS" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-lts-fallback.conf"
     fi
 
     if [[ $KERNELS =~ .*linux-hardened.* ]]; then
@@ -726,7 +788,7 @@ function systemd() {
             echo "initrd $SYSTEMD_MICROCODE" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux.conf"
         fi
         echo "initrd /initramfs-linux-hardened.img" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-hardened.conf"
-        echo "options initrd=initramfs-linux-hardened.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-hardened.conf"
+        echo "options initrd=initramfs-linux-hardened.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX $SYSTEMD_OPTIONS" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-hardened.conf"
 
         echo "title Arch Linux (hardened-fallback)" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-hardened-fallback.conf"
         echo "efi /vmlinuz-linux-hardened" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-hardened-fallback.conf"
@@ -734,7 +796,7 @@ function systemd() {
             echo "initrd $SYSTEMD_MICROCODE" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-hardened-fallback.conf"
         fi
         echo "initrd /initramfs-linux-hardened-fallback.img" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-hardened-fallback.conf"
-        echo "options initrd=initramfs-linux-hardened-fallback.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-hardened-fallback.conf"
+        echo "options initrd=initramfs-linux-hardened-fallback.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX $SYSTEMD_OPTIONS" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-hardened-fallback.conf"
     fi
 
     if [[ $KERNELS =~ .*linux-zen.* ]]; then
@@ -744,7 +806,7 @@ function systemd() {
             echo "initrd $SYSTEMD_MICROCODE" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux.conf"
         fi
         echo "initrd /initramfs-linux-zen.img" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-zen.conf"
-        echo "options initrd=initramfs-linux-zen.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-zen.conf"
+        echo "options initrd=initramfs-linux-zen.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX $SYSTEMD_OPTIONS" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-zen.conf"
 
         echo "title Arch Linux (zen-fallback)" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-zen-fallback.conf"
         echo "efi /vmlinuz-linux-zen" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-zen-fallback.conf"
@@ -752,7 +814,7 @@ function systemd() {
             echo "initrd $SYSTEMD_MICROCODE" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-zen-fallback.conf"
         fi
         echo "initrd /initramfs-linux-zen-fallback.img" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-zen-fallback.conf"
-        echo "options initrd=initramfs-linux-zen-fallback.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-zen-fallback.conf"
+        echo "options initrd=initramfs-linux-zen-fallback.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX $SYSTEMD_OPTIONS" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-zen-fallback.conf"
     fi
 
     if [ "$VIRTUALBOX" == "true" ]; then
@@ -771,6 +833,10 @@ function users() {
 }
 
 function create_user() {
+    echo ""
+    echo -e "${LIGHT_BLUE}# create_user() step${NC}"
+    echo ""
+
 	USER_NAME=$1
 	USER_PASSWORD=$2
     arch-chroot /mnt useradd -m -G wheel,storage,optical -s /bin/bash $USER_NAME
@@ -778,6 +844,10 @@ function create_user() {
 }
 
 function desktop_environment() {
+    echo ""
+    echo -e "${LIGHT_BLUE}# desktop_environment() step${NC}"
+    echo ""
+
     PACKAGES_DRIVER=""
     PACKAGES_DDX=""
     PACKAGES_VULKAN=""
@@ -909,6 +979,10 @@ function desktop_environment_lxde() {
 }
 
 function packages() {
+    echo ""
+    echo -e "${LIGHT_BLUE}# packages() step${NC}"
+    echo ""
+
     if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
         pacman_install "btrfs-progs"
     fi
@@ -950,6 +1024,7 @@ function terminate() {
 
 function end() {
     if [ "$REBOOT" == "true" ]; then
+        echo ""
         echo -e "${GREEN}Arch Linux installed successfully"'!'"${NC}"
         echo ""
 

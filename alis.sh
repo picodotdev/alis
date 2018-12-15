@@ -83,6 +83,7 @@ function sanitize_variables() {
     SWAP_SIZE=$(sanitize_variable "$SWAP_SIZE")
     KERNELS=$(sanitize_variable "$KERNELS")
     KERNELS_COMPRESSION=$(sanitize_variable "$KERNELS_COMPRESSION")
+    BOOTLOADER=$(sanitize_variable "$BOOTLOADER")
     DESKTOP_ENVIRONMENT=$(sanitize_variable "$DESKTOP_ENVIRONMENT")
     DISPLAY_DRIVER=$(sanitize_variable "$DISPLAY_DRIVER")
     DISPLAY_DRIVER_HARDWARE_ACCELERATION_INTEL=$(sanitize_variable "$DISPLAY_DRIVER_HARDWARE_ACCELERATION_INTEL")
@@ -476,7 +477,6 @@ function configuration() {
 
     if [ "$DEVICE_TRIM" == "true" ]; then
         sed -i 's/relatime/noatime/' /mnt/etc/fstab
-        sed -i 's/issue_discards = 0/issue_discards = 1/' /mnt/etc/lvm/lvm.conf
     fi
 
     arch-chroot /mnt ln -s -f $TIMEZONE /etc/localtime

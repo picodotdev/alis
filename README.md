@@ -43,6 +43,8 @@ Currently these scripts are for me but maybe they are useful for you too.
 
 ### Installation
 
+Intenet connection is required, with wireless WIFI connection see [Wireless_network_configuration#Connect_to_an_access_point](https://wiki.archlinux.org/index.php/Wireless_network_configuration#Connect_to_an_access_point) to bring up WIFI connection before starting installation with alis.
+
 ```
 # # Start the system with lastest Arch Linux installation media
 # loadkeys [keymap]
@@ -98,6 +100,7 @@ https://www.archlinux.org/download/
 * https://wiki.archlinux.org/index.php/Intel_NUC
 * https://wiki.archlinux.org/index.php/Network_configuration
 * https://wiki.archlinux.org/index.php/Wireless_network_configuration
+* https://wiki.archlinux.org/index.php/Wireless_network_configuration#Connect_to_an_access_point
 * https://wiki.archlinux.org/index.php/NetworkManager
 * https://wiki.archlinux.org/index.php/Solid_State_Drives
 * https://wiki.archlinux.org/index.php/Solid_state_drive/NVMe

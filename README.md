@@ -43,7 +43,7 @@ Currently these scripts are for me but maybe they are useful for you too.
 
 ### Installation
 
-Intenet connection is required, with wireless WIFI connection see [Wireless_network_configuration#Connect_to_an_access_point](https://wiki.archlinux.org/index.php/Wireless_network_configuration#Connect_to_an_access_point) to bring up WIFI connection before starting installation with alis.
+Intenet connection is required, with wireless WIFI connection see [Wireless_network_configuration](https://wiki.archlinux.org/index.php/Wireless_network_configuration#Connect_to_an_access_point) to bring up WIFI connection before starting installation with alis.
 
 ```
 # # Start the system with lastest Arch Linux installation media

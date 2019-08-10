@@ -31,19 +31,19 @@ Currently these scripts are for me but maybe they are useful for you too.
 * Users creation and add to sudoers
 * Common and custom packages installation
 * AUR utility installation (aurman, yay)
-* Retry packages download on conection/mirror error
-* Desktop environments (GDM, KDE, XFCE, Mate, Cinnamon, LXDE), display managers (GDM, SDDM, Lightdm, lxdm) and no desktop environments
-* Additional kernels installation (linux-lts, linux-hardened, linux-zen)
-* Kernels compression
-* Graphics controllers (intel, nvidia, amd) with optionaly early KMS start
+* Retry packages download on connection/mirror error
+* Desktop environments (GDM, KDE, XFCE, Mate, Cinnamon, LXDE), display managers (GDM, SDDM, Lightdm, lxdm) and no desktop environment
+* Additional kernel installation (linux-lts, linux-hardened, linux-zen)
+* Kernel compression
+* Graphic controllers (intel, nvidia, amd) with optionally early KMS start
 * GRUB, rEFInd, systemd-boot bootloaders
 * Script for download installation and recovery scripts and configuration files
 * Installation log with all commands executed and output in a file and/or asciinema video
-* Wait after installation for a abortable reboot
+* Wait after installation for an abortable reboot
 
 ### Installation
 
-Intenet connection is required, with wireless WIFI connection see [Wireless_network_configuration](https://wiki.archlinux.org/index.php/Wireless_network_configuration#Wi-Fi_Protected_Access) to bring up WIFI connection before starting installation with alis.
+Internet connection is required, with wireless WIFI connection see [Wireless_network_configuration](https://wiki.archlinux.org/index.php/Wireless_network_configuration#Wi-Fi_Protected_Access) to bring up WIFI connection before starting installation with alis.
 
 ```
 # # Start the system with lastest Arch Linux installation media

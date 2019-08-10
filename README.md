@@ -7,7 +7,7 @@ This a simple bash script for an easy and fast way of installing Arch Linux, fol
 Please, don't ask for support for this script in Arch Linux forums, first read
 the [Arch Linux wiki](https://wiki.archlinux.org), the [Installation Guide](https://wiki.archlinux.org/index.php/Installation_guide) and the [General
 Recomendations](https://wiki.archlinux.org/index.php/General_recommendations), later
-compare the those commands with the commands of this script.
+compare those commands with the commands of this script.
 
 For new features, improvements and bugs fill an issue in GitHub or make a pull request. You can test it in a VirtualBox virtual machine. If you test it in real hardware please send me an email to pico.dev@gmail.com with the machine description and tell me if something goes wrong or all works fine. [Pull request](https://github.com/picodotdev/alis/pulls) and [new feature request](https://github.com/picodotdev/alis/issues) are welcome!
 

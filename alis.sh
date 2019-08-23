@@ -306,13 +306,14 @@ function configure_network() {
 
         sed -i 's/^Interface=.*/Interface='"$WIFI_INTERFACE"'/' /etc/netctl/wireless-wpa
         sed -i 's/^ESSID=.*/ESSID='"$WIFI_ESSID"'/' /etc/netctl/wireless-wpa
-        sed -i 's/^Key=.*/Key='\''$WIFI_KEY'\''/' /etc/netctl/wireless-wpa
+        sed -i 's/^Key=.*/Key='"$WIFI_KEY"'/' /etc/netctl/wireless-wpa
         if [ "$WIFI_HIDDEN" == "true" ]; then
             sed -i 's/^#Hidden=.*/Hidden=yes/' /etc/netctl/wireless-wpa
         fi
 
+        netctl stop-all
         netctl start wireless-wpa
-        sleep 5
+        sleep 10
     fi
 
     ping -c 5 $PING_HOSTNAME

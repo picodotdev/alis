@@ -2,7 +2,7 @@
 
 Arch Linux Install Script (alis) installs unattended, automated and customized Arch Linux system.
 
-This a simple bash script for an easy and fast way of installing Arch Linux, follow the [Arch Way](https://wiki.archlinux.org/index.php/Arch_Linux) of doing things and learn what this script does. This will allow you to know what is happening. 
+This a simple bash script for an easy and fast way of installing Arch Linux, follow the [Arch Way](https://wiki.archlinux.org/index.php/Arch_Linux) of doing things and learn what this script does. This will allow you to know what is happening.
 
 Please, don't ask for support for this script in Arch Linux forums, first read
 the [Arch Linux wiki](https://wiki.archlinux.org), the [Installation Guide](https://wiki.archlinux.org/index.php/Installation_guide) and the [General
@@ -15,35 +15,20 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 
 Currently these scripts are for me but maybe they are useful for you too.
 
-### Features
-
-* GPT, UEFI, BIOS
-* Support for SATA and NVMe
-* LVM and no LVM
-* _root_ partition encrypted and no encrypted
-* LVM on LUKS when LVM and encrypted
-* File system formats ext4, btrfs (no swap), xfs
-* Optional file swap
-* WPA WIFI network installation
-* Periodic TRIM for SSD storage
-* VirtualBox guest utils
-* Intel processors microcode
-* Users creation and add to sudoers
-* Common and custom packages installation
-* AUR utility installation (aurman, yay)
-* Retry packages download on connection/mirror error
-* Desktop environments (GDM, KDE, XFCE, Mate, Cinnamon, LXDE), display managers (GDM, SDDM, Lightdm, lxdm) and no desktop environment
-* Additional kernel installation (linux-lts, linux-hardened, linux-zen)
-* Kernel compression
-* Graphic controllers (intel, nvidia, amd) with optionally early KMS start
-* GRUB, rEFInd, systemd-boot bootloaders
-* Script for download installation and recovery scripts and configuration files
-* Installation log with all commands executed and output in a file and/or asciinema video
-* Wait after installation for an abortable reboot
 
 ### Installation
 
 Internet connection is required, with wireless WIFI connection see [Wireless_network_configuration](https://wiki.archlinux.org/index.php/Wireless_network_configuration#Wi-Fi_Protected_Access) to bring up WIFI connection before starting installation with alis.
+
+```
+# loadkeys de
+# mount -o remount,size=2G /run/archiso/cowspace
+# pacman -Sy git
+# git clone https://github.com/xnnism/alis
+# ./alis.sh
+
+```
+
 
 ```
 # # Start the system with lastest Arch Linux installation media
@@ -90,6 +75,33 @@ As another form of log.
 ### Arch Linux Installation Media
 
 https://www.archlinux.org/download/
+
+### Features
+
+* GPT, UEFI, BIOS
+* Support for SATA and NVMe
+* LVM and no LVM
+* _root_ partition encrypted and no encrypted
+* LVM on LUKS when LVM and encrypted
+* File system formats ext4, btrfs (no swap), xfs
+* Optional file swap
+* WPA WIFI network installation
+* Periodic TRIM for SSD storage
+* VirtualBox guest utils
+* Intel processors microcode
+* Users creation and add to sudoers
+* Common and custom packages installation
+* AUR utility installation (aurman, yay)
+* Retry packages download on connection/mirror error
+* Desktop environments (GDM, KDE, XFCE, Mate, Cinnamon, LXDE), display managers (GDM, SDDM, Lightdm, lxdm) and no desktop environment
+* Additional kernel installation (linux-lts, linux-hardened, linux-zen)
+* Kernel compression
+* Graphic controllers (intel, nvidia, amd) with optionally early KMS start
+* GRUB, rEFInd, systemd-boot bootloaders
+* Script for download installation and recovery scripts and configuration files
+* Installation log with all commands executed and output in a file and/or asciinema video
+* Wait after installation for an abortable reboot
+
 
 ### Reference
 

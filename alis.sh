@@ -58,6 +58,7 @@ PARTUUID_BOOT=""
 PARTUUID_ROOT=""
 DEVICE_SATA=""
 DEVICE_NVME=""
+DEVICE_MMC=""
 CPU_INTEL=""
 VIRTUALBOX=""
 CMDLINE_LINUX_ROOT=""
@@ -240,10 +241,13 @@ function facts() {
 
     DEVICE_SATA="false"
     DEVICE_NVME="false"
+    DEVICE_MMC="false"
     if [ -n "$(echo $DEVICE | grep "^/dev/sda")" ]; then
         DEVICE_SATA="true"
     elif [ -n "$(echo $DEVICE | grep "^/dev/nvme")" ]; then
         DEVICE_NVME="true"
+    elif [ -n "$(echo $DEVICE | grep "^/dev/mmcblk")" ]; then
+        DEVICE_MMC="true"
     fi
 
     if [ -n "$(lscpu | grep GenuineIntel)" ]; then
@@ -344,6 +348,13 @@ function partition() {
             #PARTITION_BOOT_NUMBER=1
             DEVICE_ROOT="${DEVICE}p2"
         fi
+        
+        if [ "$DEVICE_MMC" == "true" ]; then
+            PARTITION_BOOT="${DEVICE}p1"
+            PARTITION_ROOT="${DEVICE}p2"
+            #PARTITION_BOOT_NUMBER=1
+            DEVICE_ROOT="${DEVICE}p2"
+        fi
 
         parted -s $DEVICE mklabel gpt mkpart primary fat32 1MiB 512MiB mkpart primary $FILE_SYSTEM_TYPE 512MiB 100% set 1 boot on
         sgdisk -t=1:ef00 $DEVICE
@@ -367,6 +378,13 @@ function partition() {
             PARTITION_ROOT="${DEVICE}p3"
             #PARTITION_BOOT_NUMBER=2
             DEVICE_ROOT="${DEVICE}p3"
+        fi
+        
+        if [ "$DEVICE_MMC" == "true" ]; then
+            PARTITION_BOOT="${DEVICE}p1"
+            PARTITION_ROOT="${DEVICE}p2"
+            #PARTITION_BOOT_NUMBER=1
+            DEVICE_ROOT="${DEVICE}p2"
         fi
 
         parted -s $DEVICE mklabel gpt mkpart primary fat32 1MiB 128MiB mkpart primary $FILE_SYSTEM_TYPE 128MiB 512MiB mkpart primary $FILE_SYSTEM_TYPE 512MiB 100% set 1 boot on

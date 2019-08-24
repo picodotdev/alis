@@ -18,7 +18,7 @@ Currently these scripts are for me but maybe they are useful for you too.
 ### Features
 
 * GPT, UEFI, BIOS
-* Support for SATA and NVMe
+* Support for SATA, NVMe and MMC
 * LVM and no LVM
 * _root_ partition encrypted and no encrypted
 * LVM on LUKS when LVM and encrypted

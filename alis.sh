@@ -46,6 +46,7 @@ PARTITION_BIOS=""
 PARTITION_BOOT=""
 PARTITION_ROOT=""
 DEVICE_ROOT=""
+LVM_DEVICE=""
 LVM_VOLUME_PHISICAL="lvm"
 LVM_VOLUME_GROUP="vg"
 LVM_VOLUME_LOGICAL="root"
@@ -124,7 +125,7 @@ function check_variables() {
     check_variables_equals "USER_PASSWORD" "USER_PASSWORD_RETYPE" "$USER_PASSWORD" "$USER_PASSWORD_RETYPE"
     check_variables_size "ADDITIONAL_USER_PASSWORDS" "${#ADDITIONAL_USER_NAMES_ARRAY[@]}" "${#ADDITIONAL_USER_PASSWORDS_ARRAY[@]}"
     check_variables_list "BOOTLOADER" "$BOOTLOADER" "grub refind systemd"
-    check_variables_list "AUR" "$AUR" "aurman yay"
+    check_variables_list "AUR" "$AUR" "aurman yay" "false"
     check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde" "false"
     check_variables_list "DISPLAY_DRIVER" "$DISPLAY_DRIVER" "intel amdgpu ati nvidia nvidia-lts nvidia-390xx nvidia-390xx-lts nvidia-340xx nvidia-340xx-lts nouveau" "false"
     check_variables_boolean "KMS" "$KMS"
@@ -397,14 +398,20 @@ function partition() {
     fi
 
     if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
+        LVM_DEVICE="/dev/mapper/$LVM_VOLUME_PHISICAL"
+    else
+        LVM_DEVICE="$PARTITION_ROOT"
+    fi
+
+    if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
         echo -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" | cryptsetup --key-size=512 --key-file=- luksFormat --type luks2 $PARTITION_ROOT
         echo -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" | cryptsetup --key-file=- open $PARTITION_ROOT $LVM_VOLUME_PHISICAL
         sleep 5
     fi
 
     if [ "$LVM" == "true" ]; then
-        pvcreate /dev/mapper/$LVM_VOLUME_PHISICAL
-        vgcreate $LVM_VOLUME_GROUP /dev/mapper/$LVM_VOLUME_PHISICAL
+        pvcreate $LVM_DEVICE
+        vgcreate $LVM_VOLUME_GROUP $LVM_DEVICE
         lvcreate -l 100%FREE -n $LVM_VOLUME_LOGICAL $LVM_VOLUME_GROUP
 
         DEVICE_ROOT="/dev/mapper/$LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL"
@@ -1024,7 +1031,7 @@ function packages_aur() {
             "aurman" )
                 arch-chroot /mnt bash -c "echo -e \"$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n\" | su $USER_NAME -c \"cd /home/$USER_NAME && git clone https://aur.archlinux.org/$AUR.git && gpg --recv-key 465022E743D71E39 && (cd $AUR && makepkg -si --noconfirm) && rm -rf $AUR\""
                 ;;
-            "yay" )
+            "yay" | *)
                 arch-chroot /mnt bash -c "echo -e \"$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n\" | su $USER_NAME -c \"cd /home/$USER_NAME && git clone https://aur.archlinux.org/$AUR.git && (cd $AUR && makepkg -si --noconfirm) && rm -rf $AUR\""
                 ;;
         esac

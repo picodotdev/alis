@@ -243,7 +243,7 @@ function facts() {
     DEVICE_SATA="false"
     DEVICE_NVME="false"
     DEVICE_MMC="false"
-    if [ -n "$(echo $DEVICE | grep "^/dev/sda")" ]; then
+    if [ -n "$(echo $DEVICE | grep "^/dev/[a-z]d[a-z]")" ]; then
         DEVICE_SATA="true"
     elif [ -n "$(echo $DEVICE | grep "^/dev/nvme")" ]; then
         DEVICE_NVME="true"
@@ -981,8 +981,7 @@ function desktop_environment_gnome() {
 }
 
 function desktop_environment_kde() {
-    pacman_install "plasma-meta kde-applications-meta"
-    arch-chroot /mnt sed -i 's/Current=.*/Current=breeze/' /etc/sddm.conf
+    pacman_install "plasma-meta plasma-wayland-session kde-applications-meta"
     arch-chroot /mnt systemctl enable sddm.service
 }
 

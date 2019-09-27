@@ -62,6 +62,7 @@ PARTUUID_BOOT=""
 PARTUUID_ROOT=""
 DEVICE_SATA=""
 DEVICE_NVME=""
+DEVICE_MMC=""
 CPU_INTEL=""
 VIRTUALBOX=""
 CMDLINE_LINUX_ROOT=""
@@ -186,10 +187,13 @@ function facts() {
 
     DEVICE_SATA="false"
     DEVICE_NVME="false"
-    if [ -n "$(echo $DEVICE | grep "^/dev/sda")" ]; then
+    DEVICE_MMC="false"
+    if [ -n "$(echo $DEVICE | grep "^/dev/[a-z]d[a-z]")" ]; then
         DEVICE_SATA="true"
     elif [ -n "$(echo $DEVICE | grep "^/dev/nvme")" ]; then
         DEVICE_NVME="true"
+    elif [ -n "$(echo $DEVICE | grep "^/dev/mmc")" ]; then
+        DEVICE_MMC="true"
     fi
 
     if [ -n "$(lscpu | grep GenuineIntel)" ]; then
@@ -234,12 +238,15 @@ function configure_network() {
       		sed -i 's/^#Hidden=.*/Hidden=yes/' /etc/netctl
       	fi
 
-      	netctl start wireless-wpa
+        netctl stop-all
+        netctl start wireless-wpa
+        sleep 10
     fi
 
     ping -c 5 $PING_HOSTNAME
     if [ $? -ne 0 ]; then
-        echo "Network ping check failed."
+        echo "Network ping check failed. Cannot continue."
+        exit
     fi
 }
 
@@ -258,6 +265,13 @@ function partition() {
             #PARTITION_BOOT_NUMBER=1
             DEVICE_ROOT="${DEVICE}p2"
         fi
+
+        if [ "$DEVICE_MMC" == "true" ]; then
+            PARTITION_BOOT="${DEVICE}p1"
+            PARTITION_ROOT="${DEVICE}p2"
+            #PARTITION_BOOT_NUMBER=1
+            DEVICE_ROOT="${DEVICE}p2"
+        fi
     fi
 
     if [ "$BIOS_TYPE" == "bios" ]; then
@@ -270,6 +284,14 @@ function partition() {
         fi
         
         if [ "$DEVICE_NVME" == "true" ]; then
+            PARTITION_BIOS="${DEVICE}p1"
+            PARTITION_BOOT="${DEVICE}p2"
+            PARTITION_ROOT="${DEVICE}p3"
+            #PARTITION_BOOT_NUMBER=2
+            DEVICE_ROOT="${DEVICE}p3"
+        fi
+
+        if [ "$DEVICE_MMC" == "true" ]; then
             PARTITION_BIOS="${DEVICE}p1"
             PARTITION_BOOT="${DEVICE}p2"
             PARTITION_ROOT="${DEVICE}p3"

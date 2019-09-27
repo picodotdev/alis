@@ -67,7 +67,9 @@ CMDLINE_LINUX=""
 ADDITIONAL_USER_NAMES_ARRAY=()
 ADDITIONAL_USER_PASSWORDS_ARRAY=()
 
-LOG="alis.log"
+CONF_FILE="alis.conf"
+LOG_FILE="alis.log"
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 LIGHT_BLUE='\033[1;34m'
@@ -217,8 +219,8 @@ function init() {
 
 function init_log() {
     if [ "$LOG" == "true" ]; then
-        exec > >(tee -a $LOG)
-        exec 2> >(tee -a $LOG >&2)
+        exec > >(tee -a $LOG_FILE)
+        exec 2> >(tee -a $LOG_FILE >&2)
     fi
     set -o xtrace
 }
@@ -633,7 +635,7 @@ function grub() {
     pacman_install "grub dosfstools"
     arch-chroot /mnt sed -i 's/GRUB_DEFAULT=0/GRUB_DEFAULT=saved/' /etc/default/grub
     arch-chroot /mnt sed -i 's/#GRUB_SAVEDEFAULT="true"/GRUB_SAVEDEFAULT="true"/' /etc/default/grub
-    arch-chroot /mnt sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="quiet"/GRUB_CMDLINE_LINUX_DEFAULT=""/' /etc/default/grub
+    arch-chroot /mnt sed -E 's/GRUB_CMDLINE_LINUX_DEFAULT="(.*) quiet"/GRUB_CMDLINE_LINUX_DEFAULT="\1"/' /etc/default/grub
     arch-chroot /mnt sed -i 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="'$CMDLINE_LINUX'"/' /etc/default/grub
     echo "" >> /mnt/etc/default/grub
     echo "# alis" >> /mnt/etc/default/grub
@@ -1043,9 +1045,11 @@ function packages_aur() {
 }
 
 function terminate() {
+    cp "$CONF_FILE" "/mnt/etc/$CONF_FILE"
+
     if [ "$LOG" == "true" ]; then
         mkdir -p /mnt/var/log
-        cp "$LOG" "/mnt/var/log/$LOG"
+        cp "$LOG_FILE" "/mnt/var/log/$LOG_FILE"
     fi
 }
 

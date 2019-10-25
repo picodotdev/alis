@@ -129,7 +129,7 @@ function check_variables() {
     check_variables_list "BOOTLOADER" "$BOOTLOADER" "grub refind systemd"
     check_variables_list "AUR" "$AUR" "aurman yay" "false"
     check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde" "false"
-    check_variables_list "DISPLAY_DRIVER" "$DISPLAY_DRIVER" "intel amdgpu ati nvidia nvidia-lts nvidia-390xx nvidia-390xx-lts nvidia-340xx nvidia-340xx-lts nouveau" "false"
+    check_variables_list "DISPLAY_DRIVER" "$DISPLAY_DRIVER" "intel amdgpu ati nvidia nvidia-lts nvidia-dkms nvidia-390xx nvidia-390xx-lts nvidia-390xx-dkms nouveau" "false"
     check_variables_boolean "KMS" "$KMS"
     check_variables_boolean "DISPLAY_DRIVER_DDX" "$DISPLAY_DRIVER_DDX"
     check_variables_boolean "DISPLAY_DRIVER_HARDWARE_ACCELERATION" "$DISPLAY_DRIVER_HARDWARE_ACCELERATION"
@@ -884,22 +884,22 @@ function desktop_environment() {
     PACKAGES_HARDWARE_ACCELERATION=""
     case "$DISPLAY_DRIVER" in
         "nvidia" )
-            PACKAGES_DRIVER="nvidia nvidia-dkms"
+            PACKAGES_DRIVER="nvidia"
             ;;
         "nvidia-lts" )
-            PACKAGES_DRIVER="nvidia-lts nvidia-dkms"
+            PACKAGES_DRIVER="nvidia-lts"
+            ;;
+        "nvidia-dkms" )
+            PACKAGES_DRIVER="nvidia-dkms"
             ;;
         "nvidia-390xx" )
-            PACKAGES_DRIVER="nvidia-390xx nvidia-390xx-dkms"
+            PACKAGES_DRIVER="nvidia-390xx"
             ;;
         "nvidia-390xx-lts" )
-            PACKAGES_DRIVER="nvidia-390xx-lts nvidia-390xx-dkms"
+            PACKAGES_DRIVER="nvidia-390xx-lts"
             ;;
-        "nvidia-340xx" )
-            PACKAGES_DRIVER="nvidia-340xx nvidia-340xx-dkms"
-            ;;
-        "nvidia-340xx-lts" )
-            PACKAGES_DRIVER="nvidia-340xx-lts nvidia-340xx-dkms"
+        "nvidia-390xx-dkms" )
+            PACKAGES_DRIVER="nvidia-390xx-dkms"
             ;;
     esac
     if [ "$DISPLAY_DRIVER_DDX" == "true" ]; then

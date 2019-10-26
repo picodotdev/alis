@@ -450,6 +450,7 @@ function partition() {
         fallocate -l $SWAP_SIZE /mnt/swap
         chmod 600 /mnt/swap
         mkswap /mnt/swap
+        swapon /swap
     fi
 
     BOOT_DIRECTORY=/boot

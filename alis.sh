@@ -556,7 +556,7 @@ function mkinitcpio() {
             "intel" )
                 MODULES="i915"
                 ;;
-            "nvidia" | "nvidia-390xx" | "nvidia-390xx-lts" )
+            "nvidia" | "nvidia-390xx" | "nvidia-390xx-lts" | "nvidia-dkms" )
                 MODULES="nvidia nvidia_modeset nvidia_uvm nvidia_drm"
                 ;;
             "amdgpu" )

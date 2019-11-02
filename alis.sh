@@ -475,10 +475,6 @@ function install() {
 
     sed -i 's/#Color/Color/' /mnt/etc/pacman.conf
     sed -i 's/#TotalDownload/TotalDownload/' /mnt/etc/pacman.conf
-
-    if [ "$DEVICE_TRIM" == "true" ]; then
-        arch-chroot /mnt systemctl enable fstrim.timer
-    fi
 }
 
 function kernels() {
@@ -507,6 +503,7 @@ function configuration() {
 
     if [ "$DEVICE_TRIM" == "true" ]; then
         sed -i 's/relatime/noatime/' /mnt/etc/fstab
+        arch-chroot /mnt systemctl enable fstrim.timer
     fi
 
     arch-chroot /mnt ln -s -f $TIMEZONE /etc/localtime

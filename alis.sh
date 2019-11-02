@@ -69,6 +69,7 @@ ADDITIONAL_USER_PASSWORDS_ARRAY=()
 
 CONF_FILE="alis.conf"
 LOG_FILE="alis.log"
+ASCIINEMA_FILE="alis.asciinema"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -236,7 +237,7 @@ function facts() {
         BIOS_TYPE="bios"
     fi
 
-    if [ -f alis.asciinema ]; then
+    if [ -f "$ASCIINEMA_FILE" ]; then
         ASCIINEMA="true"
     else
         ASCIINEMA="false"
@@ -475,10 +476,6 @@ function install() {
 
     sed -i 's/#Color/Color/' /mnt/etc/pacman.conf
     sed -i 's/#TotalDownload/TotalDownload/' /mnt/etc/pacman.conf
-
-    if [ "$DEVICE_TRIM" == "true" ]; then
-        arch-chroot /mnt systemctl enable fstrim.timer
-    fi
 }
 
 function kernels() {
@@ -507,6 +504,7 @@ function configuration() {
 
     if [ "$DEVICE_TRIM" == "true" ]; then
         sed -i 's/relatime/noatime/' /mnt/etc/fstab
+        arch-chroot /mnt systemctl enable fstrim.timer
     fi
 
     arch-chroot /mnt ln -s -f $TIMEZONE /etc/localtime
@@ -570,6 +568,10 @@ function mkinitcpio() {
                 ;;
         esac
         arch-chroot /mnt sed -i "s/MODULES=()/MODULES=($MODULES)/" /etc/mkinitcpio.conf
+    fi
+
+    if [ "$LVM" == "true" ]; then
+        pacman_install "lvm2"
     fi
 
     if [ "$LVM" == "true" -a -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
@@ -1050,6 +1052,10 @@ function terminate() {
     if [ "$LOG" == "true" ]; then
         mkdir -p /mnt/var/log
         cp "$LOG_FILE" "/mnt/var/log/$LOG_FILE"
+    fi
+    if [ "$ASCIINEMA" == "true" ]; then
+        mkdir -p /mnt/var/log
+        cp "$ASCIINEMA_FILE" "/mnt/var/log/$ASCIINEMA_FILE"
     fi
 }
 

@@ -69,6 +69,7 @@ ADDITIONAL_USER_PASSWORDS_ARRAY=()
 
 CONF_FILE="alis.conf"
 LOG_FILE="alis.log"
+ASCIINEMA_FILE="alis.asciinema"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -236,7 +237,7 @@ function facts() {
         BIOS_TYPE="bios"
     fi
 
-    if [ -f alis.asciinema ]; then
+    if [ -f "$ASCIINEMA_FILE" ]; then
         ASCIINEMA="true"
     else
         ASCIINEMA="false"
@@ -1051,6 +1052,10 @@ function terminate() {
     if [ "$LOG" == "true" ]; then
         mkdir -p /mnt/var/log
         cp "$LOG_FILE" "/mnt/var/log/$LOG_FILE"
+    fi
+    if [ "$ASCIINEMA" == "true" ]; then
+        mkdir -p /mnt/var/log
+        cp "$ASCIINEMA_FILE" "/mnt/var/log/$ASCIINEMA_FILE"
     fi
 }
 

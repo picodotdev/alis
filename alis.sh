@@ -873,6 +873,10 @@ function create_user() {
 	USER_PASSWORD=$2
     arch-chroot /mnt useradd -m -G wheel,storage,optical -s /bin/bash $USER_NAME
     printf "$USER_PASSWORD\n$USER_PASSWORD" | arch-chroot /mnt passwd $USER_NAME
+
+    # Create XDG dirs
+    arch-chroot /mnt pacman -S --noconfirm --needed xdg-user-dirs
+    arch-chroot /mnt sudo -H -u $USER_NAME xdg-user-dirs-update
 }
 
 function desktop_environment() {

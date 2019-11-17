@@ -869,12 +869,13 @@ function create_user() {
     echo -e "${LIGHT_BLUE}# create_user() step${NC}"
     echo ""
 
-	USER_NAME=$1
-	USER_PASSWORD=$2
+    USER_NAME=$1
+    USER_PASSWORD=$2
     arch-chroot /mnt useradd -m -G wheel,storage,optical -s /bin/bash $USER_NAME
     printf "$USER_PASSWORD\n$USER_PASSWORD" | arch-chroot /mnt passwd $USER_NAME
 
     pacman_install "xdg-user-dirs"
+    arch-chroot /mnt sudo -H -u $USER_NAME echo "$LOCALE" > "/home/$USER_NAME/.config/user-dirs.locale"
     arch-chroot /mnt sudo -H -u $USER_NAME xdg-user-dirs-update
 }
 

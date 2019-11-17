@@ -873,6 +873,9 @@ function create_user() {
 	USER_PASSWORD=$2
     arch-chroot /mnt useradd -m -G wheel,storage,optical -s /bin/bash $USER_NAME
     printf "$USER_PASSWORD\n$USER_PASSWORD" | arch-chroot /mnt passwd $USER_NAME
+
+    pacman_install "xdg-user-dirs"
+    arch-chroot /mnt sudo -H -u $USER_NAME xdg-user-dirs-update
 }
 
 function desktop_environment() {
@@ -1110,7 +1113,7 @@ function pacman_install() {
     PACKAGES=$1
     for VARIABLE in {1..5}
     do
-        arch-chroot /mnt pacman -Syu --noconfirm $PACKAGES
+        arch-chroot /mnt pacman -Syu --noconfirm --needed $PACKAGES
         if [ $? == 0 ]; then
             break
         else

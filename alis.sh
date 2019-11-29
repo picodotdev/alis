@@ -874,10 +874,7 @@ function create_user() {
     arch-chroot /mnt useradd -m -G wheel,storage,optical -s /bin/bash $USER_NAME
     printf "$USER_PASSWORD\n$USER_PASSWORD" | arch-chroot /mnt passwd $USER_NAME
 
-    USER_LOCALE=$LOCALE
     pacman_install "xdg-user-dirs"
-    arch-chroot /mnt sudo -H -u $USER_NAME mkdir -p "/home/$USER_NAME/.config"
-    arch-chroot /mnt sudo -H -u $USER_NAME bash -c "echo \"$USER_LOCALE\" > \"/home/$USER_NAME/.config/user-dirs.locale\""
 }
 
 function desktop_environment() {

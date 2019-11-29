@@ -875,8 +875,6 @@ function create_user() {
     printf "$USER_PASSWORD\n$USER_PASSWORD" | arch-chroot /mnt passwd $USER_NAME
 
     pacman_install "xdg-user-dirs"
-    arch-chroot /mnt sudo -H -u $USER_NAME echo "$LOCALE" > "/home/$USER_NAME/.config/user-dirs.locale"
-    arch-chroot /mnt sudo -H -u $USER_NAME xdg-user-dirs-update
 }
 
 function desktop_environment() {

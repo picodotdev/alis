@@ -210,9 +210,7 @@ function warning() {
 }
 
 function init() {
-    echo ""
-    echo -e "${LIGHT_BLUE}# init() step${NC}"
-    echo ""
+    print_step "init()"
 
     init_log
     loadkeys $KEYS
@@ -227,9 +225,7 @@ function init_log() {
 }
 
 function facts() {
-    echo ""
-    echo -e "${LIGHT_BLUE}# facts() step${NC}"
-    echo ""
+    print_step "facts()"
 
     if [ -d /sys/firmware/efi ]; then
         BIOS_TYPE="uefi"
@@ -273,9 +269,7 @@ function check_facts() {
 }
 
 function prepare() {
-    echo ""
-    echo -e "${LIGHT_BLUE}# prepare() step${NC}"
-    echo ""
+    print_step "prepare()"
 
     configure_time
     prepare_partition
@@ -332,9 +326,7 @@ function configure_network() {
 }
 
 function partition() {
-    echo ""
-    echo -e "${LIGHT_BLUE}# partition() step${NC}"
-    echo ""
+    print_step "partition()"
 
     sgdisk --zap-all $DEVICE
     wipefs -a $DEVICE
@@ -462,9 +454,7 @@ function partition() {
 }
 
 function install() {
-    echo ""
-    echo -e "${LIGHT_BLUE}# install() step${NC}"
-    echo ""
+    print_step "install()"
 
     if [ -n "$PACMAN_MIRROR" ]; then
         echo "Server=$PACMAN_MIRROR" > /etc/pacman.d/mirrorlist
@@ -479,9 +469,7 @@ function install() {
 }
 
 function kernels() {
-    echo ""
-    echo -e "${LIGHT_BLUE}# kernels() step${NC}"
-    echo ""
+    print_step "kernels()"
 
     pacman_install "linux-headers"
     if [ -n "$KERNELS" ]; then
@@ -490,9 +478,7 @@ function kernels() {
 }
 
 function configuration() {
-    echo ""
-    echo -e "${LIGHT_BLUE}# configuration() step${NC}"
-    echo ""
+    print_step "configuration()"
 
     genfstab -U /mnt >> /mnt/etc/fstab
 
@@ -523,18 +509,14 @@ function configuration() {
 }
 
 function network() {
-    echo ""
-    echo -e "${LIGHT_BLUE}# network() step${NC}"
-    echo ""
+    print_step "network()"
 
     pacman_install "networkmanager"
     arch-chroot /mnt systemctl enable NetworkManager.service
 }
 
 function virtualbox() {
-    echo ""
-    echo -e "${LIGHT_BLUE}# virtualbox() step${NC}"
-    echo ""
+    print_step "virtualbox()"
 
     if [ -z "$KERNELS" ]; then
         pacman_install "virtualbox-guest-utils virtualbox-guest-modules-arch"
@@ -544,9 +526,7 @@ function virtualbox() {
 }
 
 function mkinitcpio() {
-    echo ""
-    echo -e "${LIGHT_BLUE}# mkinitcpio() step${NC}"
-    echo ""
+    print_step "mkinitcpio()"
 
     if [ "$KMS" == "true" ]; then
         MODULES=""
@@ -592,9 +572,7 @@ function mkinitcpio() {
 }
 
 function bootloader() {
-    echo ""
-    echo -e "${LIGHT_BLUE}# bootloader() step${NC}"
-    echo ""
+    print_step "bootloader()"
 
     BOOTLOADER_ALLOW_DISCARDS=""
 
@@ -865,9 +843,7 @@ function users() {
 }
 
 function create_user() {
-    echo ""
-    echo -e "${LIGHT_BLUE}# create_user() step${NC}"
-    echo ""
+    print_step "create_user()"
 
     USER_NAME=$1
     USER_PASSWORD=$2
@@ -878,9 +854,7 @@ function create_user() {
 }
 
 function desktop_environment() {
-    echo ""
-    echo -e "${LIGHT_BLUE}# desktop_environment() step${NC}"
-    echo ""
+    print_step "desktop_environment()"
 
     PACKAGES_DRIVER=""
     PACKAGES_DDX=""
@@ -992,17 +966,17 @@ function desktop_environment_kde() {
 }
 
 function desktop_environment_xfce() {
-    pacman_install "xfce4 xfce4-goodies lightdm lightdm-gtk-greeter"
+    pacman_install "xfce4 xfce4-goodies lightdm lightdm-gtk-greeter xorg-server"
     arch-chroot /mnt systemctl enable lightdm.service
 }
 
 function desktop_environment_mate() {
-    pacman_install "mate mate-extra lightdm lightdm-gtk-greeter"
+    pacman_install "mate mate-extra lightdm lightdm-gtk-greeter xorg-server"
     arch-chroot /mnt systemctl enable lightdm.service
 }
 
 function desktop_environment_cinnamon() {
-    pacman_install "cinnamon lightdm lightdm-gtk-greeter"
+    pacman_install "cinnamon lightdm lightdm-gtk-greeter xorg-server"
     arch-chroot /mnt systemctl enable lightdm.service
 }
 
@@ -1012,9 +986,7 @@ function desktop_environment_lxde() {
 }
 
 function packages() {
-    echo ""
-    echo -e "${LIGHT_BLUE}# packages() step${NC}"
-    echo ""
+    print_step "packages()"
 
     if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
         pacman_install "btrfs-progs"
@@ -1132,6 +1104,13 @@ function aur_install() {
             sleep 10
         fi
     done
+}
+
+function print_step() {
+    STEP=$1
+    echo ""
+    echo -e "${LIGHT_BLUE}# ${STEP} step${NC}"
+    echo ""
 }
 
 function main() {

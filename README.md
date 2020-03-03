@@ -22,12 +22,12 @@ Currently these scripts are for me but maybe they are useful for you too.
 * LVM and no LVM
 * _root_ partition encrypted and no encrypted
 * LVM on LUKS when LVM and encrypted
-* File system formats ext4, btrfs (no swap), xfs
-* Optional file swap
+* File system formats ext4, btrfs (with subvols), xfs
+* Optional file swap (not supported in btrfs)
 * WPA WIFI network installation
 * Periodic TRIM for SSD storage
 * VirtualBox guest utils
-* Intel processors microcode
+* Intel and AMD processors microcode
 * Users creation and add to sudoers
 * Common and custom packages installation
 * AUR utility installation (aurman, yay)

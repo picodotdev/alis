@@ -63,7 +63,7 @@ PARTUUID_ROOT=""
 DEVICE_SATA=""
 DEVICE_NVME=""
 DEVICE_MMC=""
-CPU_INTEL=""
+CPU_VENDOR=""
 VIRTUALBOX=""
 CMDLINE_LINUX_ROOT=""
 CMDLINE_LINUX=""
@@ -310,14 +310,22 @@ function partition() {
         DEVICE_ROOT="/dev/mapper/$DEVICE_ROOT_MAPPER"
     fi
 
-    PARTITION_OPTIONS=""
+    PARTITION_OPTIONS="defaults"
 
     if [ "$DEVICE_TRIM" == "true" ]; then
-        PARTITION_OPTIONS="defaults,noatime"
+        PARTITION_OPTIONS="$PARTITION_OPTIONS,noatime"
     fi
 
-    mount -o "$PARTITION_OPTIONS" $DEVICE_ROOT /mnt
-    mount -o "$PARTITION_OPTIONS" $PARTITION_BOOT /mnt/boot
+    if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
+        mount -o "subvol=root,$PARTITION_OPTIONS,compress=lzo" "$DEVICE_ROOT" /mnt
+        mount -o "$PARTITION_OPTIONS" "$PARTITION_BOOT" /mnt/boot
+        mount -o "subvol=home,$PARTITION_OPTIONS,compress=lzo" "$DEVICE_ROOT" /mnt/home
+        mount -o "subvol=var,$PARTITION_OPTIONS,compress=lzo" "$DEVICE_ROOT" /mnt/var
+        mount -o "subvol=snapshots,$PARTITION_OPTIONS,compress=lzo" "$DEVICE_ROOT" /mnt/snapshots
+    else
+        mount -o "$PARTITION_OPTIONS" $DEVICE_ROOT /mnt
+        mount -o "$PARTITION_OPTIONS" $PARTITION_BOOT /mnt/boot
+    fi
 }
 
 function recovery() {

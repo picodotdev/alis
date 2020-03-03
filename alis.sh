@@ -50,6 +50,7 @@ LVM_DEVICE=""
 LVM_VOLUME_PHISICAL="lvm"
 LVM_VOLUME_GROUP="vg"
 LVM_VOLUME_LOGICAL="root"
+SWAPFILE=""
 BOOT_DIRECTORY=""
 ESP_DIRECTORY=""
 #PARTITION_BOOT_NUMBER=0
@@ -60,7 +61,7 @@ PARTUUID_ROOT=""
 DEVICE_SATA=""
 DEVICE_NVME=""
 DEVICE_MMC=""
-CPU_INTEL=""
+CPU_VENDOR=""
 VIRTUALBOX=""
 CMDLINE_LINUX_ROOT=""
 CMDLINE_LINUX=""
@@ -127,6 +128,7 @@ function check_variables() {
     check_variables_equals "ROOT_PASSWORD" "ROOT_PASSWORD_RETYPE" "$ROOT_PASSWORD" "$ROOT_PASSWORD_RETYPE"
     check_variables_equals "USER_PASSWORD" "USER_PASSWORD_RETYPE" "$USER_PASSWORD" "$USER_PASSWORD_RETYPE"
     check_variables_size "ADDITIONAL_USER_PASSWORDS" "${#ADDITIONAL_USER_NAMES_ARRAY[@]}" "${#ADDITIONAL_USER_PASSWORDS_ARRAY[@]}"
+    check_variables_value "HOOKS" "$HOOKS"
     check_variables_list "BOOTLOADER" "$BOOTLOADER" "grub refind systemd"
     check_variables_list "AUR" "$AUR" "aurman yay" "false"
     check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde" "false"
@@ -251,7 +253,9 @@ function facts() {
     fi
 
     if [ -n "$(lscpu | grep GenuineIntel)" ]; then
-        CPU_INTEL="true"
+        CPU_VENDOR="intel"
+    elif [ -n "$(lscpu | grep AuthenticAMD)" ]; then
+        CPU_VENDOR="amd"
     fi
 
     if [ -n "$(lspci | grep -i virtualbox)" ]; then
@@ -328,9 +332,11 @@ function configure_network() {
 function partition() {
     print_step "partition()"
 
+    # clean
     sgdisk --zap-all $DEVICE
     wipefs -a $DEVICE
 
+    # partition
     if [ "$BIOS_TYPE" == "uefi" ]; then
         if [ "$DEVICE_SATA" == "true" ]; then
             PARTITION_BOOT="${DEVICE}1"
@@ -392,6 +398,7 @@ function partition() {
         fi
     fi
 
+    # luks and lvm
     if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
         LVM_DEVICE="/dev/mapper/$LVM_VOLUME_PHISICAL"
     else
@@ -412,6 +419,7 @@ function partition() {
         DEVICE_ROOT="/dev/mapper/$LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL"
     fi
 
+    # format
     if [ "$BIOS_TYPE" == "uefi" ]; then
         wipefs -a $PARTITION_BOOT
         wipefs -a $DEVICE_ROOT
@@ -428,23 +436,46 @@ function partition() {
         mkfs."$FILE_SYSTEM_TYPE" -L root $DEVICE_ROOT
     fi
 
-    PARTITION_OPTIONS=""
+    PARTITION_OPTIONS="defaults"
 
     if [ "$DEVICE_TRIM" == "true" ]; then
-        PARTITION_OPTIONS="defaults,noatime"
+        PARTITION_OPTIONS="$PARTITION_OPTIONS,noatime"
     fi
 
-    mount -o "$PARTITION_OPTIONS" "$DEVICE_ROOT" /mnt
+    # mount
+    if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
+        mount -o "$PARTITION_OPTIONS" "$DEVICE_ROOT" /mnt
+        btrfs subvolume create /mnt/root
+        btrfs subvolume create /mnt/home
+        btrfs subvolume create /mnt/var
+        btrfs subvolume create /mnt/snapshots
+        umount /mnt
 
-    mkdir /mnt/boot
-    mount -o "$PARTITION_OPTIONS" "$PARTITION_BOOT" /mnt/boot
+        mount -o "subvol=root,$PARTITION_OPTIONS,compress=lzo" "$DEVICE_ROOT" /mnt
 
+        mkdir /mnt/{boot,home,var,snapshots}
+        mount -o "$PARTITION_OPTIONS" "$PARTITION_BOOT" /mnt/boot
+        mount -o "subvol=home,$PARTITION_OPTIONS,compress=lzo" "$DEVICE_ROOT" /mnt/home
+        mount -o "subvol=var,$PARTITION_OPTIONS,compress=lzo" "$DEVICE_ROOT" /mnt/var
+        mount -o "subvol=snapshots,$PARTITION_OPTIONS,compress=lzo" "$DEVICE_ROOT" /mnt/snapshots
+    else
+        mount -o "$PARTITION_OPTIONS" "$DEVICE_ROOT" /mnt
+
+        mkdir /mnt/{boot}
+        mount -o "$PARTITION_OPTIONS" "$PARTITION_BOOT" /mnt/boot
+    fi
+
+    # swap
+    # btrfs: https://btrfs.wiki.kernel.org/index.php/FAQ#Does_btrfs_support_swap_files.3F
+    # btrfs: https://wiki.archlinux.org/index.php/Btrfs#Disabling_CoW
+    # btrfs: https://jlk.fjfi.cvut.cz/arch/manpages/man/btrfs.5#MOUNT_OPTIONS
     if [ -n "$SWAP_SIZE" -a "$FILE_SYSTEM_TYPE" != "btrfs" ]; then
-        fallocate -l $SWAP_SIZE /mnt/swap
-        chmod 600 /mnt/swap
-        mkswap /mnt/swap
+        fallocate -l $SWAP_SIZE "/mnt/swapfile"
+        chmod 600 "/mnt/swapfile"
+        mkswap "/mnt/swapfile"
     fi
 
+    # set variables
     BOOT_DIRECTORY=/boot
     ESP_DIRECTORY=/boot
     UUID_BOOT=$(blkid -s UUID -o value $PARTITION_BOOT)
@@ -468,15 +499,6 @@ function install() {
     sed -i 's/#TotalDownload/TotalDownload/' /mnt/etc/pacman.conf
 }
 
-function kernels() {
-    print_step "kernels()"
-
-    pacman_install "linux-headers"
-    if [ -n "$KERNELS" ]; then
-        pacman_install "$KERNELS"
-    fi
-}
-
 function configuration() {
     print_step "configuration()"
 
@@ -484,7 +506,7 @@ function configuration() {
 
     if [ -n "$SWAP_SIZE" -a "$FILE_SYSTEM_TYPE" != "btrfs" ]; then
         echo "# swap" >> /mnt/etc/fstab
-        echo "/swap none swap defaults 0 0" >> /mnt/etc/fstab
+        echo "/swapfile none swap defaults 0 0" >> /mnt/etc/fstab
         echo "" >> /mnt/etc/fstab
     fi
 
@@ -508,25 +530,8 @@ function configuration() {
     printf "$ROOT_PASSWORD\n$ROOT_PASSWORD" | arch-chroot /mnt passwd
 }
 
-function network() {
-    print_step "network()"
-
-    pacman_install "networkmanager"
-    arch-chroot /mnt systemctl enable NetworkManager.service
-}
-
-function virtualbox() {
-    print_step "virtualbox()"
-
-    if [ -z "$KERNELS" ]; then
-        pacman_install "virtualbox-guest-utils virtualbox-guest-modules-arch"
-    else
-        pacman_install "virtualbox-guest-utils virtualbox-guest-dkms"
-    fi
-}
-
-function mkinitcpio() {
-    print_step "mkinitcpio()"
+function mkinitcpio_configuration() {
+    print_step "mkinitcpio_configuration()"
 
     if [ "$KMS" == "true" ]; then
         MODULES=""
@@ -547,28 +552,72 @@ function mkinitcpio() {
                 MODULES="nouveau"
                 ;;
         esac
-        arch-chroot /mnt sed -i "s/MODULES=()/MODULES=($MODULES)/" /etc/mkinitcpio.conf
+        arch-chroot /mnt sed -i "s/^MODULES=()/MODULES=($MODULES)/" /etc/mkinitcpio.conf
     fi
 
     if [ "$LVM" == "true" ]; then
         pacman_install "lvm2"
     fi
-
-    if [ "$LVM" == "true" -a -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
-        arch-chroot /mnt sed -i 's/ block / block keyboard keymap /' /etc/mkinitcpio.conf
-        arch-chroot /mnt sed -i 's/ filesystems keyboard / encrypt lvm2 filesystems /' /etc/mkinitcpio.conf
-    elif [ "$LVM" == "true" ]; then
-        arch-chroot /mnt sed -i 's/ filesystems / lvm2 filesystems /' /etc/mkinitcpio.conf
-    elif [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
-        arch-chroot /mnt sed -i 's/ block / block keyboard keymap /' /etc/mkinitcpio.conf
-        arch-chroot /mnt sed -i 's/ filesystems keyboard / encrypt filesystems /' /etc/mkinitcpio.conf
+    if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
+        pacman_install "btrfs-progs"
     fi
+
+    if ["$BOOTLOADER" == "systemd"]; then
+        HOOKS=$(echo $HOOKS | sed 's/!systemd/systemd/')
+        if [ "$LVM" == "true" ]; then
+            HOOKS=$(echo $HOOKS | sed 's/!sd-lvm2/sd-lvm2/')
+        fi
+        if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
+            HOOKS=$(echo $HOOKS | sed 's/!sd-encrypt/sd-encrypt/')
+        fi
+    else
+        HOOKS=$(echo $HOOKS | sed 's/!udev/udev/')
+        HOOKS=$(echo $HOOKS | sed 's/!usr/usr/')
+        if [ "$LVM" == "true" ]; then
+            HOOKS=$(echo $HOOKS | sed 's/!lvm2/lvm2/')
+        fi
+        if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
+            HOOKS=$(echo $HOOKS | sed 's/!encrypt/encrypt/')
+        fi
+    fi
+    HOOKS=$(sanitize_variable "$HOOKS")
+    arch-chroot /mnt sed -i "s/^HOOKS=(.*)$/HOOKS=($HOOKS)/" /etc/mkinitcpio.conf
 
     if [ "$KERNELS_COMPRESSION" != "" ]; then
-        arch-chroot /mnt sed -i "s/#COMPRESSION=\"$KERNELS_COMPRESSION\"/COMPRESSION=\"$KERNELS_COMPRESSION\"/" /etc/mkinitcpio.conf
+        arch-chroot /mnt sed -i 's/^#COMPRESSION="'"$KERNELS_COMPRESSION"'"/COMPRESSION="'"$KERNELS_COMPRESSION"'"/' /etc/mkinitcpio.conf
     fi
+}
+
+function kernels() {
+    print_step "kernels()"
+
+    pacman_install "linux-headers"
+    if [ -n "$KERNELS" ]; then
+        pacman_install "$KERNELS"
+    fi
+}
+
+function mkinitcpio() {
+    print_step "mkinitcpio()"
 
     arch-chroot /mnt mkinitcpio -P
+}
+
+function network() {
+    print_step "network()"
+
+    pacman_install "networkmanager"
+    arch-chroot /mnt systemctl enable NetworkManager.service
+}
+
+function virtualbox() {
+    print_step "virtualbox()"
+
+    if [ -z "$KERNELS" ]; then
+        pacman_install "virtualbox-guest-utils virtualbox-guest-modules-arch"
+    else
+        pacman_install "virtualbox-guest-utils virtualbox-guest-dkms"
+    fi
 }
 
 function bootloader() {
@@ -576,8 +625,13 @@ function bootloader() {
 
     BOOTLOADER_ALLOW_DISCARDS=""
 
-    if [ "$CPU_INTEL" == "true" -a "$VIRTUALBOX" != "true" ]; then
-        pacman_install "intel-ucode"
+    if [ "$VIRTUALBOX" != "true" ]; then
+        if [ "$CPU_VENDOR" == "intel" ]; then
+            pacman_install "intel-ucode"
+        fi
+        if [ "$CPU_VENDOR" == "amd" ]; then
+            pacman_install "amd-ucode"
+        fi
     fi
     if [ "$LVM" == "true" ]; then
         CMDLINE_LINUX_ROOT="root=$DEVICE_ROOT"
@@ -589,6 +643,9 @@ function bootloader() {
             BOOTLOADER_ALLOW_DISCARDS=":allow-discards"
         fi
         CMDLINE_LINUX="cryptdevice=PARTUUID=$PARTUUID_ROOT:$LVM_VOLUME_PHISICAL$BOOTLOADER_ALLOW_DISCARDS"
+    fi
+    if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
+        CMDLINE_LINUX="$CMDLINE_LINUX rootflags=subvol=root"
     fi
     if [ "$KMS" == "true" ]; then
         case "$DISPLAY_DRIVER" in
@@ -616,7 +673,7 @@ function grub() {
     arch-chroot /mnt sed -i 's/GRUB_DEFAULT=0/GRUB_DEFAULT=saved/' /etc/default/grub
     arch-chroot /mnt sed -i 's/#GRUB_SAVEDEFAULT="true"/GRUB_SAVEDEFAULT="true"/' /etc/default/grub
     arch-chroot /mnt sed -i -E 's/GRUB_CMDLINE_LINUX_DEFAULT="(.*) quiet"/GRUB_CMDLINE_LINUX_DEFAULT="\1"/' /etc/default/grub
-    arch-chroot /mnt sed -i 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="'$CMDLINE_LINUX'"/' /etc/default/grub
+    arch-chroot /mnt sed -i 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="'"$CMDLINE_LINUX"'"/' /etc/default/grub
     echo "" >> /mnt/etc/default/grub
     echo "# alis" >> /mnt/etc/default/grub
     echo "GRUB_DISABLE_SUBMENU=y" >> /mnt/etc/default/grub
@@ -649,8 +706,13 @@ function refind() {
 
     REFIND_MICROCODE=""
 
-    if [ "$CPU_INTEL" == "true" -a "$VIRTUALBOX" != "true" ]; then
-        REFIND_MICROCODE="initrd=/intel-ucode.img"
+    if [ "$VIRTUALBOX" != "true" ]; then
+        if [ "$CPU_VENDOR" == "intel" ]; then
+            REFIND_MICROCODE="initrd=/intel-ucode.img"
+        fi
+        if [ "$CPU_VENDOR" == "amd" ]; then
+            REFIND_MICROCODE="initrd=/amd-ucode.img"
+        fi
     fi
 
     echo "" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
@@ -749,8 +811,13 @@ function systemd() {
     SYSTEMD_MICROCODE=""
     SYSTEMD_OPTIONS=""
 
-    if [ "$CPU_INTEL" == "true" -a "$VIRTUALBOX" != "true" ]; then
-        SYSTEMD_MICROCODE="/intel-ucode.img"
+    if [ "$VIRTUALBOX" != "true" ]; then
+        if [ "$CPU_VENDOR" == "intel" ]; then
+            SYSTEMD_MICROCODE="/intel-ucode.img"
+        fi
+        if [ "$CPU_VENDOR" == "amd" ]; then
+            SYSTEMD_MICROCODE="/amd-ucode.img"
+        fi
     fi
 
     if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
@@ -988,10 +1055,6 @@ function desktop_environment_lxde() {
 function packages() {
     print_step "packages()"
 
-    if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
-        pacman_install "btrfs-progs"
-    fi
-
     if [ -n "$PACKAGES_PACMAN" ]; then
         pacman_install "$PACKAGES_PACMAN"
     fi
@@ -1124,14 +1187,15 @@ function main() {
     prepare
     partition
     install
-    kernels
     configuration
+    mkinitcpio_configuration
+    kernels
+    mkinitcpio
     network
     if [ "$VIRTUALBOX" == "true" ]; then
         virtualbox
     fi
     users
-    mkinitcpio
     bootloader
     if [ "$DESKTOP_ENVIRONMENT" != "" ]; then
         desktop_environment

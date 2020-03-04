@@ -76,6 +76,7 @@ As another form of log.
 ```
 $ wget https://raw.githubusercontent.com/picodotdev/alis/master/alis.conf
 $ wget https://raw.githubusercontent.com/picodotdev/alis/master/alis.sh
+$ wget https://raw.githubusercontent.com/picodotdev/alis/master/alis-packer.json
 $ wget https://raw.githubusercontent.com/picodotdev/alis/master/alis-packer.sh
 $ chmod +x ./alis-packer.sh
 $ ./alis-packer.sh

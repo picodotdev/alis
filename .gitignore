@@ -1,2 +1,4 @@
+packer_cache/
+output-archlinux-alis-virtualbox/
 *.vala
 *.patch

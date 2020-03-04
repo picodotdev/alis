@@ -73,10 +73,12 @@ As another form of log.
 
 ### Testing in VirtuaBox with Packer
 
+```
 $ wget https://raw.githubusercontent.com/picodotdev/alis/master/alis.conf
 $ wget https://raw.githubusercontent.com/picodotdev/alis/master/alis.sh
 $ wget https://raw.githubusercontent.com/picodotdev/alis/master/alis-packer.sh
 $ alis-packer.sh
+```
 
 ### Recovery
 

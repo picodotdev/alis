@@ -119,7 +119,7 @@ function check_variables() {
     check_variables_list "KERNELS" "$KERNELS" "linux-lts linux-lts-headers linux-hardened linux-hardened-headers linux-zen linux-zen-headers" "false"
     check_variables_list "KERNELS_COMPRESSION" "$KERNELS_COMPRESSION" "gzip bzip2 lzma xz lzop lz4" "false"
     check_variables_value "TIMEZONE" "$TIMEZONE"
-    check_variables_value "LOCALE" "$LOCALE"
+    check_variables_value "LOCALES" "$LOCALES"
     check_variables_value "LANG" "$LANG"
     check_variables_value "KEYMAP" "$KEYMAP"
     check_variables_value "HOSTNAME" "$HOSTNAME"
@@ -322,7 +322,8 @@ function configure_network() {
         sleep 10
     fi
 
-    ping -c 5 $PING_HOSTNAME
+    # only on ping -c 1, packer gets stuck if -c 5
+    ping -c 1 -i 2 -W 5 -w 30 $PING_HOSTNAME
     if [ $? -ne 0 ]; then
         echo "Network ping check failed. Cannot continue."
         exit
@@ -461,7 +462,7 @@ function partition() {
     else
         mount -o "$PARTITION_OPTIONS" "$DEVICE_ROOT" /mnt
 
-        mkdir /mnt/{boot}
+        mkdir /mnt/boot
         mount -o "$PARTITION_OPTIONS" "$PARTITION_BOOT" /mnt/boot
     fi
 
@@ -517,9 +518,13 @@ function configuration() {
 
     arch-chroot /mnt ln -s -f $TIMEZONE /etc/localtime
     arch-chroot /mnt hwclock --systohc
-    sed -i "s/#$LOCALE/$LOCALE/" /mnt/etc/locale.gen
+    for LOCALE in "${LOCALES[@]}"; do
+        sed -i "s/#$LOCALE/$LOCALE/" /mnt/etc/locale.gen
+    done
     arch-chroot /mnt locale-gen
-    echo -e "$LANG\n$LANGUAGE" > /mnt/etc/locale.conf
+    for VARIABLE in "${LOCALE_CONF[@]}"; do
+        echo -e "$VARIABLE" >> /mnt/etc/locale.conf
+    done
     echo -e "$KEYMAP\n$FONT\n$FONT_MAP" > /mnt/etc/vconsole.conf
     echo $HOSTNAME > /mnt/etc/hostname
 

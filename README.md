@@ -38,6 +38,7 @@ Currently these scripts are for me but maybe they are useful for you too.
 * Graphic controllers (intel, nvidia, amd) with optionally early KMS start
 * GRUB, rEFInd, systemd-boot bootloaders
 * Script for download installation and recovery scripts and configuration files
+* Packer support for testing in VirtualBox
 * Installation log with all commands executed and output in a file and/or asciinema video
 * Wait after installation for an abortable reboot
 
@@ -69,6 +70,13 @@ As another form of log.
 # exit
 # ./alis-reboot.sh
 ```
+
+### Testing in VirtuaBox with Packer
+
+$ wget https://raw.githubusercontent.com/picodotdev/alis/master/alis.conf
+$ wget https://raw.githubusercontent.com/picodotdev/alis/master/alis.sh
+$ wget https://raw.githubusercontent.com/picodotdev/alis/master/alis-packer.sh
+$ alis-packer.sh
 
 ### Recovery
 

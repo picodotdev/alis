@@ -120,6 +120,7 @@ function check_variables() {
     check_variables_list "KERNELS_COMPRESSION" "$KERNELS_COMPRESSION" "gzip bzip2 lzma xz lzop lz4" "false"
     check_variables_value "TIMEZONE" "$TIMEZONE"
     check_variables_value "LOCALES" "$LOCALES"
+    check_variables_value "LOCALE_CONF" "$LOCALE_CONF"
     check_variables_value "LANG" "$LANG"
     check_variables_value "KEYMAP" "$KEYMAP"
     check_variables_value "HOSTNAME" "$HOSTNAME"
@@ -127,7 +128,6 @@ function check_variables() {
     check_variables_value "USER_PASSWORD" "$USER_PASSWORD"
     check_variables_equals "ROOT_PASSWORD" "ROOT_PASSWORD_RETYPE" "$ROOT_PASSWORD" "$ROOT_PASSWORD_RETYPE"
     check_variables_equals "USER_PASSWORD" "USER_PASSWORD_RETYPE" "$USER_PASSWORD" "$USER_PASSWORD_RETYPE"
-    check_variables_size "ADDITIONAL_USER_PASSWORDS" "${#ADDITIONAL_USER_NAMES_ARRAY[@]}" "${#ADDITIONAL_USER_PASSWORDS_ARRAY[@]}"
     check_variables_value "HOOKS" "$HOOKS"
     check_variables_list "BOOTLOADER" "$BOOTLOADER" "grub refind systemd"
     check_variables_list "AUR" "$AUR" "aurman yay" "false"
@@ -905,18 +905,21 @@ function systemd() {
 }
 
 function users() {
+    print_step "users()"
+
     create_user $USER_NAME $USER_PASSWORD
 
-    for i in ${!ADDITIONAL_USER_NAMES_ARRAY[@]}; do
-        create_user ${ADDITIONAL_USER_NAMES_ARRAY[$i]} ${ADDITIONAL_USER_PASSWORDS_ARRAY[$i]}
+    for U in ${ADDITIONAL_USERS[@]}; do
+        IFS='=' S=(${U})
+        USER=${S[0]}
+        PASSWORD=${S[1]}
+        create_user "${USER}" "${PASSWORD}"
     done
 
 	arch-chroot /mnt sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
 }
 
 function create_user() {
-    print_step "create_user()"
-
     USER_NAME=$1
     USER_PASSWORD=$2
     arch-chroot /mnt useradd -m -G wheel,storage,optical -s /bin/bash $USER_NAME

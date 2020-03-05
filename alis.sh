@@ -513,6 +513,7 @@ function partition() {
         PARTITION_OPTIONS="$PARTITION_OPTIONS,noatime"
     fi
 
+    partition_mount
     partition_swap
 
     # set variables

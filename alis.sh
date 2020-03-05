@@ -110,7 +110,6 @@ function sanitize_variable() {
 function check_variables() {
     check_variables_value "KEYS" "$KEYS"
     check_variables_boolean "LOG" "$LOG"
-    check_variables_value "DEVICE" "$DEVICE"
     check_variables_boolean "LVM" "$LVM"
     check_variables_equals "PARTITION_ROOT_ENCRYPTION_PASSWORD" "PARTITION_ROOT_ENCRYPTION_PASSWORD_RETYPE" "$PARTITION_ROOT_ENCRYPTION_PASSWORD" "$PARTITION_ROOT_ENCRYPTION_PASSWORD_RETYPE"
     check_variables_list "FILE_SYSTEM_TYPE" "$FILE_SYSTEM_TYPE" "ext4 btrfs xfs"
@@ -138,6 +137,16 @@ function check_variables() {
     check_variables_boolean "DISPLAY_DRIVER_HARDWARE_ACCELERATION" "$DISPLAY_DRIVER_HARDWARE_ACCELERATION"
     check_variables_list "DISPLAY_DRIVER_HARDWARE_ACCELERATION_INTEL" "$DISPLAY_DRIVER_HARDWARE_ACCELERATION_INTEL" "intel-media-driver libva-intel-driver" "false"
     check_variables_boolean "REBOOT" "$REBOOT"
+
+    if [[ $ERASE = false ]]; then
+        check_variables_value "PARTITION_BOOT" "$PARTITION_BOOT"
+        check_variables_value "PARTITION_ROOT" "$PARTITION_ROOT"
+        if [[ $BIOS_TYPE = bios ]]; then
+            check_variables_value "PARTITION_BIOS" "$PARTITION_BIOS"
+        fi
+    else
+        check_variables_value "DEVICE" "$DEVICE"
+    fi
 }
 
 function check_variables_value() {
@@ -330,122 +339,111 @@ function configure_network() {
     fi
 }
 
-function partition() {
-    print_step "partition()"
+function partition_create() {
+    print_step "partition_create()"
 
-    # clean
-    sgdisk --zap-all $DEVICE
-    wipefs -a $DEVICE
+    if [[ $ERASE = true ]]; then
+        # clean
+        sgdisk --zap-all $DEVICE
+        wipefs -a $DEVICE
 
-    # partition
-    if [ "$BIOS_TYPE" == "uefi" ]; then
-        if [ "$DEVICE_SATA" == "true" ]; then
-            PARTITION_BOOT="${DEVICE}1"
-            PARTITION_ROOT="${DEVICE}2"
-            #PARTITION_BOOT_NUMBER=1
-            DEVICE_ROOT="${DEVICE}2"
+        # partition
+        if [ "$BIOS_TYPE" == "uefi" ]; then
+            if [ "$DEVICE_SATA" == "true" ]; then
+                PARTITION_BOOT="${DEVICE}1"
+                PARTITION_ROOT="${DEVICE}2"
+                #PARTITION_BOOT_NUMBER=1
+                DEVICE_ROOT="${DEVICE}2"
+            fi
+
+            if [ "$DEVICE_NVME" == "true" ]; then
+                PARTITION_BOOT="${DEVICE}p1"
+                PARTITION_ROOT="${DEVICE}p2"
+                #PARTITION_BOOT_NUMBER=1
+                DEVICE_ROOT="${DEVICE}p2"
+            fi
+
+            if [ "$DEVICE_MMC" == "true" ]; then
+                PARTITION_BOOT="${DEVICE}p1"
+                PARTITION_ROOT="${DEVICE}p2"
+                #PARTITION_BOOT_NUMBER=1
+                DEVICE_ROOT="${DEVICE}p2"
+            fi
+
+            parted -s $DEVICE mklabel gpt mkpart primary fat32 1MiB 512MiB mkpart primary $FILE_SYSTEM_TYPE 512MiB 100% set 1 boot on
+            sgdisk -t=1:ef00 $DEVICE
+            if [ "$LVM" == "true" ]; then
+                sgdisk -t=2:8e00 $DEVICE
+            fi
         fi
 
-        if [ "$DEVICE_NVME" == "true" ]; then
-            PARTITION_BOOT="${DEVICE}p1"
-            PARTITION_ROOT="${DEVICE}p2"
-            #PARTITION_BOOT_NUMBER=1
-            DEVICE_ROOT="${DEVICE}p2"
-        fi
-        
-        if [ "$DEVICE_MMC" == "true" ]; then
-            PARTITION_BOOT="${DEVICE}p1"
-            PARTITION_ROOT="${DEVICE}p2"
-            #PARTITION_BOOT_NUMBER=1
-            DEVICE_ROOT="${DEVICE}p2"
-        fi
+        if [ "$BIOS_TYPE" == "bios" ]; then
+            if [ "$DEVICE_SATA" == "true" ]; then
+                PARTITION_BIOS="${DEVICE}1"
+                PARTITION_BOOT="${DEVICE}2"
+                PARTITION_ROOT="${DEVICE}3"
+                #PARTITION_BOOT_NUMBER=2
+                DEVICE_ROOT="${DEVICE}3"
+            fi
 
-        parted -s $DEVICE mklabel gpt mkpart primary fat32 1MiB 512MiB mkpart primary $FILE_SYSTEM_TYPE 512MiB 100% set 1 boot on
-        sgdisk -t=1:ef00 $DEVICE
-        if [ "$LVM" == "true" ]; then
-            sgdisk -t=2:8e00 $DEVICE
-        fi
-    fi
+            if [ "$DEVICE_NVME" == "true" ]; then
+                PARTITION_BIOS="${DEVICE}p1"
+                PARTITION_BOOT="${DEVICE}p2"
+                PARTITION_ROOT="${DEVICE}p3"
+                #PARTITION_BOOT_NUMBER=2
+                DEVICE_ROOT="${DEVICE}p3"
+            fi
 
-    if [ "$BIOS_TYPE" == "bios" ]; then
-        if [ "$DEVICE_SATA" == "true" ]; then
-            PARTITION_BIOS="${DEVICE}1"
-            PARTITION_BOOT="${DEVICE}2"
-            PARTITION_ROOT="${DEVICE}3"
-            #PARTITION_BOOT_NUMBER=2
-            DEVICE_ROOT="${DEVICE}3"
-        fi
+            if [ "$DEVICE_MMC" == "true" ]; then
+                PARTITION_BIOS="${DEVICE}p1"
+                PARTITION_BOOT="${DEVICE}p2"
+                PARTITION_ROOT="${DEVICE}p3"
+                #PARTITION_BOOT_NUMBER=2
+                DEVICE_ROOT="${DEVICE}p3"
+            fi
 
-        if [ "$DEVICE_NVME" == "true" ]; then
-            PARTITION_BIOS="${DEVICE}p1"
-            PARTITION_BOOT="${DEVICE}p2"
-            PARTITION_ROOT="${DEVICE}p3"
-            #PARTITION_BOOT_NUMBER=2
-            DEVICE_ROOT="${DEVICE}p3"
+            parted -s $DEVICE mklabel gpt mkpart primary fat32 1MiB 128MiB mkpart primary $FILE_SYSTEM_TYPE 128MiB 512MiB mkpart primary $FILE_SYSTEM_TYPE 512MiB 100% set 1 boot on
+            sgdisk -t=1:ef02 $DEVICE
+            if [ "$LVM" == "true" ]; then
+                sgdisk -t=3:8e00 $DEVICE
+            fi
         fi
-        
-        if [ "$DEVICE_MMC" == "true" ]; then
-            PARTITION_BIOS="${DEVICE}p1"
-            PARTITION_BOOT="${DEVICE}p2"
-            PARTITION_ROOT="${DEVICE}p3"
-            #PARTITION_BOOT_NUMBER=2
-            DEVICE_ROOT="${DEVICE}p3"
-        fi
-
-        parted -s $DEVICE mklabel gpt mkpart primary fat32 1MiB 128MiB mkpart primary $FILE_SYSTEM_TYPE 128MiB 512MiB mkpart primary $FILE_SYSTEM_TYPE 512MiB 100% set 1 boot on
-        sgdisk -t=1:ef02 $DEVICE
-        if [ "$LVM" == "true" ]; then
-            sgdisk -t=3:8e00 $DEVICE
-        fi
-    fi
-
-    # luks and lvm
-    if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
-        LVM_DEVICE="/dev/mapper/$LVM_VOLUME_PHISICAL"
     else
-        LVM_DEVICE="$PARTITION_ROOT"
-    fi
-
-    if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
-        echo -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" | cryptsetup --key-size=512 --key-file=- luksFormat --type luks2 $PARTITION_ROOT
-        echo -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" | cryptsetup --key-file=- open $PARTITION_ROOT $LVM_VOLUME_PHISICAL
-        sleep 5
-    fi
-
-    if [ "$LVM" == "true" ]; then
-        pvcreate $LVM_DEVICE
-        vgcreate $LVM_VOLUME_GROUP $LVM_DEVICE
-        lvcreate -l 100%FREE -n $LVM_VOLUME_LOGICAL $LVM_VOLUME_GROUP
-
-        DEVICE_ROOT="/dev/mapper/$LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL"
-    fi
-
-    # format
-    if [ "$BIOS_TYPE" == "uefi" ]; then
-        wipefs -a $PARTITION_BOOT
+        DEVICE_ROOT="${PARTITION_ROOT}"
         wipefs -a $DEVICE_ROOT
-        mkfs.fat -n ESP -F32 $PARTITION_BOOT
+    fi
+}
+
+function partition_format() {
+    print_step "partition_format()"
+
+    if [[ $ERASE = true ]]; then
+        if [ "$BIOS_TYPE" == "uefi" ]; then
+            wipefs -a $PARTITION_BOOT
+            wipefs -a $DEVICE_ROOT
+            mkfs.fat -n ESP -F32 $PARTITION_BOOT
+        fi
+
+        if [ "$BIOS_TYPE" == "bios" ]; then
+            wipefs -a $PARTITION_BIOS
+            wipefs -a $PARTITION_BOOT
+            mkfs.fat -n BIOS -F32 $PARTITION_BIOS
+            mkfs."$FILE_SYSTEM_TYPE" -L boot $PARTITION_BOOT
+        fi
+    fi
+
+    if [[ "$FILE_SYSTEM_TYPE" == "btrfs" ]]; then
+        mkfs."$FILE_SYSTEM_TYPE" -f -L root $DEVICE_ROOT
+    else
         mkfs."$FILE_SYSTEM_TYPE" -L root $DEVICE_ROOT
     fi
+}
 
-    if [ "$BIOS_TYPE" == "bios" ]; then
-        wipefs -a $PARTITION_BIOS
-        wipefs -a $PARTITION_BOOT
-        wipefs -a $DEVICE_ROOT
-        mkfs.fat -n BIOS -F32 $PARTITION_BIOS
-        mkfs."$FILE_SYSTEM_TYPE" -L boot $PARTITION_BOOT
-        mkfs."$FILE_SYSTEM_TYPE" -L root $DEVICE_ROOT
-    fi
+function partition_mount() {
+    print_step "partition_mount()"
 
-    PARTITION_OPTIONS="defaults"
-
-    if [ "$DEVICE_TRIM" == "true" ]; then
-        PARTITION_OPTIONS="$PARTITION_OPTIONS,noatime"
-    fi
-
-    # mount
     if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
-        mount -o "$PARTITION_OPTIONS" "$DEVICE_ROOT" /mnt
+        mount -t btrfs -o "$PARTITION_OPTIONS" "$DEVICE_ROOT" /mnt
         btrfs subvolume create /mnt/root
         btrfs subvolume create /mnt/home
         btrfs subvolume create /mnt/var
@@ -465,7 +463,10 @@ function partition() {
         mkdir /mnt/boot
         mount -o "$PARTITION_OPTIONS" "$PARTITION_BOOT" /mnt/boot
     fi
+}
 
+function partition_swap() {
+    print_step "partition_swap()"
     # swap
     # btrfs: https://btrfs.wiki.kernel.org/index.php/FAQ#Does_btrfs_support_swap_files.3F
     # btrfs: https://wiki.archlinux.org/index.php/Btrfs#Disabling_CoW
@@ -475,6 +476,44 @@ function partition() {
         chmod 600 "/mnt/swapfile"
         mkswap "/mnt/swapfile"
     fi
+}
+
+function partition() {
+
+    partition_create
+
+    # luks and lvm
+    if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
+        LVM_DEVICE="/dev/mapper/$LVM_VOLUME_PHISICAL"
+        DEVICE_ROOT="$LVM_DEVICE"
+
+    else
+        LVM_DEVICE="$PARTITION_ROOT"
+    fi
+
+    if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
+        echo -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" | cryptsetup --key-size=512 --key-file=- luksFormat --type luks2 $PARTITION_ROOT
+        echo -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" | cryptsetup --key-file=- open $PARTITION_ROOT $LVM_VOLUME_PHISICAL
+        sleep 5
+    fi
+
+    if [ "$LVM" == "true" ]; then
+        pvcreate $LVM_DEVICE
+        vgcreate $LVM_VOLUME_GROUP $LVM_DEVICE
+        lvcreate -l 100%FREE -n $LVM_VOLUME_LOGICAL $LVM_VOLUME_GROUP
+
+        DEVICE_ROOT="/dev/mapper/$LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL"
+    fi
+
+    partition_format
+
+    PARTITION_OPTIONS="defaults"
+
+    if [ "$DEVICE_TRIM" == "true" ]; then
+        PARTITION_OPTIONS="$PARTITION_OPTIONS,noatime"
+    fi
+
+    partition_swap
 
     # set variables
     BOOT_DIRECTORY=/boot
@@ -1184,10 +1223,10 @@ function print_step() {
 function main() {
     configuration_install
     sanitize_variables
+    facts
     check_variables
     warning
     init
-    facts
     check_facts
     prepare
     partition

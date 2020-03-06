@@ -607,7 +607,7 @@ function mkinitcpio_configuration() {
         pacman_install "btrfs-progs"
     fi
 
-    if ["$BOOTLOADER" == "systemd"]; then
+    if [ "$BOOTLOADER" == "systemd" ]; then
         HOOKS=$(echo $HOOKS | sed 's/!systemd/systemd/')
         if [ "$LVM" == "true" ]; then
             HOOKS=$(echo $HOOKS | sed 's/!sd-lvm2/sd-lvm2/')

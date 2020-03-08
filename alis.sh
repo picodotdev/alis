@@ -435,9 +435,9 @@ function partition_format() {
     fi
 
     if [[ "$FILE_SYSTEM_TYPE" == "btrfs" ]]; then
-        mkfs."$FILE_SYSTEM_TYPE" -f --label "$PARTITION_ROOT_LABEL" $DEVICE_ROOT
+        mkfs."$FILE_SYSTEM_TYPE" -f -L "$PARTITION_ROOT_LABEL" $DEVICE_ROOT
     else
-        mkfs."$FILE_SYSTEM_TYPE" --label "$PARTITION_ROOT_LABEL" $DEVICE_ROOT
+        mkfs."$FILE_SYSTEM_TYPE" -L "$PARTITION_ROOT_LABEL" $DEVICE_ROOT
     fi
 }
 

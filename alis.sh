@@ -412,7 +412,7 @@ function partition_create() {
     else
         DEVICE_ROOT="${PARTITION_ROOT}"
         wipefs -a $DEVICE_ROOT
-        sgdisk --change-name=${PARTITION_ROOT: -1}:"${PARTITION_ROOT_LABEL}"
+        sgdisk --change-name=${PARTITION_ROOT: -1}:"${PARTITION_ROOT_LABEL}" $DEVICE
     fi
 }
 

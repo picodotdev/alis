@@ -45,6 +45,7 @@ BIOS_TYPE=""
 PARTITION_BIOS=""
 PARTITION_BOOT=""
 PARTITION_ROOT=""
+PARTITION_ROOT_LABEL="system"
 DEVICE_ROOT=""
 LVM_DEVICE=""
 LVM_VOLUME_PHISICAL="lvm"
@@ -341,7 +342,6 @@ function configure_network() {
 
 function partition_create() {
     print_step "partition_create()"
-
     if [[ $ERASE = true ]]; then
         # clean
         sgdisk --zap-all $DEVICE
@@ -372,6 +372,7 @@ function partition_create() {
 
             parted -s $DEVICE mklabel gpt mkpart primary fat32 1MiB 512MiB mkpart primary $FILE_SYSTEM_TYPE 512MiB 100% set 1 boot on
             sgdisk -t=1:ef00 $DEVICE
+            sgdisk --change-name=2:"$_PART_SWAP_LABEL"
             if [ "$LVM" == "true" ]; then
                 sgdisk -t=2:8e00 $DEVICE
             fi
@@ -404,6 +405,7 @@ function partition_create() {
 
             parted -s $DEVICE mklabel gpt mkpart primary fat32 1MiB 128MiB mkpart primary $FILE_SYSTEM_TYPE 128MiB 512MiB mkpart primary $FILE_SYSTEM_TYPE 512MiB 100% set 1 boot on
             sgdisk -t=1:ef02 $DEVICE
+            sgdisk --change-name=3:"$_PART_SWAP_LABEL"
             if [ "$LVM" == "true" ]; then
                 sgdisk -t=3:8e00 $DEVICE
             fi
@@ -411,6 +413,7 @@ function partition_create() {
     else
         DEVICE_ROOT="${PARTITION_ROOT}"
         wipefs -a $DEVICE_ROOT
+        sgdisk --change-name=${PARTITION_ROOT: -1}:"${PARTITION_ROOT_LABEL}"
     fi
 }
 
@@ -492,8 +495,8 @@ function partition() {
     fi
 
     if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
-        echo -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" | cryptsetup --key-size=512 --key-file=- --align-payload=8192 -s 256 -c aes-xts-plain64 luksFormat --type luks2 $PARTITION_ROOT
-        echo -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" | cryptsetup --key-file=- open $PARTITION_ROOT $LVM_VOLUME_PHISICAL
+        echo -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" | cryptsetup --key-size=512 --key-file=- --align-payload=8192 -s 256 -c aes-xts-plain64 luksFormat --type luks2 /dev/disk/by-partlabel/"$PARTITION_ROOT_LABEL"
+        echo -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" | cryptsetup --key-file=- open /dev/disk/by-partlabel/"$PARTITION_ROOT_LABEL" $LVM_VOLUME_PHISICAL
         sleep 5
     fi
 
@@ -543,7 +546,7 @@ function install() {
 function configuration() {
     print_step "configuration()"
 
-    genfstab -U /mnt >> /mnt/etc/fstab
+    genfstab -L -p /mnt >> /mnt/etc/fstab
 
     if [ -n "$SWAP_SIZE" -a "$FILE_SYSTEM_TYPE" != "btrfs" ]; then
         echo "# swap" >> /mnt/etc/fstab
@@ -687,7 +690,11 @@ function bootloader() {
         if [ "$DEVICE_TRIM" == "true" ]; then
             BOOTLOADER_ALLOW_DISCARDS=":allow-discards"
         fi
-        CMDLINE_LINUX="cryptdevice=PARTUUID=$PARTUUID_ROOT:$LVM_VOLUME_PHISICAL$BOOTLOADER_ALLOW_DISCARDS"
+        if [[ $BOOTLOADER = systemd ]]; then
+            CMDLINE_LINUX="rd.luks.name=$PARTUUID_ROOT=$LVM_VOLUME_PHISICAL"
+        else
+            CMDLINE_LINUX="cryptdevice=PARTUUID=$PARTUUID_ROOT:$LVM_VOLUME_PHISICAL$BOOTLOADER_ALLOW_DISCARDS"
+        fi
     fi
     if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
         CMDLINE_LINUX="$CMDLINE_LINUX rootflags=subvol=root"

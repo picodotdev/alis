@@ -139,6 +139,7 @@ function check_variables() {
     check_variables_boolean "DISPLAY_DRIVER_HARDWARE_ACCELERATION" "$DISPLAY_DRIVER_HARDWARE_ACCELERATION"
     check_variables_list "DISPLAY_DRIVER_HARDWARE_ACCELERATION_INTEL" "$DISPLAY_DRIVER_HARDWARE_ACCELERATION_INTEL" "intel-media-driver libva-intel-driver" "false"
     check_variables_boolean "REBOOT" "$REBOOT"
+    check_variables_value "DEVICE" "$DEVICE"
 
     if [[ $ERASE = false ]]; then
         check_variables_value "PARTITION_BOOT" "$PARTITION_BOOT"
@@ -146,8 +147,6 @@ function check_variables() {
         if [[ $BIOS_TYPE = bios ]]; then
             check_variables_value "PARTITION_BIOS" "$PARTITION_BIOS"
         fi
-    else
-        check_variables_value "DEVICE" "$DEVICE"
     fi
 }
 

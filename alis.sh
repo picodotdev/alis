@@ -46,8 +46,8 @@ PARTITION_BIOS=""
 PARTITION_BOOT=""
 PARTITION_ROOT=""
 PARTITION_ROOT_LABEL="system"
+CRYPT_ROOT="cryptsystem"
 DEVICE_ROOT=""
-LVM_DEVICE=""
 LVM_VOLUME_PHISICAL="lvm"
 LVM_VOLUME_GROUP="vg"
 LVM_VOLUME_LOGICAL="root"
@@ -57,6 +57,7 @@ ESP_DIRECTORY=""
 #PARTITION_BOOT_NUMBER=0
 UUID_BOOT=""
 UUID_ROOT=""
+UUID_DECRYPTED_ROOT=""
 PARTUUID_BOOT=""
 PARTUUID_ROOT=""
 DEVICE_SATA=""
@@ -370,11 +371,10 @@ function partition_create() {
                 DEVICE_ROOT="${DEVICE}p2"
             fi
 
-            parted -s $DEVICE mklabel gpt mkpart primary fat32 1MiB 512MiB mkpart primary $FILE_SYSTEM_TYPE 512MiB 100% set 1 boot on
+            parted -s $DEVICE mklabel gpt mkpart primary fat32 1MiB 512MiB mkpart primary $FILE_SYSTEM_TYPE 512MiB 100% name $PARTITION_ROOT_LABEL set 1 boot on
             sgdisk -t=1:ef00 $DEVICE
-            sgdisk --change-name=2:"$_PART_SWAP_LABEL"
             if [ "$LVM" == "true" ]; then
-                sgdisk -t=2:8e00 $DEVICE
+                sgdisk -t=2:8e00 $DEVICE --change-name=2:"$PARTITION_ROOT_LABEL"
             fi
         fi
 
@@ -403,11 +403,10 @@ function partition_create() {
                 DEVICE_ROOT="${DEVICE}p3"
             fi
 
-            parted -s $DEVICE mklabel gpt mkpart primary fat32 1MiB 128MiB mkpart primary $FILE_SYSTEM_TYPE 128MiB 512MiB mkpart primary $FILE_SYSTEM_TYPE 512MiB 100% set 1 boot on
+            parted -s $DEVICE mklabel gpt mkpart primary fat32 1MiB 128MiB mkpart primary $FILE_SYSTEM_TYPE 128MiB 512MiB mkpart primary $FILE_SYSTEM_TYPE 512MiB 100% name $PARTITION_ROOT_LABEL set 1 boot on
             sgdisk -t=1:ef02 $DEVICE
-            sgdisk --change-name=3:"$_PART_SWAP_LABEL"
             if [ "$LVM" == "true" ]; then
-                sgdisk -t=3:8e00 $DEVICE
+                sgdisk -t=3:8e00 $DEVICE --change-name=3:"$PARTITION_ROOT_LABEL"
             fi
         fi
     else
@@ -436,9 +435,9 @@ function partition_format() {
     fi
 
     if [[ "$FILE_SYSTEM_TYPE" == "btrfs" ]]; then
-        mkfs."$FILE_SYSTEM_TYPE" -f -L root $DEVICE_ROOT
+        mkfs."$FILE_SYSTEM_TYPE" -f --label "$PARTITION_ROOT_LABEL" $DEVICE_ROOT
     else
-        mkfs."$FILE_SYSTEM_TYPE" -L root $DEVICE_ROOT
+        mkfs."$FILE_SYSTEM_TYPE" --label "$PARTITION_ROOT_LABEL" $DEVICE_ROOT
     fi
 }
 
@@ -446,22 +445,22 @@ function partition_mount() {
     print_step "partition_mount()"
 
     if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
-        mount -t btrfs -o "$PARTITION_OPTIONS" "$DEVICE_ROOT" /mnt
+        mount -t btrfs -o "$PARTITION_OPTIONS" LABEL="$PARTITION_ROOT_LABEL" /mnt
         btrfs subvolume create /mnt/root
         btrfs subvolume create /mnt/home
         btrfs subvolume create /mnt/var
         btrfs subvolume create /mnt/snapshots
         umount /mnt
 
-        mount -o "subvol=root,$PARTITION_OPTIONS,compress=lzo" "$DEVICE_ROOT" /mnt
+        mount -o "subvol=root,$PARTITION_OPTIONS,compress=lzo" LABEL="$PARTITION_ROOT_LABEL" /mnt
 
         mkdir /mnt/{boot,home,var,snapshots}
         mount -o "$PARTITION_OPTIONS" "$PARTITION_BOOT" /mnt/boot
-        mount -o "subvol=home,$PARTITION_OPTIONS,compress=lzo" "$DEVICE_ROOT" /mnt/home
-        mount -o "subvol=var,$PARTITION_OPTIONS,compress=lzo" "$DEVICE_ROOT" /mnt/var
-        mount -o "subvol=snapshots,$PARTITION_OPTIONS,compress=lzo" "$DEVICE_ROOT" /mnt/snapshots
+        mount -o "subvol=home,$PARTITION_OPTIONS,compress=lzo" LABEL="$PARTITION_ROOT_LABEL" /mnt/home
+        mount -o "subvol=var,$PARTITION_OPTIONS,compress=lzo" LABEL="$PARTITION_ROOT_LABEL" /mnt/var
+        mount -o "subvol=snapshots,$PARTITION_OPTIONS,compress=lzo" LABEL="$PARTITION_ROOT_LABEL" /mnt/snapshots
     else
-        mount -o "$PARTITION_OPTIONS" "$DEVICE_ROOT" /mnt
+        mount -o "$PARTITION_OPTIONS" LABEL="$PARTITION_ROOT_LABEL" /mnt
 
         mkdir /mnt/boot
         mount -o "$PARTITION_OPTIONS" "$PARTITION_BOOT" /mnt/boot
@@ -487,22 +486,20 @@ function partition() {
 
     # luks and lvm
     if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
-        LVM_DEVICE="/dev/mapper/$LVM_VOLUME_PHISICAL"
-        DEVICE_ROOT="$LVM_DEVICE"
-
+        DEVICE_ROOT="/dev/mapper/$CRYPT_ROOT"
     else
-        LVM_DEVICE="$PARTITION_ROOT"
+        DEVICE_ROOT="$PARTITION_ROOT"
     fi
 
     if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
         echo -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" | cryptsetup --key-size=512 --key-file=- --align-payload=8192 -s 256 -c aes-xts-plain64 luksFormat --type luks2 /dev/disk/by-partlabel/"$PARTITION_ROOT_LABEL"
-        echo -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" | cryptsetup --key-file=- open /dev/disk/by-partlabel/"$PARTITION_ROOT_LABEL" $LVM_VOLUME_PHISICAL
+        echo -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" | cryptsetup --key-file=- open /dev/disk/by-partlabel/"$PARTITION_ROOT_LABEL" $CRYPT_ROOT
         sleep 5
     fi
 
     if [ "$LVM" == "true" ]; then
-        pvcreate $LVM_DEVICE
-        vgcreate $LVM_VOLUME_GROUP $LVM_DEVICE
+        pvcreate $DEVICE_ROOT
+        vgcreate $LVM_VOLUME_GROUP $DEVICE_ROOT
         lvcreate -l 100%FREE -n $LVM_VOLUME_LOGICAL $LVM_VOLUME_GROUP
 
         DEVICE_ROOT="/dev/mapper/$LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL"
@@ -522,10 +519,14 @@ function partition() {
     # set variables
     BOOT_DIRECTORY=/boot
     ESP_DIRECTORY=/boot
+
     UUID_BOOT=$(blkid -s UUID -o value $PARTITION_BOOT)
     UUID_ROOT=$(blkid -s UUID -o value $PARTITION_ROOT)
     PARTUUID_BOOT=$(blkid -s PARTUUID -o value $PARTITION_BOOT)
     PARTUUID_ROOT=$(blkid -s PARTUUID -o value $PARTITION_ROOT)
+    if [[ -n $PARTITION_ROOT_ENCRYPTION_PASSWORD ]]; then
+        UUID_DECRYPTED_ROOT=$(blkid -s UUID -o value "$DEVICE_ROOT")
+    fi
 }
 
 function install() {
@@ -683,17 +684,19 @@ function bootloader() {
     fi
     if [ "$LVM" == "true" ]; then
         CMDLINE_LINUX_ROOT="root=$DEVICE_ROOT"
+    elif [[ -n $PARTITION_ROOT_ENCRYPTION_PASSWORD ]]; then
+        CMDLINE_LINUX_ROOT="root=UUID=$UUID_DECRYPTED_ROOT"
     else
-        CMDLINE_LINUX_ROOT="root=PARTUUID=$PARTUUID_ROOT"
+        CMDLINE_LINUX_ROOT="root=UUID=$UUID_ROOT"
     fi
     if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
         if [ "$DEVICE_TRIM" == "true" ]; then
             BOOTLOADER_ALLOW_DISCARDS=":allow-discards"
         fi
-        if [[ $BOOTLOADER = systemd ]]; then
-            CMDLINE_LINUX="rd.luks.name=$PARTUUID_ROOT=$LVM_VOLUME_PHISICAL"
+        if [[ $BOOTLOADER =~ systemd ]]; then
+            CMDLINE_LINUX="rd.luks.name=$UUID_ROOT=$CRYPT_ROOT"
         else
-            CMDLINE_LINUX="cryptdevice=PARTUUID=$PARTUUID_ROOT:$LVM_VOLUME_PHISICAL$BOOTLOADER_ALLOW_DISCARDS"
+            CMDLINE_LINUX="cryptdevice=PARTUUID=$PARTUUID_ROOT:$CRYPT_ROOT$BOOTLOADER_ALLOW_DISCARDS"
         fi
     fi
     if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then

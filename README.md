@@ -23,7 +23,7 @@ Currently these scripts are for me but maybe they are useful for you too.
 * _root_ partition encrypted and no encrypted
 * LVM on LUKS when LVM and encrypted
 * Support automatic (wipe and use full disk), custom and manual partition
-* File system formats ext4, btrfs (with subvols), f2fs, xfs
+* File system formats ext4, btrfs (with subvols), xfs
 * Optional file swap (not supported in btrfs)
 * WPA WIFI network installation
 * Periodic TRIM for SSD storage

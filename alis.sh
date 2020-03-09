@@ -403,32 +403,35 @@ function partition() {
                 DEVICE_ROOT="${DEVICE}p3"
             fi
         fi
-    fi
-
-    if [ "$PARTITION_MODE" == "custom" ]; then
+    elif [ "$PARTITION_MODE" == "custom" ]; then
         PARTITON_PARTED_UEFI=$PARTITON_CUSTOM_PARTED_UEFI
         PARTITON_PARTED_BIOS=$PARTITON_CUSTOM_PARTED_BIOS
+        DEVICE_ROOT="${PARTITON_ROOT}"
+    elif [ "$PARTITION_MODE" == "manual" ]; then
+        DEVICE_ROOT="${PARTITON_ROOT}"
     fi
 
     # partition
-    if [ "$BIOS_TYPE" == "uefi" ]; then
-        parted -s $DEVICE $PARTITON_PARTED_UEFI
+    if [ "$PARTITION_MODE" == "auto" -o "$PARTITION_MODE" == "custom" ]; then
+        if [ "$BIOS_TYPE" == "uefi" ]; then
+            parted -s $DEVICE $PARTITON_PARTED_UEFI
 
-        if [ "$PARTITION_MODE" == "auto" ]; then
-            sgdisk -t=1:ef00 $DEVICE
-            if [ "$LVM" == "true" ]; then
-                sgdisk -t=2:8e00 $DEVICE
+            if [ "$PARTITION_MODE" == "auto" ]; then
+                sgdisk -t=1:ef00 $DEVICE
+                if [ "$LVM" == "true" ]; then
+                    sgdisk -t=2:8e00 $DEVICE
+                fi
             fi
         fi
-    fi
 
-    if [ "$BIOS_TYPE" == "bios" ]; then
-        parted -s $DEVICE $PARTITON_PARTED_BIOS
+        if [ "$BIOS_TYPE" == "bios" ]; then
+            parted -s $DEVICE $PARTITON_PARTED_BIOS
 
-        if [ "$PARTITION_MODE" == "auto" ]; then
-            sgdisk -t=1:ef02 $DEVICE
-            if [ "$LVM" == "true" ]; then
-                sgdisk -t=3:8e00 $DEVICE
+            if [ "$PARTITION_MODE" == "auto" ]; then
+                sgdisk -t=1:ef02 $DEVICE
+                if [ "$LVM" == "true" ]; then
+                    sgdisk -t=3:8e00 $DEVICE
+                fi
             fi
         fi
     fi

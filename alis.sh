@@ -85,6 +85,10 @@ function configuration_install() {
 
 function sanitize_variables() {
     DEVICE=$(sanitize_variable "$DEVICE")
+    PARTITION_MODE=$(sanitize_variable "$PARTITION_MODE")
+    PARTITION_BIOS=$(sanitize_variable "$PARTITION_BIOS")
+    PARTITION_BOOT=$(sanitize_variable "$PARTITION_BOOT")
+    PARTITON_ROOT=$(sanitize_variable "$PARTITON_ROOT")
     FILE_SYSTEM_TYPE=$(sanitize_variable "$FILE_SYSTEM_TYPE")
     SWAP_SIZE=$(sanitize_variable "$SWAP_SIZE")
     KERNELS=$(sanitize_variable "$KERNELS")
@@ -113,6 +117,15 @@ function check_variables() {
     check_variables_value "DEVICE" "$DEVICE"
     check_variables_boolean "LVM" "$LVM"
     check_variables_equals "PARTITION_ROOT_ENCRYPTION_PASSWORD" "PARTITION_ROOT_ENCRYPTION_PASSWORD_RETYPE" "$PARTITION_ROOT_ENCRYPTION_PASSWORD" "$PARTITION_ROOT_ENCRYPTION_PASSWORD_RETYPE"
+    check_variables_list "PARTITION_MODE" "$PARTITION_MODE" "auto custom manual" "true"
+    check_variables_value "PARTITON_CUSTOM_PARTED_UEFI" "$PARTITON_CUSTOM_PARTED_UEFI"
+    check_variables_value "PARTITON_CUSTOM_PARTED_BIOS" "$PARTITON_CUSTOM_PARTED_BIOS"
+    check_variables_value "PARTITION_BIOS" "$PARTITION_BIOS"
+    check_variables_value "PARTITION_BOOT" "$PARTITION_BOOT"
+    check_variables_value "PARTITON_ROOT" "$PARTITON_ROOT"
+    if [ "$LVM" == "true" ]; then
+        check_variables_list "PARTITION_MODE" "$PARTITION_MODE" "auto" "true"
+    fi
     check_variables_list "FILE_SYSTEM_TYPE" "$FILE_SYSTEM_TYPE" "ext4 btrfs xfs"
     check_variables_value "PING_HOSTNAME" "$PING_HOSTNAME"
     check_variables_value "PACMAN_MIRROR" "$PACMAN_MIRROR"
@@ -278,6 +291,8 @@ function prepare() {
     configure_time
     prepare_partition
     configure_network
+
+    pacman -Sy
 }
 
 function configure_time() {
@@ -333,69 +348,98 @@ function configure_network() {
 function partition() {
     print_step "partition()"
 
-    # clean
-    sgdisk --zap-all $DEVICE
-    wipefs -a $DEVICE
+    # setup
+    PARTITON_PARTED_UEFI="mklabel gpt mkpart primary fat32 1MiB 512MiB mkpart primary $FILE_SYSTEM_TYPE 512MiB 100% set 1 boot on"
+    PARTITON_PARTED_BIOS="mklabel gpt mkpart primary fat32 1MiB 128MiB mkpart primary $FILE_SYSTEM_TYPE 128MiB 512MiB mkpart primary $FILE_SYSTEM_TYPE 512MiB 100% set 1 boot on"
 
-    # partition
-    if [ "$BIOS_TYPE" == "uefi" ]; then
-        if [ "$DEVICE_SATA" == "true" ]; then
-            PARTITION_BOOT="${DEVICE}1"
-            PARTITION_ROOT="${DEVICE}2"
-            #PARTITION_BOOT_NUMBER=1
-            DEVICE_ROOT="${DEVICE}2"
+    if [ "$PARTITION_MODE" == "auto" ]; then
+        if [ "$BIOS_TYPE" == "uefi" ]; then
+            if [ "$DEVICE_SATA" == "true" ]; then
+                PARTITION_BOOT="${DEVICE}1"
+                PARTITION_ROOT="${DEVICE}2"
+                #PARTITION_BOOT_NUMBER=1
+                DEVICE_ROOT="${DEVICE}2"
+            fi
+
+            if [ "$DEVICE_NVME" == "true" ]; then
+                PARTITION_BOOT="${DEVICE}p1"
+                PARTITION_ROOT="${DEVICE}p2"
+                #PARTITION_BOOT_NUMBER=1
+                DEVICE_ROOT="${DEVICE}p2"
+            fi
+
+            if [ "$DEVICE_MMC" == "true" ]; then
+                PARTITION_BOOT="${DEVICE}p1"
+                PARTITION_ROOT="${DEVICE}p2"
+                #PARTITION_BOOT_NUMBER=1
+                DEVICE_ROOT="${DEVICE}p2"
+            fi
         fi
 
-        if [ "$DEVICE_NVME" == "true" ]; then
-            PARTITION_BOOT="${DEVICE}p1"
-            PARTITION_ROOT="${DEVICE}p2"
-            #PARTITION_BOOT_NUMBER=1
-            DEVICE_ROOT="${DEVICE}p2"
-        fi
-        
-        if [ "$DEVICE_MMC" == "true" ]; then
-            PARTITION_BOOT="${DEVICE}p1"
-            PARTITION_ROOT="${DEVICE}p2"
-            #PARTITION_BOOT_NUMBER=1
-            DEVICE_ROOT="${DEVICE}p2"
-        fi
+        if [ "$BIOS_TYPE" == "bios" ]; then
+            if [ "$DEVICE_SATA" == "true" ]; then
+                PARTITION_BIOS="${DEVICE}1"
+                PARTITION_BOOT="${DEVICE}2"
+                PARTITION_ROOT="${DEVICE}3"
+                #PARTITION_BOOT_NUMBER=2
+                DEVICE_ROOT="${DEVICE}3"
+            fi
 
-        parted -s $DEVICE mklabel gpt mkpart primary fat32 1MiB 512MiB mkpart primary $FILE_SYSTEM_TYPE 512MiB 100% set 1 boot on
-        sgdisk -t=1:ef00 $DEVICE
-        if [ "$LVM" == "true" ]; then
-            sgdisk -t=2:8e00 $DEVICE
+            if [ "$DEVICE_NVME" == "true" ]; then
+                PARTITION_BIOS="${DEVICE}p1"
+                PARTITION_BOOT="${DEVICE}p2"
+                PARTITION_ROOT="${DEVICE}p3"
+                #PARTITION_BOOT_NUMBER=2
+                DEVICE_ROOT="${DEVICE}p3"
+            fi
+
+            if [ "$DEVICE_MMC" == "true" ]; then
+                PARTITION_BIOS="${DEVICE}p1"
+                PARTITION_BOOT="${DEVICE}p2"
+                PARTITION_ROOT="${DEVICE}p3"
+                #PARTITION_BOOT_NUMBER=2
+                DEVICE_ROOT="${DEVICE}p3"
+            fi
         fi
+    elif [ "$PARTITION_MODE" == "custom" ]; then
+        PARTITON_PARTED_UEFI=$PARTITON_CUSTOM_PARTED_UEFI
+        PARTITON_PARTED_BIOS=$PARTITON_CUSTOM_PARTED_BIOS
+        DEVICE_ROOT="${PARTITON_ROOT}"
+    elif [ "$PARTITION_MODE" == "manual" ]; then
+        DEVICE_ROOT="${PARTITON_ROOT}"
     fi
 
-    if [ "$BIOS_TYPE" == "bios" ]; then
-        if [ "$DEVICE_SATA" == "true" ]; then
-            PARTITION_BIOS="${DEVICE}1"
-            PARTITION_BOOT="${DEVICE}2"
-            PARTITION_ROOT="${DEVICE}3"
-            #PARTITION_BOOT_NUMBER=2
-            DEVICE_ROOT="${DEVICE}3"
+    # partition
+    if [ "$FILE_SYSTEM_TYPE" == "f2fs" ]; then
+        pacman -S f2fs-tools
+    fi
+
+    if [ "$PARTITION_MODE" == "auto" ]; then
+        sgdisk --zap-all $DEVICE
+        wipefs -a $DEVICE
+    fi
+
+    if [ "$PARTITION_MODE" == "auto" -o "$PARTITION_MODE" == "custom" ]; then
+        if [ "$BIOS_TYPE" == "uefi" ]; then
+            parted -s $DEVICE $PARTITON_PARTED_UEFI
+
+            if [ "$PARTITION_MODE" == "auto" ]; then
+                sgdisk -t=1:ef00 $DEVICE
+                if [ "$LVM" == "true" ]; then
+                    sgdisk -t=2:8e00 $DEVICE
+                fi
+            fi
         fi
 
-        if [ "$DEVICE_NVME" == "true" ]; then
-            PARTITION_BIOS="${DEVICE}p1"
-            PARTITION_BOOT="${DEVICE}p2"
-            PARTITION_ROOT="${DEVICE}p3"
-            #PARTITION_BOOT_NUMBER=2
-            DEVICE_ROOT="${DEVICE}p3"
-        fi
-        
-        if [ "$DEVICE_MMC" == "true" ]; then
-            PARTITION_BIOS="${DEVICE}p1"
-            PARTITION_BOOT="${DEVICE}p2"
-            PARTITION_ROOT="${DEVICE}p3"
-            #PARTITION_BOOT_NUMBER=2
-            DEVICE_ROOT="${DEVICE}p3"
-        fi
+        if [ "$BIOS_TYPE" == "bios" ]; then
+            parted -s $DEVICE $PARTITON_PARTED_BIOS
 
-        parted -s $DEVICE mklabel gpt mkpart primary fat32 1MiB 128MiB mkpart primary $FILE_SYSTEM_TYPE 128MiB 512MiB mkpart primary $FILE_SYSTEM_TYPE 512MiB 100% set 1 boot on
-        sgdisk -t=1:ef02 $DEVICE
-        if [ "$LVM" == "true" ]; then
-            sgdisk -t=3:8e00 $DEVICE
+            if [ "$PARTITION_MODE" == "auto" ]; then
+                sgdisk -t=1:ef02 $DEVICE
+                if [ "$LVM" == "true" ]; then
+                    sgdisk -t=3:8e00 $DEVICE
+                fi
+            fi
         fi
     fi
 
@@ -528,6 +572,18 @@ function configuration() {
     echo -e "$KEYMAP\n$FONT\n$FONT_MAP" > /mnt/etc/vconsole.conf
     echo $HOSTNAME > /mnt/etc/hostname
 
+    arch-chroot /mnt mkdir -p "/etc/X11/xorg.conf.d/"
+    cat <<EOT > /mnt/etc/X11/xorg.conf.d/00-keyboard.conf
+# Written by systemd-localed(8), read by systemd-localed and Xorg. It's
+# probably wise not to edit this file manually. Use localectl(1) to
+# instruct systemd-localed to update it.
+Section "InputClass"
+    Identifier "system-keyboard"
+    MatchIsKeyboard "on"
+    Option "XkbLayout" "$KEYLAYOUT"
+EndSection
+EOT
+
     if [ -n "$SWAP_SIZE" ]; then
         echo "vm.swappiness=10" > /mnt/etc/sysctl.d/99-sysctl.conf
     fi
@@ -565,6 +621,9 @@ function mkinitcpio_configuration() {
     fi
     if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
         pacman_install "btrfs-progs"
+    fi
+    if [ "$FILE_SYSTEM_TYPE" == "f2fs" ]; then
+        pacman_install "f2fs-tools"
     fi
 
     if ["$BOOTLOADER" == "systemd"]; then
@@ -658,6 +717,10 @@ function bootloader() {
                 CMDLINE_LINUX="$CMDLINE_LINUX nvidia-drm.modeset=1"
                 ;;
         esac
+    fi
+
+    if [ -n "$KERNELS_PARAMETERS" ]; then
+        CMDLINE_LINUX="$CMDLINE_LINUX $KERNELS_PARAMETERS"
     fi
 
     case "$BOOTLOADER" in

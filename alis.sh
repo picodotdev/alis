@@ -351,10 +351,6 @@ function partition() {
     PARTITON_PARTED_BIOS="mklabel gpt mkpart primary fat32 1MiB 128MiB mkpart primary $FILE_SYSTEM_TYPE 128MiB 512MiB mkpart primary $FILE_SYSTEM_TYPE 512MiB 100% set 1 boot on"
 
     if [ "$PARTITION_MODE" == "auto" ]; then
-        # clean
-        sgdisk --zap-all $DEVICE
-        wipefs -a $DEVICE
-
         if [ "$BIOS_TYPE" == "uefi" ]; then
             if [ "$DEVICE_SATA" == "true" ]; then
                 PARTITION_BOOT="${DEVICE}1"
@@ -412,6 +408,11 @@ function partition() {
     fi
 
     # partition
+    if [ "$PARTITION_MODE" == "auto" ]; then
+        sgdisk --zap-all $DEVICE
+        wipefs -a $DEVICE
+    fi
+
     if [ "$PARTITION_MODE" == "auto" -o "$PARTITION_MODE" == "custom" ]; then
         if [ "$BIOS_TYPE" == "uefi" ]; then
             parted -s $DEVICE $PARTITON_PARTED_UEFI

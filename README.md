@@ -82,14 +82,9 @@ VirtualBox and [Packer](https://packer.io/) are required.
 * Bootloader: grub, refind, systemd
 * Desktop environment: gnome, kde, xfce, ...
 
-```
-$ wget https://raw.githubusercontent.com/picodotdev/alis/master/alis.conf
-$ wget https://raw.githubusercontent.com/picodotdev/alis/master/alis.sh
-$ wget https://raw.githubusercontent.com/picodotdev/alis/master/alis-packer.json
-$ wget https://raw.githubusercontent.com/picodotdev/alis/master/alis-packer.sh
 
-$ chmod +x ./alis-packer.sh
-$ ./alis-packer.sh
+```
+$ curl https://raw.githubusercontent.com/picodotdev/alis/master/download-packer.sh | bash
 
 $ ./alis-packer.sh -c alis-packer-efi-btrfs-luks-lvm-systemd.json
 $ ./alis-packer.sh -c alis-packer-efi-ext4-grub-gnome.json

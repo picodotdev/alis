@@ -9,7 +9,7 @@ the [Arch Linux wiki](https://wiki.archlinux.org), the [Installation Guide](http
 Recomendations](https://wiki.archlinux.org/index.php/General_recommendations), later
 compare those commands with the commands of this script.
 
-For new features, improvements and bugs fill an issue in GitHub or make a pull request. You can test it in a VirtualBox virtual machine (recommended) before run it in real hardware. If you test it in real hardware please send me an email to pico.dev@gmail.com with the machine description and tell me if something goes wrong or all works fine. [Pull request](https://github.com/picodotdev/alis/pulls) and [new feature request](https://github.com/picodotdev/alis/issues) are welcome!
+For new features, improvements and bugs fill an issue in GitHub or make a pull request. You can test it in a VirtualBox virtual machine (strongly recommended) before run it in real hardware. If you test it in real hardware please send me an email to pico.dev@gmail.com with the machine description and tell me if something goes wrong or all works fine. [Pull request](https://github.com/picodotdev/alis/pulls) and [new feature request](https://github.com/picodotdev/alis/issues) are welcome!
 
 **Warning! This script deletes all partitions of the persistent storage**
 
@@ -22,20 +22,21 @@ Currently these scripts are for me but maybe they are useful for you too.
 * LVM and no LVM
 * _root_ partition encrypted and no encrypted
 * LVM on LUKS when LVM and encrypted
-* File system formats ext4, btrfs (with subvols), xfs
+* Support automatic (wipe and use full disk), custom and manual partition
+* File system formats ext4, btrfs (with subvols), f2fs, xfs
 * Optional file swap (not supported in btrfs)
 * WPA WIFI network installation
 * Periodic TRIM for SSD storage
 * VirtualBox guest utils
 * Intel and AMD processors microcode
+* Additional kernels installation (linux-lts, linux-hardened, linux-zen)
+* Kernel compression and custom parameters
 * Users creation and add to sudoers
 * Common and custom packages installation
 * AUR utility installation (aurman, yay)
 * Retry packages download on connection/mirror error
 * Desktop environments (GDM, KDE, XFCE, Mate, Cinnamon, LXDE), display managers (GDM, SDDM, Lightdm, lxdm) and no desktop environment
-* Additional kernel installation (linux-lts, linux-hardened, linux-zen)
-* Kernel compression
-* Graphic controllers (intel, nvidia, amd) with optionally early KMS start
+* Graphics controllers (intel, nvidia, amd) with optionally early KMS start
 * GRUB, rEFInd, systemd-boot bootloaders
 * Script for download installation and recovery scripts and configuration files
 * Packer support for testing in VirtualBox

@@ -97,6 +97,13 @@ function check_variables() {
     check_variables_value "DEVICE" "$DEVICE"
     check_variables_boolean "LVM" "$LVM"
     check_variables_equals "PARTITION_ROOT_ENCRYPTION_PASSWORD" "PARTITION_ROOT_ENCRYPTION_PASSWORD_RETYPE" "$PARTITION_ROOT_ENCRYPTION_PASSWORD" "$PARTITION_ROOT_ENCRYPTION_PASSWORD_RETYPE"
+    check_variables_list "PARTITION_MODE" "$PARTITION_MODE" "auto custom manual" "true"
+    check_variables_value "PARTITION_BIOS" "$PARTITION_BIOS"
+    check_variables_value "PARTITION_BOOT" "$PARTITION_BOOT"
+    check_variables_value "PARTITON_ROOT" "$PARTITON_ROOT"
+    if [ "$LVM" == "true" ]; then
+        check_variables_list "PARTITION_MODE" "$PARTITION_MODE" "auto" "true"
+    fi
     check_variables_value "PING_HOSTNAME" "$PING_HOSTNAME"
 }
 
@@ -207,6 +214,7 @@ function facts() {
 
 function prepare() {
     prepare_partition
+    configure_network
 }
 
 function prepare_partition() {
@@ -243,7 +251,7 @@ function configure_network() {
         sleep 10
     fi
 
-    ping -c 5 $PING_HOSTNAME
+    ping -c 1 -i 2 -W 5 -w 30 $PING_HOSTNAME
     if [ $? -ne 0 ]; then
         echo "Network ping check failed. Cannot continue."
         exit
@@ -251,55 +259,59 @@ function configure_network() {
 }
 
 function partition() {
-    if [ "$BIOS_TYPE" == "uefi" ]; then
-        if [ "$DEVICE_SATA" == "true" ]; then
-            PARTITION_BOOT="${DEVICE}1"
-            PARTITION_ROOT="${DEVICE}2"
-            #PARTITION_BOOT_NUMBER=1
-            DEVICE_ROOT="${DEVICE}2"
-        fi
-        
-        if [ "$DEVICE_NVME" == "true" ]; then
-            PARTITION_BOOT="${DEVICE}p1"
-            PARTITION_ROOT="${DEVICE}p2"
-            #PARTITION_BOOT_NUMBER=1
-            DEVICE_ROOT="${DEVICE}p2"
+    # setup
+    if [ "$PARTITION_MODE" == "auto" ]; then
+        if [ "$BIOS_TYPE" == "uefi" ]; then
+            if [ "$DEVICE_SATA" == "true" ]; then
+                PARTITION_BOOT="${DEVICE}1"
+                PARTITION_ROOT="${DEVICE}2"
+                #PARTITION_BOOT_NUMBER=1
+                DEVICE_ROOT="${DEVICE}2"
+            fi
+
+            if [ "$DEVICE_NVME" == "true" ]; then
+                PARTITION_BOOT="${DEVICE}p1"
+                PARTITION_ROOT="${DEVICE}p2"
+                #PARTITION_BOOT_NUMBER=1
+                DEVICE_ROOT="${DEVICE}p2"
+            fi
+
+            if [ "$DEVICE_MMC" == "true" ]; then
+                PARTITION_BOOT="${DEVICE}p1"
+                PARTITION_ROOT="${DEVICE}p2"
+                #PARTITION_BOOT_NUMBER=1
+                DEVICE_ROOT="${DEVICE}p2"
+            fi
         fi
 
-        if [ "$DEVICE_MMC" == "true" ]; then
-            PARTITION_BOOT="${DEVICE}p1"
-            PARTITION_ROOT="${DEVICE}p2"
-            #PARTITION_BOOT_NUMBER=1
-            DEVICE_ROOT="${DEVICE}p2"
+        if [ "$BIOS_TYPE" == "bios" ]; then
+            if [ "$DEVICE_SATA" == "true" ]; then
+                PARTITION_BIOS="${DEVICE}1"
+                PARTITION_BOOT="${DEVICE}2"
+                PARTITION_ROOT="${DEVICE}3"
+                #PARTITION_BOOT_NUMBER=2
+                DEVICE_ROOT="${DEVICE}3"
+            fi
+
+            if [ "$DEVICE_NVME" == "true" ]; then
+                PARTITION_BIOS="${DEVICE}p1"
+                PARTITION_BOOT="${DEVICE}p2"
+                PARTITION_ROOT="${DEVICE}p3"
+                #PARTITION_BOOT_NUMBER=2
+                DEVICE_ROOT="${DEVICE}p3"
+            fi
+
+            if [ "$DEVICE_MMC" == "true" ]; then
+                PARTITION_BIOS="${DEVICE}p1"
+                PARTITION_BOOT="${DEVICE}p2"
+                PARTITION_ROOT="${DEVICE}p3"
+                #PARTITION_BOOT_NUMBER=2
+                DEVICE_ROOT="${DEVICE}p3"
+            fi
         fi
     fi
 
-    if [ "$BIOS_TYPE" == "bios" ]; then
-        if [ "$DEVICE_SATA" == "true" ]; then
-            PARTITION_BIOS="${DEVICE}1"
-            PARTITION_BOOT="${DEVICE}2"
-            PARTITION_ROOT="${DEVICE}3"
-            #PARTITION_BOOT_NUMBER=2
-            DEVICE_ROOT="${DEVICE}3"
-        fi
-        
-        if [ "$DEVICE_NVME" == "true" ]; then
-            PARTITION_BIOS="${DEVICE}p1"
-            PARTITION_BOOT="${DEVICE}p2"
-            PARTITION_ROOT="${DEVICE}p3"
-            #PARTITION_BOOT_NUMBER=2
-            DEVICE_ROOT="${DEVICE}p3"
-        fi
-
-        if [ "$DEVICE_MMC" == "true" ]; then
-            PARTITION_BIOS="${DEVICE}p1"
-            PARTITION_BOOT="${DEVICE}p2"
-            PARTITION_ROOT="${DEVICE}p3"
-            #PARTITION_BOOT_NUMBER=2
-            DEVICE_ROOT="${DEVICE}p3"
-        fi
-    fi
-
+    # luks and lvm
     if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
         echo -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" | cryptsetup --key-file=- open $PARTITION_ROOT $LVM_VOLUME_PHISICAL
         sleep 5
@@ -316,6 +328,7 @@ function partition() {
         PARTITION_OPTIONS="$PARTITION_OPTIONS,noatime"
     fi
 
+    # mount
     if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
         mount -o "subvol=root,$PARTITION_OPTIONS,compress=lzo" "$DEVICE_ROOT" /mnt
         mount -o "$PARTITION_OPTIONS" "$PARTITION_BOOT" /mnt/boot

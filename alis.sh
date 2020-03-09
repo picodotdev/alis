@@ -126,7 +126,7 @@ function check_variables() {
     if [ "$LVM" == "true" ]; then
         check_variables_list "PARTITION_MODE" "$PARTITION_MODE" "auto" "true"
     fi
-    check_variables_list "FILE_SYSTEM_TYPE" "$FILE_SYSTEM_TYPE" "ext4 btrfs f2fs xfs"
+    check_variables_list "FILE_SYSTEM_TYPE" "$FILE_SYSTEM_TYPE" "ext4 btrfs xfs"
     check_variables_value "PING_HOSTNAME" "$PING_HOSTNAME"
     check_variables_value "PACMAN_MIRROR" "$PACMAN_MIRROR"
     check_variables_list "KERNELS" "$KERNELS" "linux-lts linux-lts-headers linux-hardened linux-hardened-headers linux-zen linux-zen-headers" "false"
@@ -291,6 +291,8 @@ function prepare() {
     configure_time
     prepare_partition
     configure_network
+
+    pacman -Sy
 }
 
 function configure_time() {
@@ -408,6 +410,10 @@ function partition() {
     fi
 
     # partition
+    if [ "$FILE_SYSTEM_TYPE" == "f2fs" ]; then
+        pacman -S f2fs-tools
+    fi
+
     if [ "$PARTITION_MODE" == "auto" ]; then
         sgdisk --zap-all $DEVICE
         wipefs -a $DEVICE
@@ -566,6 +572,7 @@ function configuration() {
     echo -e "$KEYMAP\n$FONT\n$FONT_MAP" > /mnt/etc/vconsole.conf
     echo $HOSTNAME > /mnt/etc/hostname
 
+    arch-chroot /mnt mkdir -p "/etc/X11/xorg.conf.d/"
     cat <<EOT > /mnt/etc/X11/xorg.conf.d/00-keyboard.conf
 # Written by systemd-localed(8), read by systemd-localed and Xorg. It's
 # probably wise not to edit this file manually. Use localectl(1) to

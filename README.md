@@ -9,7 +9,7 @@ the [Arch Linux wiki](https://wiki.archlinux.org), the [Installation Guide](http
 Recomendations](https://wiki.archlinux.org/index.php/General_recommendations), later
 compare those commands with the commands of this script.
 
-For new features, improvements and bugs fill an issue in GitHub or make a pull request. You can test it in a VirtualBox virtual machine (strongly recommended) before run it in real hardware. If you test it in real hardware please send me an email to pico.dev@gmail.com with the machine description and tell me if something goes wrong or all works fine. [Pull request](https://github.com/picodotdev/alis/pulls) and [new feature request](https://github.com/picodotdev/alis/issues) are welcome!
+For new features, improvements and bugs fill an issue in GitHub or make a pull request. You can test it in a [VirtualBox](https://www.virtualbox.org/) virtual machine (strongly recommended) before run it in real hardware. If you test it in real hardware please send me an email to pico.dev@gmail.com with the machine description and tell me if something goes wrong or all works fine. [Pull request](https://github.com/picodotdev/alis/pulls) and [new feature request](https://github.com/picodotdev/alis/issues) are welcome!
 
 **Warning! This script deletes all partitions of the persistent storage**
 
@@ -74,13 +74,29 @@ As another form of log.
 
 ### Testing in VirtuaBox with Packer
 
+VirtualBox and [Packer](https://packer.io/) are required.
+
+* Firmware: efi, bios
+* File system: ext4, btrfs, f2fs, xfs
+* Partition: luks, lvm
+* Bootloader: grub, refind, systemd
+* Desktop environment: gnome, kde, xfce, ...
+
 ```
 $ wget https://raw.githubusercontent.com/picodotdev/alis/master/alis.conf
 $ wget https://raw.githubusercontent.com/picodotdev/alis/master/alis.sh
 $ wget https://raw.githubusercontent.com/picodotdev/alis/master/alis-packer.json
 $ wget https://raw.githubusercontent.com/picodotdev/alis/master/alis-packer.sh
+
 $ chmod +x ./alis-packer.sh
 $ ./alis-packer.sh
+
+$ ./alis-packer.sh -c alis-packer-efi-btrfs-luks-lvm-systemd.json
+$ ./alis-packer.sh -c alis-packer-efi-ext4-grub-gnome.json
+$ ./alis-packer.sh -c alis-packer-efi-ext4-grub-kde.json
+$ ./alis-packer.sh -c alis-packer-efi-ext4-grub-xfce.json
+$ ./alis-packer.sh -c alis-packer-efi-ext4-luks-lvm-grub.json
+$ ./alis-packer.sh -c alis-packer-efi-f2fs-luks-lvm-systemd.json
 ```
 
 ### Recovery

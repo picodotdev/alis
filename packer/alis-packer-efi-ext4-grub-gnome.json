@@ -1,0 +1,51 @@
+{
+    "variables": {
+      "disk_size": "16384"
+    },
+    "builders": [
+      {
+        "name": "archlinux-alis-virtualbox",
+        "type": "virtualbox-iso",
+        "guest_os_type": "ArchLinux_64",
+        "guest_additions_mode": "attach",
+        "headless": false,
+        "http_directory": ".",
+        "vboxmanage": [
+          ["modifyvm", "{{.Name}}", "--memory", "2048"],
+          ["modifyvm", "{{.Name}}", "--vram", "128"],
+          ["modifyvm", "{{.Name}}", "--cpus", "2"],
+          ["modifyvm", "{{.Name}}", "--firmware", "efi"]
+        ],
+        "disk_size": "{{user `disk_size`}}",
+        "hard_drive_interface": "sata",
+        "iso_url": "https://mirror.rackspace.com/archlinux/iso/latest/archlinux-2020.03.01-x86_64.iso",
+        "iso_checksum": "69f18631dd1518e1efa596497399d668e6fc63e6",
+        "iso_checksum_type": "sha1",
+        "ssh_username": "vagrant",
+        "ssh_password": "vagrant",
+        "ssh_wait_timeout": "60m",
+        "boot_wait": "5s",
+        "boot_command": [
+          "<wait30s>",
+          "wget http://{{.HTTPIP}}:{{.HTTPPort}}/alis.conf<enter><wait1s>",
+          "wget http://{{.HTTPIP}}:{{.HTTPPort}}/alis.sh<enter><wait1s>",
+          "sed -i \"s/FILE_SYSTEM_TYPE=.*/FILE_SYSTEM_TYPE=\\\"ext4\\\"/\" ./alis.conf<enter><wait1s>",
+          "sed -i \"s/LVM=.*/LVM=\\\"false\\\"/\" ./alis.conf<enter><wait1s>",
+          "sed -i \"s/PARTITION_ROOT_ENCRYPTION_PASSWORD=.*/PARTITION_ROOT_ENCRYPTION_PASSWORD=\\\"\\\"/\" ./alis.conf<enter><wait1s>",
+          "sed -i \"s/PARTITION_ROOT_ENCRYPTION_PASSWORD_RETYPE=.*/PARTITION_ROOT_ENCRYPTION_PASSWORD_RETYPE=\\\"\\\"/\" ./alis.conf<enter><wait1s>",
+          "sed -i \"s/BOOTLOADER=.*/BOOTLOADER=\\\"grub\\\"/\" ./alis.conf<enter><wait1s>",
+          "sed -i \"s/DESKTOP_ENVIRONMENT=.*/DESKTOP_ENVIRONMENT=\\\"gnome\\\"/\" ./alis.conf<enter><wait1s>",
+          "chmod +x ./alis.sh<enter><wait1s>",
+          "./alis.sh<enter><wait3>y<wait1s><enter>",
+          "<wait10s><wait10s><wait10s><wait10s><wait10s><wait10s><wait10s><wait60m>"
+        ],
+        "shutdown_command": "systemctl poweroff"
+      }
+    ],
+    "post-processors": [
+      {
+        "type": "vagrant",
+        "output": "archlinux-alis-{{.BuildName}}.box"
+      }
+    ]
+  }

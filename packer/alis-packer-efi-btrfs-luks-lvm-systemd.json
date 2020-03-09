@@ -29,7 +29,12 @@
           "<wait30s>",
           "wget http://{{.HTTPIP}}:{{.HTTPPort}}/alis.conf<enter><wait3s>",
           "wget http://{{.HTTPIP}}:{{.HTTPPort}}/alis.sh<enter><wait3s>",
-          "sed -i \"s/FILE_SYSTEM_TYPE=.*/FILE_SYSTEM_TYPE=\\\"ext4\\\"/\" ./alis.conf<enter><wait3s>",
+          "sed -i \"s/FILE_SYSTEM_TYPE=.*/FILE_SYSTEM_TYPE=\\\"ext4\\\"/\" ./alis.conf<enter><wait1s>",
+          "sed -i \"s/LVM=.*/LVM=\\\"true\\\"/\" ./alis.conf<enter><wait1s>",
+          "sed -i \"s/PARTITION_ROOT_ENCRYPTION_PASSWORD=.*/PARTITION_ROOT_ENCRYPTION_PASSWORD=\\\"archlinux\\\"/\" ./alis.conf<enter><wait1s>",
+          "sed -i \"s/PARTITION_ROOT_ENCRYPTION_PASSWORD_RETYPE=.*/PARTITION_ROOT_ENCRYPTION_PASSWORD_RETYPE=\\\"archlinux\\\"/\" ./alis.conf<enter><wait1s>",
+          "sed -i \"s/BOOTLOADER=.*/BOOTLOADER=\\\"systemd\\\"/\" ./alis.conf<enter><wait1s>",
+          "sed -i \"s/DESKTOP_ENVIRONMENT=.*/DESKTOP_ENVIRONMENT=\\\"\\\"/\" ./alis.conf<enter><wait1s>",          
           "chmod +x ./alis.sh<enter><wait3s>",
           "./alis.sh<enter><wait3>y<wait3s><enter>",
           "<wait10s><wait10s><wait10s><wait10s><wait10s><wait10s><wait10s><wait60m>"

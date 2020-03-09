@@ -11,7 +11,7 @@ compare those commands with the commands of this script.
 
 For new features, improvements and bugs fill an issue in GitHub or make a pull request. You can test it in a [VirtualBox](https://www.virtualbox.org/) virtual machine (strongly recommended) before run it in real hardware. If you test it in real hardware please send me an email to pico.dev@gmail.com with the machine description and tell me if something goes wrong or all works fine. [Pull request](https://github.com/picodotdev/alis/pulls) and [new feature request](https://github.com/picodotdev/alis/issues) are welcome!
 
-**Warning! This script can deletes all partitions of the persistent storage**
+**Warning! This script can delete all partitions of the persistent storage**
 
 Currently these scripts are for me but maybe they are useful for you too.
 

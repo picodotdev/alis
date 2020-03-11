@@ -629,8 +629,9 @@ function mkinitcpio_configuration() {
         pacman_install "f2fs-tools"
     fi
 
-    if ["$BOOTLOADER" == "systemd"]; then
+    if [ "$BOOTLOADER" == "systemd" ]; then
         HOOKS=$(echo $HOOKS | sed 's/!systemd/systemd/')
+        HOOKS=$(echo $HOOKS | sed 's/!sd-vconsole/sd-vconsole/')
         if [ "$LVM" == "true" ]; then
             HOOKS=$(echo $HOOKS | sed 's/!sd-lvm2/sd-lvm2/')
         fi
@@ -640,6 +641,8 @@ function mkinitcpio_configuration() {
     else
         HOOKS=$(echo $HOOKS | sed 's/!udev/udev/')
         HOOKS=$(echo $HOOKS | sed 's/!usr/usr/')
+        HOOKS=$(echo $HOOKS | sed 's/!keymap/keymap/')
+        HOOKS=$(echo $HOOKS | sed 's/!consolefont/consolefont/')
         if [ "$LVM" == "true" ]; then
             HOOKS=$(echo $HOOKS | sed 's/!lvm2/lvm2/')
         fi
@@ -737,6 +740,8 @@ function bootloader() {
             systemd
             ;;
     esac
+
+    arch-chroot /mnt systemctl set-default multi-user.target
 }
 
 function grub() {
@@ -786,69 +791,76 @@ function refind() {
         fi
     fi
 
-    echo "" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-    echo "# alis" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-    echo "menuentry \"Arch Linux\" {" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-    echo "    volume   $PARTUUID_BOOT" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-    echo "    loader   /vmlinuz-linux" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-    echo "    initrd   /initramfs-linux.img" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-    echo "    icon     /EFI/refind/icons/os_arch.png" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-    echo "    options  \"$REFIND_MICROCODE $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX\"" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-    echo "    submenuentry \"Boot using fallback initramfs\" {" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-    echo "	      initrd /initramfs-linux-fallback.img" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-    echo "    }" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-    echo "    submenuentry \"Boot to terminal\" {" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-    echo "	      add_options \"systemd.unit=multi-user.target\"" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-    echo "    }" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-    echo "}" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-    echo "" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
+    cat <<EOT >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
+# alis
+menuentry "Arch Linux" {
+    volume   $PARTUUID_BOOT
+    loader   /vmlinuz-linux
+    initrd   /initramfs-linux.img
+    icon     /EFI/refind/icons/os_arch.png
+    options  "$REFIND_MICROCODE $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX"
+    submenuentry "Boot using fallback initramfs"
+	      initrd /initramfs-linux-fallback.img"
+    }
+    submenuentry "Boot to terminal"
+	      add_options "systemd.unit=multi-user.target"
+    }
+}"
+
+EOT
     if [[ $KERNELS =~ .*linux-lts.* ]]; then
-        echo "menuentry \"Arch Linux (lts)\" {" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "    volume   $PARTUUID_BOOT" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "    loader   /vmlinuz-linux-lts" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "    initrd   /initramfs-linux-lts.img" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "    icon     /EFI/refind/icons/os_arch.png" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "    options  \"$REFIND_MICROCODE $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX\"" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "    submenuentry \"Boot using fallback initramfs\" {" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "	      initrd /initramfs-linux-lts-fallback.img" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "    }" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "    submenuentry \"Boot to terminal\" {" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "	      add_options \"systemd.unit=multi-user.target\"" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "    }" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "}" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
+        cat <<EOT >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
+menuentry "Arch Linux (lts)" {
+    volume   $PARTUUID_BOOT
+    loader   /vmlinuz-linux-lts
+    initrd   /initramfs-linux-lts.img
+    icon     /EFI/refind/icons/os_arch.png
+    options  "$REFIND_MICROCODE $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX"
+    submenuentry "Boot using fallback initramfs" {
+	      initrd /initramfs-linux-lts-fallback.img
+    }
+    submenuentry "Boot to terminal" {
+	      add_options "systemd.unit=multi-user.target"
+    }
+}
+
+EOT
     fi
     if [[ $KERNELS =~ .*linux-hardened.* ]]; then
-        echo "menuentry \"Arch Linux (hardened)\" {" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "    volume   $PARTUUID_BOOT" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "    loader   /vmlinuz-linux-hardened" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "    initrd   /initramfs-linux-hardened.img" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "    icon     /EFI/refind/icons/os_arch.png" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "    options  \"$REFIND_MICROCODE $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX\"" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "    submenuentry \"Boot using fallback initramfs\" {" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "	      initrd /initramfs-linux-hardened-fallback.img" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "    }" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "    submenuentry \"Boot to terminal\" {" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "	      add_options \"systemd.unit=multi-user.target\"" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "    }" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "}" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
+        cat <<EOT >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
+menuentry "Arch Linux (hardened)" {
+    volume   $PARTUUID_BOOT
+    loader   /vmlinuz-linux-hardened
+    initrd   /initramfs-linux-hardened.img
+    icon     /EFI/refind/icons/os_arch.png
+    options  "$REFIND_MICROCODE $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX"
+    submenuentry "Boot using fallback initramfs" {
+	      initrd /initramfs-linux-lts-fallback.img
+    }
+    submenuentry "Boot to terminal" {
+	      add_options "systemd.unit=multi-user.target"
+    }
+}
+
+EOT
     fi
     if [[ $KERNELS =~ .*linux-zen.* ]]; then
-        echo "menuentry \"Arch Linux (zen)\" {" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "    volume   $PARTUUID_BOOT" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "    loader   /vmlinuz-linux-zen" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "    initrd   /initramfs-linux-zen.img" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "    icon     /EFI/refind/icons/os_arch.png" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "    options  \"$REFIND_MICROCODE $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX\"" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "    submenuentry \"Boot using fallback initramfs\" {" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "	      initrd /initramfs-linux-zen-fallback.img" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "    }" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "    submenuentry \"Boot to terminal\" {" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "	      add_options \"systemd.unit=multi-user.target\"" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "    }" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "}" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
-        echo "" >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
+        cat <<EOT >> "/mnt$ESP_DIRECTORY/EFI/refind/refind.conf"
+menuentry "Arch Linux (zen)" {
+    volume   $PARTUUID_BOOT
+    loader   /vmlinuz-linux-zen
+    initrd   /initramfs-linux-zen.img
+    icon     /EFI/refind/icons/os_arch.png
+    options  "$REFIND_MICROCODE $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX"
+    submenuentry "Boot using fallback initramfs" {
+	      initrd /initramfs-linux-lts-fallback.img
+    }
+    submenuentry "Boot to terminal" {
+	      add_options "systemd.unit=multi-user.target"
+    }
+}
+
+EOT
     fi
 
     if [ "$VIRTUALBOX" == "true" ]; then
@@ -857,27 +869,32 @@ function refind() {
 }
 
 function systemd() {
+    arch-chroot /mnt systemd-machine-id-setup
     arch-chroot /mnt bootctl --path="$ESP_DIRECTORY" install
 
     arch-chroot /mnt mkdir -p "$ESP_DIRECTORY/loader/"
     arch-chroot /mnt mkdir -p "$ESP_DIRECTORY/loader/entries/"
 
-    echo "# alis" > "/mnt$ESP_DIRECTORY/loader/loader.conf"
-    echo "timeout 5" >> "/mnt$ESP_DIRECTORY/loader/loader.conf"
-    echo "default archlinux" >> "/mnt$ESP_DIRECTORY/loader/loader.conf"
-    echo "editor 0" >> "/mnt$ESP_DIRECTORY/loader/loader.conf"
+    cat <<EOT > "/mnt$ESP_DIRECTORY/loader/loader.conf"
+# alis
+timeout 5
+default archlinux
+editor 0
+EOT
 
     arch-chroot /mnt mkdir -p "/etc/pacman.d/hooks/"
 
-    echo "[Trigger]" >> /mnt/etc/pacman.d/hooks/systemd-boot.hook
-    echo "Type = Package" >> /mnt/etc/pacman.d/hooks/systemd-boot.hook
-    echo "Operation = Upgrade" >> /mnt/etc/pacman.d/hooks/systemd-boot.hook
-    echo "Target = systemd" >> /mnt/etc/pacman.d/hooks/systemd-boot.hook
-    echo "" >> /mnt/etc/pacman.d/hooks/systemd-boot.hook
-    echo "[Action]" >> /mnt/etc/pacman.d/hooks/systemd-boot.hook
-    echo "Description = Updating systemd-boot..." >> /mnt/etc/pacman.d/hooks/systemd-boot.hook
-    echo "When = PostTransaction" >> /mnt/etc/pacman.d/hooks/systemd-boot.hook
-    echo "Exec = /usr/bin/bootctl update" >> /mnt/etc/pacman.d/hooks/systemd-boot.hook
+    cat <<EOT > "/mnt/etc/pacman.d/hooks/systemd-boot.hook"
+[Trigger]
+Type = Package
+Operation = Upgrade
+Target = systemd
+
+[Action]
+Description = Updating systemd-boot
+When = PostTransaction
+Exec = /usr/bin/bootctl update
+EOT
 
     SYSTEMD_MICROCODE=""
     SYSTEMD_OPTIONS=""
@@ -893,6 +910,10 @@ function systemd() {
 
     if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
        SYSTEMD_OPTIONS="rd.luks.options=discard"
+
+        cat <<EOT > "/mnt/etc/crypttab.initramfs"
+lvm $PARTITION_ROOT
+EOT
     fi
 
     echo "title Arch Linux" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux.conf"
@@ -902,6 +923,14 @@ function systemd() {
     fi
     echo "initrd /initramfs-linux.img" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux.conf"
     echo "options initrd=initramfs-linux.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX $SYSTEMD_OPTIONS" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux.conf"
+
+    echo "title Arch Linux (terminal)" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-terminal.conf"
+    echo "efi /vmlinuz-linux" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-terminal.conf"
+    if [ -n "$SYSTEMD_MICROCODE" ]; then
+        echo "initrd $SYSTEMD_MICROCODE" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-terminal.conf"
+    fi
+    echo "initrd /initramfs-linux.img" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-terminal.conf"
+    echo "options initrd=initramfs-linux.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX systemd.unit=multi-user.target $SYSTEMD_OPTIONS" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-terminal.conf"
 
     echo "title Arch Linux (fallback)" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-fallback.conf"
     echo "efi /vmlinuz-linux" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-fallback.conf"
@@ -915,10 +944,18 @@ function systemd() {
         echo "title Arch Linux (lts)" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-lts.conf"
         echo "efi /vmlinuz-linux-lts" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-lts.conf"
         if [ -n "$SYSTEMD_MICROCODE" ]; then
-            echo "initrd $SYSTEMD_MICROCODE" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux.conf"
+            echo "initrd $SYSTEMD_MICROCODE" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-lts.conf"
         fi
         echo "initrd /initramfs-linux-lts.img" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-lts.conf"
         echo "options initrd=initramfs-linux-lts.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX $SYSTEMD_OPTIONS" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-lts.conf"
+
+        echo "title Arch Linux (lts, terminal)" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-lts-terminal.conf"
+        echo "efi /vmlinuz-linux-lts" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-lts-terminal.conf"
+        if [ -n "$SYSTEMD_MICROCODE" ]; then
+            echo "initrd $SYSTEMD_MICROCODE" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-lts-terminal.conf"
+        fi
+        echo "initrd /initramfs-linux-lts.img" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-lts-terminal.conf"
+        echo "options initrd=initramfs-linux-lts.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX systemd.unit=multi-user.target $SYSTEMD_OPTIONS" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-lts-terminal.conf"
 
         echo "title Arch Linux (lts-fallback)" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-lts-fallback.conf"
         echo "efi /vmlinuz-linux-lts" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-lts-fallback.conf"
@@ -933,10 +970,18 @@ function systemd() {
         echo "title Arch Linux (hardened)" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-hardened.conf"
         echo "efi /vmlinuz-linux-hardened" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-hardened.conf"
         if [ -n "$SYSTEMD_MICROCODE" ]; then
-            echo "initrd $SYSTEMD_MICROCODE" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux.conf"
+            echo "initrd $SYSTEMD_MICROCODE" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-hardened.conf"
         fi
         echo "initrd /initramfs-linux-hardened.img" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-hardened.conf"
         echo "options initrd=initramfs-linux-hardened.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX $SYSTEMD_OPTIONS" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-hardened.conf"
+
+        echo "title Arch Linux (hardened, terminal)" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-hardened-terminal.conf"
+        echo "efi /vmlinuz-linux-hardened" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-hardened-terminal.conf"
+        if [ -n "$SYSTEMD_MICROCODE" ]; then
+            echo "initrd $SYSTEMD_MICROCODE" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-hardened-terminal.conf"
+        fi
+        echo "initrd /initramfs-linux-hardened.img" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-hardened-terminal.conf"
+        echo "options initrd=initramfs-linux-hardened.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX systemd.unit=multi-user.target $SYSTEMD_OPTIONS" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-hardened-terminal.conf"
 
         echo "title Arch Linux (hardened-fallback)" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-hardened-fallback.conf"
         echo "efi /vmlinuz-linux-hardened" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-hardened-fallback.conf"
@@ -951,10 +996,18 @@ function systemd() {
         echo "title Arch Linux (zen)" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-zen.conf"
         echo "efi /vmlinuz-linux-zen" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-zen.conf"
         if [ -n "$SYSTEMD_MICROCODE" ]; then
-            echo "initrd $SYSTEMD_MICROCODE" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux.conf"
+            echo "initrd $SYSTEMD_MICROCODE" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-zen.conf"
         fi
         echo "initrd /initramfs-linux-zen.img" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-zen.conf"
         echo "options initrd=initramfs-linux-zen.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX $SYSTEMD_OPTIONS" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-zen.conf"
+
+        echo "title Arch Linux (zen, terminal)" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-zen-terminal.conf"
+        echo "efi /vmlinuz-linux-zen" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-zen-terminal.conf"
+        if [ -n "$SYSTEMD_MICROCODE" ]; then
+            echo "initrd $SYSTEMD_MICROCODE" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-zen-terminal.conf"
+        fi
+        echo "initrd /initramfs-linux-zen.img" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-zen-terminal.conf"
+        echo "options initrd=initramfs-linux-zen.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX systemd.unit=multi-user.target $SYSTEMD_OPTIONS" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-zen-terminal.conf"
 
         echo "title Arch Linux (zen-fallback)" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-zen-fallback.conf"
         echo "efi /vmlinuz-linux-zen" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-zen-fallback.conf"
@@ -1094,6 +1147,8 @@ function desktop_environment() {
             desktop_environment_lxde
             ;;
     esac
+
+    arch-chroot /mnt systemctl set-default graphical.target
 }
 
 function desktop_environment_gnome() {
@@ -1133,14 +1188,17 @@ function packages() {
         pacman_install "$PACKAGES_PACMAN"
     fi
 
-    packages_aur
+    if [ -n "$AUR" -o -n "$PACKAGES_AUR" ]; then
+        packages_aur
+    fi
 }
 
 function packages_aur() {
+    arch-chroot /mnt sed -i 's/%wheel ALL=(ALL) ALL/%wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers
+
     if [ -n "$AUR" -o -n "$PACKAGES_AUR" ]; then
         pacman_install "git"
 
-        arch-chroot /mnt sed -i 's/%wheel ALL=(ALL) ALL/%wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers
         case "$AUR" in
             "aurman" )
                 arch-chroot /mnt bash -c "echo -e \"$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n\" | su $USER_NAME -c \"cd /home/$USER_NAME && git clone https://aur.archlinux.org/$AUR.git && gpg --recv-key 465022E743D71E39 && (cd $AUR && makepkg -si --noconfirm) && rm -rf $AUR\""
@@ -1149,12 +1207,13 @@ function packages_aur() {
                 arch-chroot /mnt bash -c "echo -e \"$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n\" | su $USER_NAME -c \"cd /home/$USER_NAME && git clone https://aur.archlinux.org/$AUR.git && (cd $AUR && makepkg -si --noconfirm) && rm -rf $AUR\""
                 ;;
         esac
-        arch-chroot /mnt sed -i 's/%wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
     fi
 
     if [ -n "$PACKAGES_AUR" ]; then
         aur_install "$PACKAGES_AUR"
     fi
+
+    arch-chroot /mnt sed -i 's/%wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
 }
 
 function terminate() {

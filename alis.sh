@@ -88,7 +88,7 @@ function sanitize_variables() {
     PARTITION_MODE=$(sanitize_variable "$PARTITION_MODE")
     PARTITION_BIOS=$(sanitize_variable "$PARTITION_BIOS")
     PARTITION_BOOT=$(sanitize_variable "$PARTITION_BOOT")
-    PARTITON_ROOT=$(sanitize_variable "$PARTITON_ROOT")
+    PARTITION_ROOT=$(sanitize_variable "$PARTITION_ROOT")
     FILE_SYSTEM_TYPE=$(sanitize_variable "$FILE_SYSTEM_TYPE")
     SWAP_SIZE=$(sanitize_variable "$SWAP_SIZE")
     KERNELS=$(sanitize_variable "$KERNELS")
@@ -118,11 +118,11 @@ function check_variables() {
     check_variables_boolean "LVM" "$LVM"
     check_variables_equals "PARTITION_ROOT_ENCRYPTION_PASSWORD" "PARTITION_ROOT_ENCRYPTION_PASSWORD_RETYPE" "$PARTITION_ROOT_ENCRYPTION_PASSWORD" "$PARTITION_ROOT_ENCRYPTION_PASSWORD_RETYPE"
     check_variables_list "PARTITION_MODE" "$PARTITION_MODE" "auto custom manual" "true"
-    check_variables_value "PARTITON_CUSTOM_PARTED_UEFI" "$PARTITON_CUSTOM_PARTED_UEFI"
-    check_variables_value "PARTITON_CUSTOM_PARTED_BIOS" "$PARTITON_CUSTOM_PARTED_BIOS"
+    check_variables_value "PARTITION_CUSTOM_PARTED_UEFI" "$PARTITION_CUSTOM_PARTED_UEFI"
+    check_variables_value "PARTITION_CUSTOM_PARTED_BIOS" "$PARTITION_CUSTOM_PARTED_BIOS"
     check_variables_value "PARTITION_BIOS" "$PARTITION_BIOS"
     check_variables_value "PARTITION_BOOT" "$PARTITION_BOOT"
-    check_variables_value "PARTITON_ROOT" "$PARTITON_ROOT"
+    check_variables_value "PARTITION_ROOT" "$PARTITION_ROOT"
     if [ "$LVM" == "true" ]; then
         check_variables_list "PARTITION_MODE" "$PARTITION_MODE" "auto" "true"
     fi
@@ -349,8 +349,8 @@ function partition() {
     print_step "partition()"
 
     # setup
-    PARTITON_PARTED_UEFI="mklabel gpt mkpart primary fat32 1MiB 512MiB mkpart primary $FILE_SYSTEM_TYPE 512MiB 100% set 1 boot on"
-    PARTITON_PARTED_BIOS="mklabel gpt mkpart primary fat32 1MiB 128MiB mkpart primary $FILE_SYSTEM_TYPE 128MiB 512MiB mkpart primary $FILE_SYSTEM_TYPE 512MiB 100% set 1 boot on"
+    PARTITION_PARTED_UEFI="mklabel gpt mkpart primary fat32 1MiB 512MiB mkpart primary $FILE_SYSTEM_TYPE 512MiB 100% set 1 boot on"
+    PARTITION_PARTED_BIOS="mklabel gpt mkpart primary fat32 1MiB 128MiB mkpart primary $FILE_SYSTEM_TYPE 128MiB 512MiB mkpart primary $FILE_SYSTEM_TYPE 512MiB 100% set 1 boot on"
 
     if [ "$PARTITION_MODE" == "auto" ]; then
         if [ "$BIOS_TYPE" == "uefi" ]; then
@@ -402,11 +402,11 @@ function partition() {
             fi
         fi
     elif [ "$PARTITION_MODE" == "custom" ]; then
-        PARTITON_PARTED_UEFI=$PARTITON_CUSTOM_PARTED_UEFI
-        PARTITON_PARTED_BIOS=$PARTITON_CUSTOM_PARTED_BIOS
-        DEVICE_ROOT="${PARTITON_ROOT}"
+        PARTITION_PARTED_UEFI=$PARTITION_CUSTOM_PARTED_UEFI
+        PARTITION_PARTED_BIOS=$PARTITION_CUSTOM_PARTED_BIOS
+        DEVICE_ROOT="${PARTITION_ROOT}"
     elif [ "$PARTITION_MODE" == "manual" ]; then
-        DEVICE_ROOT="${PARTITON_ROOT}"
+        DEVICE_ROOT="${PARTITION_ROOT}"
     fi
 
     # partition
@@ -421,7 +421,7 @@ function partition() {
 
     if [ "$PARTITION_MODE" == "auto" -o "$PARTITION_MODE" == "custom" ]; then
         if [ "$BIOS_TYPE" == "uefi" ]; then
-            parted -s $DEVICE $PARTITON_PARTED_UEFI
+            parted -s $DEVICE $PARTITION_PARTED_UEFI
 
             if [ "$PARTITION_MODE" == "auto" ]; then
                 sgdisk -t=1:ef00 $DEVICE
@@ -432,7 +432,7 @@ function partition() {
         fi
 
         if [ "$BIOS_TYPE" == "bios" ]; then
-            parted -s $DEVICE $PARTITON_PARTED_BIOS
+            parted -s $DEVICE $PARTITION_PARTED_BIOS
 
             if [ "$PARTITION_MODE" == "auto" ]; then
                 sgdisk -t=1:ef02 $DEVICE

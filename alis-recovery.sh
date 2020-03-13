@@ -100,7 +100,7 @@ function check_variables() {
     check_variables_list "PARTITION_MODE" "$PARTITION_MODE" "auto custom manual" "true"
     check_variables_value "PARTITION_BIOS" "$PARTITION_BIOS"
     check_variables_value "PARTITION_BOOT" "$PARTITION_BOOT"
-    check_variables_value "PARTITON_ROOT" "$PARTITON_ROOT"
+    check_variables_value "PARTITION_ROOT" "$PARTITION_ROOT"
     if [ "$LVM" == "true" ]; then
         check_variables_list "PARTITION_MODE" "$PARTITION_MODE" "auto" "true"
     fi

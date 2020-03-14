@@ -12,6 +12,14 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 
 Currently these scripts are for me but maybe they are useful for you too.
 
+### Principles
+
+* Use the original Arch Linux installation media
+* Require as little interactivity as possible
+* Allow to customize the installation to cover the most common cases
+* Provide support for recovery
+* Provide support for get a log
+
 ### Features
 
 * GPT, UEFI, BIOS
@@ -82,7 +90,14 @@ As another form of log.
 # ./alis-recovery.sh
 ```
 
-### Testing in VirtuaBox with Packer
+### How you can help
+
+* Test in VirtualBox and create an issue if something does not work, attach the main parts of the used configuration file and the error message
+* Create issues with new features
+* Send pull requests
+* Share it in social networks, forums, create a blog post or video about it
+
+### Test in VirtuaBox with Packer
 
 VirtualBox and [Packer](https://packer.io/) are required.
 
@@ -107,13 +122,6 @@ $ ./alis-packer.sh -c alis-packer-efi-f2fs-luks-lvm-systemd.json
 ### Video
 
 [![asciicast](https://asciinema.org/a/192880.png)](https://asciinema.org/a/192880)
-
-### How you can help
-
-* Test in VirtualBox and create an issue if something does not works, attach the main parts of the used configuration file and the error message.
-* Create issues with new features.
-* Send pull requests.
-* Share it in social networks, forums o create a blog post about it.
 
 ### Arch Linux Installation Media
 

@@ -13,7 +13,7 @@ url: "/"
         <h2 class="subtitle is-3 is-muted has-text-centered">
           An easy and fast way to install Arch Linux.
           <br>
-          Boot. Get. Configure. Install. Emjoy.
+          Boot. Get. Configure. Install. Enjoy.
         </h2>
         <p class="has-text-centered">
           <a class="button cta primary-btn raised" href="#installation">

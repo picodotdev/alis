@@ -53,7 +53,7 @@ url: "/"
         It is a simple bash script that fully automates the installation of a Arch Linux system after booting from the original Arch Linux installation media. It contains the same commands that you would type and execute one by one interactively to complete the installation. The only user intervention needed is to edit a configuration file to choose the installation options and preferences from partitioning, to encryption, bootloader, file system, language and keyboard mapping, desktop environment, kernels, packages to install and graphic drivers. This automation makes the installation easy and fast.
       </p>
       <p>
-        If some time later after an system update for any reason the system does not boot correctly a recovery script is also provided to enter in a recovery mode that allow to downgrade packages or execute any other commands to restore the system. Also a log of the installation can be taken with <a href="https://asciinema.org/">asciinema</a>.
+        If some time later after an system update for any reason the system does not boot correctly a recovery script is also provided to enter in a recovery mode that allows to downgrade packages or execute any other commands to restore the system. Also a log of the installation can be taken with <a href="https://asciinema.org/">asciinema</a>.
       </p>
       <p class="has-text-danger">
         Warning! This script can delete all partitions of the persistent storage. It is recommended to test it first in a virtual machine like <a href="https://www.virtualbox.org/">VirtualBox</a>.
@@ -100,7 +100,6 @@ url: "/"
         <li>Display managers: GDM, SDDM, Lightdm, lxdm</li>
         <li>Graphics controller: intel, nvidia, amd with optionally early KMS start</li>
         <li>Bootloader: GRUB, rEFInd, systemd-boot</li>
-        <li>WPA WIFI network installation</li>
         <li>Periodic TRIM for SSD storage</li>
         <li>Intel and AMD processors microcode</li>
         <li>Optional file swap (not supported in btrfs)</li>
@@ -144,6 +143,7 @@ curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash
 curl -sL https://bit.ly/2F3CATp | bash
 # Edit alis.conf and change variables values with your preferences
 vim alis.conf
+# Start
 ./alis.sh
 {{< / highlight >}}
     </div>
@@ -179,7 +179,9 @@ curl -sL https://bit.ly/2F3CATp | bash
 ./alis-asciinema.sh
 # Edit alis.conf and change variables values with your preferences
 vim alis.conf
+# Start
 ./alis.sh
+# Exit
 exit
 ./alis-reboot.sh
 {{< / highlight >}}
@@ -205,6 +207,7 @@ curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash
 curl -sL https://bit.ly/2F3CATp | bash
 # Edit alis-recovery.conf and change variables values with your last installation with alis
 vim alis-recovery.conf
+# Start
 ./alis-recovery.sh
 {{< / highlight >}}
     </div>

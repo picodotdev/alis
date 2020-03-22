@@ -4,7 +4,7 @@ Arch Linux Install Script (or alis) installs unattended, automated and customize
 
 It is a simple bash script that fully automates the installation of a Arch Linux system after booting from the original Arch Linux installation media. It contains the same commands that you would type and execute one by one interactively to complete the installation. The only user intervention needed is to edit a configuration file to choose the installation options and preferences from partitioning, to encryption, bootloader, file system, language and keyboard mapping, desktop environment, kernels, packages to install and graphic drivers. This automation makes the installation easy and fast.
 
-If some time later after an system update for any reason the system does not boot correctly a recovery script is also provided to enter in a recovery mode that allow to downgrade packages or execute any other commands to restore the system. Also a log of the installation can be taken with <a href="https://asciinema.org/">asciinema</a>.
+If some time later after an system update for any reason the system does not boot correctly a recovery script is also provided to enter in a recovery mode that allows to downgrade packages or execute any other commands to restore the system. Also a log of the installation can be taken with <a href="https://asciinema.org/">asciinema</a>.
 
 **Warning! This script can delete all partitions of the persistent storage. It is recommended to test it first in a virtual machine like <a href="https://www.virtualbox.org/">VirtualBox</a>.**
 
@@ -43,7 +43,6 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 * Intel and AMD processors microcode
 * Optional file swap (not supported in btrfs)
 * VirtualBox guest utils
-* WPA WIFI network installation
 * Kernel compression and custom parameters
 * Users creation and add to sudoers
 * Common and custom packages installation
@@ -71,6 +70,7 @@ Internet connection is required, with wireless WIFI connection see <a href="http
 # curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash, or with URL shortener curl -sL https://bit.ly/2F3CATp | bash
 # # Edit alis.conf and change variables values with your preferences
 # vim alis.conf
+# # Start
 # ./alis.sh
 ```
 
@@ -85,7 +85,9 @@ As another form of log.
 # ./alis-asciinema.sh
 # # Edit alis.conf and change variables values with your preferences
 # vim alis.conf
+# Start
 # ./alis.sh
+# # Exit
 # exit
 # ./alis-reboot.sh
 ```
@@ -102,6 +104,7 @@ Boot from the latest <a href="https://www.archlinux.org/download/">original Arch
 # vim alis-recovery.conf
 # # Optional asciinema video
 # ./alis-asciinema-recovery.sh
+# # Start
 # ./alis-recovery.sh
 ```
 

@@ -1,16 +1,20 @@
 # alis
 
-Arch Linux Install Script (alis) installs unattended, automated and customized Arch Linux system.
+Arch Linux Install Script (or alis) installs unattended, automated and customized Arch Linux system.
 
-This a simple bash script for an easy and fast way of installing Arch Linux, follow the [Arch Way](https://wiki.archlinux.org/index.php/Arch_Linux) of doing things and learn what this script does. This will allow you to know what is happening. 
+It is a simple bash script that fully automates the installation of a Arch Linux system after booting from the original Arch Linux installation media. It contains the same commands that you would type and execute one by one interactively to complete the installation. The unique user intervention is to edit a configuration file to choose the installation options and preferences from partitioning, to encryption, bootloader, file system, language and keyboard mapping, desktop environment, kernels, packages to install and graphic drivers.
+
+The automation makes the installation easy and fast. But if some time later after installation for any reason the system not boots correctly a recovery script is also provided to enter in a recovery mode that allow to downgrade packages or execute any other commands to restore the system. Also a log of the installation can be taken with <a href="https://asciinema.org/">asciinema</a>.
+
+**Warning! This script can delete all partitions of the persistent storage. It is recommended to test it first in a virtual machine like <a href="https://www.virtualbox.org/">VirtualBox</a>.**
+
+Currently these scripts are for me but maybe they are useful for you too.
+
+Follow the [Arch Way](https://wiki.archlinux.org/index.php/Arch_Linux) of doing things and learn what this script does. This will allow you to know what is happening. 
 
 Please, don't ask for support for this script in Arch Linux forums, first read the [Arch Linux wiki](https://wiki.archlinux.org), the [Installation Guide](https://wiki.archlinux.org/index.php/Installation_guide) and the [General Recomendations](https://wiki.archlinux.org/index.php/General_recommendations), later compare those commands with the commands of this script.
 
 For new features, improvements and bugs fill an issue in GitHub or make a pull request. You can test it in a [VirtualBox](https://www.virtualbox.org/) virtual machine (strongly recommended) before run it in real hardware. If you test it in real hardware please send me an email to pico.dev@gmail.com with the machine description and tell me if something goes wrong or all works fine. [Pull request](https://github.com/picodotdev/alis/pulls) and [new feature request](https://github.com/picodotdev/alis/issues) are welcome!
-
-**Warning! This script can delete all partitions of the persistent storage**
-
-Currently these scripts are for me but maybe they are useful for you too.
 
 ### Principles
 
@@ -18,39 +22,49 @@ Currently these scripts are for me but maybe they are useful for you too.
 * Require as little interactivity as possible
 * Allow to customize the installation to cover the most common cases
 * Provide support for recovery
-* Provide support for get a log
+* Provide support for log
 
 ### Features
 
-* GPT, UEFI, BIOS
-* Support for SATA, NVMe and MMC
-* LVM and no LVM
-* _root_ partition encrypted and no encrypted
-* LVM on LUKS when LVM and encrypted
-* Support automatic (wipe and use full disk), custom and manual partition
-* File system formats ext4, btrfs (with subvols), xfs
+* System: GPT, UEFI, BIOS
+* Storage: SATA, NVMe and MMC
+* Encryption: root partition encrypted and no encrypted
+* Partition: no LVM, LVM, LVM on LUKS
+* File system: ext4, btrfs (with subvols), xfs
 * Optional file swap (not supported in btrfs)
+* Storage: SATA, NVMe and MMC
+* Kernels: linux-lts, linux-hardened, linux-zen
+* Desktop environment: GNOME, KDE, XFCE, Mate, Cinnamon, LXDE
+* Display managers: GDM, SDDM, Lightdm, lxdm
+* Graphics controller: intel, nvidia, amd with optionally early KMS start
+* Bootloader: GRUB, rEFInd, systemd-boot
 * WPA WIFI network installation
 * Periodic TRIM for SSD storage
-* VirtualBox guest utils
 * Intel and AMD processors microcode
-* Additional kernels installation (linux-lts, linux-hardened, linux-zen)
+* Optional file swap (not supported in btrfs)
+* VirtualBox guest utils
+* WPA WIFI network installation
 * Kernel compression and custom parameters
 * Users creation and add to sudoers
 * Common and custom packages installation
 * AUR utility installation (aurman, yay)
+* Script for download installation and recovery scripts and configuration files
 * Retry packages download on connection/mirror error
 * Desktop environments (GDM, KDE, XFCE, Mate, Cinnamon, LXDE), display managers (GDM, SDDM, Lightdm, lxdm) and no desktop environment
 * Graphics controllers (intel, nvidia, amd) with optionally early KMS start
 * GRUB, rEFInd, systemd-boot bootloaders
-* Script for download installation and recovery scripts and configuration files
+
 * Packer support for testing in VirtualBox
 * Installation log with all commands executed and output in a file and/or asciinema video
 * Wait after installation for an abortable reboot
 
 ### Installation
 
-Internet connection is required, with wireless WIFI connection see [Wireless_network_configuration](https://wiki.archlinux.org/index.php/Wireless_network_configuration#Wi-Fi_Protected_Access) to bring up WIFI connection before starting installation with alis.
+Download and boot from the latest <a href="https://www.archlinux.org/download/">original Arch Linux installation media</a>. After boot use the following comands to start the installation.
+
+Follow the <a href="https://wiki.archlinux.org/index.php/Arch_Linux">Arch Way</a> of doing things and learn what this script does. This will allow you to know what is happening. 
+
+Internet connection is required, with wireless WIFI connection see <a href="https://wiki.archlinux.org/index.php/Wireless_network_configuration#Wi-Fi_Protected_Access">Wireless_network_configuration</a> to bring up WIFI connection before start the installation.
 
 ```
 # # Start the system with lastest Arch Linux installation media
@@ -78,6 +92,8 @@ As another form of log.
 ```
 
 ### Recovery
+
+Boot from the latest <a href="https://www.archlinux.org/download/">original Arch Linux installation media</a>. After boot use the following comands to start the recovery, this will allow you to enter in the arch-chroot environment.
 
 ```
 # # Start the system with lastest Arch Linux installation media

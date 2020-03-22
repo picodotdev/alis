@@ -1,0 +1,70 @@
+baseURL: https://picodotdev.github.io/alis/
+languageCode: en-us
+title: "alis :. Arch Linux Install Script"
+theme: alis
+disableKinds:
+- taxonomy
+- taxonomyTerm
+markup:
+  goldmark:
+    renderer:
+      unsafe: true # Allows you to write raw html in your md files
+  highlight:
+    codeFences: true
+    guessSyntax: false
+    hl_Lines: ""
+    lineNoStart: 1
+    lineNos: false
+    lineNumbersInTable: true
+    noClasses: false
+    style: github
+    tabWidth: 4
+
+params:
+  description: 
+  navbarlogo:
+    text: "alis"
+    link: https://github.com/picodotdev/alis/
+  font:
+    name: "Open Sans"
+    sizes: [400,600]
+  navbar:
+  - title: What is it?
+    url: "#whaisit"
+  - title: Principles
+    url: "#principles"
+  - title: Features
+    url: "#features"
+  - title: Installation
+    url: "#installation"
+  - title: Video
+    url: "#video"
+  - title: GitHub
+    url: "https://github.com/picodotdev/alis/"
+  - title: More
+    sublinks:
+    - title: Installation with log
+      url: "#installation-log"
+    - title: Recovery
+      url: "#recovery"
+    - title: How you can help
+      url: "#howyoucanhelp"
+  footer:
+    socialmedia:
+    - link: https://github.com/picodotdev/alis/
+      icon: github
+    bulmalogo: true
+    quicklinks:
+      column1:
+        title: "Documentation"
+        links:
+        - text: What is it?
+          link: "#whaisit"
+        - text: Principles
+          link: "#principles"
+        - text: Features
+          link: "#features"
+        - text: Installation
+          link: "#installation"
+        - text: Recovery
+          link: "#recovery"

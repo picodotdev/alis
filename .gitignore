@@ -1,4 +1,6 @@
 packer_cache/
+site/deploy/
+site/resources/_gen/
 output-archlinux-alis-virtualbox/
 *.vala
 *.patch

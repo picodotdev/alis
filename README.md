@@ -53,7 +53,6 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 * Desktop environments (GDM, KDE, XFCE, Mate, Cinnamon, LXDE), display managers (GDM, SDDM, Lightdm, lxdm) and no desktop environment
 * Graphics controllers (intel, nvidia, amd) with optionally early KMS start
 * GRUB, rEFInd, systemd-boot bootloaders
-
 * Packer support for testing in VirtualBox
 * Installation log with all commands executed and output in a file and/or asciinema video
 * Wait after installation for an abortable reboot

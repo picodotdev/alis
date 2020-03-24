@@ -20,7 +20,7 @@ url: "/"
             How to install
           </a>
           <a class="button cta primary-btn raised" href="#video">
-            Video
+            See it in video
           </a>
         </p>
       </div>
@@ -127,7 +127,7 @@ url: "/"
     </div>
     <div class="content-wrapper">
       <p>
-        Download and boot from the latest <a href="https://www.archlinux.org/download/">original Arch Linux installation media</a>. After boot use the following comands to start the installation.
+        Download and boot from the latest <a href="https://www.archlinux.org/download/">original Arch Linux installation media</a>. After boot use the following commands to start the installation.
       </p>
       <p>
         Follow the <a href="https://wiki.archlinux.org/index.php/Arch_Linux">Arch Way</a> of doing things and learn what this script does. This will allow you to know what is happening. 

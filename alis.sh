@@ -277,11 +277,8 @@ function facts() {
 }
 
 function check_facts() {
-    if [ "$BOOTLOADER" == "refind" ]; then
-        check_variables_list "BIOS_TYPE" "$BIOS_TYPE" "uefi"
-    fi
-    if [ "$BOOTLOADER" == "systemd" ]; then
-        check_variables_list "BIOS_TYPE" "$BIOS_TYPE" "uefi"
+    if [ "$BIOS_TYPE" == "bios" ]; then
+        check_variables_list "BOOTLOADER" "$BOOTLOADER" "grub"
     fi
 }
 

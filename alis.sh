@@ -459,6 +459,8 @@ function partition() {
         lvcreate -l 100%FREE -n $LVM_VOLUME_LOGICAL $LVM_VOLUME_GROUP
 
         DEVICE_ROOT="/dev/mapper/$LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL"
+    elif [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
+        DEVICE_ROOT="$LVM_DEVICE"
     fi
 
     # format

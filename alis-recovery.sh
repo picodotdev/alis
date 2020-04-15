@@ -50,7 +50,8 @@ PARTITION_BIOS=""
 PARTITION_BOOT=""
 PARTITION_ROOT=""
 DEVICE_ROOT=""
-LVM_VOLUME_PHISICAL="lvm"
+DEVICE_LVM=""
+LUKS_DEVICE_NAME="cryptroot"
 LVM_VOLUME_GROUP="vg"
 LVM_VOLUME_LOGICAL="root"
 BOOT_DIRECTORY=""
@@ -222,16 +223,17 @@ function prepare_partition() {
         umount /mnt/boot
         umount /mnt
     fi
-    if [ -e "/dev/mapper/$LVM_VOLUME_LOGICAL" ]; then
-        if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
-            cryptsetup close $LVM_VOLUME_LOGICAL
-        fi
+    if [ -e "/dev/mapper/$LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL" ]; then
+        lvremove --force "$LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL"
     fi
-    if [ -e "/dev/mapper/$LVM_VOLUME_PHISICAL" ]; then
-        if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
-            cryptsetup close $LVM_VOLUME_PHISICAL
-        fi
+    if [ -e "/dev/mapper/$LVM_VOLUME_GROUP" ]; then
+        vgremove --force "/dev/mapper/$LVM_VOLUME_GROUP"
+        pvremove "/dev/mapper/$LUKS_DEVICE_NAME"
     fi
+    if [ -e "/dev/mapper/$LUKS_DEVICE_NAME" ]; then
+        cryptsetup close $LUKS_DEVICE_NAME
+    fi
+    partprobe $DEVICE
 }
 
 function configure_network() {
@@ -313,13 +315,15 @@ function partition() {
 
     # luks and lvm
     if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
-        echo -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" | cryptsetup --key-file=- open $PARTITION_ROOT $LVM_VOLUME_PHISICAL
+        echo -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" | cryptsetup --key-file=- open $PARTITION_ROOT $LUKS_DEVICE_NAME
         sleep 5
     fi
 
+    if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
+        DEVICE_ROOT="/dev/mapper/$LUKS_DEVICE_NAME"
+    fi
     if [ "$LVM" == "true" ]; then
-        DEVICE_ROOT_MAPPER="$LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL"
-        DEVICE_ROOT="/dev/mapper/$DEVICE_ROOT_MAPPER"
+        DEVICE_ROOT="/dev/mapper/$LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL"
     fi
 
     PARTITION_OPTIONS="defaults"

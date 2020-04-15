@@ -46,8 +46,8 @@ PARTITION_BIOS=""
 PARTITION_BOOT=""
 PARTITION_ROOT=""
 DEVICE_ROOT=""
-LVM_DEVICE=""
-LVM_VOLUME_PHISICAL="lvm"
+DEVICE_LVM=""
+LUKS_DEVICE_NAME="cryptroot"
 LVM_VOLUME_GROUP="vg"
 LVM_VOLUME_LOGICAL="root"
 SWAPFILE=""
@@ -301,18 +301,15 @@ function prepare_partition() {
         umount /mnt/boot
         umount /mnt
     fi
-    if [ -e "/dev/mapper/$LVM_VOLUME_LOGICAL" ]; then
-        if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
-            cryptsetup close $LVM_VOLUME_LOGICAL
-        fi
-    fi
-    if [ -e "/dev/mapper/$LVM_VOLUME_PHISICAL" ]; then
+    if [ -e "/dev/mapper/$LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL" ]; then
         lvremove --force "$LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL"
+    fi
+    if [ -e "/dev/mapper/$LVM_VOLUME_GROUP" ]; then
         vgremove --force "/dev/mapper/$LVM_VOLUME_GROUP"
-        pvremove "/dev/mapper/$LVM_VOLUME_PHISICAL"
-        if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
-            cryptsetup close $LVM_VOLUME_PHISICAL
-        fi
+        pvremove "/dev/mapper/$LUKS_DEVICE_NAME"
+    fi
+    if [ -e "/dev/mapper/$LUKS_DEVICE_NAME" ]; then
+        cryptsetup close $LUKS_DEVICE_NAME
     fi
     partprobe $DEVICE
 }
@@ -442,22 +439,27 @@ function partition() {
 
     # luks and lvm
     if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
-        LVM_DEVICE="/dev/mapper/$LVM_VOLUME_PHISICAL"
-    else
-        LVM_DEVICE="$PARTITION_ROOT"
-    fi
-
-    if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
         echo -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" | cryptsetup --key-size=512 --key-file=- luksFormat --type luks2 $PARTITION_ROOT
-        echo -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" | cryptsetup --key-file=- open $PARTITION_ROOT $LVM_VOLUME_PHISICAL
+        echo -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" | cryptsetup --key-file=- open $PARTITION_ROOT $LUKS_DEVICE_NAME
         sleep 5
     fi
 
     if [ "$LVM" == "true" ]; then
-        pvcreate $LVM_DEVICE
-        vgcreate $LVM_VOLUME_GROUP $LVM_DEVICE
-        lvcreate -l 100%FREE -n $LVM_VOLUME_LOGICAL $LVM_VOLUME_GROUP
+        if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
+            DEVICE_LVM="/dev/mapper/$LUKS_DEVICE_NAME"
+        else
+            DEVICE_LVM="$DEVICE_ROOT"
+        fi
 
+        pvcreate $DEVICE_LVM
+        vgcreate $LVM_VOLUME_GROUP $DEVICE_LVM
+        lvcreate -l 100%FREE -n $LVM_VOLUME_LOGICAL $LVM_VOLUME_GROUP
+    fi
+
+    if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
+        DEVICE_ROOT="/dev/mapper/$LUKS_DEVICE_NAME"
+    fi
+    if [ "$LVM" == "true" ]; then
         DEVICE_ROOT="/dev/mapper/$LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL"
     fi
 
@@ -681,7 +683,7 @@ function virtualbox() {
     print_step "virtualbox()"
 
     if [ -z "$KERNELS" ]; then
-        pacman_install "virtualbox-guest-utils virtualbox-guest-modules-arch"
+        pacman_install "virtualbox-guest-utils"
     else
         pacman_install "virtualbox-guest-utils virtualbox-guest-dkms"
     fi
@@ -709,7 +711,7 @@ function bootloader() {
         if [ "$DEVICE_TRIM" == "true" ]; then
             BOOTLOADER_ALLOW_DISCARDS=":allow-discards"
         fi
-        CMDLINE_LINUX="cryptdevice=PARTUUID=$PARTUUID_ROOT:$LVM_VOLUME_PHISICAL$BOOTLOADER_ALLOW_DISCARDS"
+        CMDLINE_LINUX="cryptdevice=PARTUUID=$PARTUUID_ROOT:$LUKS_DEVICE_NAME$BOOTLOADER_ALLOW_DISCARDS"
     fi
     if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
         CMDLINE_LINUX="$CMDLINE_LINUX rootflags=subvol=root"

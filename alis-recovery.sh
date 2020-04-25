@@ -82,6 +82,10 @@ function configuration_install() {
 
 function sanitize_variables() {
     DEVICE=$(sanitize_variable "$DEVICE")
+    PARTITION_MODE=$(sanitize_variable "$PARTITION_MODE")
+    PARTITION_BIOS=$(sanitize_variable "$PARTITION_BIOS")
+    PARTITION_BOOT=$(sanitize_variable "$PARTITION_BOOT")
+    PARTITION_ROOT=$(sanitize_variable "$PARTITION_ROOT")
 }
 
 function sanitize_variable() {
@@ -97,11 +101,8 @@ function check_variables() {
     check_variables_value "KEYS" "$KEYS"
     check_variables_value "DEVICE" "$DEVICE"
     check_variables_boolean "LVM" "$LVM"
-    check_variables_equals "PARTITION_ROOT_ENCRYPTION_PASSWORD" "PARTITION_ROOT_ENCRYPTION_PASSWORD_RETYPE" "$PARTITION_ROOT_ENCRYPTION_PASSWORD" "$PARTITION_ROOT_ENCRYPTION_PASSWORD_RETYPE"
+    check_variables_equals "LUKS_PASSWORD" "LUKS_PASSWORD_RETYPE" "$LUKS_PASSWORD" "$LUKS_PASSWORD_RETYPE"
     check_variables_list "PARTITION_MODE" "$PARTITION_MODE" "auto custom manual" "true"
-    check_variables_value "PARTITION_BIOS" "$PARTITION_BIOS"
-    check_variables_value "PARTITION_BOOT" "$PARTITION_BOOT"
-    check_variables_value "PARTITION_ROOT" "$PARTITION_ROOT"
     if [ "$LVM" == "true" ]; then
         check_variables_list "PARTITION_MODE" "$PARTITION_MODE" "auto" "true"
     fi
@@ -213,6 +214,35 @@ function facts() {
     fi
 }
 
+function check_facts() {
+    if [ "$BIOS_TYPE" == "bios" ]; then
+        if [ "$DEVICE" == "/dev/sda" ]; then
+            PARTITION_BIOS="/dev/sda1"
+            PARTITION_BOOT="/dev/sda2"
+            PARTITION_ROOT="/dev/sda3"
+        elif [ "$DEVICE" == "/dev/nvme0n1" ]; then
+            PARTITION_BIOS="/dev/nvme0n1p1"
+            PARTITION_BOOT="/dev/nvme0n1p2"
+            PARTITION_ROOT="/dev/nvme0n1p3"
+        elif [ "$DEVICE" == "/dev/mmcblk0" ]; then
+            PARTITION_BIOS="/dev/mmcblk0p1"
+            PARTITION_BOOT="/dev/mmcblk0p2"
+            PARTITION_ROOT="/dev/mmcblk0p3"
+        fi
+    elif [ "$BIOS_TYPE" == "uefi" ]; then
+        if [ "$DEVICE" == "/dev/sda" ]; then
+            PARTITION_BOOT="/dev/sda1"
+            PARTITION_ROOT="/dev/sda2"
+        elif [ "$DEVICE" == "/dev/nvme0n1" ]; then
+            PARTITION_BOOT="/dev/nvme0n1p1"
+            PARTITION_ROOT="/dev/nvme0n1p2"
+        elif [ "$DEVICE" == "/dev/mmcblk0" ]; then
+            PARTITION_BOOT="/dev/mmcblk0p1"
+            PARTITION_ROOT="/dev/mmcblk0p2"
+        fi
+    fi
+}
+
 function prepare() {
     prepare_partition
     configure_network
@@ -262,6 +292,16 @@ function configure_network() {
 
 function partition() {
     # setup
+    if [ -n "$PARTITION_MANUAL_BIOS" ]; then
+        PARTITION_BIOS=$PARTITION_MANUAL_BIOS
+    fi
+    if [ -n "$PARTITION_MANUAL_BOOT" ]; then
+        PARTITION_BOOT=$PARTITION_MANUAL_BOOT
+    fi
+    if [ -n "$PARTITION_MANUAL_ROOT" ]; then
+        PARTITION_ROOT=$PARTITION_MANUAL_ROOT
+    fi
+
     if [ "$PARTITION_MODE" == "auto" ]; then
         if [ "$BIOS_TYPE" == "uefi" ]; then
             if [ "$DEVICE_SATA" == "true" ]; then
@@ -314,12 +354,12 @@ function partition() {
     fi
 
     # luks and lvm
-    if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
-        echo -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" | cryptsetup --key-file=- open $PARTITION_ROOT $LUKS_DEVICE_NAME
+    if [ -n "$LUKS_PASSWORD" ]; then
+        echo -n "$LUKS_PASSWORD" | cryptsetup --key-file=- open $PARTITION_ROOT $LUKS_DEVICE_NAME
         sleep 5
     fi
 
-    if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
+    if [ -n "$LUKS_PASSWORD" ]; then
         DEVICE_ROOT="/dev/mapper/$LUKS_DEVICE_NAME"
     fi
     if [ "$LVM" == "true" ]; then
@@ -356,6 +396,7 @@ function main() {
     warning
     init
     facts
+    check_facts
     prepare
     partition
     #recovery

@@ -2,7 +2,6 @@
 set -e
 
 CONFIG_FILE="alis-packer-efi-ext4-luks-lvm-grub.json"
-
 while getopts "c:" arg; do
   case $arg in
     c)
@@ -10,6 +9,7 @@ while getopts "c:" arg; do
       ;;
   esac
 done
+
 
 packer validate "packer/$CONFIG_FILE"
 packer build -force "packer/$CONFIG_FILE"

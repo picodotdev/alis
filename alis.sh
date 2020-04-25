@@ -115,18 +115,16 @@ function check_variables() {
     check_variables_value "KEYS" "$KEYS"
     check_variables_boolean "LOG" "$LOG"
     check_variables_value "DEVICE" "$DEVICE"
+    check_variables_boolean "DEVICE_TRIM" "$DEVICE_TRIM"
     check_variables_boolean "LVM" "$LVM"
-    check_variables_equals "PARTITION_ROOT_ENCRYPTION_PASSWORD" "PARTITION_ROOT_ENCRYPTION_PASSWORD_RETYPE" "$PARTITION_ROOT_ENCRYPTION_PASSWORD" "$PARTITION_ROOT_ENCRYPTION_PASSWORD_RETYPE"
+    check_variables_list "FILE_SYSTEM_TYPE" "$FILE_SYSTEM_TYPE" "ext4 btrfs xfs"
+    check_variables_equals "LUKS_PASSWORD" "LUKS_PASSWORD_RETYPE" "$LUKS_PASSWORD" "$LUKS_PASSWORD_RETYPE"
     check_variables_list "PARTITION_MODE" "$PARTITION_MODE" "auto custom manual" "true"
     check_variables_value "PARTITION_CUSTOM_PARTED_UEFI" "$PARTITION_CUSTOM_PARTED_UEFI"
     check_variables_value "PARTITION_CUSTOM_PARTED_BIOS" "$PARTITION_CUSTOM_PARTED_BIOS"
-    check_variables_value "PARTITION_BIOS" "$PARTITION_BIOS"
-    check_variables_value "PARTITION_BOOT" "$PARTITION_BOOT"
-    check_variables_value "PARTITION_ROOT" "$PARTITION_ROOT"
     if [ "$LVM" == "true" ]; then
         check_variables_list "PARTITION_MODE" "$PARTITION_MODE" "auto" "true"
     fi
-    check_variables_list "FILE_SYSTEM_TYPE" "$FILE_SYSTEM_TYPE" "ext4 btrfs xfs"
     check_variables_value "PING_HOSTNAME" "$PING_HOSTNAME"
     check_variables_value "PACMAN_MIRROR" "$PACMAN_MIRROR"
     check_variables_list "KERNELS" "$KERNELS" "linux-lts linux-lts-headers linux-hardened linux-hardened-headers linux-zen linux-zen-headers" "false"
@@ -280,6 +278,33 @@ function check_facts() {
     if [ "$BIOS_TYPE" == "bios" ]; then
         check_variables_list "BOOTLOADER" "$BOOTLOADER" "grub"
     fi
+
+    if [ "$BIOS_TYPE" == "bios" ]; then
+        if [ "$DEVICE" == "/dev/sda" ]; then
+            PARTITION_BIOS="/dev/sda1"
+            PARTITION_BOOT="/dev/sda2"
+            PARTITION_ROOT="/dev/sda3"
+        elif [ "$DEVICE" == "/dev/nvme0n1" ]; then
+            PARTITION_BIOS="/dev/nvme0n1p1"
+            PARTITION_BOOT="/dev/nvme0n1p2"
+            PARTITION_ROOT="/dev/nvme0n1p3"
+        elif [ "$DEVICE" == "/dev/mmcblk0" ]; then
+            PARTITION_BIOS="/dev/mmcblk0p1"
+            PARTITION_BOOT="/dev/mmcblk0p2"
+            PARTITION_ROOT="/dev/mmcblk0p3"
+        fi
+    elif [ "$BIOS_TYPE" == "uefi" ]; then
+        if [ "$DEVICE" == "/dev/sda" ]; then
+            PARTITION_BOOT="/dev/sda1"
+            PARTITION_ROOT="/dev/sda2"
+        elif [ "$DEVICE" == "/dev/nvme0n1" ]; then
+            PARTITION_BOOT="/dev/nvme0n1p1"
+            PARTITION_ROOT="/dev/nvme0n1p2"
+        elif [ "$DEVICE" == "/dev/mmcblk0" ]; then
+            PARTITION_BOOT="/dev/mmcblk0p1"
+            PARTITION_ROOT="/dev/mmcblk0p2"
+        fi
+    fi
 }
 
 function prepare() {
@@ -343,6 +368,16 @@ function partition() {
     print_step "partition()"
 
     # setup
+    if [ -n "$PARTITION_MANUAL_BIOS" ]; then
+        PARTITION_BIOS=$PARTITION_MANUAL_BIOS
+    fi
+    if [ -n "$PARTITION_MANUAL_BOOT" ]; then
+        PARTITION_BOOT=$PARTITION_MANUAL_BOOT
+    fi
+    if [ -n "$PARTITION_MANUAL_ROOT" ]; then
+        PARTITION_ROOT=$PARTITION_MANUAL_ROOT
+    fi
+
     PARTITION_PARTED_UEFI="mklabel gpt mkpart primary fat32 1MiB 512MiB mkpart primary $FILE_SYSTEM_TYPE 512MiB 100% set 1 boot on"
     PARTITION_PARTED_BIOS="mklabel gpt mkpart primary fat32 1MiB 128MiB mkpart primary $FILE_SYSTEM_TYPE 128MiB 512MiB mkpart primary $FILE_SYSTEM_TYPE 512MiB 100% set 1 boot on"
 
@@ -438,14 +473,14 @@ function partition() {
     fi
 
     # luks and lvm
-    if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
-        echo -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" | cryptsetup --key-size=512 --key-file=- luksFormat --type luks2 $PARTITION_ROOT
-        echo -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" | cryptsetup --key-file=- open $PARTITION_ROOT $LUKS_DEVICE_NAME
+    if [ -n "$LUKS_PASSWORD" ]; then
+        echo -n "$LUKS_PASSWORD" | cryptsetup --key-size=512 --key-file=- luksFormat --type luks2 $PARTITION_ROOT
+        echo -n "$LUKS_PASSWORD" | cryptsetup --key-file=- open $PARTITION_ROOT $LUKS_DEVICE_NAME
         sleep 5
     fi
 
     if [ "$LVM" == "true" ]; then
-        if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
+        if [ -n "$LUKS_PASSWORD" ]; then
             DEVICE_LVM="/dev/mapper/$LUKS_DEVICE_NAME"
         else
             DEVICE_LVM="$DEVICE_ROOT"
@@ -456,7 +491,7 @@ function partition() {
         lvcreate -l 100%FREE -n $LVM_VOLUME_LOGICAL $LVM_VOLUME_GROUP
     fi
 
-    if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
+    if [ -n "$LUKS_PASSWORD" ]; then
         DEVICE_ROOT="/dev/mapper/$LUKS_DEVICE_NAME"
     fi
     if [ "$LVM" == "true" ]; then
@@ -634,7 +669,7 @@ function mkinitcpio_configuration() {
         if [ "$LVM" == "true" ]; then
             HOOKS=$(echo $HOOKS | sed 's/!sd-lvm2/sd-lvm2/')
         fi
-        if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
+        if [ -n "$LUKS_PASSWORD" ]; then
             HOOKS=$(echo $HOOKS | sed 's/!sd-encrypt/sd-encrypt/')
         fi
     else
@@ -645,7 +680,7 @@ function mkinitcpio_configuration() {
         if [ "$LVM" == "true" ]; then
             HOOKS=$(echo $HOOKS | sed 's/!lvm2/lvm2/')
         fi
-        if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
+        if [ -n "$LUKS_PASSWORD" ]; then
             HOOKS=$(echo $HOOKS | sed 's/!encrypt/encrypt/')
         fi
     fi
@@ -707,7 +742,7 @@ function bootloader() {
     else
         CMDLINE_LINUX_ROOT="root=PARTUUID=$PARTUUID_ROOT"
     fi
-    if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
+    if [ -n "$LUKS_PASSWORD" ]; then
         if [ "$DEVICE_TRIM" == "true" ]; then
             BOOTLOADER_ALLOW_DISCARDS=":allow-discards"
         fi
@@ -907,12 +942,8 @@ EOT
         fi
     fi
 
-    if [ -n "$PARTITION_ROOT_ENCRYPTION_PASSWORD" ]; then
-       SYSTEMD_OPTIONS="rd.luks.options=discard"
-
-        cat <<EOT > "/mnt/etc/crypttab.initramfs"
-lvm $PARTITION_ROOT
-EOT
+    if [ -n "$LUKS_PASSWORD" ]; then
+       SYSTEMD_OPTIONS="luks.name=$UUID_ROOT=$LUKS_DEVICE_NAME luks.options=discard"
     fi
 
     echo "title Arch Linux" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux.conf"
@@ -1329,7 +1360,7 @@ function main() {
     fi
     users
     bootloader
-    if [ "$DESKTOP_ENVIRONMENT" != "" ]; then
+    if [ -n "$DESKTOP_ENVIRONMENT" ]; then
         desktop_environment
     fi
     packages

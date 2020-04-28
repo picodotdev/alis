@@ -15,7 +15,7 @@
           ["modifyvm", "{{.Name}}", "--memory", "2048"],
           ["modifyvm", "{{.Name}}", "--vram", "128"],
           ["modifyvm", "{{.Name}}", "--cpus", "2"],
-          ["modifyvm", "{{.Name}}", "--firmware", "efi"]
+          ["modifyvm", "{{.Name}}", "--firmware", "bios"]
         ],
         "disk_size": "{{user `disk_size`}}",
         "hard_drive_interface": "sata",
@@ -27,14 +27,16 @@
         "ssh_wait_timeout": "60m",
         "boot_wait": "5s",
         "boot_command": [
-          "<wait30s>",
+          "<wait5s><enter>",
+          "<wait40s>",
           "wget http://{{.HTTPIP}}:{{.HTTPPort}}/alis.conf<enter><wait1s>",
           "wget http://{{.HTTPIP}}:{{.HTTPPort}}/alis.sh<enter><wait1s>",
+          "sed -i \"s/FILE_SYSTEM_TYPE=.*/FILE_SYSTEM_TYPE=\\\"ext4\\\"/\" ./alis.conf<enter><wait1s>",
           "sed -i \"s/LVM=.*/LVM=\\\"false\\\"/\" ./alis.conf<enter><wait1s>",
           "sed -i \"s/LUKS_PASSWORD=.*/LUKS_PASSWORD=\\\"\\\"/\" ./alis.conf<enter><wait1s>",
           "sed -i \"s/LUKS_PASSWORD_RETYPE=.*/LUKS_PASSWORD_RETYPE=\\\"\\\"/\" ./alis.conf<enter><wait1s>",
           "sed -i \"s/BOOTLOADER=.*/BOOTLOADER=\\\"grub\\\"/\" ./alis.conf<enter><wait1s>",
-          "sed -i \"s/DESKTOP_ENVIRONMENT=.*/DESKTOP_ENVIRONMENT=\\\"kde\\\"/\" ./alis.conf<enter><wait1s>",
+          "sed -i \"s/DESKTOP_ENVIRONMENT=.*/DESKTOP_ENVIRONMENT=\\\"\\\"/\" ./alis.conf<enter><wait1s>",
           "chmod +x ./alis.sh<enter><wait1s>",
           "./alis.sh<enter><wait3>y<wait1s><enter>",
           "<wait10s><wait10s><wait10s><wait10s><wait10s><wait10s><wait10s><wait60m>"

@@ -1,6 +1,6 @@
 {
     "variables": {
-      "iso": "https://mirror.rackspace.com/archlinux/iso/latest/archlinux-2020.05.01-x86_64.iso",
+      "iso": "https://mirror.rackspace.com/archlinux/iso/latest/archlinux-2020.04.01-x86_64.iso",
       "disk_size": "16384"
     },
     "builders": [
@@ -20,7 +20,7 @@
         "disk_size": "{{user `disk_size`}}",
         "hard_drive_interface": "sata",
         "iso_url": "{{user `iso`}}",
-        "iso_checksum": "69f18631dd1518e1efa596497399d668e6fc63e6",
+        "iso_checksum": "bbece70b6e6a3f1d5f90a7d330657ea3c9280355",
         "iso_checksum_type": "sha1",
         "ssh_username": "vagrant",
         "ssh_password": "vagrant",
@@ -32,8 +32,8 @@
           "wget http://{{.HTTPIP}}:{{.HTTPPort}}/alis.sh<enter><wait1s>",
           "sed -i \"s/FILE_SYSTEM_TYPE=.*/FILE_SYSTEM_TYPE=\\\"ext4\\\"/\" ./alis.conf<enter><wait1s>",
           "sed -i \"s/LVM=.*/LVM=\\\"true\\\"/\" ./alis.conf<enter><wait1s>",
-          "sed -i \"s/LUKS_PASSWORD_PASSWORD=.*/LUKS_PASSWORD_PASSWORD=\\\"archlinux\\\"/\" ./alis.conf<enter><wait1s>",
-          "sed -i \"s/LUKS_PASSWORD_PASSWORD_RETYPE=.*/LUKS_PASSWORD_PASSWORD_RETYPE=\\\"archlinux\\\"/\" ./alis.conf<enter><wait1s>",
+          "sed -i \"s/LUKS_PASSWORD=.*/LUKS_PASSWORD=\\\"archlinux\\\"/\" ./alis.conf<enter><wait1s>",
+          "sed -i \"s/LUKS_PASSWORD_RETYPE=.*/LUKS_PASSWORD_RETYPE=\\\"archlinux\\\"/\" ./alis.conf<enter><wait1s>",
           "sed -i \"s/BOOTLOADER=.*/BOOTLOADER=\\\"grub\\\"/\" ./alis.conf<enter><wait1s>",
           "sed -i \"s/DESKTOP_ENVIRONMENT=.*/DESKTOP_ENVIRONMENT=\\\"\\\"/\" ./alis.conf<enter><wait1s>",
           "chmod +x ./alis.sh<enter><wait1s>",

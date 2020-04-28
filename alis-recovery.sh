@@ -46,9 +46,10 @@ set -e
 # global variables (no configuration, don't edit)
 ASCIINEMA=""
 BIOS_TYPE=""
-PARTITION_BIOS=""
 PARTITION_BOOT=""
 PARTITION_ROOT=""
+PARTITION_BOOT_NUMBER=""
+PARTITION_ROOT_NUMBER=""
 DEVICE_ROOT=""
 DEVICE_LVM=""
 LUKS_DEVICE_NAME="cryptroot"
@@ -83,9 +84,8 @@ function configuration_install() {
 function sanitize_variables() {
     DEVICE=$(sanitize_variable "$DEVICE")
     PARTITION_MODE=$(sanitize_variable "$PARTITION_MODE")
-    PARTITION_BIOS=$(sanitize_variable "$PARTITION_BIOS")
-    PARTITION_BOOT=$(sanitize_variable "$PARTITION_BOOT")
-    PARTITION_ROOT=$(sanitize_variable "$PARTITION_ROOT")
+    PARTITION_CUSTOMMANUAL_BOOT=$(sanitize_variable "$PARTITION_CUSTOMMANUAL_BOOT")
+    PARTITION_CUSTOMMANUAL_ROOT=$(sanitize_variable "$PARTITION_CUSTOMMANUAL_ROOT")
 }
 
 function sanitize_variable() {
@@ -103,6 +103,14 @@ function check_variables() {
     check_variables_boolean "LVM" "$LVM"
     check_variables_equals "LUKS_PASSWORD" "LUKS_PASSWORD_RETYPE" "$LUKS_PASSWORD" "$LUKS_PASSWORD_RETYPE"
     check_variables_list "PARTITION_MODE" "$PARTITION_MODE" "auto custom manual" "true"
+    if [ "$PARTITION_MODE" == "custom" ]; then
+        check_variables_value "PARTITION_CUSTOM_PARTED_UEFI" "$PARTITION_CUSTOM_PARTED_UEFI"
+        check_variables_value "PARTITION_CUSTOM_PARTED_BIOS" "$PARTITION_CUSTOM_PARTED_BIOS"
+    fi
+    if [ "$PARTITION_MODE" == "custom" -o "$PARTITION_MODE" == "manual" ]; then
+        check_variables_value "PARTITION_CUSTOMMANUAL_BOOT" "$PARTITION_CUSTOMMANUAL_BOOT"
+        check_variables_value "PARTITION_CUSTOMMANUAL_ROOT" "$PARTITION_CUSTOMMANUAL_ROOT"
+    fi
     if [ "$LVM" == "true" ]; then
         check_variables_list "PARTITION_MODE" "$PARTITION_MODE" "auto" "true"
     fi
@@ -215,32 +223,6 @@ function facts() {
 }
 
 function check_facts() {
-    if [ "$BIOS_TYPE" == "bios" ]; then
-        if [ "$DEVICE" == "/dev/sda" ]; then
-            PARTITION_BIOS="/dev/sda1"
-            PARTITION_BOOT="/dev/sda2"
-            PARTITION_ROOT="/dev/sda3"
-        elif [ "$DEVICE" == "/dev/nvme0n1" ]; then
-            PARTITION_BIOS="/dev/nvme0n1p1"
-            PARTITION_BOOT="/dev/nvme0n1p2"
-            PARTITION_ROOT="/dev/nvme0n1p3"
-        elif [ "$DEVICE" == "/dev/mmcblk0" ]; then
-            PARTITION_BIOS="/dev/mmcblk0p1"
-            PARTITION_BOOT="/dev/mmcblk0p2"
-            PARTITION_ROOT="/dev/mmcblk0p3"
-        fi
-    elif [ "$BIOS_TYPE" == "uefi" ]; then
-        if [ "$DEVICE" == "/dev/sda" ]; then
-            PARTITION_BOOT="/dev/sda1"
-            PARTITION_ROOT="/dev/sda2"
-        elif [ "$DEVICE" == "/dev/nvme0n1" ]; then
-            PARTITION_BOOT="/dev/nvme0n1p1"
-            PARTITION_ROOT="/dev/nvme0n1p2"
-        elif [ "$DEVICE" == "/dev/mmcblk0" ]; then
-            PARTITION_BOOT="/dev/mmcblk0p1"
-            PARTITION_ROOT="/dev/mmcblk0p2"
-        fi
-    fi
 }
 
 function prepare() {
@@ -292,66 +274,65 @@ function configure_network() {
 
 function partition() {
     # setup
-    if [ -n "$PARTITION_MANUAL_BIOS" ]; then
-        PARTITION_BIOS=$PARTITION_MANUAL_BIOS
-    fi
-    if [ -n "$PARTITION_MANUAL_BOOT" ]; then
-        PARTITION_BOOT=$PARTITION_MANUAL_BOOT
-    fi
-    if [ -n "$PARTITION_MANUAL_ROOT" ]; then
-        PARTITION_ROOT=$PARTITION_MANUAL_ROOT
-    fi
-
     if [ "$PARTITION_MODE" == "auto" ]; then
         if [ "$BIOS_TYPE" == "uefi" ]; then
             if [ "$DEVICE_SATA" == "true" ]; then
                 PARTITION_BOOT="${DEVICE}1"
                 PARTITION_ROOT="${DEVICE}2"
-                #PARTITION_BOOT_NUMBER=1
                 DEVICE_ROOT="${DEVICE}2"
             fi
 
             if [ "$DEVICE_NVME" == "true" ]; then
                 PARTITION_BOOT="${DEVICE}p1"
                 PARTITION_ROOT="${DEVICE}p2"
-                #PARTITION_BOOT_NUMBER=1
                 DEVICE_ROOT="${DEVICE}p2"
             fi
 
             if [ "$DEVICE_MMC" == "true" ]; then
                 PARTITION_BOOT="${DEVICE}p1"
                 PARTITION_ROOT="${DEVICE}p2"
-                #PARTITION_BOOT_NUMBER=1
                 DEVICE_ROOT="${DEVICE}p2"
             fi
         fi
 
         if [ "$BIOS_TYPE" == "bios" ]; then
             if [ "$DEVICE_SATA" == "true" ]; then
-                PARTITION_BIOS="${DEVICE}1"
-                PARTITION_BOOT="${DEVICE}2"
-                PARTITION_ROOT="${DEVICE}3"
-                #PARTITION_BOOT_NUMBER=2
-                DEVICE_ROOT="${DEVICE}3"
+                PARTITION_BOOT="${DEVICE}1"
+                PARTITION_ROOT="${DEVICE}2"
+                DEVICE_ROOT="${DEVICE}2"
             fi
 
             if [ "$DEVICE_NVME" == "true" ]; then
-                PARTITION_BIOS="${DEVICE}p1"
-                PARTITION_BOOT="${DEVICE}p2"
-                PARTITION_ROOT="${DEVICE}p3"
-                #PARTITION_BOOT_NUMBER=2
-                DEVICE_ROOT="${DEVICE}p3"
+                PARTITION_BOOT="${DEVICE}p1"
+                PARTITION_ROOT="${DEVICE}p2"
+                DEVICE_ROOT="${DEVICE}p2"
             fi
 
             if [ "$DEVICE_MMC" == "true" ]; then
-                PARTITION_BIOS="${DEVICE}p1"
-                PARTITION_BOOT="${DEVICE}p2"
-                PARTITION_ROOT="${DEVICE}p3"
-                #PARTITION_BOOT_NUMBER=2
-                DEVICE_ROOT="${DEVICE}p3"
+                PARTITION_BOOT="${DEVICE}p1"
+                PARTITION_ROOT="${DEVICE}p2"
+                DEVICE_ROOT="${DEVICE}p2"
             fi
         fi
+    elif [ "$PARTITION_MODE" == "custom" ]; then
+        PARTITION_PARTED_UEFI="$PARTITION_CUSTOM_PARTED_UEFI"
+        PARTITION_PARTED_BIOS="$PARTITION_CUSTOM_PARTED_BIOS"
     fi
+
+    if [ "$PARTITION_MODE" == "custom" -o "$PARTITION_MODE" == "manual" ]; then
+        PARTITION_BOOT="$PARTITION_CUSTOMMANUAL_BOOT"
+        PARTITION_ROOT="$PARTITION_CUSTOMMANUAL_ROOT"
+        DEVICE_ROOT="${PARTITION_ROOT}"
+    fi
+
+    PARTITION_BOOT_NUMBER="$PARTITION_BOOT"
+    PARTITION_ROOT_NUMBER="$PARTITION_ROOT"
+    PARTITION_BOOT_NUMBER="${PARTITION_BOOT_NUMBER//\/dev\/sda/}"
+    PARTITION_BOOT_NUMBER="${PARTITION_BOOT_NUMBER//\/dev\/nvme0n1p/}"
+    PARTITION_BOOT_NUMBER="${PARTITION_BOOT_NUMBER//\/dev\/mmcblk0p/}"
+    PARTITION_ROOT_NUMBER="${PARTITION_ROOT_NUMBER//\/dev\/sda/}"
+    PARTITION_ROOT_NUMBER="${PARTITION_ROOT_NUMBER//\/dev\/nvme0n1p/}"
+    PARTITION_ROOT_NUMBER="${PARTITION_ROOT_NUMBER//\/dev\/mmcblk0p/}"
 
     # luks and lvm
     if [ -n "$LUKS_PASSWORD" ]; then

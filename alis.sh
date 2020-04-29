@@ -66,8 +66,6 @@ CPU_VENDOR=""
 VIRTUALBOX=""
 CMDLINE_LINUX_ROOT=""
 CMDLINE_LINUX=""
-ADDITIONAL_USER_NAMES_ARRAY=()
-ADDITIONAL_USER_PASSWORDS_ARRAY=()
 
 CONF_FILE="alis.conf"
 LOG_FILE="alis.log"
@@ -80,8 +78,6 @@ NC='\033[0m'
 
 function configuration_install() {
     source alis.conf
-    ADDITIONAL_USER_NAMES_ARRAY=($ADDITIONAL_USER_NAMES)
-    ADDITIONAL_USER_PASSWORDS_ARRAY=($ADDITIONAL_USER_PASSWORDS)
 }
 
 function sanitize_variables() {
@@ -1029,6 +1025,8 @@ function users() {
     done
 
 	arch-chroot /mnt sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
+
+    pacman_install "xdg-user-dirs"
 }
 
 function create_user() {
@@ -1036,8 +1034,6 @@ function create_user() {
     USER_PASSWORD=$2
     arch-chroot /mnt useradd -m -G wheel,storage,optical -s /bin/bash $USER_NAME
     printf "$USER_PASSWORD\n$USER_PASSWORD" | arch-chroot /mnt passwd $USER_NAME
-
-    pacman_install "xdg-user-dirs"
 }
 
 function desktop_environment() {
@@ -1209,6 +1205,20 @@ function packages_aur() {
     arch-chroot /mnt sed -i 's/%wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
 }
 
+function systemd() {
+    IFS=' ' UNITS=($SYSTEMD_UNITS)
+    for U in ${UNITS[@]}; do
+        UNIT=${U}
+        if [[ $UNIT == !* ]]; then
+            ACTION="disable"
+        else
+            ACTION="enable"
+        fi
+        UNIT=$(echo $UNIT | sed "s/!//g")
+        arch-chroot /mnt systemctl $ACTION $UNIT
+    done
+}
+
 function terminate() {
     cp "$CONF_FILE" "/mnt/etc/$CONF_FILE"
 
@@ -1270,33 +1280,37 @@ function end() {
 }
 
 function pacman_install() {
-    PACKAGES=$1
+    set +e
+    IFS=' ' PACKAGES=($1)
     for VARIABLE in {1..5}
     do
-        arch-chroot /mnt pacman -Syu --noconfirm --needed $PACKAGES
+        arch-chroot /mnt pacman -Syu --noconfirm --needed ${PACKAGES[@]}
         if [ $? == 0 ]; then
             break
         else
             sleep 10
         fi
     done
+    set -e
 }
 
 function aur_install() {
-    PACKAGES=$1
+    set +e
+    IFS=' ' PACKAGES=($1)
     for VARIABLE in {1..5}
     do
-        arch-chroot /mnt bash -c "echo -e \"$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n\" | su $USER_NAME -c \"$AUR -Syu --noconfirm --needed $PACKAGES\""
+        arch-chroot /mnt bash -c "echo -e \"$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n\" | su $USER_NAME -c \"$AUR -Syu --noconfirm --needed ${PACKAGES[@]}\""
         if [ $? == 0 ]; then
             break
         else
             sleep 10
         fi
     done
+    set -e
 }
 
 function print_step() {
-    STEP=$1
+    STEP="$1"
     echo ""
     echo -e "${LIGHT_BLUE}# ${STEP} step${NC}"
     echo ""
@@ -1327,6 +1341,7 @@ function main() {
         desktop_environment
     fi
     packages
+    systemd
     terminate
     end
 }

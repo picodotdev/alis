@@ -46,6 +46,7 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 * Kernel compression and custom parameters
 * Users creation and add to sudoers
 * Common and custom packages installation
+* Systemd units enable or disable
 * AUR utility installation (aurman, yay)
 * Script for download installation and recovery scripts and configuration files
 * Retry packages download on connection/mirror error

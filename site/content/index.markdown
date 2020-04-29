@@ -88,10 +88,10 @@ url: "/"
     </div>
     <div class="content-wrapper">
       <ul>
-        <li>System: GPT, UEFI, BIOS</li>
+        <li>System: UEFI, BIOS</li>
         <li>Storage: SATA, NVMe and MMC</li>
         <li>Encryption: root partition encrypted and no encrypted</li>
-        <li>Partition: no LVM, LVM, LVM on LUKS</li>
+        <li>Partition: no LVM, LVM, LVM on LUKS, GPT on UEFI, MBR on BIOS</li>
         <li>File system: ext4, btrfs (with subvols), xfs</li>
         <li>Optional file swap (not supported in btrfs)</li>
         <li>Storage: SATA, NVMe and MMC</li>
@@ -108,6 +108,7 @@ url: "/"
         <li>Kernel compression and custom parameters</li>
         <li>Users creation and add to sudoers</li>
         <li>Common and custom packages installation</li>
+        <li>Systemd units enable or disable</li>
         <li>AUR utility installation (aurman, yay)</li>
         <li>Script for download installation and recovery scripts and configuration files</li>
         <li>Retry packages download on connection/mirror error</li>

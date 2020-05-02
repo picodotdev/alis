@@ -1205,7 +1205,7 @@ function packages_aur() {
     arch-chroot /mnt sed -i 's/%wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
 }
 
-function systemd() {
+function systemd_units() {
     IFS=' ' UNITS=($SYSTEMD_UNITS)
     for U in ${UNITS[@]}; do
         UNIT=${U}
@@ -1341,7 +1341,7 @@ function main() {
         desktop_environment
     fi
     packages
-    systemd
+    systemd_units
     terminate
     end
 }

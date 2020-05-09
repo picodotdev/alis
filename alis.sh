@@ -89,6 +89,7 @@ function sanitize_variables() {
     SWAP_SIZE=$(sanitize_variable "$SWAP_SIZE")
     KERNELS=$(sanitize_variable "$KERNELS")
     KERNELS_COMPRESSION=$(sanitize_variable "$KERNELS_COMPRESSION")
+#    SYSTEMD_HOMED_STORAGE=$(sanitize_variable "$SYSTEMD_HOMED_STORAGE")
     BOOTLOADER=$(sanitize_variable "$BOOTLOADER")
     DESKTOP_ENVIRONMENT=$(sanitize_variable "$DESKTOP_ENVIRONMENT")
     DISPLAY_DRIVER=$(sanitize_variable "$DISPLAY_DRIVER")
@@ -141,6 +142,18 @@ function check_variables() {
     check_variables_value "USER_PASSWORD" "$USER_PASSWORD"
     check_variables_equals "ROOT_PASSWORD" "ROOT_PASSWORD_RETYPE" "$ROOT_PASSWORD" "$ROOT_PASSWORD_RETYPE"
     check_variables_equals "USER_PASSWORD" "USER_PASSWORD_RETYPE" "$USER_PASSWORD" "$USER_PASSWORD_RETYPE"
+#    check_variables_boolean "SYSTEMD_HOMED" "$SYSTEMD_HOMED"
+#    if [ "$SYSTEMD_HOMED" == "true" ]; then
+#        check_variables_list "SYSTEMD_HOMED_STORAGE" "$SYSTEMD_HOMED_STORAGE" "directory fscrypt luks cifs subvolume" "true"
+#
+#        if [ "$SYSTEMD_HOMED_STORAGE" == "fscrypt" ]; then
+#            check_variables_list "FILE_SYSTEM_TYPE" "$FILE_SYSTEM_TYPE" "ext4 f2fs" "true"
+#        fi
+#        if [ "$SYSTEMD_HOMED_STORAGE" == "cifs" ]; then
+#            check_variables_value "SYSTEMD_HOMED_CIFS_DOMAIN" "$SYSTEMD_HOMED_CIFS_DOMAIN"
+#            check_variables_value "SYSTEMD_HOMED_CIFS_SERVICE" "$SYSTEMD_HOMED_CIFS_SERVICE"
+#        fi
+#    fi
     check_variables_value "HOOKS" "$HOOKS"
     check_variables_list "BOOTLOADER" "$BOOTLOADER" "grub refind systemd"
     check_variables_list "AUR" "$AUR" "aurman yay" "false"
@@ -408,7 +421,7 @@ function partition() {
 
     # partition
     if [ "$FILE_SYSTEM_TYPE" == "f2fs" ]; then
-        pacman -S f2fs-tools
+        pacman -Syu --noconfirm f2fs-tools
     fi
 
     if [ "$PARTITION_MODE" == "auto" ]; then
@@ -477,7 +490,11 @@ function partition() {
     PARTITION_OPTIONS="defaults"
 
     if [ "$DEVICE_TRIM" == "true" ]; then
-        PARTITION_OPTIONS="$PARTITION_OPTIONS,noatime"
+        if [ "$FILE_SYSTEM_TYPE" == "f2fs" ]; then
+            PARTITION_OPTIONS="$PARTITION_OPTIONS,noatime,nodiscard"
+        else
+            PARTITION_OPTIONS="$PARTITION_OPTIONS,noatime"
+        fi
     fi
 
     # mount
@@ -549,7 +566,11 @@ function configuration() {
     fi
 
     if [ "$DEVICE_TRIM" == "true" ]; then
-        sed -i 's/relatime/noatime/' /mnt/etc/fstab
+        if [ "$FILE_SYSTEM_TYPE" == "f2fs" ]; then
+            sed -i 's/relatime/noatime,nodiscard/' /mnt/etc/fstab
+        else
+            sed -i 's/relatime/noatime/' /mnt/etc/fstab
+        fi
         arch-chroot /mnt systemctl enable fstrim.timer
     fi
 
@@ -724,20 +745,20 @@ function bootloader() {
 
     case "$BOOTLOADER" in
         "grub" )
-            grub
+            bootloader_grub
             ;;
         "refind" )
-            refind
+            bootloader_refind
             ;;
         "systemd" )
-            systemd
+            bootloader_systemd
             ;;
     esac
 
     arch-chroot /mnt systemctl set-default multi-user.target
 }
 
-function grub() {
+function bootloader_grub() {
     pacman_install "grub dosfstools"
     arch-chroot /mnt sed -i 's/GRUB_DEFAULT=0/GRUB_DEFAULT=saved/' /etc/default/grub
     arch-chroot /mnt sed -i 's/#GRUB_SAVEDEFAULT="true"/GRUB_SAVEDEFAULT="true"/' /etc/default/grub
@@ -763,7 +784,7 @@ function grub() {
     fi
 }
 
-function refind() {
+function bootloader_refind() {
     pacman_install "refind-efi"
     arch-chroot /mnt refind-install
 
@@ -861,7 +882,7 @@ EOT
     fi
 }
 
-function systemd() {
+function bootloader_systemd() {
     arch-chroot /mnt systemd-machine-id-setup
     arch-chroot /mnt bootctl --path="$ESP_DIRECTORY" install
 
@@ -1027,9 +1048,83 @@ function users() {
 	arch-chroot /mnt sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
 
     pacman_install "xdg-user-dirs"
+
+#    if [ "$SYSTEMD_HOMED" == "true" ]; then
+#        cat <<EOT > "/etc/pam.d/nss-auth"
+##%PAM-1.0
+#
+#auth     sufficient pam_unix.so try_first_pass nullok
+#auth     sufficient pam_systemd_home.so
+#auth     required   pam_deny.so
+#
+#account  sufficient pam_unix.so
+#account  sufficient pam_systemd_home.so
+#account  required   pam_deny.so
+#
+#password sufficient pam_unix.so try_first_pass nullok sha512 shadow
+#password sufficient pam_systemd_home.so
+#password required   pam_deny.so
+#EOT
+#
+#        cat <<EOT > "/etc/pam.d/system-auth"
+##%PAM-1.0
+#
+#auth      substack   nss-auth
+#auth      optional   pam_permit.so
+#auth      required   pam_env.so
+#
+#account   substack   nss-auth
+#account   optional   pam_permit.so
+#account   required   pam_time.so
+#
+#password  substack   nss-auth
+#password  optional   pam_permit.so
+#
+#session   required  pam_limits.so
+#session   optional  pam_systemd_home.so
+#session   required  pam_unix.so
+#EOT
+#    fi
 }
 
 function create_user() {
+    USER_NAME=$1
+    USER_PASSWORD=$2
+    create_user_useradd $USER_NAME $USER_PASSWORD
+#    if [ "$SYSTEMD_HOMED" == "true" ]; then
+#        arch-chroot /mnt systemctl enable systemd-homed.service
+#        create_user_homectl $USER_NAME $USER_PASSWORD
+#    else
+#        create_user_useradd $USER_NAME $USER_PASSWORD
+#    fi
+}
+
+#function create_user_homectl() {
+#    USER_NAME=$1
+#    USER_PASSWORD=$2
+#    STORAGE=""
+#    CIFS_DOMAIN=""
+#    CIFS_USERNAME=""
+#    CIFS_SERVICE=""
+#    TZ=$(echo ${TIMEZONE} | sed "s/\/usr\/share\/zoneinfo\///g")
+#    L=$(echo ${LOCALE_CONF[0]} | sed "s/LANG=//g")
+#
+#    if [ -n "$SYSTEMD_HOMED_STORAGE" ]; then
+#        STORAGE="--storage=$SYSTEMD_HOMED_STORAGE"
+#    fi
+#    if [ "$SYSTEMD_HOMED_STORAGE" == "cifs" ]; then
+#        CIFS_DOMAIN="--cifs-domain=$SYSTEMD_HOMED_CIFS_DOMAIN"
+#        CIFS_USERNAME="--cifs-user-name=$USER_NAME"
+#        CIFS_SERVICE="--cifs-service=$SYSTEMD_HOMED_CIFS_SERVICE"
+#    fi
+#
+#    arch-chroot /mnt homectl --password-change-now=yes --timezone=$TZ --language=$L create $USER_NAME $STORAGE $CIFS_DOMAIN $CIFS_USERNAME $CIFS_SERVICE -G wheel,storage,optical
+#    #arch-chroot /mnt homectl --timezone=$TZ update $USER_NAME
+#    #arch-chroot /mnt homectl --language=$L update $USER_NAME
+#    #printf "$USER_PASSWORD\n$USER_PASSWORD" | arch-chroot /mnt homectl passwd $USER_NAME
+#}
+
+function create_user_useradd() {
     USER_NAME=$1
     USER_PASSWORD=$2
     arch-chroot /mnt useradd -m -G wheel,storage,optical -s /bin/bash $USER_NAME

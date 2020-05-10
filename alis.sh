@@ -89,7 +89,7 @@ function sanitize_variables() {
     SWAP_SIZE=$(sanitize_variable "$SWAP_SIZE")
     KERNELS=$(sanitize_variable "$KERNELS")
     KERNELS_COMPRESSION=$(sanitize_variable "$KERNELS_COMPRESSION")
-#    SYSTEMD_HOMED_STORAGE=$(sanitize_variable "$SYSTEMD_HOMED_STORAGE")
+    SYSTEMD_HOMED_STORAGE=$(sanitize_variable "$SYSTEMD_HOMED_STORAGE")
     BOOTLOADER=$(sanitize_variable "$BOOTLOADER")
     DESKTOP_ENVIRONMENT=$(sanitize_variable "$DESKTOP_ENVIRONMENT")
     DISPLAY_DRIVER=$(sanitize_variable "$DISPLAY_DRIVER")
@@ -142,18 +142,18 @@ function check_variables() {
     check_variables_value "USER_PASSWORD" "$USER_PASSWORD"
     check_variables_equals "ROOT_PASSWORD" "ROOT_PASSWORD_RETYPE" "$ROOT_PASSWORD" "$ROOT_PASSWORD_RETYPE"
     check_variables_equals "USER_PASSWORD" "USER_PASSWORD_RETYPE" "$USER_PASSWORD" "$USER_PASSWORD_RETYPE"
-#    check_variables_boolean "SYSTEMD_HOMED" "$SYSTEMD_HOMED"
-#    if [ "$SYSTEMD_HOMED" == "true" ]; then
-#        check_variables_list "SYSTEMD_HOMED_STORAGE" "$SYSTEMD_HOMED_STORAGE" "directory fscrypt luks cifs subvolume" "true"
-#
-#        if [ "$SYSTEMD_HOMED_STORAGE" == "fscrypt" ]; then
-#            check_variables_list "FILE_SYSTEM_TYPE" "$FILE_SYSTEM_TYPE" "ext4 f2fs" "true"
-#        fi
-#        if [ "$SYSTEMD_HOMED_STORAGE" == "cifs" ]; then
-#            check_variables_value "SYSTEMD_HOMED_CIFS_DOMAIN" "$SYSTEMD_HOMED_CIFS_DOMAIN"
-#            check_variables_value "SYSTEMD_HOMED_CIFS_SERVICE" "$SYSTEMD_HOMED_CIFS_SERVICE"
-#        fi
-#    fi
+    check_variables_boolean "SYSTEMD_HOMED" "$SYSTEMD_HOMED"
+    if [ "$SYSTEMD_HOMED" == "true" ]; then
+        check_variables_list "SYSTEMD_HOMED_STORAGE" "$SYSTEMD_HOMED_STORAGE" "directory fscrypt luks cifs subvolume" "true"
+
+        if [ "$SYSTEMD_HOMED_STORAGE" == "fscrypt" ]; then
+            check_variables_list "FILE_SYSTEM_TYPE" "$FILE_SYSTEM_TYPE" "ext4 f2fs" "true"
+        fi
+        if [ "$SYSTEMD_HOMED_STORAGE" == "cifs" ]; then
+            check_variables_value "SYSTEMD_HOMED_CIFS_DOMAIN" "$SYSTEMD_HOMED_CIFS_DOMAIN"
+            check_variables_value "SYSTEMD_HOMED_CIFS_SERVICE" "$SYSTEMD_HOMED_CIFS_SERVICE"
+        fi
+    fi
     check_variables_value "HOOKS" "$HOOKS"
     check_variables_list "BOOTLOADER" "$BOOTLOADER" "grub refind systemd"
     check_variables_list "AUR" "$AUR" "aurman yay" "false"
@@ -791,7 +791,6 @@ function bootloader_refind() {
     arch-chroot /mnt rm /boot/refind_linux.conf
     arch-chroot /mnt sed -i 's/^timeout.*/timeout 5/' "$ESP_DIRECTORY/EFI/refind/refind.conf"
     arch-chroot /mnt sed -i 's/^#scan_all_linux_kernels.*/scan_all_linux_kernels false/' "$ESP_DIRECTORY/EFI/refind/refind.conf"
-
     #arch-chroot /mnt sed -i 's/^#default_selection "+,bzImage,vmlinuz"/default_selection "+,bzImage,vmlinuz"/' "$ESP_DIRECTORY/EFI/refind/refind.conf"
 
     REFIND_MICROCODE=""
@@ -1036,7 +1035,7 @@ EOT
 function users() {
     print_step "users()"
 
-    create_user $USER_NAME $USER_PASSWORD
+    create_user "$USER_NAME" "$USER_PASSWORD"
 
     for U in ${ADDITIONAL_USERS[@]}; do
         IFS='=' S=(${U})
@@ -1049,80 +1048,89 @@ function users() {
 
     pacman_install "xdg-user-dirs"
 
-#    if [ "$SYSTEMD_HOMED" == "true" ]; then
-#        cat <<EOT > "/etc/pam.d/nss-auth"
-##%PAM-1.0
-#
-#auth     sufficient pam_unix.so try_first_pass nullok
-#auth     sufficient pam_systemd_home.so
-#auth     required   pam_deny.so
-#
-#account  sufficient pam_unix.so
-#account  sufficient pam_systemd_home.so
-#account  required   pam_deny.so
-#
-#password sufficient pam_unix.so try_first_pass nullok sha512 shadow
-#password sufficient pam_systemd_home.so
-#password required   pam_deny.so
-#EOT
-#
-#        cat <<EOT > "/etc/pam.d/system-auth"
-##%PAM-1.0
-#
-#auth      substack   nss-auth
-#auth      optional   pam_permit.so
-#auth      required   pam_env.so
-#
-#account   substack   nss-auth
-#account   optional   pam_permit.so
-#account   required   pam_time.so
-#
-#password  substack   nss-auth
-#password  optional   pam_permit.so
-#
-#session   required  pam_limits.so
-#session   optional  pam_systemd_home.so
-#session   required  pam_unix.so
-#EOT
-#    fi
+    if [ "$SYSTEMD_HOMED" == "true" ]; then
+        cat <<EOT > "/mnt/etc/pam.d/nss-auth"
+#%PAM-1.0
+
+auth     sufficient pam_unix.so try_first_pass nullok
+auth     sufficient pam_systemd_home.so
+auth     required   pam_deny.so
+
+account  sufficient pam_unix.so
+account  sufficient pam_systemd_home.so
+account  required   pam_deny.so
+
+password sufficient pam_unix.so try_first_pass nullok sha512 shadow
+password sufficient pam_systemd_home.so
+password required   pam_deny.so
+EOT
+
+        cat <<EOT > "/mnt/etc/pam.d/system-auth"
+#%PAM-1.0
+
+auth      substack   nss-auth
+auth      optional   pam_permit.so
+auth      required   pam_env.so
+
+account   substack   nss-auth
+account   optional   pam_permit.so
+account   required   pam_time.so
+
+password  substack   nss-auth
+password  optional   pam_permit.so
+
+session   required  pam_limits.so
+session   optional  pam_systemd_home.so
+session   required  pam_unix.so
+session   optional  pam_permit.so
+EOT
+    fi
 }
 
 function create_user() {
     USER_NAME=$1
     USER_PASSWORD=$2
     create_user_useradd $USER_NAME $USER_PASSWORD
-#    if [ "$SYSTEMD_HOMED" == "true" ]; then
-#        arch-chroot /mnt systemctl enable systemd-homed.service
-#        create_user_homectl $USER_NAME $USER_PASSWORD
-#    else
-#        create_user_useradd $USER_NAME $USER_PASSWORD
-#    fi
+    if [ "$SYSTEMD_HOMED" == "true" ]; then
+        arch-chroot /mnt systemctl enable systemd-homed.service
+#       create_user_homectl $USER_NAME $USER_PASSWORD
+        create_user_useradd $USER_NAME $USER_PASSWORD
+    else
+        create_user_useradd $USER_NAME $USER_PASSWORD
+    fi
 }
 
-#function create_user_homectl() {
-#    USER_NAME=$1
-#    USER_PASSWORD=$2
-#    STORAGE=""
-#    CIFS_DOMAIN=""
-#    CIFS_USERNAME=""
-#    CIFS_SERVICE=""
-#    TZ=$(echo ${TIMEZONE} | sed "s/\/usr\/share\/zoneinfo\///g")
-#    L=$(echo ${LOCALE_CONF[0]} | sed "s/LANG=//g")
-#
-#    if [ -n "$SYSTEMD_HOMED_STORAGE" ]; then
-#        STORAGE="--storage=$SYSTEMD_HOMED_STORAGE"
-#    fi
-#    if [ "$SYSTEMD_HOMED_STORAGE" == "cifs" ]; then
-#        CIFS_DOMAIN="--cifs-domain=$SYSTEMD_HOMED_CIFS_DOMAIN"
-#        CIFS_USERNAME="--cifs-user-name=$USER_NAME"
-#        CIFS_SERVICE="--cifs-service=$SYSTEMD_HOMED_CIFS_SERVICE"
-#    fi
-#
-#    arch-chroot /mnt homectl --password-change-now=yes --timezone=$TZ --language=$L create $USER_NAME $STORAGE $CIFS_DOMAIN $CIFS_USERNAME $CIFS_SERVICE -G wheel,storage,optical
-#    #arch-chroot /mnt homectl --timezone=$TZ update $USER_NAME
-#    #arch-chroot /mnt homectl --language=$L update $USER_NAME
-#    #printf "$USER_PASSWORD\n$USER_PASSWORD" | arch-chroot /mnt homectl passwd $USER_NAME
-#}
+function create_user_homectl() {
+    USER_NAME=$1
+    USER_PASSWORD=$2
+    STORAGE=""
+    CIFS_DOMAIN=""
+    CIFS_USERNAME=""
+    CIFS_SERVICE=""
+    TZ=$(echo ${TIMEZONE} | sed "s/\/usr\/share\/zoneinfo\///g")
+    L=$(echo ${LOCALE_CONF[0]} | sed "s/LANG=//g")
+    IMAGE_PATH="--image-path=/mnt/home/$USER_NAME.homedir"
+    HOME_DIR="--home-dir=/mnt/home/$USER_NAME"
+
+    if [ -n "$SYSTEMD_HOMED_STORAGE" ]; then
+        STORAGE="--storage=$SYSTEMD_HOMED_STORAGE"
+    fi
+    if [ "$SYSTEMD_HOMED_STORAGE" == "cifs" ]; then
+        CIFS_DOMAIN="--cifs-domain=$SYSTEMD_HOMED_CIFS_DOMAIN"
+        CIFS_USERNAME="--cifs-user-name=$USER_NAME"
+        CIFS_SERVICE="--cifs-service=$SYSTEMD_HOMED_CIFS_SERVICE"
+    fi
+    if [ "$SYSTEMD_HOMED_STORAGE" == "luks" ]; then
+        IMAGE_PATH="--image-path=/mnt/home/$USER_NAME.home"
+    fi
+
+    ### something missing, inside alis this not works, after install the user is in state infixated
+    ### after install and reboot this commands works
+    #--no-ask-password --password-change-now=true
+    systemctl start systemd-homed.service
+    homectl create "$USER_NAME" --enforce-password-policy=no --timezone=$TZ --language=$L $STORAGE $IMAGE_PATH $CIFS_DOMAIN $CIFS_USERNAME $CIFS_SERVICE -G wheel,storage,optical
+    homectl activate "$USER_NAME" $HOME_DIR
+}
 
 function create_user_useradd() {
     USER_NAME=$1

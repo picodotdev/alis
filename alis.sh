@@ -1090,7 +1090,6 @@ EOT
 function create_user() {
     USER_NAME=$1
     USER_PASSWORD=$2
-    create_user_useradd $USER_NAME $USER_PASSWORD
     if [ "$SYSTEMD_HOMED" == "true" ]; then
         arch-chroot /mnt systemctl enable systemd-homed.service
 #       create_user_homectl $USER_NAME $USER_PASSWORD

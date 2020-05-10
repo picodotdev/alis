@@ -1125,7 +1125,8 @@ function create_user_homectl() {
     fi
 
     ### something missing, inside alis this not works, after install the user is in state infixated
-    ### after install and reboot this commands works
+    ### after install and reboot this commands work
+    ### https://github.com/systemd/systemd/blob/41db91775a1d93077b70cc83ba277a2ebb506297/src/home/homed-home.h#L13
     #--no-ask-password --password-change-now=true
     systemctl start systemd-homed.service
     homectl create "$USER_NAME" --enforce-password-policy=no --timezone=$TZ --language=$L $STORAGE $IMAGE_PATH $CIFS_DOMAIN $CIFS_USERNAME $CIFS_SERVICE -G wheel,storage,optical

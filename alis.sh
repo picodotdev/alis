@@ -68,6 +68,7 @@ CMDLINE_LINUX_ROOT=""
 CMDLINE_LINUX=""
 
 CONF_FILE="alis.conf"
+GLOBALS_FILE="alis-globals.conf"
 LOG_FILE="alis.log"
 ASCIINEMA_FILE="alis.asciinema"
 
@@ -704,6 +705,116 @@ function virtualbox() {
     fi
 }
 
+function users() {
+    print_step "users()"
+
+    create_user "$USER_NAME" "$USER_PASSWORD"
+
+    for U in ${ADDITIONAL_USERS[@]}; do
+        IFS='=' S=(${U})
+        USER=${S[0]}
+        PASSWORD=${S[1]}
+        create_user "${USER}" "${PASSWORD}"
+    done
+
+	arch-chroot /mnt sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
+
+    pacman_install "xdg-user-dirs"
+
+    if [ "$SYSTEMD_HOMED" == "true" ]; then
+        cat <<EOT > "/mnt/etc/pam.d/nss-auth"
+#%PAM-1.0
+
+auth     sufficient pam_unix.so try_first_pass nullok
+auth     sufficient pam_systemd_home.so
+auth     required   pam_deny.so
+
+account  sufficient pam_unix.so
+account  sufficient pam_systemd_home.so
+account  required   pam_deny.so
+
+password sufficient pam_unix.so try_first_pass nullok sha512 shadow
+password sufficient pam_systemd_home.so
+password required   pam_deny.so
+EOT
+
+        cat <<EOT > "/mnt/etc/pam.d/system-auth"
+#%PAM-1.0
+
+auth      substack   nss-auth
+auth      optional   pam_permit.so
+auth      required   pam_env.so
+
+account   substack   nss-auth
+account   optional   pam_permit.so
+account   required   pam_time.so
+
+password  substack   nss-auth
+password  optional   pam_permit.so
+
+session   required  pam_limits.so
+session   optional  pam_systemd_home.so
+session   required  pam_unix.so
+session   optional  pam_permit.so
+EOT
+    fi
+}
+
+function create_user() {
+    USER_NAME=$1
+    USER_PASSWORD=$2
+    if [ "$SYSTEMD_HOMED" == "true" ]; then
+        arch-chroot /mnt systemctl enable systemd-homed.service
+        create_user_homectl $USER_NAME $USER_PASSWORD
+#       create_user_useradd $USER_NAME $USER_PASSWORD
+    else
+        create_user_useradd $USER_NAME $USER_PASSWORD
+    fi
+}
+
+function create_user_homectl() {
+    USER_NAME=$1
+    USER_PASSWORD=$2
+    STORAGE=""
+    CIFS_DOMAIN=""
+    CIFS_USERNAME=""
+    CIFS_SERVICE=""
+    TZ=$(echo ${TIMEZONE} | sed "s/\/usr\/share\/zoneinfo\///g")
+    L=$(echo ${LOCALE_CONF[0]} | sed "s/LANG=//g")
+    IMAGE_PATH="/home/$USER_NAME.homedir"
+    HOME_PATH="/home/$USER_NAME"
+
+    if [ -n "$SYSTEMD_HOMED_STORAGE" ]; then
+        STORAGE="--storage=$SYSTEMD_HOMED_STORAGE"
+    fi
+    if [ "$SYSTEMD_HOMED_STORAGE" == "cifs" ]; then
+        CIFS_DOMAIN="--cifs-domain=$SYSTEMD_HOMED_CIFS_DOMAIN"
+        CIFS_USERNAME="--cifs-user-name=$USER_NAME"
+        CIFS_SERVICE="--cifs-service=$SYSTEMD_HOMED_CIFS_SERVICE"
+    fi
+    if [ "$SYSTEMD_HOMED_STORAGE" == "luks" ]; then
+        IMAGE_PATH="/home/$USER_NAME.home"
+    fi
+
+    ### something missing, inside alis this not works, after install the user is in state infixated
+    ### after install and reboot this commands work
+    systemctl start systemd-homed.service
+    set +e
+    homectl create "$USER_NAME" --enforce-password-policy=no --timezone=$TZ --language=$L $STORAGE $CIFS_DOMAIN $CIFS_USERNAME $CIFS_SERVICE -G wheel,storage,optical
+    homectl activate "$USER_NAME"
+    set -e
+    cp -a "$IMAGE_PATH/." "/mnt$IMAGE_PATH"
+    cp -a "$HOME_PATH/." "/mnt$HOME_PATH"
+    cp -a "/var/lib/systemd/home/." "/mnt/var/lib/systemd/home/"
+}
+
+function create_user_useradd() {
+    USER_NAME=$1
+    USER_PASSWORD=$2
+    arch-chroot /mnt useradd -m -G wheel,storage,optical -s /bin/bash $USER_NAME
+    printf "$USER_PASSWORD\n$USER_PASSWORD" | arch-chroot /mnt passwd $USER_NAME
+}
+
 function bootloader() {
     print_step "bootloader()"
 
@@ -1032,113 +1143,6 @@ EOT
     fi
 }
 
-function users() {
-    print_step "users()"
-
-    create_user "$USER_NAME" "$USER_PASSWORD"
-
-    for U in ${ADDITIONAL_USERS[@]}; do
-        IFS='=' S=(${U})
-        USER=${S[0]}
-        PASSWORD=${S[1]}
-        create_user "${USER}" "${PASSWORD}"
-    done
-
-	arch-chroot /mnt sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
-
-    pacman_install "xdg-user-dirs"
-
-    if [ "$SYSTEMD_HOMED" == "true" ]; then
-        cat <<EOT > "/mnt/etc/pam.d/nss-auth"
-#%PAM-1.0
-
-auth     sufficient pam_unix.so try_first_pass nullok
-auth     sufficient pam_systemd_home.so
-auth     required   pam_deny.so
-
-account  sufficient pam_unix.so
-account  sufficient pam_systemd_home.so
-account  required   pam_deny.so
-
-password sufficient pam_unix.so try_first_pass nullok sha512 shadow
-password sufficient pam_systemd_home.so
-password required   pam_deny.so
-EOT
-
-        cat <<EOT > "/mnt/etc/pam.d/system-auth"
-#%PAM-1.0
-
-auth      substack   nss-auth
-auth      optional   pam_permit.so
-auth      required   pam_env.so
-
-account   substack   nss-auth
-account   optional   pam_permit.so
-account   required   pam_time.so
-
-password  substack   nss-auth
-password  optional   pam_permit.so
-
-session   required  pam_limits.so
-session   optional  pam_systemd_home.so
-session   required  pam_unix.so
-session   optional  pam_permit.so
-EOT
-    fi
-}
-
-function create_user() {
-    USER_NAME=$1
-    USER_PASSWORD=$2
-    if [ "$SYSTEMD_HOMED" == "true" ]; then
-        arch-chroot /mnt systemctl enable systemd-homed.service
-#       create_user_homectl $USER_NAME $USER_PASSWORD
-        create_user_useradd $USER_NAME $USER_PASSWORD
-    else
-        create_user_useradd $USER_NAME $USER_PASSWORD
-    fi
-}
-
-function create_user_homectl() {
-    USER_NAME=$1
-    USER_PASSWORD=$2
-    STORAGE=""
-    CIFS_DOMAIN=""
-    CIFS_USERNAME=""
-    CIFS_SERVICE=""
-    TZ=$(echo ${TIMEZONE} | sed "s/\/usr\/share\/zoneinfo\///g")
-    L=$(echo ${LOCALE_CONF[0]} | sed "s/LANG=//g")
-    IMAGE_PATH="--image-path=/mnt/home/$USER_NAME.homedir"
-    HOME_DIR="--home-dir=/mnt/home/$USER_NAME"
-
-    if [ -n "$SYSTEMD_HOMED_STORAGE" ]; then
-        STORAGE="--storage=$SYSTEMD_HOMED_STORAGE"
-    fi
-    if [ "$SYSTEMD_HOMED_STORAGE" == "cifs" ]; then
-        CIFS_DOMAIN="--cifs-domain=$SYSTEMD_HOMED_CIFS_DOMAIN"
-        CIFS_USERNAME="--cifs-user-name=$USER_NAME"
-        CIFS_SERVICE="--cifs-service=$SYSTEMD_HOMED_CIFS_SERVICE"
-    fi
-    if [ "$SYSTEMD_HOMED_STORAGE" == "luks" ]; then
-        IMAGE_PATH="--image-path=/mnt/home/$USER_NAME.home"
-    fi
-
-    ### something missing, inside alis this not works, after install the user is in state infixated
-    ### after install and reboot this commands work
-    ### https://github.com/systemd/systemd/blob/41db91775a1d93077b70cc83ba277a2ebb506297/src/home/homed-home.h#L13
-    #--no-ask-password --password-change-now=true
-    systemctl start systemd-homed.service
-    homectl create "$USER_NAME" --enforce-password-policy=no --timezone=$TZ --language=$L $STORAGE $IMAGE_PATH $CIFS_DOMAIN $CIFS_USERNAME $CIFS_SERVICE -G wheel,storage,optical
-    homectl activate "$USER_NAME" $HOME_DIR
-}
-
-function create_user_useradd() {
-    USER_NAME=$1
-    USER_PASSWORD=$2
-    arch-chroot /mnt useradd -m -G wheel,storage,optical -s /bin/bash $USER_NAME
-    printf "$USER_PASSWORD\n$USER_PASSWORD" | arch-chroot /mnt passwd $USER_NAME
-}
-
 function desktop_environment() {
     print_step "desktop_environment()"
 
@@ -1419,34 +1423,105 @@ function print_step() {
     echo ""
 }
 
-function main() {
-    configuration_install
-    sanitize_variables
-    check_variables
-    warning
-    init
-    facts
-    check_facts
-    prepare
-    partition
-    install
-    configuration
-    mkinitcpio_configuration
-    kernels
-    mkinitcpio
-    network
-    if [ "$VIRTUALBOX" == "true" ]; then
-        virtualbox
+function execute_step() {
+    STEP="$1"
+    STEPS="$2"
+    if [[ " $STEPS " =~ " $STEP " ]]; then
+        eval $STEP
+        save_globals
+    else
+        echo "Skipping $STEP"
     fi
-    users
-    bootloader
-    if [ -n "$DESKTOP_ENVIRONMENT" ]; then
-        desktop_environment
-    fi
-    packages
-    systemd_units
-    terminate
-    end
 }
 
-main
+function load_globals() {
+    if [ -f "$GLOBALS_FILE" ]; then
+        source "$GLOBALS_FILE"
+    fi
+}
+
+function save_globals() {
+    cat <<EOT > $GLOBALS_FILE
+ASCIINEMA="$ASCIINEMA"
+BIOS_TYPE="$BIOS_TYPE"
+PARTITION_BOOT="$PARTITION_BOOT"
+PARTITION_ROOT="$PARTITION_ROOT"
+PARTITION_BOOT_NUMBER="$PARTITION_BOOT_NUMBER"
+PARTITION_ROOT_NUMBER="$PARTITION_ROOT_NUMBER"
+DEVICE_ROOT="$DEVICE_ROOT"
+DEVICE_LVM="$DEVICE_LVM"
+LUKS_DEVICE_NAME="$LUKS_DEVICE_NAME"
+LVM_VOLUME_GROUP="$LVM_VOLUME_GROUP"
+LVM_VOLUME_LOGICAL="$LVM_VOLUME_LOGICAL"
+SWAPFILE="$SWAPFILE"
+BOOT_DIRECTORY="$BOOT_DIRECTORY"
+ESP_DIRECTORY="$ESP_DIRECTORY"
+UUID_BOOT="$UUID_BOOT"
+UUID_ROOT="$UUID_ROOT"
+PARTUUID_BOOT="$PARTUUID_BOOT"
+PARTUUID_ROOT="$PARTUUID_ROOT"
+DEVICE_SATA="$DEVICE_SATA"
+DEVICE_NVME="$DEVICE_NVME"
+DEVICE_MMC="$DEVICE_MMC"
+CPU_VENDOR="$CPU_VENDOR"
+VIRTUALBOX="$VIRTUALBOX"
+CMDLINE_LINUX_ROOT="$CMDLINE_LINUX_ROOT"
+CMDLINE_LINUX="$CMDLINE_LINUX"
+EOT
+}
+
+function main() {
+    ALL_STEPS=("configuration_install" "sanitize_variables" "check_variables" "warning" "init" "facts" "check_facts" "prepare" "partition" "install" "configuration" "mkinitcpio_configuration" "kernels" "mkinitcpio" "network" "virtualbox" "users" "bootloader" "desktop_environment" "packages" "systemd_units" "terminate" "end")
+    STEP="configuration_install"
+
+    if [ -n "$1" ]; then
+        STEP="$1"
+    fi
+    if [ $STEP = "steps" ]; then
+        echo "Steps: $ALL_STEPS"
+        return 0
+    fi
+
+    # get step execute from
+    FOUND="false"
+    STEPS=""
+    for S in ${ALL_STEPS[@]}; do
+        if [ $FOUND = "true" -o "${STEP}" = "${S}" ]; then
+            FOUND="true"
+            STEPS="$STEPS $S"
+        fi
+    done
+
+    # execute steps
+    load_globals
+
+    execute_step "configuration_install" "${STEPS}"
+    execute_step "sanitize_variables" "${STEPS}"
+    execute_step "check_variables" "${STEPS}"
+    execute_step "warning" "${STEPS}"
+    execute_step "init" "${STEPS}"
+    execute_step "facts" "${STEPS}"
+    execute_step "check_facts" "${STEPS}"
+    execute_step "prepare" "${STEPS}"
+    execute_step "partition" "${STEPS}"
+    execute_step "install" "${STEPS}"
+    execute_step "configuration" "${STEPS}"
+    execute_step "mkinitcpio_configuration" "${STEPS}"
+    execute_step "kernels" "${STEPS}"
+    execute_step "mkinitcpio" "${STEPS}"
+    execute_step "network" "${STEPS}"
+    if [ "$VIRTUALBOX" == "true" ]; then
+        execute_step "virtualbox" "${STEPS}"
+    fi
+    execute_step "users" "${STEPS}"
+    execute_step "bootloader" "${STEPS}"
+    if [ -n "$DESKTOP_ENVIRONMENT" ]; then
+        execute_step "desktop_environment" "${STEPS}"
+    fi
+    execute_step "packages" "${STEPS}"
+    execute_step "systemd_units" "${STEPS}"
+    execute_step "terminate" "${STEPS}"
+    execute_step "end" "${STEPS}"
+}
+
+main $@

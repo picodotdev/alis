@@ -134,6 +134,8 @@ function check_variables() {
     check_variables_list "KERNELS" "$KERNELS" "linux-lts linux-lts-headers linux-hardened linux-hardened-headers linux-zen linux-zen-headers" "false"
     check_variables_list "KERNELS_COMPRESSION" "$KERNELS_COMPRESSION" "gzip bzip2 lzma xz lzop lz4" "false"
     check_variables_value "TIMEZONE" "$TIMEZONE"
+    check_variables_boolean "REFLECTOR" "$REFLECTOR"
+    check_variables_value "PACMAN_MIRROR" "$PACMAN_MIRROR"
     check_variables_value "LOCALES" "$LOCALES"
     check_variables_value "LOCALE_CONF" "$LOCALE_CONF"
     check_variables_value "LANG" "$LANG"
@@ -422,7 +424,7 @@ function partition() {
 
     # partition
     if [ "$FILE_SYSTEM_TYPE" == "f2fs" ]; then
-        pacman -Syu --noconfirm f2fs-tools
+        pacman -Sy --noconfirm f2fs-tools
     fi
 
     if [ "$PARTITION_MODE" == "auto" ]; then
@@ -546,6 +548,15 @@ function install() {
     if [ -n "$PACMAN_MIRROR" ]; then
         echo "Server=$PACMAN_MIRROR" > /etc/pacman.d/mirrorlist
     fi
+    if [ "$REFLECTOR" == "true" ]; then
+        COUNTRIES=()
+        for COUNTRY in "${REFLECTOR_COUNTRIES[@]}"; do
+            COUNTRIES+=(--country "${COUNTRY}")
+        done
+        pacman -Sy --noconfirm reflector
+        reflector "${COUNTRIES[@]}" --latest 25 --age 24 --protocol https --completion-percent 100 --sort rate --save /etc/pacman.d/mirrorlist
+    fi
+
     sed -i 's/#Color/Color/' /etc/pacman.conf
     sed -i 's/#TotalDownload/TotalDownload/' /etc/pacman.conf
 

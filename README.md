@@ -174,6 +174,7 @@ https://www.archlinux.org/download/
 * https://wiki.archlinux.org/index.php/Pacman
 * https://wiki.archlinux.org/index.php/Arch_User_Repository
 * https://wiki.archlinux.org/index.php/Mirrors
+* https://wiki.archlinux.org/index.php/Reflector
 * https://wiki.archlinux.org/index.php/VirtualBox
 * https://wiki.archlinux.org/index.php/Mkinitcpio
 * https://wiki.archlinux.org/index.php/Intel_graphics

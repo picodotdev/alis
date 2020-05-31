@@ -236,11 +236,7 @@ function prepare_partition() {
         umount /mnt
     fi
     if [ -e "/dev/mapper/$LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL" ]; then
-        lvremove --force "$LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL"
-    fi
-    if [ -e "/dev/mapper/$LVM_VOLUME_GROUP" ]; then
-        vgremove --force "/dev/mapper/$LVM_VOLUME_GROUP"
-        pvremove "/dev/mapper/$LUKS_DEVICE_NAME"
+        unount "/dev/mapper/$LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL"
     fi
     if [ -e "/dev/mapper/$LUKS_DEVICE_NAME" ]; then
         cryptsetup close $LUKS_DEVICE_NAME

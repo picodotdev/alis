@@ -31,7 +31,6 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 * Encryption: root partition encrypted and no encrypted
 * Partition: no LVM, LVM, LVM on LUKS, GPT on UEFI, MBR on BIOS
 * File system: ext4, btrfs (with subvols), xfs
-* Optional file swap (not supported in btrfs)
 * Storage: SATA, NVMe and MMC
 * Kernels: linux-lts, linux-hardened, linux-zen
 * Desktop environment: GNOME, KDE, XFCE, Mate, Cinnamon, LXDE
@@ -41,7 +40,7 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 * WPA WIFI network installation
 * Periodic TRIM for SSD storage
 * Intel and AMD processors microcode
-* Optional file swap (not supported in btrfs)
+* Optional swap file
 * VirtualBox guest utils
 * Kernel compression and custom parameters
 * Users creation and add to sudoers

@@ -51,7 +51,7 @@ DEVICE_LVM=""
 LUKS_DEVICE_NAME="cryptroot"
 LVM_VOLUME_GROUP="vg"
 LVM_VOLUME_LOGICAL="root"
-SWAPFILE=""
+SWAPFILE="/swapfile"
 BOOT_DIRECTORY=""
 ESP_DIRECTORY=""
 #PARTITION_BOOT_NUMBER=0
@@ -520,13 +520,17 @@ function partition() {
     fi
 
     # swap
-    # btrfs: https://btrfs.wiki.kernel.org/index.php/FAQ#Does_btrfs_support_swap_files.3F
-    # btrfs: https://wiki.archlinux.org/index.php/Btrfs#Disabling_CoW
-    # btrfs: https://jlk.fjfi.cvut.cz/arch/manpages/man/btrfs.5#MOUNT_OPTIONS
-    if [ -n "$SWAP_SIZE" -a "$FILE_SYSTEM_TYPE" != "btrfs" ]; then
-        fallocate -l $SWAP_SIZE "/mnt/swapfile"
-        chmod 600 "/mnt/swapfile"
-        mkswap "/mnt/swapfile"
+    if [ -n "$SWAP_SIZE" ]; then
+        if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
+            truncate -s 0 /mnt$SWAPFILE
+            chattr +C /mnt$SWAPFILE
+            btrfs property set /mnt$SWAPFILE compression none
+        fi
+
+        dd if=/dev/zero of=/mnt$SWAPFILE bs=1M count=$SWAP_SIZE status=progress
+        chmod 600 /mnt$SWAPFILE
+        mkswap /mnt$SWAPFILE
+        swapon /mnt$SWAPFILE
     fi
 
     # set variables
@@ -567,9 +571,9 @@ function configuration() {
 
     genfstab -U /mnt >> /mnt/etc/fstab
 
-    if [ -n "$SWAP_SIZE" -a "$FILE_SYSTEM_TYPE" != "btrfs" ]; then
+    if [ -n "$SWAP_SIZE" ]; then
         echo "# swap" >> /mnt/etc/fstab
-        echo "/swapfile none swap defaults 0 0" >> /mnt/etc/fstab
+        echo "$SWAPFILE none swap defaults 0 0" >> /mnt/etc/fstab
         echo "" >> /mnt/etc/fstab
     fi
 

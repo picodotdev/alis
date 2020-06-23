@@ -530,7 +530,6 @@ function partition() {
         dd if=/dev/zero of=/mnt$SWAPFILE bs=1M count=$SWAP_SIZE status=progress
         chmod 600 /mnt$SWAPFILE
         mkswap /mnt$SWAPFILE
-        swapon /mnt$SWAPFILE
     fi
 
     # set variables

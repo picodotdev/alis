@@ -74,7 +74,7 @@ Internet connection is required, with wireless WIFI connection see <a href="http
 # ./alis.sh
 ```
 
-### Installation with asciinema vídeo
+### Installation with asciinema video
 
 As another form of log.
 

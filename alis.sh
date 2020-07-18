@@ -600,6 +600,20 @@ function configuration() {
     echo -e "$KEYMAP\n$FONT\n$FONT_MAP" > /mnt/etc/vconsole.conf
     echo $HOSTNAME > /mnt/etc/hostname
 
+    OPTIONS=""
+    if [ -n "$KEYLAYOUT" ]; then
+        OPTIONS="$OPTIONS"$'\n'"    Option \"XkbLayout\" \"$KEYLAYOUT\""
+    fi
+    if [ -n "$KEYMODEL" ]; then
+        OPTIONS="$OPTIONS"$'\n'"    Option \"XkbModel\" \"$KEYMODEL\""
+    fi
+    if [ -n "$KEYVARIANT" ]; then
+        OPTIONS="$OPTIONS"$'\n'"    Option \"XkbVariant\" \"$KEYVARIANT\""
+    fi
+    if [ -n "$KEYOPTIONS" ]; then
+        OPTIONS="$OPTIONS"$'\n'"    Option \"XkbOptions\" \"$KEYOPTIONS\""
+    fi
+
     arch-chroot /mnt mkdir -p "/etc/X11/xorg.conf.d/"
     cat <<EOT > /mnt/etc/X11/xorg.conf.d/00-keyboard.conf
 # Written by systemd-localed(8), read by systemd-localed and Xorg. It's
@@ -608,7 +622,7 @@ function configuration() {
 Section "InputClass"
     Identifier "system-keyboard"
     MatchIsKeyboard "on"
-    Option "XkbLayout" "$KEYLAYOUT"
+    $OPTIONS
 EndSection
 EOT
 

@@ -294,7 +294,7 @@ function facts() {
 
 function check_facts() {
     if [ "$BIOS_TYPE" == "bios" ]; then
-        check_variables_list "BOOTLOADER" "$BOOTLOADER" "grub"
+        check_variables_list "BOOTLOADER" "$BOOTLOADER" "grub refind systemd"
     fi
 }
 

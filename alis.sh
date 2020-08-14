@@ -1428,9 +1428,10 @@ function pacman_install() {
 function aur_install() {
     set +e
     IFS=' ' PACKAGES=($1)
+    AUR_COMMAND="$AUR -Syu --noconfirm --needed ${PACKAGES[@]}"
     for VARIABLE in {1..5}
     do
-        arch-chroot /mnt bash -c "echo -e \"$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n\" | su $USER_NAME -c \"$AUR -Syu --noconfirm --needed ${PACKAGES[@]}\""
+        arch-chroot /mnt bash -c "echo -e \"$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n\" | su $USER_NAME -c \"$AUR_COMMAND\""
         if [ $? == 0 ]; then
             break
         else

@@ -356,7 +356,7 @@ function partition() {
 
     # setup
     if [ "$PARTITION_MODE" == "auto" ]; then
-        PARTITION_PARTED_UEFI="mklabel gpt mkpart primary fat32 1MiB 512MiB mkpart primary $FILE_SYSTEM_TYPE 512MiB 100% set 1 boot on"
+        PARTITION_PARTED_UEFI="mklabel gpt mkpart ESP fat32 1MiB 512MiB mkpart root $FILE_SYSTEM_TYPE 512MiB 100% set 1 esp on"
         PARTITION_PARTED_BIOS="mklabel msdos mkpart primary ext4 4MiB 512MiB mkpart primary $FILE_SYSTEM_TYPE 512MiB 100% set 1 boot on"
 
         if [ "$BIOS_TYPE" == "uefi" ]; then
@@ -431,8 +431,6 @@ function partition() {
     if [ "$PARTITION_MODE" == "auto" -o "$PARTITION_MODE" == "custom" ]; then
         if [ "$BIOS_TYPE" == "uefi" ]; then
             parted -s $DEVICE $PARTITION_PARTED_UEFI
-
-            sgdisk -t=$PARTITION_BOOT_NUMBER:ef00 $DEVICE
             if [ -n "$LUKS_PASSWORD" ]; then
                 sgdisk -t=$PARTITION_ROOT_NUMBER:8309 $DEVICE
             elif [ "$LVM" == "true" ]; then

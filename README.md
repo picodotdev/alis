@@ -35,7 +35,7 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 * Kernels: linux-lts, linux-hardened, linux-zen
 * Desktop environment: GNOME, KDE, XFCE, Mate, Cinnamon, LXDE
 * Display managers: GDM, SDDM, Lightdm, lxdm
-* Graphics controller: intel, nvidia, amd with optionally early KMS start
+* Graphics controller: intel, nvidia and amd with optionally early KMS start. With intel optionally fastboot, hardware video acceleration and framebuffer compression.
 * Bootloader: GRUB, rEFInd, systemd-boot
 * WPA WIFI network installation
 * Periodic TRIM for SSD storage
@@ -50,8 +50,6 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 * Script for download installation and recovery scripts and configuration files
 * Retry packages download on connection/mirror error
 * Desktop environments (GDM, KDE, XFCE, Mate, Cinnamon, LXDE), display managers (GDM, SDDM, Lightdm, lxdm) and no desktop environment
-* Graphics controllers (intel, nvidia, amd) with optionally early KMS start
-* GRUB, rEFInd, systemd-boot bootloaders
 * Packer support for testing in VirtualBox
 * Installation log with all commands executed and output in a file and/or asciinema video
 * Wait after installation for an abortable reboot

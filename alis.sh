@@ -163,6 +163,8 @@ function check_variables() {
     check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde" "false"
     check_variables_list "DISPLAY_DRIVER" "$DISPLAY_DRIVER" "intel amdgpu ati nvidia nvidia-lts nvidia-dkms nvidia-390xx nvidia-390xx-lts nvidia-390xx-dkms nouveau" "false"
     check_variables_boolean "KMS" "$KMS"
+    check_variables_boolean "FASTBOOT" "$FASTBOOT"
+    check_variables_boolean "FRAMEBUFFER_COMPRESSION" "$FRAMEBUFFER_COMPRESSION"
     check_variables_boolean "DISPLAY_DRIVER_DDX" "$DISPLAY_DRIVER_DDX"
     check_variables_boolean "DISPLAY_DRIVER_HARDWARE_ACCELERATION" "$DISPLAY_DRIVER_HARDWARE_ACCELERATION"
     check_variables_list "DISPLAY_DRIVER_HARDWARE_ACCELERATION_INTEL" "$DISPLAY_DRIVER_HARDWARE_ACCELERATION_INTEL" "intel-media-driver libva-intel-driver" "false"
@@ -643,6 +645,16 @@ function mkinitcpio_configuration() {
                 ;;
         esac
         arch-chroot /mnt sed -i "s/^MODULES=()/MODULES=($MODULES)/" /etc/mkinitcpio.conf
+    fi
+    if [ "$DISPLAY_DRIVER" == "intel" ]; then
+        OPTIONS=""
+        if [ "$FASTBOOT" == "true" ]; then
+            OPTIONS="$OPTIONS fastboot=1"
+        fi
+        if [ "$FRAMEBUFFER_COMPRESSION" == "true" ]; then
+            OPTIONS="$OPTIONS enable_fbc=1"
+        fi
+        echo "options i915 $OPTIONS" > /mnt/etc/modprobe.d/i915.conf
     fi
 
     if [ "$LVM" == "true" ]; then

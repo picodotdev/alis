@@ -654,7 +654,9 @@ function mkinitcpio_configuration() {
         if [ "$FRAMEBUFFER_COMPRESSION" == "true" ]; then
             OPTIONS="$OPTIONS enable_fbc=1"
         fi
-        echo "options i915 $OPTIONS" > /mnt/etc/modprobe.d/i915.conf
+        if [ -n "$OPTIONS"]; then
+            echo "options i915 $OPTIONS" > /mnt/etc/modprobe.d/i915.conf
+        fi
     fi
 
     if [ "$LVM" == "true" ]; then

@@ -1273,7 +1273,7 @@ function desktop_environment() {
 }
 
 function desktop_environment_gnome() {
-    pacman_install "gnome gnome-extra"
+    pacman_install "gnome"
     arch-chroot /mnt systemctl enable gdm.service
 }
 

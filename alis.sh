@@ -580,12 +580,12 @@ function configuration() {
         sed -i "s/#$LOCALE/$LOCALE/" /etc/locale.gen
         sed -i "s/#$LOCALE/$LOCALE/" /mnt/etc/locale.gen
     done
-    locale-gen
-    arch-chroot /mnt locale-gen
     for VARIABLE in "${LOCALE_CONF[@]}"; do
-        localectl set-locale "$VARIABLE"
+        #localectl set-locale "$VARIABLE"
         echo -e "$VARIABLE" >> /mnt/etc/locale.conf
     done
+    locale-gen
+    arch-chroot /mnt locale-gen
     echo -e "$KEYMAP\n$FONT\n$FONT_MAP" > /mnt/etc/vconsole.conf
     echo $HOSTNAME > /mnt/etc/hostname
 

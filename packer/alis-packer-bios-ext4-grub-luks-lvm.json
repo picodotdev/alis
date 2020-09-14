@@ -1,6 +1,6 @@
 {
     "variables": {
-      "iso": "https://mirror.rackspace.com/archlinux/iso/latest/archlinux-2020.07.01-x86_64.iso",
+      "iso": "https://mirror.rackspace.com/archlinux/iso/latest/archlinux-2020.09.01-x86_64.iso",
       "disk_size": "16384"
     },
     "builders": [
@@ -20,7 +20,7 @@
         "disk_size": "{{user `disk_size`}}",
         "hard_drive_interface": "sata",
         "iso_url": "{{user `iso`}}",
-        "iso_checksum": "sha1:8bcd9ef5d7bd22a5e1de671905abaf07ca8cd7f5",
+        "iso_checksum": "sha1:95ebacd83098b190e8f30cc28d8c57af0d0088a0",
         "ssh_username": "vagrant",
         "ssh_password": "vagrant",
         "ssh_wait_timeout": "60m",
@@ -28,8 +28,8 @@
         "boot_command": [
           "<wait5s><enter>",
           "<wait40s>",
-          "wget http://{{.HTTPIP}}:{{.HTTPPort}}/alis.conf<enter><wait1s>",
-          "wget http://{{.HTTPIP}}:{{.HTTPPort}}/alis.sh<enter><wait1s>",
+          "curl -O http://{{.HTTPIP}}:{{.HTTPPort}}/alis.conf<enter><wait1s>",
+          "curl -O http://{{.HTTPIP}}:{{.HTTPPort}}/alis.sh<enter><wait1s>",
           "sed -i \"s/FILE_SYSTEM_TYPE=.*/FILE_SYSTEM_TYPE=\\\"ext4\\\"/\" ./alis.conf<enter><wait1s>",
           "sed -i \"s/LVM=.*/LVM=\\\"true\\\"/\" ./alis.conf<enter><wait1s>",
           "sed -i \"s/LUKS_PASSWORD=.*/LUKS_PASSWORD=\\\"archlinux\\\"/\" ./alis.conf<enter><wait1s>",

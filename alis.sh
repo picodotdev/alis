@@ -160,7 +160,7 @@ function check_variables() {
     check_variables_value "HOOKS" "$HOOKS"
     check_variables_list "BOOTLOADER" "$BOOTLOADER" "grub refind systemd"
     check_variables_list "AUR" "$AUR" "aurman yay" "false"
-    check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde" "false"
+    check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde i3wm" "false"
     check_variables_list "DISPLAY_DRIVER" "$DISPLAY_DRIVER" "intel amdgpu ati nvidia nvidia-lts nvidia-dkms nvidia-390xx nvidia-390xx-lts nvidia-390xx-dkms nouveau" "false"
     check_variables_boolean "KMS" "$KMS"
     check_variables_boolean "FASTBOOT" "$FASTBOOT"
@@ -1267,6 +1267,9 @@ function desktop_environment() {
         "lxde" )
             desktop_environment_lxde
             ;;
+        "i3wm" )
+            desktop_environment_i3wm
+            ;;
     esac
 
     arch-chroot /mnt systemctl set-default graphical.target
@@ -1300,6 +1303,11 @@ function desktop_environment_cinnamon() {
 function desktop_environment_lxde() {
     pacman_install "lxde lxdm"
     arch-chroot /mnt systemctl enable lxdm.service
+}
+
+function desktop_environment_i3wm() {
+    pacman_install "i3 dmenu rxvt-unicode lightdm lightdm-gtk-greeter xorg-server"
+    arch-chroot /mnt systemctl enable lightdm.service
 }
 
 function packages() {

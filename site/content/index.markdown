@@ -96,7 +96,7 @@ url: "/"
         <li>Optional file swap (not supported in btrfs)</li>
         <li>Storage: SATA, NVMe and MMC</li>
         <li>Kernels: linux-lts, linux-hardened, linux-zen</li>
-        <li>Desktop environment: GNOME, KDE, XFCE, Mate, Cinnamon, LXDE</li>
+        <li>Desktop environment: GNOME, KDE, XFCE, Mate, Cinnamon, LXDE, i3-wm, i3-gaps</li>
         <li>Display managers: GDM, SDDM, Lightdm, lxdm</li>
         <li>Graphics controller: intel, nvidia, amd with optionally early KMS start</li>
         <li>Bootloader: GRUB, rEFInd, systemd-boot</li>

@@ -32,7 +32,7 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 * Partition: no LVM, LVM, LVM on LUKS, GPT on UEFI, MBR on BIOS
 * File system: ext4, btrfs (with subvols), xfs
 * Kernels: linux-lts, linux-hardened, linux-zen
-* Desktop environment: GNOME, KDE, XFCE, Mate, Cinnamon, LXDE
+* Desktop environment: GNOME, KDE, XFCE, Mate, Cinnamon, LXDE, i3-wm, i3-gaps
 * Display managers: GDM, SDDM, Lightdm, lxdm
 * Graphics controller: intel, nvidia and amd with optionally early KMS start. With intel optionally fastboot, hardware video acceleration and framebuffer compression.
 * Bootloader: GRUB, rEFInd, systemd-boot
@@ -48,7 +48,7 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 * AUR utility installation (aurman, yay)
 * Script for download installation and recovery scripts and configuration files
 * Retry packages download on connection/mirror error
-* Desktop environments (GDM, KDE, XFCE, Mate, Cinnamon, LXDE), display managers (GDM, SDDM, Lightdm, lxdm) and no desktop environment
+* Desktop environments (GDM, KDE, XFCE, Mate, Cinnamon, LXDE, i3-wm, i3-gaps), display managers (GDM, SDDM, Lightdm, lxdm) and no desktop environment
 * Packer support for testing in VirtualBox
 * Installation log with all commands executed and output in a file and/or asciinema video
 * Wait after installation for an abortable reboot
@@ -193,5 +193,6 @@ https://www.archlinux.org/download/
 * https://wiki.archlinux.org/index.php/GNOME
 * https://wiki.archlinux.org/index.php/KDE
 * https://wiki.archlinux.org/index.php/Xfce
+* https://wiki.archlinux.org/index.php/I3
 * http://tldp.org/LDP/Bash-Beginners-Guide/html/
 * http://tldp.org/LDP/abs/html/

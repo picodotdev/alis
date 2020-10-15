@@ -711,8 +711,8 @@ function mkinitcpio_configuration() {
     fi
 }
 
-function display_drivers() {
-    print_step "display_drivers()"
+function display_driver() {
+    print_step "display_driver()"
 
     PACKAGES_DRIVER=""
     PACKAGES_DDX=""
@@ -1567,7 +1567,7 @@ function main() {
     execute_step "configuration" "${STEPS}"
     execute_step "mkinitcpio_configuration" "${STEPS}"
     if [ -n "$DISPLAY_DRIVER" ]; then
-        execute_step "display_drivers" "${STEPS}"
+        execute_step "display_driver" "${STEPS}"
     fi
     execute_step "kernels" "${STEPS}"
     execute_step "mkinitcpio" "${STEPS}"

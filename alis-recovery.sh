@@ -3,7 +3,7 @@ set -e
 
 # Arch Linux Install Script Recovery (alis-recovery) start a recovery for an
 # failed installation or broken system.
-# Copyright (C) 2018 picodotdev
+# Copyright (C) 2020 picodotdev
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

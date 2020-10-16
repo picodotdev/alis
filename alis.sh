@@ -3,7 +3,7 @@ set -e
 
 # Arch Linux Install Script (alis) installs unattended, automated
 # and customized Arch Linux system.
-# Copyright (C) 2018 picodotdev
+# Copyright (C) 2020 picodotdev
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ set -e
 
 # Usage:
 # # loadkeys es
-# # curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash, or with URL shortener curl -sL https://bit.ly/2F3CATp | bash
+# # curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash, curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash -s -- -u [github user], or with URL shortener curl -sL https://bit.ly/2F3CATp | bash
 # # vim alis.conf
 # # ./alis.sh
 

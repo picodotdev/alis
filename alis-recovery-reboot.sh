@@ -3,7 +3,7 @@ set -e
 
 # Arch Linux Install Script (alis) installs unattended, automated
 # and customized Arch Linux system.
-# Copyright (C) 2018 picodotdev
+# Copyright (C) 2020 picodotdev
 
 source alis.conf
 

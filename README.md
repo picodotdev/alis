@@ -74,7 +74,7 @@ Internet connection is required, with wireless WIFI connection see <a href="http
 If you fork _alis_ repository you can host your own configuration and changes in your repository.
 
 ```
-curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash -s -- -u [github user]
+# curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash -s -- -u [github user]
 ```
 
 ### Installation with asciinema video

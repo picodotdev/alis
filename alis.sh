@@ -159,6 +159,7 @@ function check_variables() {
     fi
     check_variables_value "HOOKS" "$HOOKS"
     check_variables_list "BOOTLOADER" "$BOOTLOADER" "grub refind systemd"
+    check_variables_list "CUSTOM_SHELL" "$CUSTOM_SHELL" "bash zsh dash fish"
     check_variables_list "AUR" "$AUR" "aurman yay" "false"
     check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde i3-wm i3-gaps" "false"
     check_variables_list "DISPLAY_DRIVER" "$DISPLAY_DRIVER" "intel amdgpu ati nvidia nvidia-lts nvidia-dkms nvidia-390xx nvidia-390xx-lts nvidia-390xx-dkms nouveau" "false"
@@ -306,6 +307,7 @@ function prepare() {
     configure_time
     prepare_partition
     configure_network
+    ask_passwords
 
     pacman -Sy
 }
@@ -340,6 +342,77 @@ function configure_network() {
         echo "Network ping check failed. Cannot continue."
         exit
     fi
+}
+
+function ask_passwords() {
+    if [ "$LUKS_PASSWORD" == "ask" ]; then
+        PASSWORD_TYPED="false"
+        while [ "$PASSWORD_TYPED" != "true" ]; do
+            read -sp 'Type LUKS password: ' LUKS_PASSWORD
+            echo ""
+            read -sp 'Retype LUKS password: ' LUKS_PASSWORD_RETYPE
+            echo ""
+            if [ "$LUKS_PASSWORD" == "$LUKS_PASSWORD_RETYPE" ]; then
+                PASSWORD_TYPED="true"
+            else
+                echo "LUKS password don't match. Please, type again."
+            fi
+        done
+    fi
+
+    if [ "$ROOT_PASSWORD" == "ask" ]; then
+        PASSWORD_TYPED="false"
+        while [ "$PASSWORD_TYPED" != "true" ]; do
+            read -sp 'Type root password: ' ROOT_PASSWORD
+            echo ""
+            read -sp 'Retype root password: ' ROOT_PASSWORD_RETYPE
+            echo ""
+            if [ "$ROOT_PASSWORD" == "$ROOT_PASSWORD_RETYPE" ]; then
+                PASSWORD_TYPED="true"
+            else
+                echo "Root password don't match. Please, type again."
+            fi
+        done
+    fi
+
+    if [ "$USER_PASSWORD" == "ask" ]; then
+        PASSWORD_TYPED="false"
+        while [ "$PASSWORD_TYPED" != "true" ]; do
+            read -sp 'Type user password: ' USER_PASSWORD
+            echo ""
+            read -sp 'Retype user password: ' USER_PASSWORD_RETYPE
+            echo ""
+            if [ "$USER_PASSWORD" == "$USER_PASSWORD_RETYPE" ]; then
+                PASSWORD_TYPED="true"
+            else
+                echo "User password don't match. Please, type again."
+            fi
+        done
+    fi
+
+    for I in ${!ADDITIONAL_USERS[@]}; do
+        VALUE=${ADDITIONAL_USERS[${I}]}
+        IFS='=' S=($VALUE)
+        USER=${S[0]}
+        PASSWORD=${S[1]}
+        PASSWORD_RETYPE=""
+
+        if [ "$PASSWORD" == "ask" ]; then
+            PASSWORD_TYPED="false"
+            while [ "$PASSWORD_TYPED" != "true" ]; do
+                read -sp "Type user ($USER) password: " PASSWORD
+                echo ""
+                read -sp "Retype user ($USER) password: " PASSWORD_RETYPE
+                echo ""
+                if [ "$PASSWORD" == "$PASSWORD_RETYPE" ]; then
+                    PASSWORD_TYPED="true"
+                    ADDITIONAL_USERS[${I}]="${USER}=${PASSWORD}"
+                else
+                    echo "User ($USER) password don't match. Please, type again."
+                fi
+            done
+        fi
+    done
 }
 
 function partition() {
@@ -1262,6 +1335,32 @@ EOT
     fi
 }
 
+function custom_shell() {
+    print_step "custom_shell()"
+
+    CUSTOM_SHELL_PATH=""
+    case "$CUSTOM_SHELL" in
+        "zsh" )
+            pacman_install "zsh"
+            CUSTOM_SHELL_PATH="/usr/bin/zsh"
+            ;;
+        "dash" )
+            pacman_install "dash"
+            CUSTOM_SHELL_PATH="/usr/bin/dash"
+            ;;
+        "fish" )
+            pacman_install "fish"
+            CUSTOM_SHELL_PATH="/usr/bin/fish"
+            ;;
+    esac
+
+    if [ "$SYSTEMD_HOMED" == "true" ]; then
+        homectl update --shell=$CUSTOM_SHELL_PATH $USER_NAME
+    else
+        arch-chroot /mnt chsh -s $CUSTOM_SHELL_PATH $USER_NAME
+    fi
+}
+
 function desktop_environment() {
     print_step "desktop_environment()"
 
@@ -1530,7 +1629,7 @@ EOT
 }
 
 function main() {
-    ALL_STEPS=("configuration_install" "sanitize_variables" "check_variables" "warning" "init" "facts" "check_facts" "prepare" "partition" "install" "configuration" "mkinitcpio_configuration" "display_driver" "kernels" "mkinitcpio" "network" "virtualbox" "users" "bootloader" "desktop_environment" "packages" "systemd_units" "terminate" "end")
+    ALL_STEPS=("configuration_install" "sanitize_variables" "check_variables" "warning" "init" "facts" "check_facts" "prepare" "partition" "install" "configuration" "mkinitcpio_configuration" "display_driver" "kernels" "mkinitcpio" "network" "virtualbox" "users" "bootloader" "custom_shell" "desktop_environment" "packages" "systemd_units" "terminate" "end")
     STEP="configuration_install"
 
     if [ -n "$1" ]; then
@@ -1577,6 +1676,9 @@ function main() {
     fi
     execute_step "users" "${STEPS}"
     execute_step "bootloader" "${STEPS}"
+    if [ -n "$CUSTOM_SHELL" ]; then
+        execute_step "custom_shell" "${STEPS}"
+    fi
     if [ -n "$DESKTOP_ENVIRONMENT" ]; then
         execute_step "desktop_environment" "${STEPS}"
     fi

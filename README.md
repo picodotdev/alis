@@ -36,6 +36,7 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 * Display managers: GDM, SDDM, Lightdm, lxdm
 * Graphics controller: intel, nvidia and amd with optionally early KMS start. With intel optionally fastboot, hardware video acceleration and framebuffer compression.
 * Bootloader: GRUB, rEFInd, systemd-boot
+* Custom shell: bash, zsh, dash, fish
 * WPA WIFI network installation
 * Periodic TRIM for SSD storage
 * Intel and AMD processors microcode

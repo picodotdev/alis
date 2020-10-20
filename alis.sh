@@ -992,8 +992,8 @@ function create_user_homectl() {
     ### after install and reboot this commands work
     systemctl start systemd-homed.service
     set +e
-    homectl create "$USER_NAME" --enforce-password-policy=no --timezone=$TZ --language=$L $STORAGE $CIFS_DOMAIN $CIFS_USERNAME $CIFS_SERVICE -G wheel,storage,optical
-    homectl activate "$USER_NAME"
+    homectl create "$USER" --enforce-password-policy=no --timezone=$TZ --language=$L $STORAGE $CIFS_DOMAIN $CIFS_USERNAME $CIFS_SERVICE -G wheel,storage,optical
+    homectl activate "$USER"
     set -e
     cp -a "$IMAGE_PATH/." "/mnt$IMAGE_PATH"
     cp -a "$HOME_PATH/." "/mnt$HOME_PATH"

@@ -953,39 +953,39 @@ EOT
 }
 
 function create_user() {
-    USER_NAME=$1
-    USER_PASSWORD=$2
+    USER=$1
+    PASSWORD=$2
     if [ "$SYSTEMD_HOMED" == "true" ]; then
         arch-chroot /mnt systemctl enable systemd-homed.service
-        create_user_homectl $USER_NAME $USER_PASSWORD
-#       create_user_useradd $USER_NAME $USER_PASSWORD
+        create_user_homectl $USER $PASSWORD
+#       create_user_useradd $USER $PASSWORD
     else
-        create_user_useradd $USER_NAME $USER_PASSWORD
+        create_user_useradd $USER $PASSWORD
     fi
 }
 
 function create_user_homectl() {
-    USER_NAME=$1
-    USER_PASSWORD=$2
+    USER=$1
+    PASSWORD=$2
     STORAGE=""
     CIFS_DOMAIN=""
     CIFS_USERNAME=""
     CIFS_SERVICE=""
     TZ=$(echo ${TIMEZONE} | sed "s/\/usr\/share\/zoneinfo\///g")
     L=$(echo ${LOCALE_CONF[0]} | sed "s/LANG=//g")
-    IMAGE_PATH="/home/$USER_NAME.homedir"
-    HOME_PATH="/home/$USER_NAME"
+    IMAGE_PATH="/home/$USER.homedir"
+    HOME_PATH="/home/$USER"
 
     if [ -n "$SYSTEMD_HOMED_STORAGE" ]; then
         STORAGE="--storage=$SYSTEMD_HOMED_STORAGE"
     fi
     if [ "$SYSTEMD_HOMED_STORAGE" == "cifs" ]; then
         CIFS_DOMAIN="--cifs-domain=$SYSTEMD_HOMED_CIFS_DOMAIN"
-        CIFS_USERNAME="--cifs-user-name=$USER_NAME"
+        CIFS_USERNAME="--cifs-user-name=$USER"
         CIFS_SERVICE="--cifs-service=$SYSTEMD_HOMED_CIFS_SERVICE"
     fi
     if [ "$SYSTEMD_HOMED_STORAGE" == "luks" ]; then
-        IMAGE_PATH="/home/$USER_NAME.home"
+        IMAGE_PATH="/home/$USER.home"
     fi
 
     ### something missing, inside alis this not works, after install the user is in state infixated
@@ -1001,10 +1001,10 @@ function create_user_homectl() {
 }
 
 function create_user_useradd() {
-    USER_NAME=$1
-    USER_PASSWORD=$2
-    arch-chroot /mnt useradd -m -G wheel,storage,optical -s /bin/bash $USER_NAME
-    printf "$USER_PASSWORD\n$USER_PASSWORD" | arch-chroot /mnt passwd $USER_NAME
+    USER=$1
+    PASSWORD=$2
+    arch-chroot /mnt useradd -m -G wheel,storage,optical -s /bin/bash $USER
+    printf "$PASSWORD\n$PASSWORD" | arch-chroot /mnt passwd $USER
 }
 
 function bootloader() {
@@ -1354,10 +1354,26 @@ function custom_shell() {
             ;;
     esac
 
+    if [ -n "$CUSTOM_SHELL_PATH" ]; then
+        custom_shell_user "root" $CUSTOM_SHELL_PATH
+        custom_shell_user "$USER_NAME" $CUSTOM_SHELL_PATH
+        for U in ${ADDITIONAL_USERS[@]}; do
+            IFS='=' S=(${U})
+            USER=${S[0]}
+            custom_shell_user "$USER" $CUSTOM_SHELL_PATH
+        done
+    fi
+}
+
+
+function custom_shell_user() {
+    USER=$1
+    CUSTOM_SHELL_PATH=$2
+
     if [ "$SYSTEMD_HOMED" == "true" ]; then
-        homectl update --shell=$CUSTOM_SHELL_PATH $USER_NAME
+        homectl update --shell=$CUSTOM_SHELL_PATH $USER
     else
-        arch-chroot /mnt chsh -s $CUSTOM_SHELL_PATH $USER_NAME
+        arch-chroot /mnt chsh -s $CUSTOM_SHELL_PATH $USER
     fi
 }
 

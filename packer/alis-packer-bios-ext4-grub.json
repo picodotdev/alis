@@ -1,6 +1,6 @@
 {
     "variables": {
-      "iso": "https://mirror.rackspace.com/archlinux/iso/latest/archlinux-2020.09.01-x86_64.iso",
+      "iso": "https://mirror.rackspace.com/archlinux/iso/latest/archlinux-2020.10.01-x86_64.iso",
       "disk_size": "16384"
     },
     "builders": [
@@ -20,7 +20,7 @@
         "disk_size": "{{user `disk_size`}}",
         "hard_drive_interface": "sata",
         "iso_url": "{{user `iso`}}",
-        "iso_checksum": "sha1:95ebacd83098b190e8f30cc28d8c57af0d0088a0",
+        "iso_checksum": "sha1:67c2603d194a004f7010f57c25faa5dcea04a05f",
         "ssh_username": "vagrant",
         "ssh_password": "vagrant",
         "ssh_wait_timeout": "60m",

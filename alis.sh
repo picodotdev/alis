@@ -92,6 +92,7 @@ function sanitize_variables() {
     KERNELS_COMPRESSION=$(sanitize_variable "$KERNELS_COMPRESSION")
     SYSTEMD_HOMED_STORAGE=$(sanitize_variable "$SYSTEMD_HOMED_STORAGE")
     BOOTLOADER=$(sanitize_variable "$BOOTLOADER")
+    CUSTOM_SHELL=$(sanitize_variable "$CUSTOM_SHELL")
     DESKTOP_ENVIRONMENT=$(sanitize_variable "$DESKTOP_ENVIRONMENT")
     DISPLAY_DRIVER=$(sanitize_variable "$DISPLAY_DRIVER")
     DISPLAY_DRIVER_HARDWARE_ACCELERATION_INTEL=$(sanitize_variable "$DISPLAY_DRIVER_HARDWARE_ACCELERATION_INTEL")

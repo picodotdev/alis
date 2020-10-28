@@ -1,6 +1,6 @@
 {
     "variables": {
-      "iso": "https://mirror.rackspace.com/archlinux/iso/latest/archlinux-2020.09.01-x86_64.iso",
+      "iso": "https://archive.archlinux.org/iso/2020.10.01/archlinux-2020.10.01-x86_64.iso",
       "disk_size": "16384"
     },
     "builders": [

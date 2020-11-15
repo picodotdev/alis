@@ -133,7 +133,7 @@ function check_variables() {
     check_variables_value "PING_HOSTNAME" "$PING_HOSTNAME"
     check_variables_value "PACMAN_MIRROR" "$PACMAN_MIRROR"
     check_variables_list "KERNELS" "$KERNELS" "linux-lts linux-lts-headers linux-hardened linux-hardened-headers linux-zen linux-zen-headers" "false"
-    check_variables_list "KERNELS_COMPRESSION" "$KERNELS_COMPRESSION" "gzip bzip2 lzma xz lzop lz4" "false"
+    check_variables_list "KERNELS_COMPRESSION" "$KERNELS_COMPRESSION" "gzip bzip2 lzma xz lzop lz4 zstd" "false"
     check_variables_value "TIMEZONE" "$TIMEZONE"
     check_variables_boolean "REFLECTOR" "$REFLECTOR"
     check_variables_value "PACMAN_MIRROR" "$PACMAN_MIRROR"
@@ -568,13 +568,13 @@ function partition() {
         btrfs subvolume create /mnt/snapshots
         umount /mnt
 
-        mount -o "subvol=root,$PARTITION_OPTIONS,compress=lzo" "$DEVICE_ROOT" /mnt
+        mount -o "subvol=root,$PARTITION_OPTIONS,compress=zstd" "$DEVICE_ROOT" /mnt
 
         mkdir /mnt/{boot,home,var,snapshots}
         mount -o "$PARTITION_OPTIONS" "$PARTITION_BOOT" /mnt/boot
-        mount -o "subvol=home,$PARTITION_OPTIONS,compress=lzo" "$DEVICE_ROOT" /mnt/home
-        mount -o "subvol=var,$PARTITION_OPTIONS,compress=lzo" "$DEVICE_ROOT" /mnt/var
-        mount -o "subvol=snapshots,$PARTITION_OPTIONS,compress=lzo" "$DEVICE_ROOT" /mnt/snapshots
+        mount -o "subvol=home,$PARTITION_OPTIONS,compress=zstd" "$DEVICE_ROOT" /mnt/home
+        mount -o "subvol=var,$PARTITION_OPTIONS,compress=zstd" "$DEVICE_ROOT" /mnt/var
+        mount -o "subvol=snapshots,$PARTITION_OPTIONS,compress=zstd" "$DEVICE_ROOT" /mnt/snapshots
     else
         mount -o "$PARTITION_OPTIONS" "$DEVICE_ROOT" /mnt
 
@@ -783,6 +783,9 @@ function mkinitcpio_configuration() {
     if [ "$KERNELS_COMPRESSION" == "lz4" ]; then
         pacman_install "lz4"
     fi
+    if [ "$KERNELS_COMPRESSION" == "zstd" ]; then
+        pacman_install "zstd"
+    fi
 }
 
 function display_driver() {
@@ -847,7 +850,6 @@ function display_driver() {
     if [ "$DISPLAY_DRIVER_HARDWARE_ACCELERATION" == "true" ]; then
         case "$DISPLAY_DRIVER" in
             "intel" )
-                PACKAGES_HARDWARE_ACCELERATION="intel-media-driver"
                 if [ -n "$DISPLAY_DRIVER_HARDWARE_ACCELERATION_INTEL" ]; then
                     PACKAGES_HARDWARE_ACCELERATION=$DISPLAY_DRIVER_HARDWARE_ACCELERATION_INTEL
                 fi

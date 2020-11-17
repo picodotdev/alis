@@ -18,7 +18,7 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 
 ### Donations
 
-If you find useful this script, you can support me with a [small donation](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=3PF47D5TSNL7C&currency_code=EUR) through PayPal to continue adding features, updating the script, accepting pull request and responding to any question. Also there are other ways to contribute in the [How you can help](https://github.com/picodotdev/alis#how-you-can-help) section.
+If you find useful this script, you can support me with a [small donation](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=3PF47D5TSNL7C&currency_code=EUR) through PayPal to continue adding features, updating the script, accepting pull request and responding to any question. Also there are other ways you can contribute in the [How you can help](https://github.com/picodotdev/alis#how-you-can-help) section.
 
 [![Donate with PayPal button](https://www.paypalobjects.com/en_US/ES/i/btn/btn_donateCC_LG.gif "PayPal - The safer, easier way to pay online!")](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=3PF47D5TSNL7C&currency_code=EUR)
 
@@ -124,7 +124,7 @@ Boot from the latest <a href="https://www.archlinux.org/download/">original Arch
 * Create issues with new features
 * Send pull requests
 * Share it in social networks, forums, create a blog post or video about it
-* Consider to make a [small domation](https://github.com/picodotdev/alis#donations)
+* Consider to make a [small donation](https://github.com/picodotdev/alis#donations)
 
 ### Test in VirtuaBox with Packer
 

@@ -20,13 +20,7 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 
 If you find useful this script, you can support me with a [small donation](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=3PF47D5TSNL7C&currency_code=EUR) through PayPal to continue adding features, updating the script, accepting pull request and responding to any question. Also there are other ways to contribute in the [How you can help](https://github.com/picodotdev/alis#how-you-can-help) section.
 
-<form action="https://www.paypal.com/donate" method="post" target="_top">
-    <input type="hidden" name="cmd" value="_donations" />
-    <input type="hidden" name="business" value="3PF47D5TSNL7C" />
-    <input type="hidden" name="currency_code" value="EUR" />
-    <input type="image" src="https://www.paypalobjects.com/en_US/ES/i/btn/btn_donateCC_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" />
-    <img alt="" border="0" src="https://www.paypal.com/en_ES/i/scr/pixel.gif" width="1" height="1" />
-</form>
+[![Donate with PayPal button](https://www.paypalobjects.com/en_US/ES/i/btn/btn_donateCC_LG.gif "PayPal - The safer, easier way to pay online!")](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=3PF47D5TSNL7C&currency_code=EUR)
 
 ### Principles
 

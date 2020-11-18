@@ -1,0 +1,2 @@
+1. curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash -s -- -u windwalk-bushido
+2. ./alis.sh

@@ -296,6 +296,17 @@ function facts() {
     fi
 }
 
+function checks() {
+    print_step "checks()"
+
+    check_facts
+
+    pacman -Sy
+    if [ -n "$PACKAGES_PACMAN" ]; then
+        pacman -Si $PACKAGES_PACMAN > /dev/null
+    fi
+}
+
 function check_facts() {
     if [ "$BIOS_TYPE" == "bios" ]; then
         check_variables_list "BOOTLOADER" "$BOOTLOADER" "grub"
@@ -309,8 +320,6 @@ function prepare() {
     prepare_partition
     configure_network
     ask_passwords
-
-    pacman -Sy
 }
 
 function configure_time() {
@@ -1648,7 +1657,7 @@ EOT
 }
 
 function main() {
-    ALL_STEPS=("configuration_install" "sanitize_variables" "check_variables" "warning" "init" "facts" "check_facts" "prepare" "partition" "install" "configuration" "mkinitcpio_configuration" "display_driver" "kernels" "mkinitcpio" "network" "virtualbox" "users" "bootloader" "custom_shell" "desktop_environment" "packages" "systemd_units" "terminate" "end")
+    ALL_STEPS=("configuration_install" "sanitize_variables" "check_variables" "warning" "init" "facts" "checks" "prepare" "partition" "install" "configuration" "mkinitcpio_configuration" "display_driver" "kernels" "mkinitcpio" "network" "virtualbox" "users" "bootloader" "custom_shell" "desktop_environment" "packages" "systemd_units" "terminate" "end")
     STEP="configuration_install"
 
     if [ -n "$1" ]; then
@@ -1678,7 +1687,7 @@ function main() {
     execute_step "warning" "${STEPS}"
     execute_step "init" "${STEPS}"
     execute_step "facts" "${STEPS}"
-    execute_step "check_facts" "${STEPS}"
+    execute_step "checks" "${STEPS}"
     execute_step "prepare" "${STEPS}"
     execute_step "partition" "${STEPS}"
     execute_step "install" "${STEPS}"

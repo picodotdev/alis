@@ -1,6 +1,6 @@
 {
     "variables": {
-      "iso": "https://archive.archlinux.org/iso/2020.10.01/archlinux-2020.10.01-x86_64.iso",
+      "iso": "https://archive.archlinux.org/iso/2020.11.01/archlinux-2020.11.01-x86_64.iso",
       "disk_size": "16384"
     },
     "builders": [
@@ -26,7 +26,7 @@
         "ssh_wait_timeout": "60m",
         "boot_wait": "5s",
         "boot_command": [
-          "<wait30s>",
+          "<wait60s>",
           "curl -O http://{{.HTTPIP}}:{{.HTTPPort}}/alis.conf<enter><wait1s>",
           "curl -O http://{{.HTTPIP}}:{{.HTTPPort}}/alis.sh<enter><wait1s>",
           "sed -i \"s/FILE_SYSTEM_TYPE=.*/FILE_SYSTEM_TYPE=\\\"ext4\\\"/\" ./alis.conf<enter><wait1s>",

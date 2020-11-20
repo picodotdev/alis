@@ -16,6 +16,20 @@ Please, don't ask for support for this script in Arch Linux forums, first read t
 
 For new features, improvements and bugs fill an issue in GitHub or make a pull request. You can test it in a [VirtualBox](https://www.virtualbox.org/) virtual machine (strongly recommended) before run it in real hardware. If you test it in real hardware please send me an email to pico.dev@gmail.com with the machine description and tell me if something goes wrong or all works fine. [Pull request](https://github.com/picodotdev/alis/pulls) and [new feature request](https://github.com/picodotdev/alis/issues) are welcome!
 
+### Index
+
+* [Donations](https://github.com/picodotdev/alis#donations)
+* [Principles](https://github.com/picodotdev/alis#principles)
+* [Features](https://github.com/picodotdev/alis#features)
+* [Installation](https://github.com/picodotdev/alis#installation)
+* [Installation with asciinema video](https://github.com/picodotdev/alis#installation)
+* [Recovery](https://github.com/picodotdev/alis#recovery)
+* [How you can help](https://github.com/picodotdev/alis#how-you-can-help)
+* [Test in VirtuaBox with Packer](https://github.com/picodotdev/alis#test-in-virtuabox-with-packer)
+* [Video](https://github.com/picodotdev/alis#video)
+* [Arch Linux Installation Media](https://github.com/picodotdev/alis#arch-linux-installation-media)
+* [Reference](https://github.com/picodotdev/alis#reference)
+
 ### Donations
 
 If you find useful this script, you can support me with a [small donation](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=3PF47D5TSNL7C&currency_code=EUR) through PayPal to continue adding features, updating the script, accepting pull request and responding to any question. Also there are other ways you can contribute in the [How you can help](https://github.com/picodotdev/alis#how-you-can-help) section.
@@ -124,6 +138,7 @@ Boot from the latest <a href="https://www.archlinux.org/download/">original Arch
 * Create issues with new features
 * Send pull requests
 * Share it in social networks, forums, create a blog post or video about it
+* Send me an email, I like to read that the script is being used and is useful :). Which are your computer specs, which is your alis configuration, if is your personal or working computer, if all worked fine or some suggestion to improve the script
 * Consider to make a [small donation](https://github.com/picodotdev/alis#donations)
 
 ### Test in VirtuaBox with Packer

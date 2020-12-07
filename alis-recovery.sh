@@ -246,18 +246,7 @@ function prepare_partition() {
 
 function configure_network() {
     if [ -n "$WIFI_INTERFACE" ]; then
-        cp /etc/netctl/examples/wireless-wpa /etc/netctl
-          chmod 600 /etc/netctl
-
-          sed -i 's/^Interface=.*/Interface='"$WIFI_INTERFACE"'/' /etc/netctl
-          sed -i 's/^ESSID=.*/ESSID='"$WIFI_ESSID"'/' /etc/netctl
-          sed -i 's/^Key=.*/Key='\''$WIFI_KEY'\''/' /etc/netctl
-          if [ "$WIFI_HIDDEN" == "true" ]; then
-              sed -i 's/^#Hidden=.*/Hidden=yes/' /etc/netctl
-          fi
-
-        netctl stop-all
-        netctl start wireless-wpa
+        iwctl --passphrase "$WIFI_KEY" station $WIFI_INTERFACE connect $WIFI_ESSID
         sleep 10
     fi
 
@@ -351,11 +340,11 @@ function partition() {
 
     # mount
     if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
-        mount -o "subvol=root,$PARTITION_OPTIONS,compress=lzo" "$DEVICE_ROOT" /mnt
+        mount -o "subvol=root,$PARTITION_OPTIONS,compress=zstd" "$DEVICE_ROOT" /mnt
         mount -o "$PARTITION_OPTIONS" "$PARTITION_BOOT" /mnt/boot
-        mount -o "subvol=home,$PARTITION_OPTIONS,compress=lzo" "$DEVICE_ROOT" /mnt/home
-        mount -o "subvol=var,$PARTITION_OPTIONS,compress=lzo" "$DEVICE_ROOT" /mnt/var
-        mount -o "subvol=snapshots,$PARTITION_OPTIONS,compress=lzo" "$DEVICE_ROOT" /mnt/snapshots
+        mount -o "subvol=home,$PARTITION_OPTIONS,compress=zstd" "$DEVICE_ROOT" /mnt/home
+        mount -o "subvol=var,$PARTITION_OPTIONS,compress=zstd" "$DEVICE_ROOT" /mnt/var
+        mount -o "subvol=snapshots,$PARTITION_OPTIONS,compress=zstd" "$DEVICE_ROOT" /mnt/snapshots
     else
         mount -o "$PARTITION_OPTIONS" $DEVICE_ROOT /mnt
         mount -o "$PARTITION_OPTIONS" $PARTITION_BOOT /mnt/boot

@@ -136,6 +136,13 @@ function check_variables() {
     check_variables_value "PACMAN_MIRROR" "$PACMAN_MIRROR"
     check_variables_list "KERNELS" "$KERNELS" "linux-lts linux-lts-headers linux-hardened linux-hardened-headers linux-zen linux-zen-headers" "false"
     check_variables_list "KERNELS_COMPRESSION" "$KERNELS_COMPRESSION" "gzip bzip2 lzma xz lzop lz4 zstd" "false"
+    check_variables_list "DISPLAY_DRIVER" "$DISPLAY_DRIVER" "intel amdgpu ati nvidia nvidia-lts nvidia-dkms nvidia-390xx nvidia-390xx-lts nvidia-390xx-dkms nouveau" "false"
+    check_variables_boolean "KMS" "$KMS"
+    check_variables_boolean "FASTBOOT" "$FASTBOOT"
+    check_variables_boolean "FRAMEBUFFER_COMPRESSION" "$FRAMEBUFFER_COMPRESSION"
+    check_variables_boolean "DISPLAY_DRIVER_DDX" "$DISPLAY_DRIVER_DDX"
+    check_variables_boolean "DISPLAY_DRIVER_HARDWARE_ACCELERATION" "$DISPLAY_DRIVER_HARDWARE_ACCELERATION"
+    check_variables_list "DISPLAY_DRIVER_HARDWARE_ACCELERATION_INTEL" "$DISPLAY_DRIVER_HARDWARE_ACCELERATION_INTEL" "intel-media-driver libva-intel-driver" "false"
     check_variables_value "TIMEZONE" "$TIMEZONE"
     check_variables_boolean "REFLECTOR" "$REFLECTOR"
     check_variables_value "PACMAN_MIRROR" "$PACMAN_MIRROR"
@@ -163,15 +170,9 @@ function check_variables() {
     check_variables_value "HOOKS" "$HOOKS"
     check_variables_list "BOOTLOADER" "$BOOTLOADER" "grub refind systemd"
     check_variables_list "CUSTOM_SHELL" "$CUSTOM_SHELL" "bash zsh dash fish"
-    check_variables_list "AUR" "$AUR" "aurman yay" "false"
+    check_variables_list "AUR" "$AUR" "yay aurman" "false"
     check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde i3-wm i3-gaps" "false"
-    check_variables_list "DISPLAY_DRIVER" "$DISPLAY_DRIVER" "intel amdgpu ati nvidia nvidia-lts nvidia-dkms nvidia-390xx nvidia-390xx-lts nvidia-390xx-dkms nouveau" "false"
-    check_variables_boolean "KMS" "$KMS"
-    check_variables_boolean "FASTBOOT" "$FASTBOOT"
-    check_variables_boolean "FRAMEBUFFER_COMPRESSION" "$FRAMEBUFFER_COMPRESSION"
-    check_variables_boolean "DISPLAY_DRIVER_DDX" "$DISPLAY_DRIVER_DDX"
-    check_variables_boolean "DISPLAY_DRIVER_HARDWARE_ACCELERATION" "$DISPLAY_DRIVER_HARDWARE_ACCELERATION"
-    check_variables_list "DISPLAY_DRIVER_HARDWARE_ACCELERATION_INTEL" "$DISPLAY_DRIVER_HARDWARE_ACCELERATION_INTEL" "intel-media-driver libva-intel-driver" "false"
+    check_variables_boolean "PACKAGES_MULTILIB" "$PACKAGES_MULTILIB"
     check_variables_boolean "REBOOT" "$REBOOT"
 }
 
@@ -637,6 +638,13 @@ function install() {
 
     pacstrap /mnt base base-devel linux linux-firmware
 
+    if [ "$PACKAGES_MULTILIB" == "true" ]; then
+        echo "" >> /mnt/etc/pacman.conf
+        echo "[multilib]" >> /mnt/etc/pacman.conf
+        echo "Include = /etc/pacman.d/mirrorlist" >> /mnt/etc/pacman.conf
+        echo "" >> /mnt/etc/pacman.conf
+    fi
+
     sed -i 's/#Color/Color/' /mnt/etc/pacman.conf
     sed -i 's/#TotalDownload/TotalDownload/' /mnt/etc/pacman.conf
 }
@@ -808,27 +816,48 @@ function display_driver() {
     print_step "display_driver()"
 
     PACKAGES_DRIVER=""
+    PACKAGES_DRIVER_MULTILIB=""
     PACKAGES_DDX=""
     PACKAGES_VULKAN=""
+    PACKAGES_VULKAN_MULTILIB=""
     PACKAGES_HARDWARE_ACCELERATION=""
+    PACKAGES_HARDWARE_ACCELERATION_MULTILIB=""
     case "$DISPLAY_DRIVER" in
+        "intel" )
+            PACKAGES_DRIVER_MULTILIB="lib32-mesa"
+            ;;
+        "amdgpu" )
+            PACKAGES_DRIVER_MULTILIB="lib32-mesa"
+            ;;
+        "ati" )
+            PACKAGES_DRIVER_MULTILIB="lib32-mesa"
+            ;;
         "nvidia" )
             PACKAGES_DRIVER="nvidia"
+            PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
             ;;
         "nvidia-lts" )
             PACKAGES_DRIVER="nvidia-lts"
+            PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
             ;;
         "nvidia-dkms" )
             PACKAGES_DRIVER="nvidia-dkms"
+            PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
             ;;
         "nvidia-390xx" )
             PACKAGES_DRIVER="nvidia-390xx"
+            PACKAGES_DRIVER_MULTILIB=""
             ;;
         "nvidia-390xx-lts" )
             PACKAGES_DRIVER="nvidia-390xx-lts"
+            PACKAGES_DRIVER_MULTILIB=""
             ;;
         "nvidia-390xx-dkms" )
             PACKAGES_DRIVER="nvidia-390xx-dkms"
+            PACKAGES_DRIVER_MULTILIB=""
+            ;;
+        "nouveau" )
+            PACKAGES_DRIVER_MULTILIB="lib32-mesa"
             ;;
     esac
     if [ "$DISPLAY_DRIVER_DDX" == "true" ]; then
@@ -851,15 +880,43 @@ function display_driver() {
         case "$DISPLAY_DRIVER" in
             "intel" )
                 PACKAGES_VULKAN="vulkan-icd-loader vulkan-intel"
+                PACKAGES_VULKAN_MULTILIB="lib32-vulkan-icd-loader lib32-vulkan-intel"
                 ;;
             "amdgpu" )
-                PACKAGES_VULKAN="vulkan-icd-loader vulkan-radeon"
+                PACKAGES_VULKAN="vulkan-radeon"
+                PACKAGES_VULKAN_MULTILIB="lib32-vulkan-radeon"
                 ;;
             "ati" )
-                PACKAGES_VULKAN=""
+                PACKAGES_VULKAN="vulkan-radeon"
+                PACKAGES_VULKAN_MULTILIB="lib32-vulkan-radeon"
+                ;;
+            "nvidia" )
+                PACKAGES_VULKAN="nvidia-utils"
+                PACKAGES_VULKAN_MULTILIB="lib32-nvidia-utils"
+                ;;
+            "nvidia-lts" )
+                PACKAGES_VULKAN="nvidia-utils"
+                PACKAGES_VULKAN_MULTILIB="lib32-nvidia-utils"
+                ;;
+            "nvidia-dkms" )
+                PACKAGES_VULKAN="nvidia-utils"
+                PACKAGES_VULKAN_MULTILIB="lib32-nvidia-utils"
+                ;;
+            "nvidia-390xx" )
+                PACKAGES_VULKAN="nvidia-utils"
+                PACKAGES_VULKAN_MULTILIB=""
+                ;;
+            "nvidia-390xx-lts" )
+                PACKAGES_VULKAN="nvidia-utils"
+                PACKAGES_VULKAN_MULTILIB=""
+                ;;
+            "nvidia-390xx-dkms" )
+                PACKAGES_VULKAN="nvidia-utils"
+                PACKAGES_VULKAN_MULTILIB=""
                 ;;
             "nouveau" )
                 PACKAGES_VULKAN=""
+                PACKAGES_VULKAN_MULTILIB=""
                 ;;
         esac
     fi
@@ -868,20 +925,53 @@ function display_driver() {
             "intel" )
                 if [ -n "$DISPLAY_DRIVER_HARDWARE_ACCELERATION_INTEL" ]; then
                     PACKAGES_HARDWARE_ACCELERATION=$DISPLAY_DRIVER_HARDWARE_ACCELERATION_INTEL
+                    PACKAGES_HARDWARE_ACCELERATION_MULTILIB=""
                 fi
                 ;;
             "amdgpu" )
                 PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
+                PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
                 ;;
             "ati" )
                 PACKAGES_HARDWARE_ACCELERATION="mesa-vdpau"
+                PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-mesa-vdpau"
+                ;;
+            "nvidia" )
+                PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
+                PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
+                ;;
+            "nvidia-lts" )
+                PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
+                PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
+                ;;
+            "nvidia-dkms" )
+                PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
+                PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
+                ;;
+            "nvidia-390xx" )
+                PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
+                PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
+                ;;
+            "nvidia-390xx-lts" )
+                PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
+                PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
+                ;;
+            "nvidia-390xx-dkms" )
+                PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
+                PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
                 ;;
             "nouveau" )
                 PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
+                PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
                 ;;
         esac
     fi
+
     pacman_install "mesa $PACKAGES_DRIVER $PACKAGES_DDX $PACKAGES_VULKAN $PACKAGES_HARDWARE_ACCELERATION"
+
+    if [ "$PACKAGES_MULTILIB" == "true" ]; then
+        pacman_install "$PACKAGES_DRIVER_MULTILIB $PACKAGES_VULKAN_MULTILIB $PACKAGES_HARDWARE_ACCELERATION_MULTILIB"
+    fi
 }
 
 function kernels() {
@@ -1471,6 +1561,11 @@ function desktop_environment_i3_gaps() {
 
 function packages() {
     print_step "packages()"
+
+    if [ "$PACKAGES_MULTILIB" == "true" ]; then
+        echo "[multilib]" >> /mnt/etc/pacman.conf
+        echo "Include = /etc/pacman.d/mirrorlist" >> /mnt/etc/pacman.conf
+    fi
 
     if [ -n "$PACKAGES_PACMAN" ]; then
         pacman_install "$PACKAGES_PACMAN"

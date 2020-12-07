@@ -69,6 +69,7 @@ If you find useful this script, you can support me with a [small donation](https
 * **Kernel compression** and **custom parameters**
 * **Users creation** and **add to sudoers**
 * **systemd units enable or disable**
+* **Multilib** support
 * **Arch Linux** common and custom **packages installation**
 * Flatpak utility installation and **Flatpak packages installation**
 * SDKMAN utility installation and **SDKMAN packages installation**

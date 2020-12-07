@@ -12,4 +12,4 @@ done
 
 
 packer validate "packer/$CONFIG_FILE"
-packer build -force "packer/$CONFIG_FILE"
+packer build -force -on-error=ask "packer/$CONFIG_FILE"

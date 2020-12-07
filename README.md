@@ -16,7 +16,7 @@ Please, don't ask for support for this script in Arch Linux forums, first read t
 
 For new features, improvements and bugs fill an issue in GitHub or make a pull request. You can test it in a [VirtualBox](https://www.virtualbox.org/) virtual machine (strongly recommended) before run it in real hardware. If you test it in real hardware please send me an email to pico.dev@gmail.com with the machine description and tell me if something goes wrong or all works fine. [Pull request](https://github.com/picodotdev/alis/pulls) and [new feature request](https://github.com/picodotdev/alis/issues) are welcome!
 
-**Arch Linux Install Script is based on Arch Linux but is NOT approved, sponsored, or affiliated with Arch Linux or its related projects.**
+**Arch Linux Install Script (alis) is based on Arch Linux but is NOT approved, sponsored, or affiliated with Arch Linux or its related projects.**
 
 [![Arch Linux](https://picodotdev.github.io/alis/images/logos/archlinux.svg "Arch Linux")](https://www.archlinux.org/)
 
@@ -43,40 +43,42 @@ If you find useful this script, you can support me with a [small donation](https
 ### Principles
 
 * Use the original Arch Linux installation media
-* Require as little interactivity as possible
+* As much unattended and automated as possible, require as little interactivity as possible
 * Allow to customize the installation to cover the most common cases
-* Provide support for recovery
-* Provide support for log
+* Provide support for system recovery
+* Provide support for installation log
 
 ### Features
 
-* System: UEFI, BIOS
-* Storage: SATA, NVMe and MMC
-* Encryption: root partition encrypted and no encrypted
-* Partition: no LVM, LVM, LVM on LUKS, GPT on UEFI, MBR on BIOS
-* File system: ext4, btrfs (with subvols), xfs, f2fs, reiserfs
-* Kernels: linux, linux-lts, linux-hardened, linux-zen
-* Desktop environment: GNOME, KDE, XFCE, Mate, Cinnamon, LXDE, i3-wm, i3-gaps
-* Display managers: GDM, SDDM, Lightdm, lxdm
-* Graphics controller: intel, nvidia and amd with optionally early KMS start. With intel optionally fastboot, hardware video acceleration and framebuffer compression.
-* Bootloader: GRUB, rEFInd, systemd-boot
-* Custom shell: bash, zsh, dash, fish
-* WPA WIFI network installation
-* Periodic TRIM for SSD storage
-* Intel and AMD processors microcode
-* Optional swap file
-* VirtualBox guest utils
-* Kernel compression and custom parameters
-* Users creation and add to sudoers
-* Common and custom packages installation
-* systemd units enable or disable
-* AUR utility installation (aurman, yay)
-* Script for download installation and recovery scripts and configuration files
-* Retry packages download on connection/mirror error
-* Packer support for testing in VirtualBox
-* Installation log with all commands executed and output in a file and/or asciinema video
-* Wait after installation for an abortable reboot
-* Fork the repository and use your own configuration
+* **System**: UEFI, BIOS
+* **Storage**: SATA, NVMe and MMC
+* **Encryption**: root partition encrypted and no encrypted
+* **Partition**: no LVM, LVM, LVM on LUKS, GPT on UEFI, MBR on BIOS
+* **File system**: ext4, btrfs (with subvols), xfs, f2fs, reiserfs
+* **Kernels**: linux, linux-lts, linux-hardened, linux-zen
+* **Desktop environment**: GNOME, KDE, XFCE, Mate, Cinnamon, LXDE, i3-wm, i3-gaps
+* **Display managers**: GDM, SDDM, Lightdm, lxdm
+* **Graphics controller**: intel, nvidia and amd with optionally early KMS start. With intel optionally fastboot, hardware video acceleration and framebuffer compression.
+* **Bootloader**: GRUB, rEFInd, systemd-boot
+* **Custom shell**: bash, zsh, dash, fish
+* **WPA WIFI network** installation
+* **Periodic TRIM** for SSD storage
+* Intel and AMD **processors microcode**
+* Optional **swap file**
+* **VirtualBox guest additions**
+* **Kernel compression** and **custom parameters**
+* **Users creation** and **add to sudoers**
+* **systemd units enable or disable**
+* **Arch Linux** common and custom **packages installation**
+* Flatpak utility installation and **Flatpak packages installation**
+* SDKMAN utility installation and **SDKMAN packages installation**
+* **AUR utility** installation (yay, aurman) and **AUR packages installation**
+* Script for download installation and **recovery scripts** and configuration files
+* **Retry packages download** on connection/mirror error
+* **Packer support** for testing in VirtualBox
+* **Installation log** with all commands executed and output in a file and/or **asciinema video**
+* Wait after installation for an **abortable reboot**
+* Fork the repository and **use your own configuration**
 
 ### Installation
 

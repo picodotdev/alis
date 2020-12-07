@@ -97,6 +97,8 @@ function sanitize_variables() {
     DISPLAY_DRIVER=$(sanitize_variable "$DISPLAY_DRIVER")
     DISPLAY_DRIVER_HARDWARE_ACCELERATION_INTEL=$(sanitize_variable "$DISPLAY_DRIVER_HARDWARE_ACCELERATION_INTEL")
     PACKAGES_PACMAN=$(sanitize_variable "$PACKAGES_PACMAN")
+    PACKAGES_FLATPAK=$(sanitize_variable "$PACKAGES_FLATPAK")
+    PACKAGES_SDKMAN=$(sanitize_variable "$PACKAGES_SDKMAN")
     AUR=$(sanitize_variable "$AUR")
     PACKAGES_AUR=$(sanitize_variable "$PACKAGES_AUR")
 }
@@ -1474,9 +1476,31 @@ function packages() {
         pacman_install "$PACKAGES_PACMAN"
     fi
 
+    if [ -n "$PACKAGES_FLATPAK" ]; then
+        packages_flatpak
+    fi
+
+    if [ -n "$PACKAGES_SDKMAN" ]; then
+        packages_sdkman
+    fi
+
     if [ -n "$AUR" -o -n "$PACKAGES_AUR" ]; then
         packages_aur
     fi
+}
+
+function packages_flatpak() {
+    pacman_install "flatpak"
+    arch-chroot /mnt flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+
+    flatpak_install "$PACKAGES_FLATPAK"
+}
+
+function packages_sdkman() {
+    pacman_install "zip unzip"
+    arch-chroot /mnt bash -c "su $USER_NAME -c \"curl -s https://get.sdkman.io | bash\""
+
+    sdkman_install "$PACKAGES_SDKMAN"
 }
 
 function packages_aur() {
@@ -1587,6 +1611,40 @@ function pacman_install() {
         else
             sleep 10
         fi
+    done
+    set -e
+}
+
+function flatpak_install() {
+    set +e
+    IFS=' ' PACKAGES=($1)
+    for VARIABLE in {1..5}
+    do
+        arch-chroot /mnt flatpak install --system -y flathub ${PACKAGES[@]}
+        if [ $? == 0 ]; then
+            break
+        else
+            sleep 10
+        fi
+    done
+    set -e
+}
+
+function sdkman_install() {
+    set +e
+    IFS=' ' PACKAGES=($1)
+    for PACKAGE in "${PACKAGES[@]}"
+    do
+        IFS=':' PACKAGE=($PACKAGE)
+        for VARIABLE in {1..5}
+        do
+            arch-chroot /mnt bash -c "su $USER_NAME -c \"source /home/$USER_NAME/.sdkman/bin/sdkman-init.sh && sdk install ${PACKAGE[@]}\""
+            if [ $? == 0 ]; then
+                break
+            elsearch
+                sleep 10
+            fi
+        done
     done
     set -e
 }

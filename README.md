@@ -157,8 +157,6 @@ VirtualBox and [Packer](https://packer.io/) are required.
 
 
 ```
-$ curl https://raw.githubusercontent.com/picodotdev/alis/master/download-packer.sh | bash
-
 $ ./alis-packer.sh -c alis-packer-efi-btrfs-luks-lvm-systemd.json
 $ ./alis-packer.sh -c alis-packer-efi-ext4-grub-gnome.json
 $ ./alis-packer.sh -c alis-packer-efi-ext4-grub-kde.json

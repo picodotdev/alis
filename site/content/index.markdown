@@ -62,6 +62,23 @@ url: "/"
   </div>
 </section>
 
+<section id="donations" class="section is-medium">
+  <div class="container">
+    <div class="title-wrapper has-text-centered">
+      <h2 class="title is-2">Donations</h2>
+      <div class="divider is-centered"></div>
+    </div>
+    <div class="content-wrapper">
+      <p>
+        If you find useful this script, you can support me with a <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=3PF47D5TSNL7C&currency_code=EUR">small donation</a> through PayPal to continue adding features, updating the script, accepting pull request and responding to any question. Also there are other ways you can contribute in the <a href="https://github.com/picodotdev/alis#how-you-can-help">How you can help</a> section.
+      </p>
+      <p>
+        <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=3PF47D5TSNL7C&currency_code=EUR"><img src="https://www.paypalobjects.com/en_US/ES/i/btn/btn_donateCC_LG.gif" alt="PayPal - The safer, easier way to pay online!" title="PayPal - The safer, easier way to pay online!"></a>
+      </p>
+    </div>
+  </div>
+</section>
+
 <section id="principles" class="section is-medium">
   <div class="container">
     <div class="title-wrapper has-text-centered">
@@ -71,10 +88,10 @@ url: "/"
     <div class="content-wrapper">
       <ul>
         <li>Use the original Arch Linux installation media</li>
-        <li>Require as little interactivity as possible</li>
+        <li>As much unattended and automated as possible, require as little interactivity as possible</li>
         <li>Allow to customize the installation to cover the most common cases</li>
-        <li>Provide support for recovery</li>
-        <li>Provide support for log</li>
+        <li>Provide support for system recovery</li>
+        <li>Provide support for installation log</li>
       </ul>
     </div>
   </div>
@@ -88,35 +105,36 @@ url: "/"
     </div>
     <div class="content-wrapper">
       <ul>
-        <li>System: UEFI, BIOS</li>
-        <li>Storage: SATA, NVMe and MMC</li>
-        <li>Encryption: root partition encrypted and no encrypted</li>
-        <li>Partition: no LVM, LVM, LVM on LUKS, GPT on UEFI, MBR on BIOS</li>
-        <li>File system: ext4, btrfs (with subvols), xfs</li>
-        <li>Optional file swap (not supported in btrfs)</li>
-        <li>Storage: SATA, NVMe and MMC</li>
-        <li>Kernels: linux-lts, linux-hardened, linux-zen</li>
-        <li>Desktop environment: GNOME, KDE, XFCE, Mate, Cinnamon, LXDE, i3-wm, i3-gaps</li>
-        <li>Display managers: GDM, SDDM, Lightdm, lxdm</li>
-        <li>Graphics controller: intel, nvidia, amd with optionally early KMS start</li>
-        <li>Bootloader: GRUB, rEFInd, systemd-boot</li>
-        <li>Periodic TRIM for SSD storage</li>
-        <li>Intel and AMD processors microcode</li>
-        <li>Optional file swap (not supported in btrfs)</li>
-        <li>VirtualBox guest utils</li>
-        <li>WPA WIFI network installation</li>
-        <li>Kernel compression and custom parameters</li>
-        <li>Users creation and add to sudoers</li>
-        <li>Common and custom packages installation</li>
-        <li>Systemd units enable or disable</li>
-        <li>AUR utility installation (aurman, yay)</li>
-        <li>Script for download installation and recovery scripts and configuration files</li>
-        <li>Retry packages download on connection/mirror error</li>
-        <li>Packer support for testing in VirtualBox</li>
-        <li>Installation log with all commands executed and output in a file and/or asciinema video</li>
-        <li>Wait after installation for an abortable reboot</li>
+        <li><b>System</b>: UEFI, BIOS</li>
+        <li><b>Storage</b>: SATA, NVMe and MMC</li>
+        <li><b>Encryption</b>: root partition encrypted and no encrypted</li>
+        <li><b>Partition</b>: no LVM, LVM, LVM on LUKS, GPT on UEFI, MBR on BIOS</li>
+        <li><b>File system</b>: ext4, btrfs (with subvols), xfs, f2fs, reiserfs</li>
+        <li><b>Kernels</b>: linux, linux-lts, linux-hardened, linux-zen</li>
+        <li><b>Desktop environment</b>: GNOME, KDE, XFCE, Mate, Cinnamon, LXDE, i3-wm, i3-gaps</li>
+        <li><b>Display managers</b>: GDM, SDDM, Lightdm, lxdm</li>
+        <li><b>Graphics controller</b>: intel, nvidia and amd with optionally early KMS start. With intel optionally fastboot, hardware video acceleration and framebuffer compression.</li>
+        <li><b>Bootloader</b>: GRUB, rEFInd, systemd-boot</li>
+        <li><b>Custom shell</b>: bash, zsh, dash, fish</li>
+        <li><b>WPA WIFI network</b> installation</li>
+        <li><b>Periodic TRIM</b> for SSD storage</li>
+        <li>Intel and AMD </b>processors microcode</b></li>
+        <li>Optional <b>swap file</b></li>
+        <li><b>VirtualBox guest additions</b></li>
+        <li><b>Kernel compression</b> and <b>custom parameters</b></li>
+        <li><b>Users creation</b> and <b>add to sudoers</b></li>
+        <li><b>systemd units enable or disable</b></li>
+        <li><b>Arch Linux</b> common and custom <b>packages installation</b></li>
+        <li>Flatpak utility installation and <b>Flatpak packages installation</b></li>
+        <li>SDKMAN utility installation and <b>SDKMAN packages installation</b></li>
+        <li><b>AUR utility</b> installation (yay, aurman) and <b>AUR packages installation</b></li>
+        <li>Script for download installation and <b>recovery scripts</b> and configuration files</li>
+        <li><b>Retry packages download</b> on connection/mirror error</li>
+        <li><b>Packer support</b> for testing in VirtualBox</li>
+        <li><b>Installation log</b> with all commands executed and output in a file and/or <b>asciinema video</b></li>
+        <li>Wait after installation for an <b>abortable reboot</b></li>
+        <li>Fork the repository and <b>use your own configuration</b></li>
       </ul>
-    </div>
   </div>
 </section>
 
@@ -227,6 +245,8 @@ vim alis-recovery.conf
         <li><a href="https://github.com/picodotdev/alis/issues">Create issues</a> with new features</li>
         <li>Send <a href="https://github.com/picodotdev/alis/pulls">pull requests</a></li>
         <li>Share it in social networks, forums, create a blog post or video about it</li>
+        <li>Send me an email, I like to read that the script is being used and is useful :). Which are your computer specs, which is your alis configuration, if is your personal or working computer, if all worked fine or some suggestion to improve the script</li>
+        <li>Consider to make a <a href="#donations">small donation</a></li>
       </ul>
     </div>
   </div>

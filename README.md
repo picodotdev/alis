@@ -54,8 +54,8 @@ If you find useful this script, you can support me with a [small donation](https
 * Storage: SATA, NVMe and MMC
 * Encryption: root partition encrypted and no encrypted
 * Partition: no LVM, LVM, LVM on LUKS, GPT on UEFI, MBR on BIOS
-* File system: ext4, btrfs (with subvols), xfs
-* Kernels: linux-lts, linux-hardened, linux-zen
+* File system: ext4, btrfs (with subvols), xfs, f2fs, reiserfs
+* Kernels: linux, linux-lts, linux-hardened, linux-zen
 * Desktop environment: GNOME, KDE, XFCE, Mate, Cinnamon, LXDE, i3-wm, i3-gaps
 * Display managers: GDM, SDDM, Lightdm, lxdm
 * Graphics controller: intel, nvidia and amd with optionally early KMS start. With intel optionally fastboot, hardware video acceleration and framebuffer compression.
@@ -195,6 +195,9 @@ https://www.archlinux.org/download/
 * https://wiki.archlinux.org/index.php/EFI_System_Partition
 * https://wiki.archlinux.org/index.php/File_systems
 * https://wiki.archlinux.org/index.php/Ext4
+* https://wiki.archlinux.org/index.php/Btrfs
+* https://wiki.archlinux.org/index.php/XFS
+* https://wiki.archlinux.org/index.php/F2FS
 * https://wiki.archlinux.org/index.php/Persistent_block_device_naming
 * https://wiki.archlinux.org/index.php/LVM
 * https://wiki.archlinux.org/index.php/Dm-crypt

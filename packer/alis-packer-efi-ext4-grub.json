@@ -15,7 +15,7 @@
           ["modifyvm", "{{.Name}}", "--memory", "2048"],
           ["modifyvm", "{{.Name}}", "--vram", "128"],
           ["modifyvm", "{{.Name}}", "--cpus", "2"],
-          ["modifyvm", "{{.Name}}", "--firmware", "bios"]
+          ["modifyvm", "{{.Name}}", "--firmware", "efi"]
         ],
         "disk_size": "{{user `disk_size`}}",
         "hard_drive_interface": "sata",
@@ -29,7 +29,7 @@
           "<wait3s><up><up><up><up><up><enter><wait60s>",
           "curl -O http://{{.HTTPIP}}:{{.HTTPPort}}/alis.conf<enter><wait1s>",
           "curl -O http://{{.HTTPIP}}:{{.HTTPPort}}/alis.sh<enter><wait1s>",
-          "curl -o ./alis-packer-conf.sh -O http://{{.HTTPIP}}:{{.HTTPPort}}/packer/alis-packer-bios-ext4-grub-luks-lvm.sh<enter><wait1s>",
+          "curl -o ./alis-packer-conf.sh -O http://{{.HTTPIP}}:{{.HTTPPort}}/packer/alis-packer-efi-ext4-grub.sh<enter><wait1s>",
           "chmod +x ./alis-packer-conf.sh<enter><wait1s>",
           "./alis-packer-conf.sh<enter><wait1s>",
           "chmod +x ./alis.sh<enter><wait1s>",

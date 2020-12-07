@@ -1,6 +1,6 @@
 {
     "variables": {
-      "iso": "https://archive.archlinux.org/iso/2020.11.01/archlinux-2020.11.01-x86_64.iso",
+      "iso": "https://archive.archlinux.org/iso/2020.12.01/archlinux-2020.12.01-x86_64.iso",
       "disk_size": "16384"
     },
     "builders": [
@@ -20,26 +20,18 @@
         "disk_size": "{{user `disk_size`}}",
         "hard_drive_interface": "sata",
         "iso_url": "{{user `iso`}}",
-        "iso_checksum": "sha1:739fab8d23430a01629a131ae02713a09af86968",
+        "iso_checksum": "sha1:aea95a15c9f034d10e665247cfe782bccb5b306e",
         "ssh_username": "vagrant",
         "ssh_password": "vagrant",
         "ssh_wait_timeout": "60m",
         "boot_wait": "5s",
         "boot_command": [
-          "<wait60s>",
+          "<wait3s><up><up><up><up><up><enter><wait60s>",
           "curl -O http://{{.HTTPIP}}:{{.HTTPPort}}/alis.conf<enter><wait1s>",
           "curl -O http://{{.HTTPIP}}:{{.HTTPPort}}/alis.sh<enter><wait1s>",
-          "sed -i \"s/FILE_SYSTEM_TYPE=.*/FILE_SYSTEM_TYPE=\\\"ext4\\\"/\" ./alis.conf<enter><wait1s>",
-          "sed -i \"s/LVM=.*/LVM=\\\"true\\\"/\" ./alis.conf<enter><wait1s>",
-          "sed -i \"s/LUKS_PASSWORD=.*/LUKS_PASSWORD=\\\"archlinux\\\"/\" ./alis.conf<enter><wait1s>",
-          "sed -i \"s/LUKS_PASSWORD_RETYPE=.*/LUKS_PASSWORD_RETYPE=\\\"archlinux\\\"/\" ./alis.conf<enter><wait1s>",
-          "sed -i \"s/ROOT_PASSWORD=.*/ROOT_PASSWORD=\\\"archlinux\\\"/\" ./alis.conf<enter><wait1s>",
-          "sed -i \"s/ROOT_PASSWORD_RETYPE=.*/ROOT_PASSWORD_RETYPE=\\\"archlinux\\\"/\" ./alis.conf<enter><wait1s>",
-          "sed -i \"s/USER_PASSWORD=.*/USER_PASSWORD=\\\"archlinux\\\"/\" ./alis.conf<enter><wait1s>",
-          "sed -i \"s/USER_PASSWORD_RETYPE=.*/USER_PASSWORD_RETYPE=\\\"archlinux\\\"/\" ./alis.conf<enter><wait1s>",
-          "sed -i \"s/BOOTLOADER=.*/BOOTLOADER=\\\"systemd\\\"/\" ./alis.conf<enter><wait1s>",
-          "sed -i \"s/CUSTOM_SHELL=.*/CUSTOM_SHELL=\\\"zsh\\\"/\" ./alis.conf<enter><wait1s>",
-          "sed -i \"s/DESKTOP_ENVIRONMENT=.*/DESKTOP_ENVIRONMENT=\\\"\\\"/\" ./alis.conf<enter><wait1s>",
+          "curl -o ./alis-packer-conf.sh -O http://{{.HTTPIP}}:{{.HTTPPort}}/packer/alis-packer-efi-ext4-luks-lvm-systemd-zsh.sh<enter><wait1s>",
+          "chmod +x ./alis-packer-conf.sh<enter><wait1s>",
+          "./alis-packer-conf.sh<enter><wait1s>",
           "chmod +x ./alis.sh<enter><wait1s>",
           "./alis.sh<enter><wait3>y<wait1s><enter>",
           "<wait10s><wait10s><wait10s><wait10s><wait10s><wait10s><wait10s><wait60m>"

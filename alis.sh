@@ -116,7 +116,7 @@ function check_variables() {
     check_variables_value "DEVICE" "$DEVICE"
     check_variables_boolean "DEVICE_TRIM" "$DEVICE_TRIM"
     check_variables_boolean "LVM" "$LVM"
-    check_variables_list "FILE_SYSTEM_TYPE" "$FILE_SYSTEM_TYPE" "ext4 btrfs xfs"
+    check_variables_list "FILE_SYSTEM_TYPE" "$FILE_SYSTEM_TYPE" "ext4 btrfs xfs f2fs reiserfs"
     check_variables_equals "LUKS_PASSWORD" "LUKS_PASSWORD_RETYPE" "$LUKS_PASSWORD" "$LUKS_PASSWORD_RETYPE"
     check_variables_list "PARTITION_MODE" "$PARTITION_MODE" "auto custom manual" "true"
     if [ "$PARTITION_MODE" == "custom" ]; then
@@ -430,8 +430,12 @@ function partition() {
 
     # setup
     if [ "$PARTITION_MODE" == "auto" ]; then
-        PARTITION_PARTED_UEFI="mklabel gpt mkpart ESP fat32 1MiB 512MiB mkpart root $FILE_SYSTEM_TYPE 512MiB 100% set 1 esp on"
-        PARTITION_PARTED_BIOS="mklabel msdos mkpart primary ext4 4MiB 512MiB mkpart primary $FILE_SYSTEM_TYPE 512MiB 100% set 1 boot on"
+        PARTITION_PARTED_FILE_SYSTEM_TYPE="$FILE_SYSTEM_TYPE"
+        if [ "$PARTITION_PARTED_FILE_SYSTEM_TYPE" == "f2fs" ]; then
+            PARTITION_PARTED_FILE_SYSTEM_TYPE=""
+        fi
+        PARTITION_PARTED_UEFI="mklabel gpt mkpart ESP fat32 1MiB 512MiB mkpart root $PARTITION_PARTED_FILE_SYSTEM_TYPE 512MiB 100% set 1 esp on"
+        PARTITION_PARTED_BIOS="mklabel msdos mkpart primary ext4 4MiB 512MiB mkpart primary $PARTITION_PARTED_FILE_SYSTEM_TYPE 512MiB 100% set 1 boot on"
 
         if [ "$BIOS_TYPE" == "uefi" ]; then
             if [ "$DEVICE_SATA" == "true" ]; then
@@ -493,10 +497,6 @@ function partition() {
     PARTITION_ROOT_NUMBER="${PARTITION_ROOT_NUMBER//\/dev\/mmcblk0p/}"
 
     # partition
-    if [ "$FILE_SYSTEM_TYPE" == "f2fs" ]; then
-        pacman -Sy --noconfirm f2fs-tools
-    fi
-
     if [ "$PARTITION_MODE" == "auto" ]; then
         sgdisk --zap-all $DEVICE
         wipefs -a $DEVICE
@@ -544,27 +544,29 @@ function partition() {
     fi
 
     # format
+    wipefs -a $PARTITION_BOOT
+    wipefs -a $DEVICE_ROOT
     if [ "$BIOS_TYPE" == "uefi" ]; then
-        wipefs -a $PARTITION_BOOT
-        wipefs -a $DEVICE_ROOT
         mkfs.fat -n ESP -F32 $PARTITION_BOOT
-        mkfs."$FILE_SYSTEM_TYPE" -L root $DEVICE_ROOT
     fi
-
     if [ "$BIOS_TYPE" == "bios" ]; then
-        wipefs -a $PARTITION_BOOT
-        wipefs -a $DEVICE_ROOT
-        mkfs."$FILE_SYSTEM_TYPE" -L boot $PARTITION_BOOT
+        mkfs.ext4 -L boot $PARTITION_BOOT
+    fi
+    if [ "$FILE_SYSTEM_TYPE" == "f2fs" -o "$FILE_SYSTEM_TYPE" == "reiserfs" ]; then
+        mkfs."$FILE_SYSTEM_TYPE" -l root $DEVICE_ROOT
+    else
         mkfs."$FILE_SYSTEM_TYPE" -L root $DEVICE_ROOT
     fi
 
-    PARTITION_OPTIONS="defaults"
+    # options
+    PARTITION_OPTIONS_BOOT="defaults"
+    PARTITION_OPTIONS_ROOT="defaults"
 
     if [ "$DEVICE_TRIM" == "true" ]; then
+        PARTITION_OPTIONS_BOOT="$PARTITION_OPTIONS_BOOT,noatime"
+        PARTITION_OPTIONS_ROOT="$PARTITION_OPTIONS_ROOT,noatime"
         if [ "$FILE_SYSTEM_TYPE" == "f2fs" ]; then
-            PARTITION_OPTIONS="$PARTITION_OPTIONS,noatime,nodiscard"
-        else
-            PARTITION_OPTIONS="$PARTITION_OPTIONS,noatime"
+            PARTITION_OPTIONS_ROOT="$PARTITION_OPTIONS_ROOT,nodiscard"
         fi
     fi
 
@@ -580,15 +582,15 @@ function partition() {
         mount -o "subvol=root,$PARTITION_OPTIONS,compress=zstd" "$DEVICE_ROOT" /mnt
 
         mkdir /mnt/{boot,home,var,snapshots}
-        mount -o "$PARTITION_OPTIONS" "$PARTITION_BOOT" /mnt/boot
-        mount -o "subvol=home,$PARTITION_OPTIONS,compress=zstd" "$DEVICE_ROOT" /mnt/home
-        mount -o "subvol=var,$PARTITION_OPTIONS,compress=zstd" "$DEVICE_ROOT" /mnt/var
-        mount -o "subvol=snapshots,$PARTITION_OPTIONS,compress=zstd" "$DEVICE_ROOT" /mnt/snapshots
+        mount -o "$PARTITION_OPTIONS_BOOT" "$PARTITION_BOOT" /mnt/boot
+        mount -o "subvol=home,$PARTITION_OPTIONS_ROOT,compress=zstd" "$DEVICE_ROOT" /mnt/home
+        mount -o "subvol=var,$PARTITION_OPTIONS_ROOT,compress=zstd" "$DEVICE_ROOT" /mnt/var
+        mount -o "subvol=snapshots,$PARTITION_OPTIONS_ROOT,compress=zstd" "$DEVICE_ROOT" /mnt/snapshots
     else
-        mount -o "$PARTITION_OPTIONS" "$DEVICE_ROOT" /mnt
+        mount -o "$PARTITION_OPTIONS_ROOT" "$DEVICE_ROOT" /mnt
 
         mkdir /mnt/boot
-        mount -o "$PARTITION_OPTIONS" "$PARTITION_BOOT" /mnt/boot
+        mount -o "$PARTITION_OPTIONS_BOOT" "$PARTITION_BOOT" /mnt/boot
     fi
 
     # swap
@@ -750,6 +752,9 @@ function mkinitcpio_configuration() {
     fi
     if [ "$FILE_SYSTEM_TYPE" == "f2fs" ]; then
         pacman_install "f2fs-tools"
+    fi
+    if [ "$FILE_SYSTEM_TYPE" == "reiserfs" ]; then
+        pacman_install "reiserfsprogs"
     fi
 
     if [ "$BOOTLOADER" == "systemd" ]; then

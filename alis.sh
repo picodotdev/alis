@@ -101,6 +101,7 @@ function sanitize_variables() {
     PACKAGES_SDKMAN=$(sanitize_variable "$PACKAGES_SDKMAN")
     AUR=$(sanitize_variable "$AUR")
     PACKAGES_AUR=$(sanitize_variable "$PACKAGES_AUR")
+    SYSTEMD_UNITS=$(sanitize_variable "$SYSTEMD_UNITS")
 }
 
 function sanitize_variable() {
@@ -1624,14 +1625,19 @@ function packages_aur() {
 function systemd_units() {
     IFS=' ' UNITS=($SYSTEMD_UNITS)
     for U in ${UNITS[@]}; do
+        ACTION=""
         UNIT=${U}
-        if [[ $UNIT == !* ]]; then
+        if [[ $UNIT == -* ]]; then
             ACTION="disable"
-        else
-            ACTION="enable"
+            UNIT=$(echo $UNIT | sed "s/^-//g")
         fi
-        UNIT=$(echo $UNIT | sed "s/!//g")
-        arch-chroot /mnt systemctl $ACTION $UNIT
+        if [[ $UNIT == +* ]]; then
+            ACTION="enable"
+            UNIT=$(echo $UNIT | sed "s/^+//g")
+        fi
+        if [ -n "$ACTION" ]; then
+            arch-chroot /mnt systemctl $ACTION $UNIT
+        fi
     done
 }
 

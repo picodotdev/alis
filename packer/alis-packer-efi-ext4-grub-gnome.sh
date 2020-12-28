@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
+sed -i "s/LOG=.*/LOG=\"true\"/" ./alis.conf
 sed -i "s/FILE_SYSTEM_TYPE=.*/FILE_SYSTEM_TYPE=\"ext4\"/" ./alis.conf
 sed -i "s/LVM=.*/LVM=\"false\"/" ./alis.conf
 sed -i "s/LUKS_PASSWORD=.*/LUKS_PASSWORD=\"\"/" ./alis.conf

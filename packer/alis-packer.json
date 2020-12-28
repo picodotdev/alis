@@ -1,7 +1,8 @@
 {
     "variables": {
       "iso": "https://archive.archlinux.org/iso/2020.12.01/archlinux-2020.12.01-x86_64.iso",
-      "disk_size": "16384"
+      "disk_size": "16384",
+      "config_file_sh": ""
     },
     "builders": [
       {
@@ -15,7 +16,7 @@
           ["modifyvm", "{{.Name}}", "--memory", "2048"],
           ["modifyvm", "{{.Name}}", "--vram", "128"],
           ["modifyvm", "{{.Name}}", "--cpus", "2"],
-          ["modifyvm", "{{.Name}}", "--firmware", "bios"]
+          ["modifyvm", "{{.Name}}", "--firmware", "efi"]
         ],
         "disk_size": "{{user `disk_size`}}",
         "hard_drive_interface": "sata",
@@ -23,26 +24,24 @@
         "iso_checksum": "sha1:aea95a15c9f034d10e665247cfe782bccb5b306e",
         "ssh_username": "vagrant",
         "ssh_password": "vagrant",
-        "ssh_wait_timeout": "60m",
+        "ssh_wait_timeout": "120m",
         "boot_wait": "5s",
         "boot_command": [
-          "<wait3s><up><up><up><up><up><enter><wait60s>",
+          "<wait3s><up><up><up><up><up><enter><wait45s>",
           "curl -O http://{{.HTTPIP}}:{{.HTTPPort}}/alis.conf<enter><wait1s>",
           "curl -O http://{{.HTTPIP}}:{{.HTTPPort}}/alis.sh<enter><wait1s>",
-          "curl -o ./alis-packer-conf.sh -O http://{{.HTTPIP}}:{{.HTTPPort}}/packer/alis-packer-bios-ext4-grub-luks-lvm.sh<enter><wait1s>",
-          "chmod +x ./alis-packer-conf.sh<enter><wait1s>",
+          "curl -O http://{{.HTTPIP}}:{{.HTTPPort}}/alis-reboot.sh<enter><wait1s>",
+          "curl -O http://{{.HTTPIP}}:{{.HTTPPort}}/alis-asciinema.sh<enter><wait1s>",
+          "curl -o ./alis-packer-conf.sh -O http://{{.HTTPIP}}:{{.HTTPPort}}/packer/{{user `config_file_sh`}}<enter><wait1s>",
+          "chmod +x ./*.sh<enter><wait1s>",
           "./alis-packer-conf.sh<enter><wait1s>",
-          "chmod +x ./alis.sh<enter><wait1s>",
-          "./alis.sh<enter><wait3>y<wait1s><enter>",
-          "<wait10s><wait10s><wait10s><wait10s><wait10s><wait10s><wait10s><wait60m>"
+          "./alis-asciinema.sh<enter><wait20>",
+          "# loadkeys es<enter><wait1>",
+          "less alis.conf<enter><wait3s><pageDown><wait3s><pageDown><wait3s><pageDown><wait3s><pageDown><wait3s><pageDown><wait3s><pageDown><wait3s>q<wait1s>",
+          "./alis.sh<enter><wait1s>y<wait1s><enter>"
         ],
-        "shutdown_command": "systemctl poweroff"
-      }
-    ],
-    "post-processors": [
-      {
-        "type": "vagrant",
-        "output": "archlinux-alis-{{.BuildName}}.box"
+        "shutdown_command": "echo 'vagrant' | sudo -S systemctl poweroff",
+        "format": "ova"
       }
     ]
   }

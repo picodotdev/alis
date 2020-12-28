@@ -12,7 +12,7 @@ Currently these scripts are for me but maybe they are useful for you too.
 
 Follow the [Arch Way](https://wiki.archlinux.org/index.php/Arch_Linux) of doing things and learn what this script does. This will allow you to know what is happening. 
 
-Please, don't ask for support for this script in Arch Linux forums, first read the [Arch Linux wiki](https://wiki.archlinux.org), the [Installation Guide](https://wiki.archlinux.org/index.php/Installation_guide) and the [General Recomendations](https://wiki.archlinux.org/index.php/General_recommendations), later compare those commands with the commands of this script.
+Please, don't ask for support for this script in Arch Linux forums, first read the [Arch Linux wiki](https://wiki.archlinux.org), the [Installation Guide](https://wiki.archlinux.org/index.php/Installation_guide) and the [General Recommendations](https://wiki.archlinux.org/index.php/General_recommendations), later compare those commands with the commands of this script.
 
 For new features, improvements and bugs fill an issue in GitHub or make a pull request. You can test it in a [VirtualBox](https://www.virtualbox.org/) virtual machine (strongly recommended) before run it in real hardware. If you test it in real hardware please send me an email to pico.dev@gmail.com with the machine description and tell me if something goes wrong or all works fine. [Pull request](https://github.com/picodotdev/alis/pulls) and [new feature request](https://github.com/picodotdev/alis/issues) are welcome!
 
@@ -29,7 +29,7 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 * [Installation with asciinema video](https://github.com/picodotdev/alis#installation)
 * [Recovery](https://github.com/picodotdev/alis#recovery)
 * [How you can help](https://github.com/picodotdev/alis#how-you-can-help)
-* [Test in VirtuaBox with Packer](https://github.com/picodotdev/alis#test-in-virtuabox-with-packer)
+* [Test in VirtualBox with Packer](https://github.com/picodotdev/alis#test-in-virtuabox-with-packer)
 * [Video](https://github.com/picodotdev/alis#video)
 * [Arch Linux Installation Media](https://github.com/picodotdev/alis#arch-linux-installation-media)
 * [Reference](https://github.com/picodotdev/alis#reference)
@@ -83,20 +83,20 @@ If you find useful this script, you can support me with a [small donation](https
 
 ### Installation
 
-Download and boot from the latest <a href="https://www.archlinux.org/download/">original Arch Linux installation media</a>. After boot use the following comands to start the installation.
+Download and boot from the latest <a href="https://www.archlinux.org/download/">original Arch Linux installation media</a>. After boot use the following commands to start the installation.
 
 Follow the <a href="https://wiki.archlinux.org/index.php/Arch_Linux">Arch Way</a> of doing things and learn what this script does. This will allow you to know what is happening. 
 
 Internet connection is required, with wireless WIFI connection see <a href="https://wiki.archlinux.org/index.php/Wireless_network_configuration#Wi-Fi_Protected_Access">Wireless_network_configuration</a> to bring up WIFI connection before start the installation.
 
 ```
-# # Start the system with lastest Arch Linux installation media
-# loadkeys [keymap]
-# curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash, or with URL shortener curl -sL https://bit.ly/2F3CATp | bash
-# # Edit alis.conf and change variables values with your preferences
-# vim alis.conf
-# # Start
-# ./alis.sh
+#                       # Start the system with latest Arch Linux installation media
+# loadkeys [keymap]     # Load keyboard keymap, eg. loadkeys es, loadkeys us, loadkeys de
+# curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash     # Download alis scripts
+# # curl -sL https://bit.ly/2F3CATp | bash                                             # Alternative download URL with URL shortener
+# vim alis.conf         # Edit alis.conf and change variables values with your preferences 
+# ./alis.sh             # Start installation
+# ./alis-reboot.sh      # Only necessary when REBOOT="false"
 ```
 
 If you fork _alis_ repository you can host your own configuration and changes in your repository.
@@ -110,33 +110,28 @@ If you fork _alis_ repository you can host your own configuration and changes in
 As another form of log.
 
 ```
-# # Start the system with lastest Arch Linux installation media
-# loadkeys [keymap]
-# curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash, or with URL shortener curl -sL https://bit.ly/2F3CATp | bash
-# ./alis-asciinema.sh
-# # Edit alis.conf and change variables values with your preferences
-# vim alis.conf
-# Start
-# ./alis.sh
-# # Exit
-# exit
-# ./alis-reboot.sh
+#                         # Start the system with latest Arch Linux installation media
+# loadkeys [keymap]       # Load keyboard keymap, eg. loadkeys es, loadkeys us, loadkeys de
+# curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash     # Download alis scripts
+# # curl -sL https://bit.ly/2F3CATp | bash                                             # Alternative download URL with URL shortener
+# ./alis-asciinema.sh     # Start asciinema video recording
+# vim alis.conf           # Edit alis.conf and change variables values with your preferences
+# ./alis.sh               # Start installation
+# exit                    # Terminate asciinema recording
+# ./alis-reboot.sh        # Only necessary when REBOOT="false"
 ```
 
 ### Recovery
 
-Boot from the latest <a href="https://www.archlinux.org/download/">original Arch Linux installation media</a>. After boot use the following comands to start the recovery, this will allow you to enter in the arch-chroot environment.
+Boot from the latest <a href="https://www.archlinux.org/download/">original Arch Linux installation media</a>. After boot use the following commands to start the recovery, this will allow you to enter in the arch-chroot environment.
 
 ```
-# # Start the system with lastest Arch Linux installation media
-# loadkeys [keymap]
-# curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash, or with URL shortener curl -sL https://bit.ly/2F3CATp | bash
-# # Edit alis-recovery.conf and change variables values with your last installation with alis
-# vim alis-recovery.conf
-# # Optional asciinema video
-# ./alis-asciinema-recovery.sh
-# # Start
-# ./alis-recovery.sh
+#                                  # Start the system with latest Arch Linux installation media
+# loadkeys [keymap]                # Load keyboard keymap, eg. loadkeys es, loadkeys us, loadkeys de
+# curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash     # Download alis scripts
+# # curl -sL https://bit.ly/2F3CATp | bash                                             # Alternative download URL with URL shortener
+# vim alis-recovery.conf           # Edit alis-recovery.conf and change variables values with your last installation with alis
+# ./alis-recovery.sh               # Start recovery
 ```
 
 ### How you can help
@@ -148,7 +143,7 @@ Boot from the latest <a href="https://www.archlinux.org/download/">original Arch
 * Send me an email, I like to read that the script is being used and is useful :). Which are your computer specs, which is your alis configuration, if is your personal or working computer, if all worked fine or some suggestion to improve the script
 * Consider to make a [small donation](https://github.com/picodotdev/alis#donations)
 
-### Test in VirtuaBox with Packer
+### Test in VirtualBox with Packer
 
 VirtualBox and [Packer](https://packer.io/) are required.
 
@@ -158,14 +153,15 @@ VirtualBox and [Packer](https://packer.io/) are required.
 * Bootloader: grub, refind, systemd
 * Desktop environment: gnome, kde, xfce, ...
 
-
 ```
-$ ./alis-packer.sh -c alis-packer-efi-btrfs-luks-lvm-systemd.json
-$ ./alis-packer.sh -c alis-packer-efi-ext4-grub-gnome.json
-$ ./alis-packer.sh -c alis-packer-efi-ext4-grub-kde.json
-$ ./alis-packer.sh -c alis-packer-efi-ext4-grub-xfce.json
-$ ./alis-packer.sh -c alis-packer-efi-ext4-luks-lvm-grub.json
-$ ./alis-packer.sh -c alis-packer-efi-f2fs-luks-lvm-systemd.json
+$ ./alis-packer.sh -c alis-packer-efi-ext4-systemd.sh
+$ ./alis-packer.sh -c alis-packer-efi-ext4-systemd-gnome.sh
+$ ./alis-packer.sh -c alis-packer-efi-ext4-luks-lvm-grub.sh
+$ ./alis-packer.sh -c alis-packer-efi-btrfs-luks-lvm-systemd.sh
+$ ./alis-packer.sh -c alis-packer-efi-f2fs-luks-lvm-systemd.sh
+$ ./alis-packer.sh -c alis-packer-efi-ext4-grub-gnome.sh
+$ ./alis-packer.sh -c alis-packer-efi-ext4-grub-kde.sh
+$ ./alis-packer.sh -c alis-packer-efi-ext4-grub-xfce.sh
 ```
 
 ### Video

@@ -5,13 +5,24 @@ set -e
 # and customized Arch Linux system.
 # Copyright (C) 2020 picodotdev
 
-source alis.conf
+function terminate() {
+    cp "$CONF_FILE" "/mnt/etc/$CONF_FILE"
 
-if [ -f alis.asciinema ]; then
-    mkdir -p /mnt/var/log
-    cp alis.asciinema /mnt/var/log/alis.asciinema
-fi
+    if [ "$LOG" == "true" ]; then
+        mkdir -p /mnt/var/log/alis
+        cp "$LOG_FILE" "/mnt/var/log/alis/$LOG_FILE"
+    fi
+    if [ "$ASCIINEMA" == "true" ]; then
+        mkdir -p /mnt/var/log/alis
+        cp "$ASCIINEMA_FILE" "/mnt/var/log/alis/$ASCIINEMA_FILE"
+    fi
+}
 
-umount -R /mnt/boot
-umount -R /mnt
-reboot
+function end() {
+    umount -R /mnt/boot
+    umount -R /mnt
+    reboot
+}
+
+terminate
+end

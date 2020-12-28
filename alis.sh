@@ -174,8 +174,9 @@ function check_variables() {
     check_variables_list "AUR" "$AUR" "yay aurman" "false"
     check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde i3-wm i3-gaps" "false"
     check_variables_boolean "PACKAGES_MULTILIB" "$PACKAGES_MULTILIB"
+    check_variables_boolean "VAGRANT" "$VAGRANT"
     check_variables_boolean "REBOOT" "$REBOOT"
-}
+    }
 
 function check_variables_value() {
     NAME=$1
@@ -350,7 +351,7 @@ function configure_network() {
         sleep 10
     fi
 
-    # only on ping -c 1, packer gets stuck if -c 5
+    # only one ping -c 1, ping gets stuck if -c 5
     ping -c 1 -i 2 -W 5 -w 30 $PING_HOSTNAME
     if [ $? -ne 0 ]; then
         echo "Network ping check failed. Cannot continue."
@@ -1622,6 +1623,14 @@ function packages_aur() {
     arch-chroot /mnt sed -i 's/%wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
 }
 
+function vagrant() {
+    pacman_install "openssh"
+    create_user "vagrant" "vagrant"
+    arch-chroot /mnt systemctl enable sshd.service
+    arch-chroot /mnt ssh-keygen -A
+    arch-chroot /mnt sshd -t
+}
+
 function systemd_units() {
     IFS=' ' UNITS=($SYSTEMD_UNITS)
     for U in ${UNITS[@]}; do
@@ -1641,61 +1650,50 @@ function systemd_units() {
     done
 }
 
-function terminate() {
-    cp "$CONF_FILE" "/mnt/etc/$CONF_FILE"
-
-    if [ "$LOG" == "true" ]; then
-        mkdir -p /mnt/var/log
-        cp "$LOG_FILE" "/mnt/var/log/$LOG_FILE"
-    fi
-    if [ "$ASCIINEMA" == "true" ]; then
-        mkdir -p /mnt/var/log
-        cp "$ASCIINEMA_FILE" "/mnt/var/log/$ASCIINEMA_FILE"
-    fi
-}
-
 function end() {
-    if [ "$REBOOT" == "true" ]; then
-        echo ""
-        echo -e "${GREEN}Arch Linux installed successfully"'!'"${NC}"
-        echo ""
+    echo ""
+    echo -e "${GREEN}Arch Linux installed successfully"'!'"${NC}"
+    echo ""
 
+    if [ "$REBOOT" == "true" ]; then
         REBOOT="true"
-        if [ "$ASCIINEMA" == "false" ]; then
-            set +e
-            for (( i = 15; i >= 1; i-- )); do
-                read -r -s -n 1 -t 1 -p "Rebooting in $i seconds... Press any key to abort."$'\n' KEY
-                if [ $? -eq 0 ]; then
-                    echo ""
-                    echo "Restart aborted. You will must do a explicit reboot (./alis-reboot.sh)."
-                    echo ""
-                    REBOOT="false"
-                    break
-                fi
-            done
-            set -e
-        else
-            echo ""
-            echo "Restart aborted. You will must terminate asciinema recording and do a explicit reboot (exit, ./alis-reboot.sh)."
-            echo ""
-            REBOOT="false"
-        fi
+
+        set +e
+        for (( i = 15; i >= 1; i-- )); do
+            read -r -s -n 1 -t 1 -p "Rebooting in $i seconds... Press any key to abort."$'\n' KEY
+            if [ $? -eq 0 ]; then
+                REBOOT="false"
+                break
+            fi
+        done
+        set -e
 
         if [ "$REBOOT" == 'true' ]; then
-            umount -R /mnt/boot
-            umount -R /mnt
-            reboot
+            echo "Rebooting..."
+            echo ""
+
+            export CONF_FILE
+            export LOG
+            export LOG_FILE
+            export ASCIINEMA
+            export ASCIINEMA_FILE
+
+            ./alis-reboot.sh
+        else
+            if [ "$ASCIINEMA" == "true" ]; then
+                echo "Reboot aborted. You will must terminate asciinema recording and do a explicit reboot (exit, ./alis-reboot.sh)."
+                echo ""
+            else
+                echo "Reboot aborted. You will must do a explicit reboot (./alis-reboot.sh)."
+                echo ""
+            fi
         fi
     else
-        echo ""
-        echo -e "${GREEN}Arch Linux installed successfully"'!'"${NC}"
-        if [ "$ASCIINEMA" == "false" ]; then
-            echo ""
-            echo "You will must do a explicit reboot (./alis-reboot.sh)."
+        if [ "$ASCIINEMA" == "true" ]; then
+            echo "No reboot. You will must terminate asciinema recording and do a explicit reboot (exit, ./alis-reboot.sh)."
             echo ""
         else
-            echo ""
-            echo "You will must terminate asciinema recording and do a explicit reboot (exit, ./alis-reboot.sh)."
+            echo "No reboot. You will must do a explicit reboot (./alis-reboot.sh)."
             echo ""
         fi
     fi
@@ -1821,7 +1819,7 @@ EOT
 }
 
 function main() {
-    ALL_STEPS=("configuration_install" "sanitize_variables" "check_variables" "warning" "init" "facts" "checks" "prepare" "partition" "install" "configuration" "mkinitcpio_configuration" "display_driver" "kernels" "mkinitcpio" "network" "virtualbox" "users" "bootloader" "custom_shell" "desktop_environment" "packages" "systemd_units" "terminate" "end")
+    ALL_STEPS=("configuration_install" "sanitize_variables" "check_variables" "warning" "init" "facts" "checks" "prepare" "partition" "install" "configuration" "mkinitcpio_configuration" "display_driver" "kernels" "mkinitcpio" "network" "virtualbox" "users" "bootloader" "custom_shell" "desktop_environment" "packages" "vagrant" "systemd_units" "end")
     STEP="configuration_install"
 
     if [ -n "$1" ]; then
@@ -1875,8 +1873,10 @@ function main() {
         execute_step "desktop_environment" "${STEPS}"
     fi
     execute_step "packages" "${STEPS}"
+    if [ "$VAGRANT" == "true" ]; then
+        execute_step "vagrant" "${STEPS}"
+    fi
     execute_step "systemd_units" "${STEPS}"
-    execute_step "terminate" "${STEPS}"
     execute_step "end" "${STEPS}"
 }
 

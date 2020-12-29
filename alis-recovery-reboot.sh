@@ -5,13 +5,25 @@ set -e
 # and customized Arch Linux system.
 # Copyright (C) 2020 picodotdev
 
-source alis.conf
+LOG_FILE="alis-recovery.log"
+ASCIINEMA_FILE="alis-recovery.asciinema"
 
-if [ -f alis-recovery.asciinema ]; then
-    mkdir -p /mnt/var/log
-    cp alis-recovery.asciinema /mnt/var/log/alis-recovery.asciinema
-fi
+function copy_logs() {
+    if [ -f "$LOG_FILE" ]; then
+        mkdir -p /mnt/var/log/alis
+        cp "$LOG_FILE" "/mnt/var/log/alis/$LOG_FILE"
+    fi
+    if [ -f "$ASCIINEMA_FILE" ]; then
+        mkdir -p /mnt/var/log/alis
+        cp "$ASCIINEMA_FILE" "/mnt/var/log/alis/$ASCIINEMA_FILE"
+    fi
+}
 
-umount -R /mnt/boot
-umount -R /mnt
-reboot
+function do_reboot() {
+    umount -R /mnt/boot
+    umount -R /mnt
+    reboot
+}
+
+copy_logs
+do_reboot

@@ -78,7 +78,7 @@ LIGHT_BLUE='\033[1;34m'
 NC='\033[0m'
 
 function configuration_install() {
-    source alis.conf
+    source "$CONF_FILE"
 }
 
 function sanitize_variables() {
@@ -1672,13 +1672,8 @@ function end() {
             echo "Rebooting..."
             echo ""
 
-            export CONF_FILE
-            export LOG
-            export LOG_FILE
-            export ASCIINEMA
-            export ASCIINEMA_FILE
-
-            ./alis-reboot.sh
+            copy_logs
+            do_reboot
         else
             if [ "$ASCIINEMA" == "true" ]; then
                 echo "Reboot aborted. You will must terminate asciinema recording and do a explicit reboot (exit, ./alis-reboot.sh)."
@@ -1762,6 +1757,25 @@ function aur_install() {
         fi
     done
     set -e
+}
+
+function copy_logs() {
+    cp "$CONF_FILE" "/mnt/etc/$CONF_FILE"
+
+    if [ -f "$LOG_FILE" ]; then
+        mkdir -p /mnt/var/log/alis
+        cp "$LOG_FILE" "/mnt/var/log/alis/$LOG_FILE"
+    fi
+    if [ -f "$ASCIINEMA_FILE" ]; then
+        mkdir -p /mnt/var/log/alis
+        cp "$ASCIINEMA_FILE" "/mnt/var/log/alis/$ASCIINEMA_FILE"
+    fi
+}
+
+function do_reboot() {
+    umount -R /mnt/boot
+    umount -R /mnt
+    reboot
 }
 
 function print_step() {

@@ -72,13 +72,18 @@ CMDLINE_LINUX=""
 ADDITIONAL_USER_NAMES_ARRAY=()
 ADDITIONAL_USER_PASSWORDS_ARRAY=()
 
+CONF_FILE="alis-recovery.conf"
+GLOBALS_FILE="alis-globals.conf"
+LOG_FILE="alis-recovery.log"
+ASCIINEMA_FILE="alis-recovery.asciinema"
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 LIGHT_BLUE='\033[1;34m'
 NC='\033[0m'
 
 function configuration_install() {
-    source alis-recovery.conf
+    source "$CONF_FILE"
 }
 
 function sanitize_variables() {
@@ -192,6 +197,10 @@ function init() {
 }
 
 function init_log() {
+    if [ "$LOG" == "true" ]; then
+        exec > >(tee -a $LOG_FILE)
+        exec 2> >(tee -a $LOG_FILE >&2)
+    fi
     set -o xtrace
 }
 
@@ -228,6 +237,7 @@ function check_facts() {
 function prepare() {
     prepare_partition
     configure_network
+    ask_passwords
 }
 
 function prepare_partition() {
@@ -254,6 +264,23 @@ function configure_network() {
     if [ $? -ne 0 ]; then
         echo "Network ping check failed. Cannot continue."
         exit
+    fi
+}
+
+function ask_passwords() {
+    if [ "$LUKS_PASSWORD" == "ask" ]; then
+        PASSWORD_TYPED="false"
+        while [ "$PASSWORD_TYPED" != "true" ]; do
+            read -sp 'Type LUKS password: ' LUKS_PASSWORD
+            echo ""
+            read -sp 'Retype LUKS password: ' LUKS_PASSWORD_RETYPE
+            echo ""
+            if [ "$LUKS_PASSWORD" == "$LUKS_PASSWORD_RETYPE" ]; then
+                PASSWORD_TYPED="true"
+            else
+                echo "LUKS password don't match. Please, type again."
+            fi
+        done
     fi
 }
 

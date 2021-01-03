@@ -549,8 +549,8 @@ function partition() {
     fi
 
     # format
-    wipefs -f -a $PARTITION_BOOT
-    wipefs -f -a $DEVICE_ROOT
+    wipefs -a $PARTITION_BOOT
+    wipefs -a $DEVICE_ROOT
     if [ "$BIOS_TYPE" == "uefi" ]; then
         mkfs.fat -n ESP -F32 $PARTITION_BOOT
     fi

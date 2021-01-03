@@ -1760,8 +1760,10 @@ function aur_install() {
 }
 
 function copy_logs() {
-    cp "$CONF_FILE" "/mnt/etc/$CONF_FILE"
-
+    if [ -f "$CONF_FILE" ]; then
+        mkdir -p /mnt/var/log/alis
+        cp "$CONF_FILE" "/mnt/var/log/alis/$CONF_FILE"
+    fi
     if [ -f "$LOG_FILE" ]; then
         mkdir -p /mnt/var/log/alis
         cp "$LOG_FILE" "/mnt/var/log/alis/$LOG_FILE"

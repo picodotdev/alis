@@ -504,7 +504,7 @@ function partition() {
     # partition
     if [ "$PARTITION_MODE" == "auto" ]; then
         sgdisk --zap-all $DEVICE
-        wipefs -a $DEVICE
+        wipefs -f -a $DEVICE
     fi
 
     if [ "$PARTITION_MODE" == "auto" -o "$PARTITION_MODE" == "custom" ]; then
@@ -549,8 +549,8 @@ function partition() {
     fi
 
     # format
-    wipefs -a $PARTITION_BOOT
-    wipefs -a $DEVICE_ROOT
+    wipefs -f -a $PARTITION_BOOT
+    wipefs -f -a $DEVICE_ROOT
     if [ "$BIOS_TYPE" == "uefi" ]; then
         mkfs.fat -n ESP -F32 $PARTITION_BOOT
     fi
@@ -1232,7 +1232,7 @@ menuentry "Arch Linux" {
     submenuentry "Boot to terminal"
 	      add_options "systemd.unit=multi-user.target"
     }
-}"
+}
 
 EOT
     if [[ $KERNELS =~ .*linux-lts.* ]]; then

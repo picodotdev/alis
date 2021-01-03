@@ -504,7 +504,7 @@ function partition() {
     # partition
     if [ "$PARTITION_MODE" == "auto" ]; then
         sgdisk --zap-all $DEVICE
-        wipefs -f -a $DEVICE
+        wipefs -a $DEVICE
     fi
 
     if [ "$PARTITION_MODE" == "auto" -o "$PARTITION_MODE" == "custom" ]; then

@@ -3,7 +3,7 @@ set -e
 
 # Arch Linux Install Script (alis) installs unattended, automated
 # and customized Arch Linux system.
-# Copyright (C) 2020 picodotdev
+# Copyright (C) 2021 picodotdev
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -96,11 +96,6 @@ function sanitize_variables() {
     DESKTOP_ENVIRONMENT=$(sanitize_variable "$DESKTOP_ENVIRONMENT")
     DISPLAY_DRIVER=$(sanitize_variable "$DISPLAY_DRIVER")
     DISPLAY_DRIVER_HARDWARE_ACCELERATION_INTEL=$(sanitize_variable "$DISPLAY_DRIVER_HARDWARE_ACCELERATION_INTEL")
-    PACKAGES_PACMAN=$(sanitize_variable "$PACKAGES_PACMAN")
-    PACKAGES_FLATPAK=$(sanitize_variable "$PACKAGES_FLATPAK")
-    PACKAGES_SDKMAN=$(sanitize_variable "$PACKAGES_SDKMAN")
-    AUR=$(sanitize_variable "$AUR")
-    PACKAGES_AUR=$(sanitize_variable "$PACKAGES_AUR")
     SYSTEMD_UNITS=$(sanitize_variable "$SYSTEMD_UNITS")
 }
 
@@ -171,12 +166,12 @@ function check_variables() {
     check_variables_value "HOOKS" "$HOOKS"
     check_variables_list "BOOTLOADER" "$BOOTLOADER" "grub refind systemd"
     check_variables_list "CUSTOM_SHELL" "$CUSTOM_SHELL" "bash zsh dash fish"
-    check_variables_list "AUR" "$AUR" "yay aurman" "false"
     check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde i3-wm i3-gaps" "false"
     check_variables_boolean "PACKAGES_MULTILIB" "$PACKAGES_MULTILIB"
+    check_variables_boolean "PACKAGES_INSTALL" "$PACKAGES_INSTALL"
     check_variables_boolean "VAGRANT" "$VAGRANT"
     check_variables_boolean "REBOOT" "$REBOOT"
-    }
+}
 
 function check_variables_value() {
     NAME=$1
@@ -305,11 +300,6 @@ function checks() {
     print_step "checks()"
 
     check_facts
-
-    pacman -Sy
-    if [ -n "$PACKAGES_PACMAN" ]; then
-        pacman -Si $PACKAGES_PACMAN > /dev/null
-    fi
 }
 
 function check_facts() {
@@ -321,10 +311,17 @@ function check_facts() {
 function prepare() {
     print_step "prepare()"
 
+    configure_reflector
     configure_time
     prepare_partition
     configure_network
     ask_passwords
+}
+
+function configure_reflector() {
+    if [ "$REFLECTOR" == "false" ]; then
+        systemctl stop reflector.service
+    fi
 }
 
 function configure_time() {
@@ -342,7 +339,6 @@ function prepare_partition() {
     if [ -e "/dev/mapper/$LUKS_DEVICE_NAME" ]; then
         cryptsetup close $LUKS_DEVICE_NAME
     fi
-    partprobe $DEVICE
 }
 
 function configure_network() {
@@ -433,6 +429,8 @@ function ask_passwords() {
 function partition() {
     print_step "partition()"
 
+    partprobe $DEVICE
+
     # setup
     if [ "$PARTITION_MODE" == "auto" ]; then
         PARTITION_PARTED_FILE_SYSTEM_TYPE="$FILE_SYSTEM_TYPE"
@@ -504,7 +502,8 @@ function partition() {
     # partition
     if [ "$PARTITION_MODE" == "auto" ]; then
         sgdisk --zap-all $DEVICE
-        wipefs -a $DEVICE
+        wipefs -a -f $DEVICE
+        partprobe $DEVICE
     fi
 
     if [ "$PARTITION_MODE" == "auto" -o "$PARTITION_MODE" == "custom" ]; then
@@ -520,6 +519,8 @@ function partition() {
         if [ "$BIOS_TYPE" == "bios" ]; then
             parted -s $DEVICE $PARTITION_PARTED_BIOS
         fi
+
+        partprobe $DEVICE
     fi
 
     # luks and lvm
@@ -549,8 +550,9 @@ function partition() {
     fi
 
     # format
-    wipefs -a $PARTITION_BOOT
-    wipefs -a $DEVICE_ROOT
+    wipefs -a -f $PARTITION_BOOT || true
+    wipefs -a -f $DEVICE_ROOT || true
+
     if [ "$BIOS_TYPE" == "uefi" ]; then
         mkfs.fat -n ESP -F32 $PARTITION_BOOT
     fi
@@ -624,7 +626,7 @@ function install() {
     print_step "install()"
 
     if [ -n "$PACMAN_MIRROR" ]; then
-        echo "Server=$PACMAN_MIRROR" > /etc/pacman.d/mirrorlist
+        echo "Server = $PACMAN_MIRROR" > /etc/pacman.d/mirrorlist
     fi
     if [ "$REFLECTOR" == "true" ]; then
         COUNTRIES=()
@@ -640,15 +642,15 @@ function install() {
 
     pacstrap /mnt base base-devel linux linux-firmware
 
+    sed -i 's/#Color/Color/' /mnt/etc/pacman.conf
+    sed -i 's/#TotalDownload/TotalDownload/' /mnt/etc/pacman.conf
+
     if [ "$PACKAGES_MULTILIB" == "true" ]; then
         echo "" >> /mnt/etc/pacman.conf
         echo "[multilib]" >> /mnt/etc/pacman.conf
         echo "Include = /etc/pacman.d/mirrorlist" >> /mnt/etc/pacman.conf
         echo "" >> /mnt/etc/pacman.conf
     fi
-
-    sed -i 's/#Color/Color/' /mnt/etc/pacman.conf
-    sed -i 's/#TotalDownload/TotalDownload/' /mnt/etc/pacman.conf
 }
 
 function configuration() {
@@ -1562,65 +1564,11 @@ function desktop_environment_i3_gaps() {
 }
 
 function packages() {
-    print_step "packages()"
-
-    if [ "$PACKAGES_MULTILIB" == "true" ]; then
-        echo "[multilib]" >> /mnt/etc/pacman.conf
-        echo "Include = /etc/pacman.d/mirrorlist" >> /mnt/etc/pacman.conf
+    if [ "$PACKAGES_INSTALL" == "true" ]; then
+        (USER_NAME=$USER_NAME \
+         USER_PASSWORD=$USER_PASSWORD \
+            ./alis-packages.sh)
     fi
-
-    if [ -n "$PACKAGES_PACMAN" ]; then
-        pacman_install "$PACKAGES_PACMAN"
-    fi
-
-    if [ -n "$PACKAGES_FLATPAK" ]; then
-        packages_flatpak
-    fi
-
-    if [ -n "$PACKAGES_SDKMAN" ]; then
-        packages_sdkman
-    fi
-
-    if [ -n "$AUR" -o -n "$PACKAGES_AUR" ]; then
-        packages_aur
-    fi
-}
-
-function packages_flatpak() {
-    pacman_install "flatpak"
-    arch-chroot /mnt flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-
-    flatpak_install "$PACKAGES_FLATPAK"
-}
-
-function packages_sdkman() {
-    pacman_install "zip unzip"
-    arch-chroot /mnt bash -c "su $USER_NAME -c \"curl -s https://get.sdkman.io | bash\""
-
-    sdkman_install "$PACKAGES_SDKMAN"
-}
-
-function packages_aur() {
-    arch-chroot /mnt sed -i 's/%wheel ALL=(ALL) ALL/%wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers
-
-    if [ -n "$AUR" -o -n "$PACKAGES_AUR" ]; then
-        pacman_install "git"
-
-        case "$AUR" in
-            "aurman" )
-                arch-chroot /mnt bash -c "echo -e \"$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n\" | su $USER_NAME -c \"cd /home/$USER_NAME && git clone https://aur.archlinux.org/$AUR.git && gpg --recv-key 465022E743D71E39 && (cd $AUR && makepkg -si --noconfirm) && rm -rf $AUR\""
-                ;;
-            "yay" | *)
-                arch-chroot /mnt bash -c "echo -e \"$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n\" | su $USER_NAME -c \"cd /home/$USER_NAME && git clone https://aur.archlinux.org/$AUR.git && (cd $AUR && makepkg -si --noconfirm) && rm -rf $AUR\""
-                ;;
-        esac
-    fi
-
-    if [ -n "$PACKAGES_AUR" ]; then
-        aur_install "$PACKAGES_AUR"
-    fi
-
-    arch-chroot /mnt sed -i 's/%wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
 }
 
 function vagrant() {
@@ -1639,11 +1587,14 @@ function systemd_units() {
         if [[ $UNIT == -* ]]; then
             ACTION="disable"
             UNIT=$(echo $UNIT | sed "s/^-//g")
-        fi
-        if [[ $UNIT == +* ]]; then
+        elif [[ $UNIT == +* ]]; then
             ACTION="enable"
             UNIT=$(echo $UNIT | sed "s/^+//g")
+        elif [[ $UNIT =~ ^[a-zA-Z0-9]+ ]]; then
+            ACTION="enable"
+            UNIT=$UNIT
         fi
+
         if [ -n "$ACTION" ]; then
             arch-chroot /mnt systemctl $ACTION $UNIT
         fi
@@ -1695,74 +1646,36 @@ function end() {
 }
 
 function pacman_install() {
+    ERROR="true"
     set +e
     IFS=' ' PACKAGES=($1)
     for VARIABLE in {1..5}
     do
         arch-chroot /mnt pacman -Syu --noconfirm --needed ${PACKAGES[@]}
         if [ $? == 0 ]; then
+            ERROR="false"
             break
         else
             sleep 10
         fi
     done
     set -e
-}
-
-function flatpak_install() {
-    set +e
-    IFS=' ' PACKAGES=($1)
-    for VARIABLE in {1..5}
-    do
-        arch-chroot /mnt flatpak install --system -y flathub ${PACKAGES[@]}
-        if [ $? == 0 ]; then
-            break
-        else
-            sleep 10
-        fi
-    done
-    set -e
-}
-
-function sdkman_install() {
-    set +e
-    IFS=' ' PACKAGES=($1)
-    for PACKAGE in "${PACKAGES[@]}"
-    do
-        IFS=':' PACKAGE=($PACKAGE)
-        for VARIABLE in {1..5}
-        do
-            arch-chroot /mnt bash -c "su $USER_NAME -c \"source /home/$USER_NAME/.sdkman/bin/sdkman-init.sh && sdk install ${PACKAGE[@]}\""
-            if [ $? == 0 ]; then
-                break
-            else
-                sleep 10
-            fi
-        done
-    done
-    set -e
-}
-
-function aur_install() {
-    set +e
-    IFS=' ' PACKAGES=($1)
-    AUR_COMMAND="$AUR -Syu --noconfirm --needed ${PACKAGES[@]}"
-    for VARIABLE in {1..5}
-    do
-        arch-chroot /mnt bash -c "echo -e \"$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n\" | su $USER_NAME -c \"$AUR_COMMAND\""
-        if [ $? == 0 ]; then
-            break
-        else
-            sleep 10
-        fi
-    done
-    set -e
+    if [ "$ERROR" == "true" ]; then
+        exit
+    fi
 }
 
 function copy_logs() {
     if [ -f "$CONF_FILE" ]; then
         mkdir -p /mnt/var/log/alis
         cp "$CONF_FILE" "/mnt/var/log/alis/$CONF_FILE"
+        sed -i 's/LUKS_PASSWORD=.*/LUKS_PASSWORD="ask"/' "/mnt/var/log/alis/$CONF_FILE"
+        sed -i 's/LUKS_PASSWORD_RETYPE=.*/LUKS_PASSWORD_RETYPE="ask"/' "/mnt/var/log/alis/$CONF_FILE"
+        sed -i 's/ROOT_PASSWORD=.*/ROOT_PASSWORD="ask"/' "/mnt/var/log/alis/$CONF_FILE"
+        sed -i 's/ROOT_PASSWORD_RETYPE=.*/ROOT_PASSWORD_RETYPE="ask"/' "/mnt/var/log/alis/$CONF_FILE"
+        sed -i 's/USER_PASSWORD=.*/USER_PASSWORD="ask"/' "/mnt/var/log/alis/$CONF_FILE"
+        sed -i 's/USER_PASSWORD_RETYPE=.*/USER_PASSWORD_RETYPE="ask"/' "/mnt/var/log/alis/$CONF_FILE"
+        sed -i 's/ADDITIONAL_USERS=.*"/ADDITIONAL_USERS=()/' "/mnt/var/log/alis/$CONF_FILE"
     fi
     if [ -f "$LOG_FILE" ]; then
         mkdir -p /mnt/var/log/alis
@@ -1841,7 +1754,7 @@ function main() {
     if [ -n "$1" ]; then
         STEP="$1"
     fi
-    if [ $STEP = "steps" ]; then
+    if [ "$STEP" == "steps" ]; then
         echo "Steps: $ALL_STEPS"
         return 0
     fi

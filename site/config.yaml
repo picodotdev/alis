@@ -35,16 +35,16 @@ params:
     url: "#principles"
   - title: Features
     url: "#features"
-  - title: Installation
-    url: "#installation"
+  - title: System installation
+    url: "#system-installation"
   - title: Video
     url: "#video"
   - title: GitHub
     url: "https://github.com/picodotdev/alis/"
   - title: More
     sublinks:
-    - title: Installation with log
-      url: "#installation-log"
+    - title: Packages installation
+      url: "#packages-installation"
     - title: Recovery
       url: "#recovery"
     - title: How you can help
@@ -64,7 +64,7 @@ params:
           link: "#principles"
         - text: Features
           link: "#features"
-        - text: Installation
-          link: "#installation"
+        - text: System installation
+          link: "#system-installation"
         - text: Recovery
           link: "#recovery"

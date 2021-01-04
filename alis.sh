@@ -1735,7 +1735,7 @@ function sdkman_install() {
             arch-chroot /mnt bash -c "su $USER_NAME -c \"source /home/$USER_NAME/.sdkman/bin/sdkman-init.sh && sdk install ${PACKAGE[@]}\""
             if [ $? == 0 ]; then
                 break
-            elsearch
+            else
                 sleep 10
             fi
         done

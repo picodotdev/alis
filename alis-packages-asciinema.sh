@@ -10,10 +10,9 @@ set -e
 #rm -f alis.asciinema
 #(cd asciinema-2.0.2 && python3 -m asciinema rec --stdin -i 5 ~/alis.asciinema)
 
-rm -f alis.asciinema
+rm -f alis-packages.asciinema
 
-pacman -Sy
-pacman -S --noconfirm asciinema
+#pacman -S --noconfirm asciinema
 
 clear
-asciinema rec --stdin -i 5 ~/alis.asciinema
+asciinema rec --stdin -i 5 ~/alis-packages.asciinema

@@ -128,6 +128,7 @@ url: "/"
         <li>Flatpak utility installation and <b>Flatpak packages installation</b></li>
         <li>SDKMAN utility installation and <b>SDKMAN packages installation</b></li>
         <li><b>AUR utility</b> installation (yay, aurman) and <b>AUR packages installation</b></li>
+        <li><b>Packages installation after base system installation</b> (preferred way of packages installation)</li>
         <li>Script for download installation and <b>recovery scripts</b> and configuration files</li>
         <li><b>Retry packages download</b> on connection/mirror error</li>
         <li><b>Packer support</b> for testing in VirtualBox</li>
@@ -138,10 +139,10 @@ url: "/"
   </div>
 </section>
 
-<section id="installation" class="section is-medium">
+<section id="system-installation" class="section is-medium">
   <div class="container">
     <div class="title-wrapper has-text-centered">
-      <h2 class="title is-2">Installation</h2>
+      <h2 class="title is-2">System installation</h2>
       <div class="divider is-centered"></div>
     </div>
     <div class="content-wrapper">
@@ -155,15 +156,16 @@ url: "/"
       Internet connection is required, with wireless WIFI connection see <a href="https://wiki.archlinux.org/index.php/Wireless_network_configuration#Wi-Fi_Protected_Access">Wireless_network_configuration</a> to bring up WIFI connection before start the installation.
       </p>
 {{< highlight bash "" >}}
-# Load keymap
-loadkeys [keymap]
-# Download alis directly or with url shortener
-curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash
-curl -sL https://bit.ly/2F3CATp | bash
-# Edit alis.conf and change variables values with your preferences
-vim alis.conf
-# Start
-./alis.sh
+#                         # Start the system with latest Arch Linux installation media
+# loadkeys [keymap]       # Load keyboard keymap, eg. loadkeys es, loadkeys us, loadkeys de
+# curl -sL https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash     # Download alis scripts
+# # curl -sL https://bit.ly/2F3CATp | bash                                                 # Alternative download URL with URL shortener
+# ./alis-asciinema.sh     # (Optional) Start asciinema video recording
+# vim alis.conf           # Edit configuration and change variables values with your preferences (system configuration)
+# vim alis-packages.conf  # (Optional) Edit configuration and change variables values with your preferences (packages to install)
+#                         # (The preferred way to install packages is after system installation, see Packages installation)
+# ./alis.sh               # Start installation
+# ./alis-reboot.sh        # (Optional) Reboot the system, only necessary when REBOOT="false"
 {{< / highlight >}}
     </div>
   </div>
@@ -181,28 +183,23 @@ vim alis.conf
   </div>
 </section>
 
-
-<section id="installation-log" class="section is-medium">
+<section id="packages-installation" class="section is-medium">
   <div class="container">
     <div class="title-wrapper has-text-centered">
-      <h2 class="title is-2">Installation with log</h2>
+      <h2 class="title is-2">Packages installation</h2>
       <div class="divider is-centered"></div>
     </div>
     <div class="content-wrapper">
+    <p>
+    After the base Arch Linux system is installed, alis can install packages with pacman, Flatpak, SDKMAN and from AUR.
+    </p>
 {{< highlight bash "" >}}
-# Load keymap
-loadkeys [keymap]
-# Download alis directly or with url shortener
-curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash
-curl -sL https://bit.ly/2F3CATp | bash
-./alis-asciinema.sh
-# Edit alis.conf and change variables values with your preferences
-vim alis.conf
-# Start
-./alis.sh
-# Exit
-exit
-./alis-reboot.sh
+#                                  # After system installation start a user session
+# curl -sL https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash     # Download alis scripts
+# # curl -sL https://bit.ly/2F3CATp | bash                                                 # Alternative download URL with URL shortener
+# ./alis-packages-asciinema.sh     # (Optional) Start asciinema video recording
+# vim alis-packages.conf           # Edit configuration and change variables values with your preferences (packages to install)
+# ./alis-packages.sh               # Start packages installation
 {{< / highlight >}}
     </div>
   </div>
@@ -219,15 +216,14 @@ exit
       Boot from the latest <a href="https://www.archlinux.org/download/">original Arch Linux installation media</a>. After boot use the following comands to start the recovery, this will allow you to enter in the arch-chroot environment.
       </p>
 {{< highlight bash "" >}}
-# Load keymap
-loadkeys [keymap]
-# Download alis directly or with url shortener
-curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash
-curl -sL https://bit.ly/2F3CATp | bash
-# Edit alis-recovery.conf and change variables values with your last installation with alis
-vim alis-recovery.conf
-# Start
-./alis-recovery.sh
+#                                  # Start the system with latest Arch Linux installation media
+# loadkeys [keymap]                # Load keyboard keymap, eg. loadkeys es, loadkeys us, loadkeys de
+# curl -sL https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash     # Download alis scripts
+# # curl -sL https://bit.ly/2F3CATp | bash                                                 # Alternative download URL with URL shortener
+# ./alis-recovery-asciinema.sh     # (Optional) Start asciinema video recording
+# vim alis-recovery.conf           # Edit configuration and change variables values with your last installation configuration with alis (mainly device and partition scheme)
+# ./alis-recovery.sh               # Start recovery
+# ./alis-recovery-reboot.sh        # Reboot the system
 {{< / highlight >}}
     </div>
   </div>

@@ -372,9 +372,9 @@ function systemd_units() {
 function execute_flatpak() {
     COMMAND="$1"
     if [ "$SYSTEM_INSTALLATION" == "true" ]; then
-        arch-chroot /mnt $COMMAND
+        arch-chroot /mnt bash -c "$COMMAND"
     else
-        eval "$COMMAND"
+        bash -c "$COMMAND"
     fi
 }
 
@@ -382,28 +382,28 @@ function execute_aur() {
     COMMAND="$1"
     if [ "$SYSTEM_INSTALLATION" == "true" ]; then
         arch-chroot /mnt sed -i 's/^%wheel ALL=(ALL) ALL$/%wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers
-        arch-chroot /mnt bash -c "echo -e \"$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n\" | su $USER_NAME -c \"$COMMAND\""
+        arch-chroot /mnt bash -c "echo -e \"$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n\" | su $USER_NAME -s /usr/bin/bash -c \"$COMMAND\""
         arch-chroot /mnt sed -i 's/^%wheel ALL=(ALL) NOPASSWD: ALL$/%wheel ALL=(ALL) ALL/' /etc/sudoers
     else
-        eval "$COMMAND"
+        bash -c "$COMMAND"
     fi
 }
 
 function execute_sudo() {
     COMMAND="$1"
     if [ "$SYSTEM_INSTALLATION" == "true" ]; then
-        arch-chroot /mnt $COMMAND
+        arch-chroot /mnt bash -c "$COMMAND"
     else
-        eval "sudo $COMMAND"
+        bash -c "sudo $COMMAND"
     fi
 }
 
 function execute_user() {
     COMMAND="$1"
     if [ "$SYSTEM_INSTALLATION" == "true" ]; then
-        arch-chroot /mnt bash -c "su $USER_NAME -c \"$COMMAND\""
+        arch-chroot /mnt bash -c "su $USER_NAME -s /usr/bin/bash -c \"$COMMAND\""
     else
-        eval "$COMMAND"
+        bash -c "$COMMAND"
     fi
 }
 

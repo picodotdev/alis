@@ -1524,7 +1524,8 @@ function desktop_environment() {
 }
 
 function desktop_environment_gnome() {
-    pacman_install "gnome"
+    pacman_install "gdm gnome-desktop gnome-shell gnome-shell-extensions"
+
     arch-chroot /mnt systemctl enable gdm.service
 }
 

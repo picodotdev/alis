@@ -430,7 +430,7 @@ function ask_passwords() {
 
 function configure_network() {
     if [ -n "$WIFI_INTERFACE" ]; then
-        iwctl --passphrase "$WIFI_KEY" station $WIFI_INTERFACE connect $WIFI_ESSID
+        iwctl --passphrase "$WIFI_KEY" station $WIFI_INTERFACE connect "$WIFI_ESSID"
         sleep 10
     fi
 

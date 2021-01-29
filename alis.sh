@@ -128,6 +128,7 @@ function check_variables() {
     if [ "$LVM" == "true" ]; then
         check_variables_list "PARTITION_MODE" "$PARTITION_MODE" "auto" "true"
     fi
+    check_variables_equals "WIFI_KEY" "WIFI_KEY_RETYPE" "$WIFI_KEY" "$WIFI_KEY_RETYPE"
     check_variables_value "PING_HOSTNAME" "$PING_HOSTNAME"
     check_variables_value "PACMAN_MIRROR" "$PACMAN_MIRROR"
     check_variables_list "KERNELS" "$KERNELS" "linux-lts linux-lts-headers linux-hardened linux-hardened-headers linux-zen linux-zen-headers" "false"
@@ -314,8 +315,8 @@ function prepare() {
     configure_reflector
     configure_time
     prepare_partition
-    configure_network
     ask_passwords
+    configure_network
 }
 
 function configure_reflector() {
@@ -341,20 +342,6 @@ function prepare_partition() {
     fi
 }
 
-function configure_network() {
-    if [ -n "$WIFI_INTERFACE" ]; then
-        iwctl --passphrase "$WIFI_KEY" station $WIFI_INTERFACE connect $WIFI_ESSID
-        sleep 10
-    fi
-
-    # only one ping -c 1, ping gets stuck if -c 5
-    ping -c 1 -i 2 -W 5 -w 30 $PING_HOSTNAME
-    if [ $? -ne 0 ]; then
-        echo "Network ping check failed. Cannot continue."
-        exit
-    fi
-}
-
 function ask_passwords() {
     if [ "$LUKS_PASSWORD" == "ask" ]; then
         PASSWORD_TYPED="false"
@@ -367,6 +354,21 @@ function ask_passwords() {
                 PASSWORD_TYPED="true"
             else
                 echo "LUKS password don't match. Please, type again."
+            fi
+        done
+    fi
+
+    if [ -n "$WIFI_INTERFACE" -a "$WIFI_KEY" == "ask" ]; then
+        PASSWORD_TYPED="false"
+        while [ "$PASSWORD_TYPED" != "true" ]; do
+            read -sp 'Type WIFI key: ' WIFI_KEY
+            echo ""
+            read -sp 'Retype WIFI key: ' WIFI_KEY_RETYPE
+            echo ""
+            if [ "$WIFI_KEY" == "$WIFI_KEY_RETYPE" ]; then
+                PASSWORD_TYPED="true"
+            else
+                echo "WIFI key don't match. Please, type again."
             fi
         done
     fi
@@ -424,6 +426,20 @@ function ask_passwords() {
             done
         fi
     done
+}
+
+function configure_network() {
+    if [ -n "$WIFI_INTERFACE" ]; then
+        iwctl --passphrase "$WIFI_KEY" station $WIFI_INTERFACE connect $WIFI_ESSID
+        sleep 10
+    fi
+
+    # only one ping -c 1, ping gets stuck if -c 5
+    ping -c 1 -i 2 -W 5 -w 30 $PING_HOSTNAME
+    if [ $? -ne 0 ]; then
+        echo "Network ping check failed. Cannot continue."
+        exit
+    fi
 }
 
 function partition() {

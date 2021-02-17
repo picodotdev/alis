@@ -12,10 +12,14 @@ function copy_logs() {
     if [ -f "$LOG_FILE" ]; then
         mkdir -p /mnt/var/log/alis
         cp "$LOG_FILE" "/mnt/var/log/alis/$LOG_FILE"
+        chown root:root "/mnt/var/log/alis/$LOG_FILE"
+        chmod 600 "/mnt/var/log/alis/$LOG_FILE"
     fi
     if [ -f "$ASCIINEMA_FILE" ]; then
         mkdir -p /mnt/var/log/alis
         cp "$ASCIINEMA_FILE" "/mnt/var/log/alis/$ASCIINEMA_FILE"
+        chown root:root "/mnt/var/log/alis/$ASCIINEMA_FILE"
+        chmod 600 "/mnt/var/log/alis/$ASCIINEMA_FILE"
     fi
 }
 

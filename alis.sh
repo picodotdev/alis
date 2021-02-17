@@ -1688,21 +1688,29 @@ function copy_logs() {
     if [ -f "$CONF_FILE" ]; then
         mkdir -p /mnt/var/log/alis
         cp "$CONF_FILE" "/mnt/var/log/alis/$CONF_FILE"
-        sed -i 's/LUKS_PASSWORD=.*/LUKS_PASSWORD="ask"/' "/mnt/var/log/alis/$CONF_FILE"
-        sed -i 's/LUKS_PASSWORD_RETYPE=.*/LUKS_PASSWORD_RETYPE="ask"/' "/mnt/var/log/alis/$CONF_FILE"
-        sed -i 's/ROOT_PASSWORD=.*/ROOT_PASSWORD="ask"/' "/mnt/var/log/alis/$CONF_FILE"
-        sed -i 's/ROOT_PASSWORD_RETYPE=.*/ROOT_PASSWORD_RETYPE="ask"/' "/mnt/var/log/alis/$CONF_FILE"
-        sed -i 's/USER_PASSWORD=.*/USER_PASSWORD="ask"/' "/mnt/var/log/alis/$CONF_FILE"
-        sed -i 's/USER_PASSWORD_RETYPE=.*/USER_PASSWORD_RETYPE="ask"/' "/mnt/var/log/alis/$CONF_FILE"
-        sed -i 's/ADDITIONAL_USERS=.*"/ADDITIONAL_USERS=()/' "/mnt/var/log/alis/$CONF_FILE"
+        chown root:root "/mnt/var/log/alis/$CONF_FILE"
+        chmod 600 "/mnt/var/log/alis/$CONF_FILE"
+        sed -i "s/${LUKS_PASSWORD}/******/g" "/mnt/var/log/alis/$CONF_FILE"
+        sed -i "s/${ROOT_PASSWORD}/******/g" "/mnt/var/log/alis/$CONF_FILE"
+        sed -i "s/${USER_PASSWORD}/******/g" "/mnt/var/log/alis/$CONF_FILE"
     fi
     if [ -f "$LOG_FILE" ]; then
         mkdir -p /mnt/var/log/alis
         cp "$LOG_FILE" "/mnt/var/log/alis/$LOG_FILE"
+        chown root:root "/mnt/var/log/alis/$LOG_FILE"
+        chmod 600 "/mnt/var/log/alis/$LOG_FILE"
+        sed -i "s/${LUKS_PASSWORD}/******/g" "/mnt/var/log/alis/$LOG_FILE"
+        sed -i "s/${ROOT_PASSWORD}/******/g" "/mnt/var/log/alis/$LOG_FILE"
+        sed -i "s/${USER_PASSWORD}/******/g" "/mnt/var/log/alis/$LOG_FILE"
     fi
     if [ -f "$ASCIINEMA_FILE" ]; then
         mkdir -p /mnt/var/log/alis
         cp "$ASCIINEMA_FILE" "/mnt/var/log/alis/$ASCIINEMA_FILE"
+        chown root:root "/mnt/var/log/alis/$ASCIINEMA_FILE"
+        chmod 600 "/mnt/var/log/alis/$ASCIINEMA_FILE"
+        sed -i "s/${LUKS_PASSWORD}/******/g" "/mnt/var/log/alis/$ASCIINEMA_FILE"
+        sed -i "s/${ROOT_PASSWORD}/******/g" "/mnt/var/log/alis/$ASCIINEMA_FILE"
+        sed -i "s/${USER_PASSWORD}/******/g" "/mnt/var/log/alis/$ASCIINEMA_FILE"
     fi
 }
 

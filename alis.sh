@@ -1685,32 +1685,45 @@ function pacman_install() {
 }
 
 function copy_logs() {
+    ESCAPED_LUKS_PASWORD=$(echo "${LUKS_PASSWORD}" | sed 's/[.[\*^$()+?{|]/\\&/g')
+    ESCAPED_ROOT_PASWORD=$(echo "${ROOT_PASWORD}" | sed 's/[.[\*^$()+?{|]/\\&/g')
+    ESCAPED_USER_PASWORD=$(echo "${USER_PASWORD}" | sed 's/[.[\*^$()+?{|]/\\&/g')
+
     if [ -f "$CONF_FILE" ]; then
+        SOURCE_FILE="$CONF_FILE"
+        FILE="/mnt/var/log/alis/$CONF_FILE"
+
         mkdir -p /mnt/var/log/alis
-        cp "$CONF_FILE" "/mnt/var/log/alis/$CONF_FILE"
-        chown root:root "/mnt/var/log/alis/$CONF_FILE"
-        chmod 600 "/mnt/var/log/alis/$CONF_FILE"
-        sed -i "s/${LUKS_PASSWORD}/******/g" "/mnt/var/log/alis/$CONF_FILE"
-        sed -i "s/${ROOT_PASSWORD}/******/g" "/mnt/var/log/alis/$CONF_FILE"
-        sed -i "s/${USER_PASSWORD}/******/g" "/mnt/var/log/alis/$CONF_FILE"
+        cp "$SOURCE_FILE" "$FILE"
+        chown root:root "$FILE"
+        chmod 600 "$FILE"
+        sed -i "s/${ESCAPED_LUKS_PASWORD}/******/g" "$FILE"
+        sed -i "s/${ESCAPED_ROOT_PASWORD}/******/g" "$FILE"
+        sed -i "s/${ESCAPED_USER_PASWORD}/******/g" "$FILE"
     fi
     if [ -f "$LOG_FILE" ]; then
+        SOURCE_FILE="$LOG_FILE"
+        FILE="/mnt/var/log/alis/$LOG_FILE"
+
         mkdir -p /mnt/var/log/alis
-        cp "$LOG_FILE" "/mnt/var/log/alis/$LOG_FILE"
-        chown root:root "/mnt/var/log/alis/$LOG_FILE"
-        chmod 600 "/mnt/var/log/alis/$LOG_FILE"
-        sed -i "s/${LUKS_PASSWORD}/******/g" "/mnt/var/log/alis/$LOG_FILE"
-        sed -i "s/${ROOT_PASSWORD}/******/g" "/mnt/var/log/alis/$LOG_FILE"
-        sed -i "s/${USER_PASSWORD}/******/g" "/mnt/var/log/alis/$LOG_FILE"
+        cp "$SOURCE_FILE" "$FILE"
+        chown root:root "$FILE"
+        chmod 600 "$FILE"
+        sed -i "s/${ESCAPED_LUKS_PASWORD}/******/g" "$FILE"
+        sed -i "s/${ESCAPED_ROOT_PASWORD}/******/g" "$FILE"
+        sed -i "s/${ESCAPED_USER_PASWORD}/******/g" "$FILE"
     fi
     if [ -f "$ASCIINEMA_FILE" ]; then
+        SOURCE_FILE="$ASCIINEMA_FILE"
+        FILE="/mnt/var/log/alis/$ASCIINEMA_FILE"
+
         mkdir -p /mnt/var/log/alis
-        cp "$ASCIINEMA_FILE" "/mnt/var/log/alis/$ASCIINEMA_FILE"
-        chown root:root "/mnt/var/log/alis/$ASCIINEMA_FILE"
-        chmod 600 "/mnt/var/log/alis/$ASCIINEMA_FILE"
-        sed -i "s/${LUKS_PASSWORD}/******/g" "/mnt/var/log/alis/$ASCIINEMA_FILE"
-        sed -i "s/${ROOT_PASSWORD}/******/g" "/mnt/var/log/alis/$ASCIINEMA_FILE"
-        sed -i "s/${USER_PASSWORD}/******/g" "/mnt/var/log/alis/$ASCIINEMA_FILE"
+        cp "$SOURCE_FILE" "$FILE"
+        chown root:root "$FILE"
+        chmod 600 "$FILE"
+        sed -i "s/${ESCAPED_LUKS_PASWORD}/******/g" "$FILE"
+        sed -i "s/${ESCAPED_ROOT_PASWORD}/******/g" "$FILE"
+        sed -i "s/${ESCAPED_USER_PASWORD}/******/g" "$FILE"
     fi
 }
 

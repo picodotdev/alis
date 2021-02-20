@@ -16,7 +16,7 @@ url: "/"
           Boot. Get. Configure. Install. Enjoy.
         </h2>
         <p class="has-text-centered">
-          <a class="button cta primary-btn raised" href="#installation">
+          <a class="button cta primary-btn raised" href="#system-installation">
             How to install
           </a>
           <a class="button cta primary-btn raised" href="#video">

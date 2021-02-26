@@ -1685,9 +1685,9 @@ function pacman_install() {
 }
 
 function copy_logs() {
-    ESCAPED_LUKS_PASWORD=$(echo "${LUKS_PASSWORD}" | sed 's/[.[\*^$()+?{|]/\\&/g')
-    ESCAPED_ROOT_PASWORD=$(echo "${ROOT_PASWORD}" | sed 's/[.[\*^$()+?{|]/\\&/g')
-    ESCAPED_USER_PASWORD=$(echo "${USER_PASWORD}" | sed 's/[.[\*^$()+?{|]/\\&/g')
+    ESCAPED_LUKS_PASWORD=$(echo "${LUKS_PASSWORD}" | sed 's/[.[\*^$()+?{|]/[\\&]/g')
+    ESCAPED_ROOT_PASWORD=$(echo "${ROOT_PASWORD}" | sed 's/[.[\*^$()+?{|]/[\\&]/g')
+    ESCAPED_USER_PASWORD=$(echo "${USER_PASWORD}" | sed 's/[.[\*^$()+?{|]/[\\&]/g')
 
     if [ -f "$CONF_FILE" ]; then
         SOURCE_FILE="$CONF_FILE"

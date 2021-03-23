@@ -5,7 +5,7 @@ set -e
 # and customized Arch Linux system.
 # Copyright (C) 2021 picodotdev
 
-GITHUB_USER="picodotdev"
+GITHUB_USER="pblgomez"
 BRANCH="master"
 
 while getopts "u:" arg; do

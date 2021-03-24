@@ -239,13 +239,13 @@ function packages_aur() {
         pacman_install "git"
 
         case "$PACKAGES_AUR_COMMAND" in
-            "paru" | *)
-                execute_aur "rm -rf /home/$USER_NAME/.alis/aur/$PACKAGES_AUR_COMMAND && mkdir -p /home/$USER_NAME/.alis/aur && cd /home/$USER_NAME/.alis/aur && git clone https://aur.archlinux.org/$PACKAGES_AUR_COMMAND.git && (cd $PACKAGES_AUR_COMMAND && makepkg -si --noconfirm) && rm -rf /home/$USER_NAME/.alis/aur/$PACKAGES_AUR_COMMAND"
-                ;;
             "aurman" )
                 execute_aur "rm -rf /home/$USER_NAME/.alis/aur/$PACKAGES_AUR_COMMAND && mkdir -p /home/$USER_NAME/.alis/aur && cd /home/$USER_NAME/.alis/aur && git clone https://aur.archlinux.org/$PACKAGES_AUR_COMMAND.git && (cd $PACKAGES_AUR_COMMAND && makepkg -si --noconfirm) && rm -rf /home/$USER_NAME/.alis/aur/$PACKAGES_AUR_COMMAND"
                 ;;
-            "yay" | *)
+            "yay" )
+                execute_aur "rm -rf /home/$USER_NAME/.alis/aur/$PACKAGES_AUR_COMMAND && mkdir -p /home/$USER_NAME/.alis/aur && cd /home/$USER_NAME/.alis/aur && git clone https://aur.archlinux.org/$PACKAGES_AUR_COMMAND.git && (cd $PACKAGES_AUR_COMMAND && makepkg -si --noconfirm) && rm -rf /home/$USER_NAME/.alis/aur/$PACKAGES_AUR_COMMAND"
+                ;;
+            "paru" | *)
                 execute_aur "rm -rf /home/$USER_NAME/.alis/aur/$PACKAGES_AUR_COMMAND && mkdir -p /home/$USER_NAME/.alis/aur && cd /home/$USER_NAME/.alis/aur && git clone https://aur.archlinux.org/$PACKAGES_AUR_COMMAND.git && (cd $PACKAGES_AUR_COMMAND && makepkg -si --noconfirm) && rm -rf /home/$USER_NAME/.alis/aur/$PACKAGES_AUR_COMMAND"
                 ;;
         esac

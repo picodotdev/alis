@@ -73,7 +73,7 @@ If you find useful this script, you can support me with a [small donation](https
 * **Arch Linux** common and custom **packages installation**
 * Flatpak utility installation and **Flatpak packages installation**
 * SDKMAN utility installation and **SDKMAN packages installation**
-* **AUR utility** installation (yay, aurman) and **AUR packages installation**
+* **AUR utility** installation (paru, yay, aurman) and **AUR packages installation**
 * **Packages installation after base system installation** (preferred way of packages installation)
 * Script for download installation and **recovery scripts** and configuration files
 * **Retry packages download** on connection/mirror error

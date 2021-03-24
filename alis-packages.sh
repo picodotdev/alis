@@ -43,7 +43,7 @@ set -e
 # # vim alis-packages.conf
 # # sudo ./alis-packages.sh
 
-# enviroment variables 
+# enviroment variables
 #USER_NAME=""
 #USER_PASSWORD=""
 
@@ -85,7 +85,7 @@ function check_variables() {
     check_variables_boolean "PACKAGES_FLATPAK_INSTALL" "$PACKAGES_FLATPAK_INSTALL"
     check_variables_boolean "PACKAGES_SDKMAN_INSTALL" "$PACKAGES_SDKMAN_INSTALL"
     check_variables_boolean "PACKAGES_AUR_INSTALL" "$PACKAGES_AUR_INSTALL"
-    check_variables_list "PACKAGES_AUR_COMMAND" "$PACKAGES_AUR_COMMAND" "yay aurman" "true"
+    check_variables_list "PACKAGES_AUR_COMMAND" "$PACKAGES_AUR_COMMAND" "paru yay aurman" "true"
 }
 
 function check_variables_value() {
@@ -239,6 +239,9 @@ function packages_aur() {
         pacman_install "git"
 
         case "$PACKAGES_AUR_COMMAND" in
+            "paru" | *)
+                execute_aur "rm -rf /home/$USER_NAME/.alis/aur/$PACKAGES_AUR_COMMAND && mkdir -p /home/$USER_NAME/.alis/aur && cd /home/$USER_NAME/.alis/aur && git clone https://aur.archlinux.org/$PACKAGES_AUR_COMMAND.git && (cd $PACKAGES_AUR_COMMAND && makepkg -si --noconfirm) && rm -rf /home/$USER_NAME/.alis/aur/$PACKAGES_AUR_COMMAND"
+                ;;
             "aurman" )
                 execute_aur "rm -rf /home/$USER_NAME/.alis/aur/$PACKAGES_AUR_COMMAND && mkdir -p /home/$USER_NAME/.alis/aur && cd /home/$USER_NAME/.alis/aur && git clone https://aur.archlinux.org/$PACKAGES_AUR_COMMAND.git && gpg --recv-key 465022E743D71E39 && (cd $PACKAGES_AUR_COMMAND && makepkg -si --noconfirm) && rm -rf /home/$USER_NAME/.alis/aur/$PACKAGES_AUR_COMMAND"
                 ;;

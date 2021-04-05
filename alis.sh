@@ -1220,7 +1220,7 @@ function bootloader_grub() {
 }
 
 function bootloader_refind() {
-    pacman_install "refind-efi"
+    pacman_install "refind"
     arch-chroot /mnt refind-install
 
     arch-chroot /mnt rm /boot/refind_linux.conf

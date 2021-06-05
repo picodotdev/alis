@@ -657,12 +657,12 @@ function install() {
     fi
 
     sed -i 's/#Color/Color/' /etc/pacman.conf
-    sed -i 's/#TotalDownload/TotalDownload/' /etc/pacman.conf
+    sed -i 's/#ParallelDownloads/ParallelDownloads/' /etc/pacman.conf
 
     pacstrap /mnt base base-devel linux linux-firmware
 
     sed -i 's/#Color/Color/' /mnt/etc/pacman.conf
-    sed -i 's/#TotalDownload/TotalDownload/' /mnt/etc/pacman.conf
+    sed -i 's/#ParallelDownloads/ParallelDownloads/' /mnt/etc/pacman.conf
 
     if [ "$PACKAGES_MULTILIB" == "true" ]; then
         echo "" >> /mnt/etc/pacman.conf

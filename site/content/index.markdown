@@ -179,7 +179,7 @@ url: "/"
       <div class="divider is-centered"></div>
     </div>
     <div class="content-wrapper">
-       <script type="text/javascript" src="https://asciinema.org/a/192880.js" data-size="medium" data-cols="160" data-rows="40" id="asciicast-192880" async></script>
+       <script type="text/javascript" src="https://asciinema.org/a/418524.js" data-size="medium" data-cols="160" data-rows="40" id="asciicast-418524" async></script>
     </div>
   </div>
 </section>

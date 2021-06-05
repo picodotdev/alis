@@ -175,7 +175,7 @@ $ ./alis-packer.sh -c alis-packer-efi-ext4-grub-xfce.sh
 
 ### Video
 
-[![asciicast](https://asciinema.org/a/192880.png)](https://asciinema.org/a/192880)
+[![asciicast](https://asciinema.org/a/418524.png)](https://asciinema.org/a/418524)
 
 ### Arch Linux Installation Media
 

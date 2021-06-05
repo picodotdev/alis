@@ -1,6 +1,6 @@
 {
     "variables": {
-      "iso": "https://archive.archlinux.org/iso/2021.02.01/archlinux-2021.02.01-x86_64.iso",
+      "iso": "https://archive.archlinux.org/iso/2021.06.01/archlinux-2021.06.01-x86_64.iso",
       "disk_size": "16384",
       "config_file_sh": ""
     },
@@ -21,7 +21,7 @@
         "disk_size": "{{user `disk_size`}}",
         "hard_drive_interface": "sata",
         "iso_url": "{{user `iso`}}",
-        "iso_checksum": "sha1:eb3b4995be6db3109e15c70a2ca1a6a9f76daf41",
+        "iso_checksum": "sha1:6c41a22fb3c5eabfb7872970a9b5653ec47c3ad5",
         "ssh_username": "vagrant",
         "ssh_password": "vagrant",
         "ssh_wait_timeout": "120m",

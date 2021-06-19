@@ -93,6 +93,7 @@ function sanitize_variables() {
     SWAP_SIZE=$(sanitize_variable "$SWAP_SIZE")
     KERNELS=$(sanitize_variable "$KERNELS")
     KERNELS_COMPRESSION=$(sanitize_variable "$KERNELS_COMPRESSION")
+    KERNELS_PARAMETERS=$(sanitize_variable "$KERNELS_PARAMETERS")
     SYSTEMD_HOMED_STORAGE=$(sanitize_variable "$SYSTEMD_HOMED_STORAGE")
     BOOTLOADER=$(sanitize_variable "$BOOTLOADER")
     CUSTOM_SHELL=$(sanitize_variable "$CUSTOM_SHELL")
@@ -744,25 +745,25 @@ function mkinitcpio_configuration() {
     print_step "mkinitcpio_configuration()"
 
     if [ "$KMS" == "true" ]; then
-        MODULES=""
+        MKINITCPIO_KMS_MODULES=""
         case "$DISPLAY_DRIVER" in
             "intel" )
-                MODULES="i915"
+                MKINITCPIO_KMS_MODULES="i915"
                 ;;
             "nvidia" | "nvidia-lts"  | "nvidia-dkms" | "nvidia-390xx" | "nvidia-390xx-lts" | "nvidia-390xx-dkms" )
-                MODULES="nvidia nvidia_modeset nvidia_uvm nvidia_drm"
+                MKINITCPIO_KMS_MODULES="nvidia nvidia_modeset nvidia_uvm nvidia_drm"
                 ;;
             "amdgpu" )
-                MODULES="amdgpu"
+                MKINITCPIO_KMS_MODULES="amdgpu"
                 ;;
             "ati" )
-                MODULES="radeon"
+                MKINITCPIO_KMS_MODULES="radeon"
                 ;;
             "nouveau" )
-                MODULES="nouveau"
+                MKINITCPIO_KMS_MODULES="nouveau"
                 ;;
         esac
-        arch-chroot /mnt sed -i "s/^MODULES=()/MODULES=($MODULES)/" /etc/mkinitcpio.conf
+        MODULES="$MODULES $MKINITCPIO_KMS_MODULES"
     fi
     if [ "$DISPLAY_DRIVER" == "intel" ]; then
         OPTIONS=""
@@ -811,8 +812,11 @@ function mkinitcpio_configuration() {
             HOOKS=$(echo $HOOKS | sed 's/!encrypt/encrypt/')
         fi
     fi
+
     HOOKS=$(sanitize_variable "$HOOKS")
+    MODULES=$(sanitize_variable "$MODULES")
     arch-chroot /mnt sed -i "s/^HOOKS=(.*)$/HOOKS=($HOOKS)/" /etc/mkinitcpio.conf
+    arch-chroot /mnt sed -i "s/^MODULES=(.*)/MODULES=($MODULES)/" /etc/mkinitcpio.conf
 
     if [ "$KERNELS_COMPRESSION" != "" ]; then
         arch-chroot /mnt sed -i 's/^#COMPRESSION="'"$KERNELS_COMPRESSION"'"/COMPRESSION="'"$KERNELS_COMPRESSION"'"/' /etc/mkinitcpio.conf

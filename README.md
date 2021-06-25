@@ -33,7 +33,7 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 * [Packages installation](https://github.com/picodotdev/alis#packages-installation)
 * [Recovery](https://github.com/picodotdev/alis#recovery)
 * [How you can help](https://github.com/picodotdev/alis#how-you-can-help)
-* [Test in VirtualBox with Packer](https://github.com/picodotdev/alis#test-in-virtuabox-with-packer)
+* [Test in VirtualBox with Packer](https://github.com/picodotdev/alis#test-in-virtualbox-with-packer)
 * [Video](https://github.com/picodotdev/alis#video)
 * [Arch Linux Installation Media](https://github.com/picodotdev/alis#arch-linux-installation-media)
 * [Reference](https://github.com/picodotdev/alis#reference)

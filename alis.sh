@@ -1590,7 +1590,7 @@ function desktop_environment_i3_gaps() {
 }
 
 function desktop_environment_deepin() {
-    pacman_install "xorg xorg-server deepin deepin-extra"
+    pacman_install "xorg xorg-server deepin deepin-kwin deepin-extra"
     arch-chroot /mnt systemctl enable lightdm.service
 }
 

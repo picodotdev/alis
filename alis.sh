@@ -1038,6 +1038,7 @@ function virtualbox() {
     else
         pacman_install "virtualbox-guest-utils virtualbox-guest-dkms"
     fi
+    arch-chroot /mnt systemctl enable vboxservice
 }
 
 function users() {

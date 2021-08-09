@@ -1038,19 +1038,24 @@ function virtualbox() {
     else
         pacman_install "virtualbox-guest-utils virtualbox-guest-dkms"
     fi
-    arch-chroot /mnt systemctl enable vboxservice
+    arch-chroot /mnt systemctl enable vboxservice.service
 }
 
 function users() {
     print_step "users()"
 
-    create_user "$USER_NAME" "$USER_PASSWORD"
+    USERS_GROUPS="wheel,storage,optical"
+    if [ "$VIRTUALBOX" == "true" ]; then
+        USERS_GROUPS="${USERS_GROUPS},vboxsf"
+    fi
+
+    create_user "$USER_NAME" "$USER_PASSWORD" "$USERS_GROUPS"
 
     for U in ${ADDITIONAL_USERS[@]}; do
         IFS='=' S=(${U})
         USER=${S[0]}
         PASSWORD=${S[1]}
-        create_user "${USER}" "${PASSWORD}"
+        create_user "$USER" "$PASSWORD" "$USERS_GROUPS"
     done
 
 	arch-chroot /mnt sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
@@ -1058,6 +1063,8 @@ function users() {
     pacman_install "xdg-user-dirs"
 
     if [ "$SYSTEMD_HOMED" == "true" ]; then
+        arch-chroot /mnt systemctl enable systemd-homed.service
+
         cat <<EOT > "/mnt/etc/pam.d/nss-auth"
 #%PAM-1.0
 
@@ -1099,18 +1106,18 @@ EOT
 function create_user() {
     USER=$1
     PASSWORD=$2
+    USERS_GROUPS=$3
     if [ "$SYSTEMD_HOMED" == "true" ]; then
-        arch-chroot /mnt systemctl enable systemd-homed.service
-        create_user_homectl $USER $PASSWORD
-#       create_user_useradd $USER $PASSWORD
+        create_user_homectl "$USER" "$PASSWORD" "$USERS_GROUPS"
     else
-        create_user_useradd $USER $PASSWORD
+        create_user_useradd "$USER" "$PASSWORD" "$USERS_GROUPS"
     fi
 }
 
 function create_user_homectl() {
     USER=$1
     PASSWORD=$2
+    USERS_GROUPS=$3
     STORAGE=""
     CIFS_DOMAIN=""
     CIFS_USERNAME=""
@@ -1136,8 +1143,8 @@ function create_user_homectl() {
     ### after install and reboot this commands work
     systemctl start systemd-homed.service
     set +e
-    homectl create "$USER" --enforce-password-policy=no --timezone=$TZ --language=$L $STORAGE $CIFS_DOMAIN $CIFS_USERNAME $CIFS_SERVICE -G wheel,storage,optical
-    homectl activate "$USER"
+    homectl create $USER --enforce-password-policy=no --timezone=$TZ --language=$L $STORAGE $CIFS_DOMAIN $CIFS_USERNAME $CIFS_SERVICE -G "$USERS_GROUPS"
+    homectl activate $USER
     set -e
     cp -a "$IMAGE_PATH/." "/mnt$IMAGE_PATH"
     cp -a "$HOME_PATH/." "/mnt$HOME_PATH"
@@ -1147,7 +1154,8 @@ function create_user_homectl() {
 function create_user_useradd() {
     USER=$1
     PASSWORD=$2
-    arch-chroot /mnt useradd -m -G wheel,storage,optical -s /bin/bash $USER
+    USERS_GROUPS=$3
+    arch-chroot /mnt useradd -m -G "$USERS_GROUPS" -s /bin/bash $USER
     printf "$PASSWORD\n$PASSWORD" | arch-chroot /mnt passwd $USER
 }
 

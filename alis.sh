@@ -346,7 +346,7 @@ function prepare_partition() {
         umount /mnt
     fi
     if [ -e "/dev/mapper/$LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL" ]; then
-        lvmremove "/dev/$LVM_VOLUME_GROUP/$LVM_VOLUME_LOGICAL"
+        lvremove "/dev/$LVM_VOLUME_GROUP/$LVM_VOLUME_LOGICAL"
         vgremove "/dev/$LVM_VOLUME_GROUP"
     fi
     if [ -e "/dev/mapper/$LUKS_DEVICE_NAME" ]; then

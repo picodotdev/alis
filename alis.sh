@@ -350,13 +350,21 @@ function prepare_partition() {
     if [ $? == 0 ]; then
         umount /mnt
     fi
-    mountpoint -q "/dev/mapper/$LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL"
-    if [ $? == 0 ]; then
-        umount "/dev/mapper/$LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL"
+    if [ -e "/dev/mapper/$LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL" ]; then
+        if [ -e "/dev/mapper/$LUKS_DEVICE_NAME" ]; then
+            DEVICE_LVM="/dev/mapper/$LUKS_DEVICE_NAME"
+        else
+            DEVICE_LVM="$DEVICE_ROOT"
+        fi
+        lvchange -an "$LVM_VOLUME_GROUP/$LVM_VOLUME_LOGICAL"
+        lvremove $LVM_VOLUME_GROUP
+        vgchange -an $LVM_VOLUME_GROUP
+        vgremove $LVM_VOLUME_GROUP
+        pvremove $DEVICE_LVM
     fi
     cryptsetup status "/dev/mapper/$LUKS_DEVICE_NAME" | grep -qi "is active"
     if [ $? == 0 ]; then
-        cryptsetup close $LUKS_DEVICE_NAME
+        cryptsetup close "/dev/mapper/$LUKS_DEVICE_NAME"
     fi
     set -e
 }
@@ -464,7 +472,7 @@ function configure_network() {
 function partition() {
     print_step "partition()"
 
-    partprobe $DEVICE
+    partprobe -s $DEVICE
 
     # setup
     if [ "$PARTITION_MODE" == "auto" ]; then
@@ -537,8 +545,9 @@ function partition() {
     # partition
     if [ "$PARTITION_MODE" == "auto" ]; then
         sgdisk --zap-all $DEVICE
+        sgdisk -o $DEVICE
         wipefs -a -f $DEVICE
-        partprobe $DEVICE
+        partprobe -s $DEVICE
     fi
 
     if [ "$PARTITION_MODE" == "auto" -o "$PARTITION_MODE" == "custom" ]; then
@@ -555,7 +564,7 @@ function partition() {
             parted -s $DEVICE $PARTITION_PARTED_BIOS
         fi
 
-        partprobe $DEVICE
+        partprobe -s $DEVICE
     fi
 
     # luks and lvm

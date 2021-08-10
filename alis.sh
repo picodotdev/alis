@@ -341,16 +341,24 @@ function configure_time() {
 }
 
 function prepare_partition() {
-    if [ -d /mnt/boot ]; then
+    set +e
+    mountpoint -q /mnt/boot
+    if [ $? == 0 ]; then
         umount /mnt/boot
+    fi
+    mountpoint -q /mnt
+    if [ $? == 0 ]; then
         umount /mnt
     fi
-    if [ -e "/dev/mapper/$LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL" ]; then
+    mountpoint -q "/dev/mapper/$LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL"
+    if [ $? == 0 ]; then
         umount "/dev/mapper/$LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL"
     fi
-    if [ -e "/dev/mapper/$LUKS_DEVICE_NAME" ]; then
+    cryptsetup status "/dev/mapper/$LUKS_DEVICE_NAME" | grep -qi "is active"
+    if [ $? == 0 ]; then
         cryptsetup close $LUKS_DEVICE_NAME
     fi
+    set -e
 }
 
 function ask_passwords() {

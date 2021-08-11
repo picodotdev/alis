@@ -357,14 +357,13 @@ function prepare_partition() {
             DEVICE_LVM="$DEVICE_ROOT"
         fi
         lvchange -an "$LVM_VOLUME_GROUP/$LVM_VOLUME_LOGICAL"
-        lvremove $LVM_VOLUME_GROUP
         vgchange -an $LVM_VOLUME_GROUP
-        vgremove $LVM_VOLUME_GROUP
-        pvremove $DEVICE_LVM
     fi
-    cryptsetup status "/dev/mapper/$LUKS_DEVICE_NAME" | grep -qi "is active"
-    if [ $? == 0 ]; then
-        cryptsetup close "/dev/mapper/$LUKS_DEVICE_NAME"
+    if [ -e "/dev/mapper/$LUKS_DEVICE_NAME" ]; then
+        cryptsetup status $LUKS_DEVICE_NAME | grep -qi "is active"
+        if [ $? == 0 ]; then
+            cryptsetup close $LUKS_DEVICE_NAME
+        fi
     fi
     set -e
 }

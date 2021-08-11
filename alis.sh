@@ -351,11 +351,6 @@ function prepare_partition() {
         umount /mnt
     fi
     if [ -e "/dev/mapper/$LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL" ]; then
-        if [ -e "/dev/mapper/$LUKS_DEVICE_NAME" ]; then
-            DEVICE_LVM="/dev/mapper/$LUKS_DEVICE_NAME"
-        else
-            DEVICE_LVM="$DEVICE_ROOT"
-        fi
         lvchange -an "$LVM_VOLUME_GROUP/$LVM_VOLUME_LOGICAL"
         vgchange -an $LVM_VOLUME_GROUP
     fi

@@ -350,8 +350,12 @@ function prepare_partition() {
     if [ $? == 0 ]; then
         umount /mnt
     fi
-    if [ -e "/dev/mapper/$LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL" ]; then
+    lvs $LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL
+    if [ $? == 0 ]; then
         lvchange -an "$LVM_VOLUME_GROUP/$LVM_VOLUME_LOGICAL"
+    fi
+    vgs $LVM_VOLUME_GROUP
+    if [ $? == 0 ]; then
         vgchange -an $LVM_VOLUME_GROUP
     fi
     if [ -e "/dev/mapper/$LUKS_DEVICE_NAME" ]; then
@@ -543,7 +547,6 @@ function partition() {
         wipefs -a -f $DEVICE
         partprobe -s $DEVICE
     fi
-
     if [ "$PARTITION_MODE" == "auto" -o "$PARTITION_MODE" == "custom" ]; then
         if [ "$BIOS_TYPE" == "uefi" ]; then
             parted -s $DEVICE $PARTITION_PARTED_UEFI
@@ -575,9 +578,24 @@ function partition() {
             DEVICE_LVM="$DEVICE_ROOT"
         fi
 
-        pvcreate $DEVICE_LVM
-        vgcreate $LVM_VOLUME_GROUP $DEVICE_LVM
-        lvcreate -l 100%FREE -n $LVM_VOLUME_LOGICAL $LVM_VOLUME_GROUP
+        set +e
+        lvs $LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL
+        if [ $? == 0 ]; then
+            lvremove -y $LVM_VOLUME_GROUP/$LVM_VOLUME_LOGICAL
+        fi
+        vgs $LVM_VOLUME_GROUP
+        if [ $? == 0 ]; then
+            vgremove -y $LVM_VOLUME_GROUP
+        fi
+        pvs $DEVICE_LVM
+        if [ $? == 0 ]; then
+            pvremove -y $LVM_DEVICE
+        fi
+        set -e
+
+        pvcreate -y $DEVICE_LVM
+        vgcreate -y $LVM_VOLUME_GROUP $DEVICE_LVM
+        lvcreate -y -l 100%FREE -n $LVM_VOLUME_LOGICAL $LVM_VOLUME_GROUP
     fi
 
     if [ -n "$LUKS_PASSWORD" ]; then

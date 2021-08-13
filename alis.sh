@@ -942,39 +942,39 @@ function display_driver() {
     if [ "$VULKAN" == "true" ]; then
         case "$DISPLAY_DRIVER" in
             "intel" )
-                PACKAGES_VULKAN="vulkan-icd-loader vulkan-intel"
-                PACKAGES_VULKAN_MULTILIB="lib32-vulkan-icd-loader lib32-vulkan-intel"
+                PACKAGES_VULKAN="vulkan-intel vulkan-icd-loader"
+                PACKAGES_VULKAN_MULTILIB="lib32-vulkan-intel lib32-vulkan-icd-loader"
                 ;;
             "amdgpu" )
-                PACKAGES_VULKAN="vulkan-icd-loader vulkan-radeon"
-                PACKAGES_VULKAN_MULTILIB="lib32-vulkan-icd-loader lib32-vulkan-radeon"
+                PACKAGES_VULKAN="vulkan-radeon vulkan-icd-loader"
+                PACKAGES_VULKAN_MULTILIB="lib32-vulkan-radeon lib32-vulkan-icd-loader"
                 ;;
             "ati" )
-                PACKAGES_VULKAN="vulkan-icd-loader vulkan-radeon"
-                PACKAGES_VULKAN_MULTILIB="lib32-vulkan-icd-loader lib32-vulkan-radeon"
+                PACKAGES_VULKAN="vulkan-radeon vulkan-icd-loader"
+                PACKAGES_VULKAN_MULTILIB="lib32-vulkan-radeon lib32-vulkan-icd-loader"
                 ;;
             "nvidia" )
-                PACKAGES_VULKAN="vulkan-icd-loader nvidia-utils"
-                PACKAGES_VULKAN_MULTILIB="lib32-vulkan-icd-loader lib32-nvidia-utils"
+                PACKAGES_VULKAN="nvidia-utils vulkan-icd-loader"
+                PACKAGES_VULKAN_MULTILIB="lib32-nvidia-utils lib32-vulkan-icd-loader"
                 ;;
             "nvidia-lts" )
-                PACKAGES_VULKAN="vulkan-icd-loader nvidia-utils"
-                PACKAGES_VULKAN_MULTILIB="lib32-vulkan-icd-loader lib32-nvidia-utils"
+                PACKAGES_VULKAN="nvidia-utils vulkan-icd-loader"
+                PACKAGES_VULKAN_MULTILIB="lib32-nvidia-utils lib32-vulkan-icd-loader"
                 ;;
             "nvidia-dkms" )
-                PACKAGES_VULKAN="vulkan-icd-loader nvidia-utils"
-                PACKAGES_VULKAN_MULTILIB="lib32-vulkan-icd-loader lib32-nvidia-utils"
+                PACKAGES_VULKAN="nvidia-utils vulkan-icd-loader"
+                PACKAGES_VULKAN_MULTILIB="lib32-nvidia-utils lib32-vulkan-icd-loader"
                 ;;
             "nvidia-390xx" )
-                PACKAGES_VULKAN="vulkan-icd-loader nvidia-utils"
+                PACKAGES_VULKAN="nvidia-utils vulkan-icd-loader"
                 PACKAGES_VULKAN_MULTILIB=""
                 ;;
             "nvidia-390xx-lts" )
-                PACKAGES_VULKAN="vulkan-icd-loader nvidia-utils"
+                PACKAGES_VULKAN="nvidia-utils vulkan-icd-loader"
                 PACKAGES_VULKAN_MULTILIB=""
                 ;;
             "nvidia-390xx-dkms" )
-                PACKAGES_VULKAN="vulkan-icd-loader nvidia-utils"
+                PACKAGES_VULKAN="nvidia-utils vulkan-icd-loader"
                 PACKAGES_VULKAN_MULTILIB=""
                 ;;
             "nouveau" )

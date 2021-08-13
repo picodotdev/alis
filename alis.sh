@@ -946,35 +946,35 @@ function display_driver() {
                 PACKAGES_VULKAN_MULTILIB="lib32-vulkan-icd-loader lib32-vulkan-intel"
                 ;;
             "amdgpu" )
-                PACKAGES_VULKAN="vulkan-radeon"
-                PACKAGES_VULKAN_MULTILIB="lib32-vulkan-radeon"
+                PACKAGES_VULKAN="vulkan-icd-loader vulkan-radeon"
+                PACKAGES_VULKAN_MULTILIB="lib32-vulkan-icd-loader lib32-vulkan-radeon"
                 ;;
             "ati" )
-                PACKAGES_VULKAN="vulkan-radeon"
-                PACKAGES_VULKAN_MULTILIB="lib32-vulkan-radeon"
+                PACKAGES_VULKAN="vulkan-icd-loader vulkan-radeon"
+                PACKAGES_VULKAN_MULTILIB="lib32-vulkan-icd-loader lib32-vulkan-radeon"
                 ;;
             "nvidia" )
-                PACKAGES_VULKAN="nvidia-utils"
-                PACKAGES_VULKAN_MULTILIB="lib32-nvidia-utils"
+                PACKAGES_VULKAN="vulkan-icd-loader nvidia-utils"
+                PACKAGES_VULKAN_MULTILIB="lib32-vulkan-icd-loader lib32-nvidia-utils"
                 ;;
             "nvidia-lts" )
-                PACKAGES_VULKAN="nvidia-utils"
-                PACKAGES_VULKAN_MULTILIB="lib32-nvidia-utils"
+                PACKAGES_VULKAN="vulkan-icd-loader nvidia-utils"
+                PACKAGES_VULKAN_MULTILIB="lib32-vulkan-icd-loader lib32-nvidia-utils"
                 ;;
             "nvidia-dkms" )
-                PACKAGES_VULKAN="nvidia-utils"
-                PACKAGES_VULKAN_MULTILIB="lib32-nvidia-utils"
+                PACKAGES_VULKAN="vulkan-icd-loader nvidia-utils"
+                PACKAGES_VULKAN_MULTILIB="lib32-vulkan-icd-loader lib32-nvidia-utils"
                 ;;
             "nvidia-390xx" )
-                PACKAGES_VULKAN="nvidia-utils"
+                PACKAGES_VULKAN="vulkan-icd-loader nvidia-utils"
                 PACKAGES_VULKAN_MULTILIB=""
                 ;;
             "nvidia-390xx-lts" )
-                PACKAGES_VULKAN="nvidia-utils"
+                PACKAGES_VULKAN="vulkan-icd-loader nvidia-utils"
                 PACKAGES_VULKAN_MULTILIB=""
                 ;;
             "nvidia-390xx-dkms" )
-                PACKAGES_VULKAN="nvidia-utils"
+                PACKAGES_VULKAN="vulkan-icd-loader nvidia-utils"
                 PACKAGES_VULKAN_MULTILIB=""
                 ;;
             "nouveau" )

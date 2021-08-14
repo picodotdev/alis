@@ -136,9 +136,6 @@ function check_variables() {
         check_variables_value "PARTITION_CUSTOMMANUAL_BOOT" "$PARTITION_CUSTOMMANUAL_BOOT"
         check_variables_value "PARTITION_CUSTOMMANUAL_ROOT" "$PARTITION_CUSTOMMANUAL_ROOT"
     fi
-    if [ "$LVM" == "true" ]; then
-        check_variables_list "PARTITION_MODE" "$PARTITION_MODE" "auto" "true"
-    fi
     check_variables_equals "WIFI_KEY" "WIFI_KEY_RETYPE" "$WIFI_KEY" "$WIFI_KEY_RETYPE"
     check_variables_value "PING_HOSTNAME" "$PING_HOSTNAME"
     check_variables_value "PACMAN_MIRROR" "$PACMAN_MIRROR"
@@ -578,24 +575,26 @@ function partition() {
             DEVICE_LVM="$DEVICE_ROOT"
         fi
 
-        set +e
-        lvs $LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL
-        if [ $? == 0 ]; then
-            lvremove -y $LVM_VOLUME_GROUP/$LVM_VOLUME_LOGICAL
-        fi
-        vgs $LVM_VOLUME_GROUP
-        if [ $? == 0 ]; then
-            vgremove -y $LVM_VOLUME_GROUP
-        fi
-        pvs $DEVICE_LVM
-        if [ $? == 0 ]; then
-            pvremove -y $LVM_DEVICE
-        fi
-        set -e
+        if [ "$PARTITION_MODE" == "auto" ]; then
+            set +e
+            lvs $LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL
+            if [ $? == 0 ]; then
+                lvremove -y $LVM_VOLUME_GROUP/$LVM_VOLUME_LOGICAL
+            fi
+            vgs $LVM_VOLUME_GROUP
+            if [ $? == 0 ]; then
+                vgremove -y $LVM_VOLUME_GROUP
+            fi
+            pvs $DEVICE_LVM
+            if [ $? == 0 ]; then
+                pvremove -y $LVM_DEVICE
+            fi
+            set -e
 
-        pvcreate -y $DEVICE_LVM
-        vgcreate -y $LVM_VOLUME_GROUP $DEVICE_LVM
-        lvcreate -y -l 100%FREE -n $LVM_VOLUME_LOGICAL $LVM_VOLUME_GROUP
+            pvcreate -y $DEVICE_LVM
+            vgcreate -y $LVM_VOLUME_GROUP $DEVICE_LVM
+            lvcreate -y -l 100%FREE -n $LVM_VOLUME_LOGICAL $LVM_VOLUME_GROUP
+        fi
     fi
 
     if [ -n "$LUKS_PASSWORD" ]; then

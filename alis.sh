@@ -742,6 +742,8 @@ function configuration() {
     arch-chroot /mnt locale-gen
     echo -e "$KEYMAP\n$FONT\n$FONT_MAP" > /mnt/etc/vconsole.conf
     echo $HOSTNAME > /mnt/etc/hostname
+    
+    pacman-key --populate
 
     OPTIONS=""
     if [ -n "$KEYLAYOUT" ]; then

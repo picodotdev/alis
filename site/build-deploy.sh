@@ -3,3 +3,4 @@ set -e
 
 (cd deploy/ && git pull)
 hugo --destination="deploy"
+

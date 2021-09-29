@@ -19,3 +19,4 @@ sed -i "s/PACKAGES_FLATPAK_CUSTOM=.*/PACKAGES_FLATPAK_CUSTOM=\"org.videolan.VLC\
 sed -i "s/PACKAGES_SDKMAN_SDKS=.*/PACKAGES_SDKMAN_SDKS=\"java:11.0.7-open\"/" ./alis.conf
 sed -i "s/^AUR=.*/AUR=\"yay\"/" ./alis.conf
 sed -i "s/^PACKAGES_AUR_OTHERS=.*/PACKAGES_AUR_OTHERS=\"gnucash\"/" ./alis.conf
+

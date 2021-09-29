@@ -37,3 +37,4 @@ function do_reboot() {
 
 copy_logs
 do_reboot
+

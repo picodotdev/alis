@@ -17,3 +17,4 @@ pacman -S --noconfirm asciinema
 
 clear
 asciinema rec --stdin -i 5 ~/alis.asciinema
+

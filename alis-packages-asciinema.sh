@@ -16,3 +16,4 @@ rm -f alis-packages.asciinema
 
 clear
 asciinema rec --stdin -i 5 ~/alis-packages.asciinema
+

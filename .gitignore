@@ -1,5 +1,6 @@
 packer_cache/
 site/deploy/
+site/deploy-backup/
 site/resources/_gen/
 output-archlinux-alis-virtualbox/
 *.vala

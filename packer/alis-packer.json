@@ -1,0 +1,45 @@
+{
+  "variables": {
+    "iso": "https://archive.archlinux.org/iso/2021.10.01/archlinux-2021.10.01-x86_64.iso",
+    "disk_size": "16384",
+    "config_file_sh": ""
+  },
+  "builders": [
+    {
+      "name": "archlinux-alis-virtualbox",
+      "type": "virtualbox-iso",
+      "guest_os_type": "ArchLinux_64",
+      "guest_additions_mode": "attach",
+      "headless": false,
+      "http_directory": ".",
+      "vboxmanage": [
+        ["modifyvm", "{{.Name}}", "--memory", "2048"],
+        ["modifyvm", "{{.Name}}", "--vram", "128"],
+        ["modifyvm", "{{.Name}}", "--cpus", "2"],
+        ["modifyvm", "{{.Name}}", "--firmware", "efi"]
+      ],
+      "disk_size": "{{user `disk_size`}}",
+      "hard_drive_interface": "sata",
+      "iso_url": "{{user `iso`}}",
+      "iso_checksum": "sha1:77a20dcd9d838398cebb2c7c15f46946bdc3855e",
+      "ssh_username": "vagrant",
+      "ssh_password": "vagrant",
+      "ssh_wait_timeout": "120m",
+      "boot_wait": "5s",
+      "boot_command": [
+        "<wait3s><up><up><up><up><up><enter><wait45s>",
+        "curl -O http://{{.HTTPIP}}:{{.HTTPPort}}/packer/download-packer.sh<enter><wait1s>",
+        "chmod +x ./*.sh<enter><wait1s>",
+        "./download-packer.sh \"{{.HTTPIP}}\" \"{{.HTTPPort}}\" {{user `config_file_sh`}}<enter><wait1s>",
+        "./alis-packer-conf.sh<enter><wait1s>",
+        "./alis-asciinema.sh<enter><wait15>",
+        "loadkeys en<enter><wait1>",
+        "less alis.conf<enter><wait3s><pageDown><wait3s><pageDown><wait3s><pageDown><wait3s><pageDown><wait3s><pageDown><wait3s><pageDown><wait3s>q<wait1s>",
+        "./alis.sh<enter><wait1s>y<wait1s><enter>"
+      ],
+      "shutdown_command": "echo 'vagrant' | sudo -S systemctl poweroff",
+      "format": "ova"
+    }
+  ]
+}
+

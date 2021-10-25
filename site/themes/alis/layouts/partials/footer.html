@@ -1,0 +1,64 @@
+{{- $footer      := .Site.Params.footer }}
+{{- $logo        := index $footer "logo" }}
+{{- $quickLinks  := index $footer "quicklinks" }}
+{{- $socialMedia := index $footer "socialmedia" }}
+{{- $bulmaLogo   := index $footer "bulmalogo" }}
+{{- $socialMediaTitle    := index $footer "socialmediatitle" }}
+{{- $navbarLogo     := .Site.Params.navbarlogo }}
+<footer class="footer footer-dark">
+  <div class="container">
+    <div class="columns">
+      <div class="column">
+        <div class="footer-logo">
+          <a class="navbar-item title" href="{{ $navbarLogo.link }}">
+            {{ $navbarLogo.text }}
+          </a>
+        </div>
+      </div>
+      {{- range $quickLinks }}
+        <div class="column">
+          <div class="footer-column">
+            <div class="footer-header">
+                <h3>{{ .title }}</h3>
+            </div>
+            <ul class="link-list">
+              {{- range .links }}
+              <li>
+                <a href="{{ .link }}">
+                  {{ .text }}
+                </a>
+              </li>
+              {{- end }}
+            </ul>
+          </div>
+        </div>
+      {{- end }}
+      <div class="column">
+        <div class="footer-column">
+          <div class="footer-header">
+            <h3>{{ $socialMediaTitle }}</h3>
+            <nav class="level is-mobile">
+              <div class="level-left">
+                {{- range $socialMedia }}
+                <a class="level-item" href="{{ .link }}">
+                  <span class="icon"><i class="fa fa-{{ .icon }}"></i></span>
+                </a>
+                {{- end }}
+              </div>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+<div class="container">
+  <div class="columns">
+    <div class="column">
+      <p class="is-size-6 has-text-centered">
+        Built with Hugo and GitHub Pages. Theme based on hugo-fresh.<br>
+        Arch Linux Install Script is based on Arch Linux but is NOT approved, sponsored, or affiliated with Arch Linux or its related projects.
+      </p>
+    </div>
+  </div>
+</div>

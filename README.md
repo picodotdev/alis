@@ -143,7 +143,7 @@ Boot from the latest <a href="https://www.archlinux.org/download/">original Arch
 
 ### Video
 
-Arch Linux base installation installed in **less than 4 minutes** with a fiber internet connection. Don't trust me? See the video.
+Arch Linux base installation installed in **less than 4 minutes** with a fiber internet connection and a NVMe SSD. Don't trust me? See the video.
 
 [![asciicast](https://asciinema.org/a/444025.png)](https://asciinema.org/a/444025)
 

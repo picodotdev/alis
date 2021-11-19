@@ -175,7 +175,7 @@ url: "/"
       <div class="divider is-centered"></div>
     </div>
     <div class="content-wrapper">
-       <p>Arch Linux base installation installed in <b>less than 4 minutes</b> with a fiber internet connection. Don't trust me? See the video.</p>
+       <p>Arch Linux base installation installed in <b>less than 4 minutes</b> with a fiber internet connection and a NVMe SSD. Don't trust me? See the video.</p>
        <script type="text/javascript" src="https://asciinema.org/a/444025.js" data-size="medium" data-cols="160" data-rows="40" id="asciicast-444025" async></script>
     </div>
   </div>

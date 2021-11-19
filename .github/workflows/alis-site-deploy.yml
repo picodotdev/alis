@@ -38,6 +38,8 @@ jobs:
           ls deploy/
       - name: Generate content
         run: |
+          pwd
+          ls .
           hugo --destination="deploy/" --gc --cleanDestinationDir
       - name: Echo content (deploy)
         run: |

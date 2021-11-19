@@ -1,0 +1,53 @@
+name: blog-bitix-deploy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: master
+      - uses: actions/checkout@v2
+        with:
+          path: site/deploy/
+          ref: gh-pages
+      - name: Environment information
+        run: |
+          uname -a
+          lsb_release -a
+      - name: Cache hugo resources
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-hugo-resources
+        with:
+          path: ./resources
+          key: ${{ runner.os }}-build-${{ env.cache-name }}
+      - name: Install packages (hugo)
+        run: |
+          wget https://github.com/gohugoio/hugo/releases/download/v0.89.4/hugo_extended_0.89.4_Linux-64bit.tar.gz
+          tar xzf hugo_extended_0.89.4_Linux-64bit.tar.gz hugo
+          rm hugo_extended_0.89.4_Linux-64bit.tar.gz
+          chmod +x ./hugo
+          sudo mv ./hugo /usr/local/bin
+      - name: Echo content (deploy)
+        run: |
+          cd deploy/
+          ls deploy/
+      - name: Generate content
+        run: |
+          hugo --destination="deploy/" --gc --cleanDestinationDir
+      - name: Echo content (deploy)
+        run: |
+          ls deploy/
+      - name: Deploy
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "Site update at `LC_ALL=en_US.utf8 date +%Y-%m-%dT%H:%M:%S%z`"
+          git push origin gh-pages
+          cd ..
+

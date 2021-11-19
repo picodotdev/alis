@@ -34,7 +34,7 @@ jobs:
           sudo mv ./hugo /usr/local/bin
       - name: Echo content (deploy)
         run: |
-          cd deploy/
+          cd site/
           ls deploy/
       - name: Generate content
         run: |

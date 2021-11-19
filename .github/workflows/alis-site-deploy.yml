@@ -34,16 +34,14 @@ jobs:
           sudo mv ./hugo /usr/local/bin
       - name: Echo content (deploy)
         run: |
-          cd site/
-          ls deploy/
+          ls site/deploy/
       - name: Generate content
         run: |
-          pwd
-          ls .
+          cd site/
           hugo --destination="deploy/" --gc --cleanDestinationDir
       - name: Echo content (deploy)
         run: |
-          ls deploy/
+          ls site/deploy/
       - name: Deploy
         run: |
           git config user.name github-actions

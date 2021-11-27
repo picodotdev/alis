@@ -18,5 +18,5 @@ sed -i "s/PACKAGES_INSTALL_PIPEWIRE=.*/PACKAGES_INSTALL_PIPEWIRE=\"true\"/" ./al
 sed -i "s/PACKAGES_FLATPAK_INSTALL=.*/PACKAGES_FLATPAK_INSTALL=\"true\"/" ./alis.conf
 sed -i "s/PACKAGES_SDKMAN_INSTALL=.*/PACKAGES_SDKMAN_INSTALL=\"true\"/" ./alis.conf
 sed -i "s/PACKAGES_FLATPAK_CUSTOM=.*/PACKAGES_FLATPAK_CUSTOM=\"org.videolan.VLC\"/" ./alis.conf
-sed -i "s/PACKAGES_SDKMAN_SDKS=.*/PACKAGES_SDKMAN_SDKS=\"java:11.0.7-open\"/" ./alis.conf
+sed -i "s/PACKAGES_SDKMAN_SDKS=.*/PACKAGES_SDKMAN_SDKS=\"java:17.0.1-tem\"/" ./alis.conf
 

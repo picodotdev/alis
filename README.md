@@ -65,6 +65,7 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 * **Kernel compression** and **custom parameters**
 * **Users creation** and **add to sudoers**
 * **systemd units enable or disable**
+* **systemd-homed** support
 * **PipeWire** support
 * **Multilib** support
 * **Arch Linux** common and custom **packages installation**
@@ -228,6 +229,7 @@ https://www.archlinux.org/download/
 * https://wiki.archlinux.org/index.php/REFInd
 * https://wiki.archlinux.org/index.php/Systemd-boot
 * https://wiki.archlinux.org/index.php/Systemd
+* https://wiki.archlinux.org/index.php/Systemd-homed
 * https://wiki.archlinux.org/index.php/Microcode
 * https://wiki.archlinux.org/index.php/Command-line_shell
 * https://wiki.archlinux.org/index.php/Wayland

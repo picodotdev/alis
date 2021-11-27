@@ -64,6 +64,7 @@ function configuration_install() {
 
 function sanitize_variables() {
     PACKAGES_PACMAN=$(sanitize_variable "$PACKAGES_PACMAN")
+    PACKAGES_PACMAN_PIPEWIRE=$(sanitize_variable "$PACKAGES_PACMAN_PIPEWIRE")
     PACKAGES_FLATPAK=$(sanitize_variable "$PACKAGES_FLATPAK")
     PACKAGES_SDKMAN=$(sanitize_variable "$PACKAGES_SDKMAN")
     PACKAGES_AUR_COMMAND=$(sanitize_variable "$PACKAGES_AUR_COMMAND")
@@ -199,6 +200,10 @@ function packages_pacman() {
     if [ "$PACKAGES_PACMAN_INSTALL" == "true" ]; then
         if [ -n "$PACKAGES_PACMAN" ]; then
             pacman_install "$PACKAGES_PACMAN"
+        fi
+
+        if [ "$PACKAGES_INSTALL_PIPEWIRE" == "true" ] && [ -n "$PACKAGES_PACMAN_PIPEWIRE" ]; then
+            pacman_install "$PACKAGES_PACMAN_PIPEWIRE"
         fi
     fi
 }

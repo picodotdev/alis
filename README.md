@@ -65,6 +65,7 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 * **Kernel compression** and **custom parameters**
 * **Users creation** and **add to sudoers**
 * **systemd units enable or disable**
+* **PipeWire** support
 * **Multilib** support
 * **Arch Linux** common and custom **packages installation**
 * Flatpak utility installation and **Flatpak packages installation**
@@ -237,6 +238,7 @@ https://www.archlinux.org/download/
 * https://wiki.archlinux.org/index.php/Xfce
 * https://wiki.archlinux.org/index.php/I3
 * https://wiki.archlinux.org/title/Deepin_Desktop_Environment
+* https://wiki.archlinux.org/title/PipeWire
 * http://tldp.org/LDP/Bash-Beginners-Guide/html/
 * http://tldp.org/LDP/abs/html/
 

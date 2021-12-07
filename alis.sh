@@ -64,6 +64,7 @@ DEVICE_SATA=""
 DEVICE_NVME=""
 DEVICE_MMC=""
 CPU_VENDOR=""
+GPU_VENDOR=""
 VIRTUALBOX=""
 CMDLINE_LINUX_ROOT=""
 CMDLINE_LINUX=""
@@ -141,7 +142,7 @@ function check_variables() {
     check_variables_value "PACMAN_MIRROR" "$PACMAN_MIRROR"
     check_variables_list "KERNELS" "$KERNELS" "linux-lts linux-lts-headers linux-hardened linux-hardened-headers linux-zen linux-zen-headers" "false"
     check_variables_list "KERNELS_COMPRESSION" "$KERNELS_COMPRESSION" "gzip bzip2 lzma xz lzop lz4 zstd" "false"
-    check_variables_list "DISPLAY_DRIVER" "$DISPLAY_DRIVER" "intel amdgpu ati nvidia nvidia-lts nvidia-dkms nvidia-390xx nvidia-390xx-lts nvidia-390xx-dkms nouveau" "false"
+    check_variables_list "DISPLAY_DRIVER" "$DISPLAY_DRIVER" "auto intel amdgpu ati nvidia nvidia-lts nvidia-dkms nvidia-390xx nvidia-390xx-lts nvidia-390xx-dkms nouveau" "false"
     check_variables_boolean "KMS" "$KMS"
     check_variables_boolean "FASTBOOT" "$FASTBOOT"
     check_variables_boolean "FRAMEBUFFER_COMPRESSION" "$FRAMEBUFFER_COMPRESSION"
@@ -300,7 +301,31 @@ function facts() {
         CPU_VENDOR="amd"
     fi
 
-    if [ -n "$(lspci | grep -i virtualbox)" ]; then
+    if [ -n "$(lspci -nn | grep "\[03" | grep -i intel)" ]; then
+        GPU_VENDOR="intel"
+    elif [ -n "$(lspci -nn | grep "\[03" | grep -i amd)" ]; then
+        GPU_VENDOR="amd"
+    elif [ -n "$(lspci -nn | grep "\[03" | grep -i nvidia)" ]; then
+        GPU_VENDOR="nvidia"
+    elif [ -n "$(lspci -nn | grep "\[03" | grep -i vmware)" ]; then
+        GPU_VENDOR="vmware"
+    fi
+
+    if [ "$DISPLAY_DRIVER" == "auto" ]; then
+        case "$GPU_VENDOR" in
+            "intel" )
+                DISPLAY_DRIVER="intel"
+                ;;
+            "amd" )
+                DISPLAY_DRIVER="amdgpu"
+                ;;
+            "nvidia" )
+                DISPLAY_DRIVER="nvidia"
+                ;;
+        esac
+    fi
+
+    if [ -n "$(systemd-detect-virt | grep -i oracle)" ]; then
         VIRTUALBOX="true"
     fi
 }
@@ -785,14 +810,14 @@ function mkinitcpio_configuration() {
             "intel" )
                 MKINITCPIO_KMS_MODULES="i915"
                 ;;
-            "nvidia" | "nvidia-lts"  | "nvidia-dkms" | "nvidia-390xx" | "nvidia-390xx-lts" | "nvidia-390xx-dkms" )
-                MKINITCPIO_KMS_MODULES="nvidia nvidia_modeset nvidia_uvm nvidia_drm"
-                ;;
             "amdgpu" )
                 MKINITCPIO_KMS_MODULES="amdgpu"
                 ;;
             "ati" )
                 MKINITCPIO_KMS_MODULES="radeon"
+                ;;
+            "nvidia" | "nvidia-lts"  | "nvidia-dkms" | "nvidia-390xx" | "nvidia-390xx-lts" | "nvidia-390xx-dkms" )
+                MKINITCPIO_KMS_MODULES="nvidia nvidia_modeset nvidia_uvm nvidia_drm"
                 ;;
             "nouveau" )
                 MKINITCPIO_KMS_MODULES="nouveau"

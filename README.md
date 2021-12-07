@@ -232,6 +232,7 @@ https://www.archlinux.org/download/
 * https://wiki.archlinux.org/index.php/Systemd-homed
 * https://wiki.archlinux.org/index.php/Microcode
 * https://wiki.archlinux.org/index.php/Command-line_shell
+* https://wiki.archlinux.org/title/Bluetooth
 * https://wiki.archlinux.org/index.php/Wayland
 * https://wiki.archlinux.org/index.php/Xorg
 * https://wiki.archlinux.org/index.php/Desktop_environment

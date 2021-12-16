@@ -659,38 +659,72 @@ function partition() {
 
     # mount
     if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
-        mount -o "$PARTITION_OPTIONS" "$DEVICE_ROOT" /mnt
-        btrfs subvolume create /mnt/root
-        btrfs subvolume create /mnt/home
-        btrfs subvolume create /mnt/var
-        btrfs subvolume create /mnt/snapshots
-        umount /mnt
+        if [ "$BTRFS_SNAPPER_SUGGESTED_FILESYSTEM_LAYOUT" == "true" ]; then
+            mount -o "$PARTITION_OPTIONS" "$DEVICE_ROOT" /mnt
+            btrfs subvolume create /mnt/@
+            btrfs subvolume create /mnt/@home
+            btrfs subvolume create /mnt/@var_log
+            btrfs subvolume create /mnt/@snapshots
+            if [ -n "$SWAP_SIZE" ]; then
+                btrfs subvolume create /mnt/@swap
+            fi
+            umount /mnt
 
-        mount -o "subvol=root,$PARTITION_OPTIONS,compress=zstd" "$DEVICE_ROOT" /mnt
+            mount -o "subvol=@,$PARTITION_OPTIONS,compress=zstd" "$DEVICE_ROOT" /mnt
 
-        mkdir /mnt/{boot,home,var,snapshots}
-        mount -o "$PARTITION_OPTIONS_BOOT" "$PARTITION_BOOT" /mnt/boot
-        mount -o "subvol=home,$PARTITION_OPTIONS_ROOT,compress=zstd" "$DEVICE_ROOT" /mnt/home
-        mount -o "subvol=var,$PARTITION_OPTIONS_ROOT,compress=zstd" "$DEVICE_ROOT" /mnt/var
-        mount -o "subvol=snapshots,$PARTITION_OPTIONS_ROOT,compress=zstd" "$DEVICE_ROOT" /mnt/snapshots
-    else
-        mount -o "$PARTITION_OPTIONS_ROOT" "$DEVICE_ROOT" /mnt
+            mkdir -p /mnt/{boot,home,var/log,.snapshots}
+            mount -o "$PARTITION_OPTIONS_BOOT" "$PARTITION_BOOT" /mnt/boot
+            mount -o "subvol=@home,$PARTITION_OPTIONS_ROOT,compress=zstd" "$DEVICE_ROOT" /mnt/home
+            mount -o "subvol=@var_log,$PARTITION_OPTIONS_ROOT,compress=zstd" "$DEVICE_ROOT" /mnt/var/log
+            mount -o "subvol=@snapshots,$PARTITION_OPTIONS_ROOT,compress=zstd" "$DEVICE_ROOT" /mnt/.snapshots
 
-        mkdir /mnt/boot
-        mount -o "$PARTITION_OPTIONS_BOOT" "$PARTITION_BOOT" /mnt/boot
-    fi
+            # swap
+            if [ -n "$SWAP_SIZE" ]; then
+                mkdir /mnt/swap
+                mount -o "subvol=@swap,$PARTITION_OPTIONS_ROOT,compress=zstd" "$DEVICE_ROOT" /mnt/swap
+                truncate -s 0 /mnt/swap$SWAPFILE
+                chattr +C /mnt/swap$SWAPFILE
+                btrfs property set /mnt/swap$SWAPFILE compression none
+                fallocate -l ${SWAP_SIZE}MiB /mnt/swap$SWAPFILE
+                chmod 0600 /mnt/swap$SWAPFILE
+                mkswap /mnt/swap$SWAPFILE
+                swapon /mnt/swap$SWAPFILE
+            fi
+        else
+            mount -o "$PARTITION_OPTIONS" "$DEVICE_ROOT" /mnt
+            btrfs subvolume create /mnt/root
+            btrfs subvolume create /mnt/home
+            btrfs subvolume create /mnt/var
+            btrfs subvolume create /mnt/snapshots
+            umount /mnt
 
-    # swap
-    if [ -n "$SWAP_SIZE" ]; then
-        if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
-            truncate -s 0 /mnt$SWAPFILE
-            chattr +C /mnt$SWAPFILE
-            btrfs property set /mnt$SWAPFILE compression none
+            mount -o "subvol=root,$PARTITION_OPTIONS,compress=zstd" "$DEVICE_ROOT" /mnt
+
+            mkdir /mnt/{boot,home,var,snapshots}
+            mount -o "$PARTITION_OPTIONS_BOOT" "$PARTITION_BOOT" /mnt/boot
+            mount -o "subvol=home,$PARTITION_OPTIONS_ROOT,compress=zstd" "$DEVICE_ROOT" /mnt/home
+            mount -o "subvol=var,$PARTITION_OPTIONS_ROOT,compress=zstd" "$DEVICE_ROOT" /mnt/var
+            mount -o "subvol=snapshots,$PARTITION_OPTIONS_ROOT,compress=zstd" "$DEVICE_ROOT" /mnt/snapshots
+
+            # swap
+            if [ -n "$SWAP_SIZE" ]; then
+                if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
+                    truncate -s 0 /mnt$SWAPFILE
+                    chattr +C /mnt$SWAPFILE
+                    btrfs property set /mnt$SWAPFILE compression none
+                fi
+
+                dd if=/dev/zero of=/mnt$SWAPFILE bs=1M count=$SWAP_SIZE status=progress
+                chmod 600 /mnt$SWAPFILE
+                mkswap /mnt$SWAPFILE
+            fi
+
         fi
 
-        dd if=/dev/zero of=/mnt$SWAPFILE bs=1M count=$SWAP_SIZE status=progress
-        chmod 600 /mnt$SWAPFILE
-        mkswap /mnt$SWAPFILE
+    else
+        mount -o "$PARTITION_OPTIONS_ROOT" "$DEVICE_ROOT" /mnt
+        mkdir /mnt/boot
+        mount -o "$PARTITION_OPTIONS_BOOT" "$PARTITION_BOOT" /mnt/boot
     fi
 
     # set variables
@@ -739,9 +773,11 @@ function configuration() {
     genfstab -U /mnt >> /mnt/etc/fstab
 
     if [ -n "$SWAP_SIZE" ]; then
-        echo "# swap" >> /mnt/etc/fstab
-        echo "$SWAPFILE none swap defaults 0 0" >> /mnt/etc/fstab
-        echo "" >> /mnt/etc/fstab
+        if [ "$BTRFS_SNAPPER_SUGGESTED_FILESYSTEM_LAYOUT" != "true" ]; then
+            echo "# swap" >> /mnt/etc/fstab
+            echo "$SWAPFILE none swap defaults 0 0" >> /mnt/etc/fstab
+            echo "" >> /mnt/etc/fstab
+        fi
     fi
 
     if [ "$DEVICE_TRIM" == "true" ]; then
@@ -1103,7 +1139,7 @@ function users() {
         create_user "$USER" "$PASSWORD" "$USERS_GROUPS"
     done
 
-	arch-chroot /mnt sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
+    arch-chroot /mnt sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
 
     pacman_install "xdg-user-dirs"
 
@@ -1245,7 +1281,11 @@ function bootloader() {
         esac
     fi
     if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
-        CMDLINE_LINUX="$CMDLINE_LINUX rootflags=subvol=root"
+        if [ "$BTRFS_SNAPPER_SUGGESTED_FILESYSTEM_LAYOUT" == "true" ]; then
+            CMDLINE_LINUX="$CMDLINE_LINUX rootflags=subvol=@"
+        else
+            CMDLINE_LINUX="$CMDLINE_LINUX rootflags=subvol=root"
+        fi
     fi
     if [ "$KMS" == "true" ]; then
         case "$DISPLAY_DRIVER" in
@@ -1331,10 +1371,10 @@ menuentry "Arch Linux" {
     icon     /EFI/refind/icons/os_arch.png
     options  "$REFIND_MICROCODE $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX"
     submenuentry "Boot using fallback initramfs"
-	      initrd /initramfs-linux-fallback.img"
+          initrd /initramfs-linux-fallback.img"
     }
     submenuentry "Boot to terminal"
-	      add_options "systemd.unit=multi-user.target"
+          add_options "systemd.unit=multi-user.target"
     }
 }
 
@@ -1348,10 +1388,10 @@ menuentry "Arch Linux (lts)" {
     icon     /EFI/refind/icons/os_arch.png
     options  "$REFIND_MICROCODE $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX"
     submenuentry "Boot using fallback initramfs" {
-	      initrd /initramfs-linux-lts-fallback.img
+          initrd /initramfs-linux-lts-fallback.img
     }
     submenuentry "Boot to terminal" {
-	      add_options "systemd.unit=multi-user.target"
+          add_options "systemd.unit=multi-user.target"
     }
 }
 
@@ -1366,10 +1406,10 @@ menuentry "Arch Linux (hardened)" {
     icon     /EFI/refind/icons/os_arch.png
     options  "$REFIND_MICROCODE $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX"
     submenuentry "Boot using fallback initramfs" {
-	      initrd /initramfs-linux-lts-fallback.img
+          initrd /initramfs-linux-lts-fallback.img
     }
     submenuentry "Boot to terminal" {
-	      add_options "systemd.unit=multi-user.target"
+          add_options "systemd.unit=multi-user.target"
     }
 }
 
@@ -1384,10 +1424,10 @@ menuentry "Arch Linux (zen)" {
     icon     /EFI/refind/icons/os_arch.png
     options  "$REFIND_MICROCODE $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX"
     submenuentry "Boot using fallback initramfs" {
-	      initrd /initramfs-linux-lts-fallback.img
+          initrd /initramfs-linux-lts-fallback.img
     }
     submenuentry "Boot to terminal" {
-	      add_options "systemd.unit=multi-user.target"
+          add_options "systemd.unit=multi-user.target"
     }
 }
 

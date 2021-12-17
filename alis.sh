@@ -68,7 +68,8 @@ GPU_VENDOR=""
 VIRTUALBOX=""
 CMDLINE_LINUX_ROOT=""
 CMDLINE_LINUX=""
-BTRFS_SUBVOLUME_ROOT=""
+BTRFS_SUBVOLUME_ROOT=()
+BTRFS_SUBVOLUME_SWAP=()
 
 CONF_FILE="alis.conf"
 GLOBALS_FILE="alis-globals.conf"
@@ -106,10 +107,11 @@ function sanitize_variables() {
 
     for I in "${BTRFS_SUBVOLUMES_MOUNTPOINTS[@]}"; do
         IFS=',' SUBVOLUME=($I)
-        if [ ${SUBVOLUME[0]} != "root" ]; then
-            continue
+        if [ ${SUBVOLUME[0]} == "root" ]; then
+            BTRFS_SUBVOLUME_ROOT=("${SUBVOLUME[@]}")
+        elif [ ${SUBVOLUME[0]} == "swap" ]; then
+            BTRFS_SUBVOLUME_SWAP=("${SUBVOLUME[@]}")
         fi
-        BTRFS_SUBVOLUME_ROOT=("${SUBVOLUME[@]}")
     done
 }
 
@@ -137,7 +139,15 @@ function check_variables() {
     check_variables_boolean "LVM" "$LVM"
     check_variables_equals "LUKS_PASSWORD" "LUKS_PASSWORD_RETYPE" "$LUKS_PASSWORD" "$LUKS_PASSWORD_RETYPE"
     check_variables_list "FILE_SYSTEM_TYPE" "$FILE_SYSTEM_TYPE" "ext4 btrfs xfs f2fs reiserfs"
-    check_variables_value "BTRFS_SUBVOLUME_ROOT" "$BTRFS_SUBVOLUME_ROOT"
+    check_variables_size "BTRFS_SUBVOLUME_ROOT" ${#BTRFS_SUBVOLUME_ROOT[@]} 3
+    check_variables_list "BTRFS_SUBVOLUME_ROOT" "${BTRFS_SUBVOLUME_ROOT[2]}" "/"
+    if [ -n "$SWAP_SIZE" ]; then
+        check_variables_size "BTRFS_SUBVOLUME_SWAP" ${#BTRFS_SUBVOLUME_SWAP[@]} 3
+    fi
+    for I in "${BTRFS_SUBVOLUMES_MOUNTPOINTS[@]}"; do
+        IFS=',' SUBVOLUME=($I)
+        check_variables_size "SUBVOLUME" ${#SUBVOLUME[@]} 3
+    done
     check_variables_list "PARTITION_MODE" "$PARTITION_MODE" "auto custom manual" "true"
     if [ "$PARTITION_MODE" == "custom" ]; then
         check_variables_value "PARTITION_CUSTOM_PARTED_UEFI" "$PARTITION_CUSTOM_PARTED_UEFI"
@@ -669,23 +679,34 @@ function partition() {
 
     # mount
     if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
+        # create subvolumes
         mount -o "$PARTITION_OPTIONS" "$DEVICE_ROOT" /mnt
         for I in "${BTRFS_SUBVOLUMES_MOUNTPOINTS[@]}"; do
             IFS=',' SUBVOLUME=($I)
+            if [ ${SUBVOLUME[0]} == "swap" -a -z "$SWAP_SIZE" ]; then
+                continue
+            fi
             btrfs subvolume create "/mnt/${SUBVOLUME[1]}"
         done
         umount /mnt
 
-        mount -o "subvol=${BTRFS_SUBVOLUME_ROOT[1]},$PARTITION_OPTIONS,compress=zstd" "$DEVICE_ROOT" "/mnt${BTRFS_SUBVOLUME_ROOT[2]}"
-
-        mkdir /mnt/boot
-        mount -o "$PARTITION_OPTIONS_BOOT" "$PARTITION_BOOT" /mnt/boot
+        # mount subvolumes
+        mount -o "subvol=${BTRFS_SUBVOLUME_ROOT[1]},$PARTITION_OPTIONS,compress=zstd" "$DEVICE_ROOT" "/mnt"
+        mkdir "/mnt/boot"
+        mount -o "$PARTITION_OPTIONS_BOOT" "$PARTITION_BOOT" "/mnt/boot"
         for I in "${BTRFS_SUBVOLUMES_MOUNTPOINTS[@]}"; do
             IFS=',' SUBVOLUME=($I)
             if [ ${SUBVOLUME[0]} == "root" ]; then
                 continue
             fi
-            mkdir "/mnt${SUBVOLUME[2]}"
+            if [ ${SUBVOLUME[0]} == "swap" -a -z "$SWAP_SIZE" ]; then
+                continue
+            fi
+            if [ ${SUBVOLUME[0]} == "swap" ]; then
+                mkdir -m 0700 "/mnt${SUBVOLUME[2]}"
+            else
+                mkdir "/mnt${SUBVOLUME[2]}"
+            fi
             mount -o "subvol=${SUBVOLUME[1]},$PARTITION_OPTIONS_ROOT,compress=zstd" "$DEVICE_ROOT" "/mnt${SUBVOLUME[2]}"
         done
     else
@@ -698,6 +719,7 @@ function partition() {
     # swap
     if [ -n "$SWAP_SIZE" ]; then
         if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
+            SWAPFILE="${BTRFS_SUBVOLUME_SWAP[2]}$SWAPFILE"
             truncate -s 0 /mnt$SWAPFILE
             chattr +C /mnt$SWAPFILE
             btrfs property set /mnt$SWAPFILE compression none

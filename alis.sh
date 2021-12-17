@@ -111,7 +111,6 @@ function sanitize_variables() {
         fi
         BTRFS_SUBVOLUME_ROOT=("${SUBVOLUME[@]}")
     done
-    echo "aaaa $BTRFS_SUBVOLUME_ROOT"
 }
 
 function sanitize_variable() {
@@ -138,7 +137,7 @@ function check_variables() {
     check_variables_boolean "LVM" "$LVM"
     check_variables_equals "LUKS_PASSWORD" "LUKS_PASSWORD_RETYPE" "$LUKS_PASSWORD" "$LUKS_PASSWORD_RETYPE"
     check_variables_list "FILE_SYSTEM_TYPE" "$FILE_SYSTEM_TYPE" "ext4 btrfs xfs f2fs reiserfs"
-    check_variables_value "BTRFS_SUBVOLUME_ROOT" "$BTRFS_SUBVOLUME_ROOTvim "
+    check_variables_value "BTRFS_SUBVOLUME_ROOT" "$BTRFS_SUBVOLUME_ROOT"
     check_variables_list "PARTITION_MODE" "$PARTITION_MODE" "auto custom manual" "true"
     if [ "$PARTITION_MODE" == "custom" ]; then
         check_variables_value "PARTITION_CUSTOM_PARTED_UEFI" "$PARTITION_CUSTOM_PARTED_UEFI"

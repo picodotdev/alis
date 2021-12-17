@@ -680,7 +680,7 @@ function partition() {
 
             # swap
             if [ -n "$SWAP_SIZE" ]; then
-                mkdir /mnt/swap
+                mkdir -m 0700 /mnt/swap
                 mount -o "subvol=@swap,$PARTITION_OPTIONS_ROOT,compress=zstd" "$DEVICE_ROOT" /mnt/swap
                 truncate -s 0 /mnt/swap$SWAPFILE
                 chattr +C /mnt/swap$SWAPFILE

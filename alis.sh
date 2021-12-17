@@ -68,6 +68,7 @@ GPU_VENDOR=""
 VIRTUALBOX=""
 CMDLINE_LINUX_ROOT=""
 CMDLINE_LINUX=""
+BTRFS_SUBVOLUME_ROOT=""
 
 CONF_FILE="alis.conf"
 GLOBALS_FILE="alis-globals.conf"
@@ -102,6 +103,15 @@ function sanitize_variables() {
     DISPLAY_DRIVER=$(sanitize_variable "$DISPLAY_DRIVER")
     DISPLAY_DRIVER_HARDWARE_ACCELERATION_INTEL=$(sanitize_variable "$DISPLAY_DRIVER_HARDWARE_ACCELERATION_INTEL")
     SYSTEMD_UNITS=$(sanitize_variable "$SYSTEMD_UNITS")
+
+    for I in "${BTRFS_SUBVOLUMES_MOUNTPOINTS[@]}"; do
+        IFS=',' SUBVOLUME=($I)
+        if [ ${SUBVOLUME[0]} != "root" ]; then
+            continue
+        fi
+        BTRFS_SUBVOLUME_ROOT=("${SUBVOLUME[@]}")
+    done
+    echo "aaaa $BTRFS_SUBVOLUME_ROOT"
 }
 
 function sanitize_variable() {
@@ -128,6 +138,7 @@ function check_variables() {
     check_variables_boolean "LVM" "$LVM"
     check_variables_equals "LUKS_PASSWORD" "LUKS_PASSWORD_RETYPE" "$LUKS_PASSWORD" "$LUKS_PASSWORD_RETYPE"
     check_variables_list "FILE_SYSTEM_TYPE" "$FILE_SYSTEM_TYPE" "ext4 btrfs xfs f2fs reiserfs"
+    check_variables_value "BTRFS_SUBVOLUME_ROOT" "$BTRFS_SUBVOLUME_ROOTvim "
     check_variables_list "PARTITION_MODE" "$PARTITION_MODE" "auto custom manual" "true"
     if [ "$PARTITION_MODE" == "custom" ]; then
         check_variables_value "PARTITION_CUSTOM_PARTED_UEFI" "$PARTITION_CUSTOM_PARTED_UEFI"
@@ -660,19 +671,24 @@ function partition() {
     # mount
     if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
         mount -o "$PARTITION_OPTIONS" "$DEVICE_ROOT" /mnt
-        btrfs subvolume create /mnt/root
-        btrfs subvolume create /mnt/home
-        btrfs subvolume create /mnt/var
-        btrfs subvolume create /mnt/snapshots
+        for I in "${BTRFS_SUBVOLUMES_MOUNTPOINTS[@]}"; do
+            IFS=',' SUBVOLUME=($I)
+            btrfs subvolume create "/mnt/${SUBVOLUME[1]}"
+        done
         umount /mnt
 
-        mount -o "subvol=root,$PARTITION_OPTIONS,compress=zstd" "$DEVICE_ROOT" /mnt
+        mount -o "subvol=${BTRFS_SUBVOLUME_ROOT[1]},$PARTITION_OPTIONS,compress=zstd" "$DEVICE_ROOT" "/mnt${BTRFS_SUBVOLUME_ROOT[2]}"
 
-        mkdir /mnt/{boot,home,var,snapshots}
+        mkdir /mnt/boot
         mount -o "$PARTITION_OPTIONS_BOOT" "$PARTITION_BOOT" /mnt/boot
-        mount -o "subvol=home,$PARTITION_OPTIONS_ROOT,compress=zstd" "$DEVICE_ROOT" /mnt/home
-        mount -o "subvol=var,$PARTITION_OPTIONS_ROOT,compress=zstd" "$DEVICE_ROOT" /mnt/var
-        mount -o "subvol=snapshots,$PARTITION_OPTIONS_ROOT,compress=zstd" "$DEVICE_ROOT" /mnt/snapshots
+        for I in "${BTRFS_SUBVOLUMES_MOUNTPOINTS[@]}"; do
+            IFS=',' SUBVOLUME=($I)
+            if [ ${SUBVOLUME[0]} == "root" ]; then
+                continue
+            fi
+            mkdir "/mnt${SUBVOLUME[2]}"
+            mount -o "subvol=${SUBVOLUME[1]},$PARTITION_OPTIONS_ROOT,compress=zstd" "$DEVICE_ROOT" "/mnt${SUBVOLUME[2]}"
+        done
     else
         mount -o "$PARTITION_OPTIONS_ROOT" "$DEVICE_ROOT" /mnt
 
@@ -1103,7 +1119,7 @@ function users() {
         create_user "$USER" "$PASSWORD" "$USERS_GROUPS"
     done
 
-	arch-chroot /mnt sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
+    arch-chroot /mnt sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
 
     pacman_install "xdg-user-dirs"
 
@@ -1245,7 +1261,7 @@ function bootloader() {
         esac
     fi
     if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
-        CMDLINE_LINUX="$CMDLINE_LINUX rootflags=subvol=root"
+        CMDLINE_LINUX="$CMDLINE_LINUX rootflags=subvol=${BTRFS_SUBVOLUME_ROOT[1]}"
     fi
     if [ "$KMS" == "true" ]; then
         case "$DISPLAY_DRIVER" in
@@ -1331,10 +1347,10 @@ menuentry "Arch Linux" {
     icon     /EFI/refind/icons/os_arch.png
     options  "$REFIND_MICROCODE $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX"
     submenuentry "Boot using fallback initramfs"
-	      initrd /initramfs-linux-fallback.img"
+        initrd /initramfs-linux-fallback.img"
     }
     submenuentry "Boot to terminal"
-	      add_options "systemd.unit=multi-user.target"
+        add_options "systemd.unit=multi-user.target"
     }
 }
 
@@ -1348,10 +1364,10 @@ menuentry "Arch Linux (lts)" {
     icon     /EFI/refind/icons/os_arch.png
     options  "$REFIND_MICROCODE $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX"
     submenuentry "Boot using fallback initramfs" {
-	      initrd /initramfs-linux-lts-fallback.img
+        initrd /initramfs-linux-lts-fallback.img
     }
     submenuentry "Boot to terminal" {
-	      add_options "systemd.unit=multi-user.target"
+        add_options "systemd.unit=multi-user.target"
     }
 }
 
@@ -1366,10 +1382,10 @@ menuentry "Arch Linux (hardened)" {
     icon     /EFI/refind/icons/os_arch.png
     options  "$REFIND_MICROCODE $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX"
     submenuentry "Boot using fallback initramfs" {
-	      initrd /initramfs-linux-lts-fallback.img
+        initrd /initramfs-linux-lts-fallback.img
     }
     submenuentry "Boot to terminal" {
-	      add_options "systemd.unit=multi-user.target"
+        add_options "systemd.unit=multi-user.target"
     }
 }
 
@@ -1384,10 +1400,10 @@ menuentry "Arch Linux (zen)" {
     icon     /EFI/refind/icons/os_arch.png
     options  "$REFIND_MICROCODE $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX"
     submenuentry "Boot using fallback initramfs" {
-	      initrd /initramfs-linux-lts-fallback.img
+        initrd /initramfs-linux-lts-fallback.img
     }
     submenuentry "Boot to terminal" {
-	      add_options "systemd.unit=multi-user.target"
+        add_options "systemd.unit=multi-user.target"
     }
 }
 

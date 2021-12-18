@@ -703,7 +703,7 @@ function partition() {
                 continue
             fi
             if [ ${SUBVOLUME[0]} == "swap" ]; then
-                mkdir -m 0700 "/mnt${SUBVOLUME[2]}"
+                mkdir -p -m 0755 "/mnt${SUBVOLUME[2]}"
             else
                 mkdir -p "/mnt${SUBVOLUME[2]}"
             fi

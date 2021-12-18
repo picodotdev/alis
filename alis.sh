@@ -1282,7 +1282,7 @@ function bootloader() {
         esac
     fi
     if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
-        CMDLINE_LINUX="$CMDLINE_LINUX rootflags=subvol=${BTRFS_SUBVOLUME_ROOT[1]}"
+        CMDLINE_LINUX="$CMDLINE_LINUX rootflags=subvol=${BTRFS_SUBVOLUME_ROOT[2]}"
     fi
     if [ "$KMS" == "true" ]; then
         case "$DISPLAY_DRIVER" in

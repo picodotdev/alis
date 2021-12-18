@@ -1,33 +1,33 @@
 body {
-    font-size: 1.3rem;
+  font-size: 1.3rem;
 }
 
 p {
-    margin: 20px 0px;
+  margin: 20px 0px;
 }
 
 pre {
-    padding: 10px;
+  padding: 10px;
 }
 
 pre.chroma {
-    background-color: #f2f2f2;
+  background-color: #f2f2f2;
 }
 
 ul {
-    list-style-type: disc;
+  list-style-type: disc;
 }
 
 .title.is-size-x5 {
-    font-size: 5rem;
+  font-size: 5rem;
 }
 
 footer.footer-dark {
-    background-color: #1793D1;
+  background-color: #1793D1;
 }
 
 div.footer-logo a.navbar-item.title:hover {    
-    background-color: inherit;
+  background-color: inherit;
 }
 
 .navbar.is-fresh .navbar-item, .navbar.is-fresh .navbar-item.has-dropdown .navbar-link {
@@ -39,7 +39,7 @@ div.footer-logo a.navbar-item.title:hover {
 }
 
 a.navbar-item, a.navbar-item:hover {
-    color: white;
+  color: white;
 }
 
 footer.footer-dark .footer-column ul.link-list a, footer.footer-dark .footer-column ul.link-list a:hover, footer.footer-dark .footer-column .level-item .icon {
@@ -47,5 +47,29 @@ footer.footer-dark .footer-column ul.link-list a, footer.footer-dark .footer-col
 }
 
 .fa {
-    font-size: 72px;
+  font-size: 72px;
+}
+
+div.adsense {
+  line-height: 0px;
+}
+
+div.adsense ins.adsbygoogle {
+  line-height: 0px;
+}
+
+div.adblock-container-billboard {
+  text-align: center;
+}
+
+div.adblock-container-billboard div.adsense-billboard {
+  display: inline-block;
+  height: 280px;
+  width: 100%;
+}
+
+div.adblock-container-billboard div.adsense-billboard ins.adsbygoogle {
+  display: block;
+  height: 280px;
+  width: 100%;
 }

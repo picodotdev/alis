@@ -42,18 +42,22 @@ url: "/"
 
 <div class="container">
   <div class="columns is-vcentered">
-    <div class="column is-6 is-offset-3 has-text-centered">
-      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3533636310991304" crossorigin="anonymous"></script>
-      <!-- alis-auto-billboard -->
-      <ins class="adsbygoogle"
-          style="display:block"
-          data-ad-client="ca-pub-3533636310991304"
-          data-ad-slot="4052324337"
-          data-ad-format="auto"
-          data-full-width-responsive="true"></ins>
-      <script>
-          (adsbygoogle = window.adsbygoogle || []).push({});
-      </script>
+    <div class="column is-8 is-offset-2 has-text-centered">
+      <div class="col-12 adblock-container-billboard">
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3533636310991304" crossorigin="anonymous"></script>
+        <!-- alis-auto-billboard -->
+        <div class="adsense adsense-billboard">
+          <ins class="adsbygoogle"
+              style="display:block"
+              data-ad-client="ca-pub-3533636310991304"
+              data-ad-slot="8430508513"
+              data-ad-format="auto"
+              data-full-width-responsive="true"></ins>
+          <script>
+              (adsbygoogle = window.adsbygoogle || []).push({});
+          </script>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -270,18 +274,22 @@ url: "/"
 
 <div class="container">
   <div class="columns is-vcentered">
-    <div class="column is-6 is-offset-3 has-text-centered">
-      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3533636310991304" crossorigin="anonymous"></script>
-      <!-- alis-auto-billboard -->
-      <ins class="adsbygoogle"
-          style="display:block"
-          data-ad-client="ca-pub-3533636310991304"
-          data-ad-slot="4052324337"
-          data-ad-format="auto"
-          data-full-width-responsive="true"></ins>
-      <script>
-          (adsbygoogle = window.adsbygoogle || []).push({});
-      </script>
+    <div class="column is-8 is-offset-2 has-text-centered">
+      <div class="col-12 adblock-container-billboard">
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3533636310991304" crossorigin="anonymous"></script>
+        <!-- alis-auto-billboard -->
+        <div class="adsense adsense-billboard">
+          <ins class="adsbygoogle"
+              style="display:block"
+              data-ad-client="ca-pub-3533636310991304"
+              data-ad-slot="8430508513"
+              data-ad-format="auto"
+              data-full-width-responsive="true"></ins>
+          <script>
+              (adsbygoogle = window.adsbygoogle || []).push({});
+          </script>
+        </div>
+      </div>
     </div>
   </div>
 </div>

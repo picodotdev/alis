@@ -31,10 +31,29 @@ url: "/"
 <div class="hero-body">
   <div class="container">
     <div class="columns is-vcentered">
+      <div class="column is-6 is-offset-3 has-text-centered">
+        <figure class="image">
+          <a href="https://www.archlinux.org/"><img src="images/logos/archlinux.svg" alt="Arch Linux"></a>
+        </figure>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="columns is-vcentered">
     <div class="column is-6 is-offset-3 has-text-centered">
-      <figure class="image">
-        <a href="https://www.archlinux.org/"><img src="images/logos/archlinux.svg" alt="Arch Linux"></a>
-      </figure>
+      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3533636310991304" crossorigin="anonymous"></script>
+      <!-- alis-auto-billboard -->
+      <ins class="adsbygoogle"
+          style="display:block"
+          data-ad-client="ca-pub-3533636310991304"
+          data-ad-slot="4052324337"
+          data-ad-format="auto"
+          data-full-width-responsive="true"></ins>
+      <script>
+          (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
     </div>
   </div>
 </div>
@@ -248,3 +267,21 @@ url: "/"
     </div>
   </div>
 </section>
+
+<div class="container">
+  <div class="columns is-vcentered">
+    <div class="column is-6 is-offset-3 has-text-centered">
+      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3533636310991304" crossorigin="anonymous"></script>
+      <!-- alis-auto-billboard -->
+      <ins class="adsbygoogle"
+          style="display:block"
+          data-ad-client="ca-pub-3533636310991304"
+          data-ad-slot="4052324337"
+          data-ad-format="auto"
+          data-full-width-responsive="true"></ins>
+      <script>
+          (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+    </div>
+  </div>
+</div>

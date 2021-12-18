@@ -705,7 +705,7 @@ function partition() {
             if [ ${SUBVOLUME[0]} == "swap" ]; then
                 mkdir -m 0700 "/mnt${SUBVOLUME[2]}"
             else
-                mkdir "/mnt${SUBVOLUME[2]}"
+                mkdir -p "/mnt${SUBVOLUME[2]}"
             fi
             mount -o "subvol=${SUBVOLUME[1]},$PARTITION_OPTIONS_ROOT,compress=zstd" "$DEVICE_ROOT" "/mnt${SUBVOLUME[2]}"
         done

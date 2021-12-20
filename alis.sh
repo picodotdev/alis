@@ -71,6 +71,10 @@ CMDLINE_LINUX=""
 BTRFS_SUBVOLUME_ROOT=()
 BTRFS_SUBVOLUME_SWAP=()
 
+# configuration variables declartion (no configuration, don't edit)
+declare -A SYSTEMD_HOMED_STORAGE_LUKS
+declare -A SYSTEMD_HOMED_STORAGE_CIFS
+
 CONF_FILE="alis.conf"
 GLOBALS_FILE="alis-globals.conf"
 LOG_FILE="alis.log"
@@ -98,6 +102,7 @@ function sanitize_variables() {
     KERNELS_COMPRESSION=$(sanitize_variable "$KERNELS_COMPRESSION")
     KERNELS_PARAMETERS=$(sanitize_variable "$KERNELS_PARAMETERS")
     SYSTEMD_HOMED_STORAGE=$(sanitize_variable "$SYSTEMD_HOMED_STORAGE")
+    SYSTEMD_HOMED_STORAGE_LUKS["type"]=$(sanitize_variable "${SYSTEMD_HOMED_STORAGE_LUKS["type"]}")
     BOOTLOADER=$(sanitize_variable "$BOOTLOADER")
     CUSTOM_SHELL=$(sanitize_variable "$CUSTOM_SHELL")
     DESKTOP_ENVIRONMENT=$(sanitize_variable "$DESKTOP_ENVIRONMENT")
@@ -182,15 +187,15 @@ function check_variables() {
     check_variables_equals "ROOT_PASSWORD" "ROOT_PASSWORD_RETYPE" "$ROOT_PASSWORD" "$ROOT_PASSWORD_RETYPE"
     check_variables_equals "USER_PASSWORD" "USER_PASSWORD_RETYPE" "$USER_PASSWORD" "$USER_PASSWORD_RETYPE"
     check_variables_boolean "SYSTEMD_HOMED" "$SYSTEMD_HOMED"
+    check_variables_list "SYSTEMD_HOMED_STORAGE" "$SYSTEMD_HOMED_STORAGE" "auto luks subvolume directory fscrypt cifs" "true"
+    check_variables_list "SYSTEMD_HOMED_STORAGE_LUKS[\"type]\"" "${SYSTEMD_HOMED_STORAGE_LUKS["type"]}" "auto ext4 btrfs xfs"
     if [ "$SYSTEMD_HOMED" == "true" ]; then
-        check_variables_list "SYSTEMD_HOMED_STORAGE" "$SYSTEMD_HOMED_STORAGE" "directory fscrypt luks cifs subvolume" "true"
-
         if [ "$SYSTEMD_HOMED_STORAGE" == "fscrypt" ]; then
             check_variables_list "FILE_SYSTEM_TYPE" "$FILE_SYSTEM_TYPE" "ext4 f2fs" "true"
         fi
         if [ "$SYSTEMD_HOMED_STORAGE" == "cifs" ]; then
-            check_variables_value "SYSTEMD_HOMED_CIFS_DOMAIN" "$SYSTEMD_HOMED_CIFS_DOMAIN"
-            check_variables_value "SYSTEMD_HOMED_CIFS_SERVICE" "$SYSTEMD_HOMED_CIFS_SERVICE"
+            check_variables_value "SYSTEMD_HOMED_CIFS[\"domain]\"" "${SYSTEMD_HOMED_CIFS_DOMAIN["domain"]}"
+            check_variables_value "SYSTEMD_HOMED_CIFS[\"service\"]" "${SYSTEMD_HOMED_CIFS_SERVICE["size"]}"
         fi
     fi
     check_variables_value "HOOKS" "$HOOKS"
@@ -1201,35 +1206,31 @@ function create_user_homectl() {
     PASSWORD=$2
     USERS_GROUPS=$3
     STORAGE=""
+    IMAGE_PATH="--image-path=/mnt/home/"
+    FS_TYPE=""
     CIFS_DOMAIN=""
     CIFS_USERNAME=""
     CIFS_SERVICE=""
     TZ=$(echo ${TIMEZONE} | sed "s/\/usr\/share\/zoneinfo\///g")
     L=$(echo ${LOCALE_CONF[0]} | sed "s/LANG=//g")
-    IMAGE_PATH="/home/$USER.homedir"
-    HOME_PATH="/home/$USER"
 
-    if [ -n "$SYSTEMD_HOMED_STORAGE" ]; then
+    if [ "$SYSTEMD_HOMED_STORAGE" != "auto" ]; then
         STORAGE="--storage=$SYSTEMD_HOMED_STORAGE"
     fi
-    if [ "$SYSTEMD_HOMED_STORAGE" == "cifs" ]; then
-        CIFS_DOMAIN="--cifs-domain=$SYSTEMD_HOMED_CIFS_DOMAIN"
-        CIFS_USERNAME="--cifs-user-name=$USER"
-        CIFS_SERVICE="--cifs-service=$SYSTEMD_HOMED_CIFS_SERVICE"
+    if [ "$SYSTEMD_HOMED_STORAGE" == "luks" -a "${SYSTEMD_HOMED_STORAGE_LUKS["type"]}" != "auto" ]; then
+        FS_TYPE="--fs-type=${SYSTEMD_HOMED_STORAGE_LUKS["type"]}"
     fi
     if [ "$SYSTEMD_HOMED_STORAGE" == "luks" ]; then
-        IMAGE_PATH="/home/$USER.home"
+        IMAGE_PATH="--image-path=/mnt/home/$USER.home"
+    fi
+    if [ "$SYSTEMD_HOMED_STORAGE" == "cifs" ]; then
+        CIFS_DOMAIN="--cifs-domain=${SYSTEMD_HOMED_CIFS_DOMAIN["domain"]}"
+        CIFS_USERNAME="--cifs-user-name=$USER"
+        CIFS_SERVICE="--cifs-service=${SYSTEMD_HOMED_CIFS_SERVICE["service"]}"
     fi
 
-    ### something missing, inside alis this not works, after install the user is in state infixated
-    ### after install and reboot this commands work
     systemctl start systemd-homed.service
-    set +e
-    homectl create $USER --enforce-password-policy=no --timezone=$TZ --language=$L $STORAGE $CIFS_DOMAIN $CIFS_USERNAME $CIFS_SERVICE -G "$USERS_GROUPS"
-    homectl activate $USER
-    set -e
-    cp -a "$IMAGE_PATH/." "/mnt$IMAGE_PATH"
-    cp -a "$HOME_PATH/." "/mnt$HOME_PATH"
+    homectl create $USER --enforce-password-policy=no --timezone=$TZ --language=$L $STORAGE $IMAGE_PATH $FS_TYPE $CIFS_DOMAIN $CIFS_USERNAME $CIFS_SERVICE -G "$USERS_GROUPS"
     cp -a "/var/lib/systemd/home/." "/mnt/var/lib/systemd/home/"
 }
 

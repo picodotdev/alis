@@ -1927,6 +1927,10 @@ CPU_VENDOR="$CPU_VENDOR"
 VIRTUALBOX="$VIRTUALBOX"
 CMDLINE_LINUX_ROOT="$CMDLINE_LINUX_ROOT"
 CMDLINE_LINUX="$CMDLINE_LINUX"
+BTRFS_SUBVOLUME_ROOT=("${BTRFS_SUBVOLUME_ROOT[@]}")
+BTRFS_SUBVOLUME_SWAP=("${BTRFS_SUBVOLUME_SWAP[@]}")
+SYSTEMD_HOMED_STORAGE_LUKS=(["type"]="${SYSTEMD_HOMED_STORAGE_LUKS["type"]}")
+SYSTEMD_HOMED_STORAGE_CIFS=(["domain"]="${SYSTEMD_HOMED_STORAGE_CIFS["domain"]}" ["service"]="${SYSTEMD_HOMED_STORAGE_CIFS["service"]}")
 EOT
 }
 
@@ -1937,24 +1941,27 @@ function main() {
     if [ -n "$1" ]; then
         STEP="$1"
     fi
-    if [ "$STEP" == "steps" ]; then
-        echo "Steps: $ALL_STEPS"
-        return 0
-    fi
 
     # get step execute from
     FOUND="false"
     STEPS=""
     for S in ${ALL_STEPS[@]}; do
-        if [ $FOUND = "true" -o "${STEP}" = "${S}" ]; then
+        if [ "$FOUND" == "true" -o "$STEP" == "$S" ]; then
             FOUND="true"
             STEPS="$STEPS $S"
         fi
     done
 
-    # execute steps
-    load_globals
+    if [ "$STEP" == "steps" -o "$FOUND" == "false" ]; then
+        echo "Steps: $ALL_STEPS"
+        return 0
+    fi
 
+    if [ -n "$1" ]; then
+        load_globals
+    fi
+
+    # execute steps
     execute_step "configuration_install" "${STEPS}"
     execute_step "sanitize_variables" "${STEPS}"
     execute_step "check_variables" "${STEPS}"

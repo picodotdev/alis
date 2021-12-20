@@ -1228,9 +1228,14 @@ function create_user_homectl() {
         CIFS_USERNAME="--cifs-user-name=$USER"
         CIFS_SERVICE="--cifs-service=${SYSTEMD_HOMED_CIFS_SERVICE["service"]}"
     fi
+    if [ "$SYSTEMD_HOMED_STORAGE" == "luks" -a "${SYSTEMD_HOMED_STORAGE_LUKS["type"]}" == "auto" ]; then
+        pacman_install "btrfs-progs"
+    fi
 
     systemctl start systemd-homed.service
+    sleep 5 # #151 avoid Operation on home <USER> failed: Transport endpoint is not conected.
     homectl create $USER --enforce-password-policy=no --timezone=$TZ --language=$L $STORAGE $IMAGE_PATH $FS_TYPE $CIFS_DOMAIN $CIFS_USERNAME $CIFS_SERVICE -G "$USERS_GROUPS"
+    sleep 5 # #151 avoid Operation on home <USER> failed: Transport endpoint is not conected.
     cp -a "/var/lib/systemd/home/." "/mnt/var/lib/systemd/home/"
 }
 

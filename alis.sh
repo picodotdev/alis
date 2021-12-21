@@ -1623,7 +1623,7 @@ function custom_shell_user() {
     USER=$1
     CUSTOM_SHELL_PATH=$2
 
-    if [ "$SYSTEMD_HOMED" == "true" ]; then
+    if [ "$SYSTEMD_HOMED" == "true" -a "$USER" != "root" ]; then
         homectl update --shell=$CUSTOM_SHELL_PATH $USER
     else
         arch-chroot /mnt chsh -s $CUSTOM_SHELL_PATH $USER

@@ -167,7 +167,7 @@ function check_variables() {
     check_variables_value "PACMAN_MIRROR" "$PACMAN_MIRROR"
     check_variables_list "KERNELS" "$KERNELS" "linux-lts linux-lts-headers linux-hardened linux-hardened-headers linux-zen linux-zen-headers" "false"
     check_variables_list "KERNELS_COMPRESSION" "$KERNELS_COMPRESSION" "gzip bzip2 lzma xz lzop lz4 zstd" "false"
-    check_variables_list "DISPLAY_DRIVER" "$DISPLAY_DRIVER" "auto intel amdgpu ati nvidia nvidia-lts nvidia-dkms nvidia-390xx nvidia-390xx-lts nvidia-390xx-dkms nouveau" "false"
+    check_variables_list "DISPLAY_DRIVER" "$DISPLAY_DRIVER" "auto intel amdgpu ati nvidia nvidia-lts nvidia-dkms nouveau" "false"
     check_variables_boolean "KMS" "$KMS"
     check_variables_boolean "FASTBOOT" "$FASTBOOT"
     check_variables_boolean "FRAMEBUFFER_COMPRESSION" "$FRAMEBUFFER_COMPRESSION"
@@ -858,7 +858,7 @@ function mkinitcpio_configuration() {
             "ati" )
                 MKINITCPIO_KMS_MODULES="radeon"
                 ;;
-            "nvidia" | "nvidia-lts"  | "nvidia-dkms" | "nvidia-390xx" | "nvidia-390xx-lts" | "nvidia-390xx-dkms" )
+            "nvidia" | "nvidia-lts"  | "nvidia-dkms" )
                 MKINITCPIO_KMS_MODULES="nvidia nvidia_modeset nvidia_uvm nvidia_drm"
                 ;;
             "nouveau" )
@@ -969,18 +969,6 @@ function display_driver() {
             PACKAGES_DRIVER="nvidia-dkms"
             PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
             ;;
-        "nvidia-390xx" )
-            PACKAGES_DRIVER="nvidia-390xx"
-            PACKAGES_DRIVER_MULTILIB=""
-            ;;
-        "nvidia-390xx-lts" )
-            PACKAGES_DRIVER="nvidia-390xx-lts"
-            PACKAGES_DRIVER_MULTILIB=""
-            ;;
-        "nvidia-390xx-dkms" )
-            PACKAGES_DRIVER="nvidia-390xx-dkms"
-            PACKAGES_DRIVER_MULTILIB=""
-            ;;
         "nouveau" )
             PACKAGES_DRIVER_MULTILIB="lib32-mesa"
             ;;
@@ -1027,18 +1015,6 @@ function display_driver() {
                 PACKAGES_VULKAN="nvidia-utils vulkan-icd-loader"
                 PACKAGES_VULKAN_MULTILIB="lib32-nvidia-utils lib32-vulkan-icd-loader"
                 ;;
-            "nvidia-390xx" )
-                PACKAGES_VULKAN="nvidia-utils vulkan-icd-loader"
-                PACKAGES_VULKAN_MULTILIB=""
-                ;;
-            "nvidia-390xx-lts" )
-                PACKAGES_VULKAN="nvidia-utils vulkan-icd-loader"
-                PACKAGES_VULKAN_MULTILIB=""
-                ;;
-            "nvidia-390xx-dkms" )
-                PACKAGES_VULKAN="nvidia-utils vulkan-icd-loader"
-                PACKAGES_VULKAN_MULTILIB=""
-                ;;
             "nouveau" )
                 PACKAGES_VULKAN=""
                 PACKAGES_VULKAN_MULTILIB=""
@@ -1070,18 +1046,6 @@ function display_driver() {
                 PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
                 ;;
             "nvidia-dkms" )
-                PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
-                PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
-                ;;
-            "nvidia-390xx" )
-                PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
-                PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
-                ;;
-            "nvidia-390xx-lts" )
-                PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
-                PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
-                ;;
-            "nvidia-390xx-dkms" )
                 PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
                 PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
                 ;;
@@ -1292,7 +1256,7 @@ function bootloader() {
     fi
     if [ "$KMS" == "true" ]; then
         case "$DISPLAY_DRIVER" in
-            "nvidia" | "nvidia-390xx" | "nvidia-390xx-lts" )
+            "nvidia" )
                 CMDLINE_LINUX="$CMDLINE_LINUX nvidia-drm.modeset=1"
                 ;;
         esac

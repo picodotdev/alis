@@ -234,7 +234,7 @@ function check_variables_list() {
         check_variables_value "$NAME" "$VALUE"
     fi
 
-    if [[ "$VALUE" != "" && ("$SINGLE" == "" || "$SINGLE" == "true") && "$VALUE" =~ " " ]]; then
+    if [[ ("$SINGLE" == "" || "$SINGLE" == "true") && "$VALUE" != "" && "$VALUE" =~ " " ]]; then
         echo "$NAME environment variable value [$VALUE] must be a single value of [$VALUES]."
         exit
     fi

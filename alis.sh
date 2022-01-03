@@ -1420,6 +1420,8 @@ default archlinux
 editor 0
 EOT
 
+    #arch-chroot /mnt systemctl enable systemd-boot-update.service
+
     arch-chroot /mnt mkdir -p "/etc/pacman.d/hooks/"
 
     cat <<EOT > "/mnt/etc/pacman.d/hooks/systemd-boot.hook"

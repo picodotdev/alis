@@ -87,7 +87,7 @@ function check_variables() {
     check_variables_boolean "PACKAGES_FLATPAK_INSTALL" "$PACKAGES_FLATPAK_INSTALL"
     check_variables_boolean "PACKAGES_SDKMAN_INSTALL" "$PACKAGES_SDKMAN_INSTALL"
     check_variables_boolean "PACKAGES_AUR_INSTALL" "$PACKAGES_AUR_INSTALL"
-    check_variables_list "PACKAGES_AUR_COMMAND" "$PACKAGES_AUR_COMMAND" "paru-bin yay-bin paru yay aurman" "true"
+    check_variables_list "PACKAGES_AUR_COMMAND" "$PACKAGES_AUR_COMMAND" "paru-bin yay-bin paru yay aurman" "true" "true"
 }
 
 function check_variables_value() {
@@ -110,8 +110,15 @@ function check_variables_list() {
     VALUE=$2
     VALUES=$3
     REQUIRED=$4
+    SINGLE="$5"
+
     if [ "$REQUIRED" == "" -o "$REQUIRED" == "true" ]; then
         check_variables_value "$NAME" "$VALUE"
+    fi
+
+    if [[ "$VALUE" != "" && ("$SINGLE" == "" || "$SINGLE" == "true") && "$VALUE" =~ " " ]]; then
+        echo "$NAME environment variable value [$VALUE] must be a single value of [$VALUES]."
+        exit
     fi
 
     if [ "$VALUE" != "" -a -z "$(echo "$VALUES" | grep -F -w "$VALUE")" ]; then

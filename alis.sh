@@ -165,15 +165,15 @@ function check_variables() {
     check_variables_equals "WIFI_KEY" "WIFI_KEY_RETYPE" "$WIFI_KEY" "$WIFI_KEY_RETYPE"
     check_variables_value "PING_HOSTNAME" "$PING_HOSTNAME"
     check_variables_value "PACMAN_MIRROR" "$PACMAN_MIRROR"
-    check_variables_list "KERNELS" "$KERNELS" "linux-lts linux-lts-headers linux-hardened linux-hardened-headers linux-zen linux-zen-headers" "false"
-    check_variables_list "KERNELS_COMPRESSION" "$KERNELS_COMPRESSION" "gzip bzip2 lzma xz lzop lz4 zstd" "false"
-    check_variables_list "DISPLAY_DRIVER" "$DISPLAY_DRIVER" "auto intel amdgpu ati nvidia nvidia-lts nvidia-dkms nouveau" "false"
+    check_variables_list "KERNELS" "$KERNELS" "linux-lts linux-lts-headers linux-hardened linux-hardened-headers linux-zen linux-zen-headers" "false" "false"
+    check_variables_list "KERNELS_COMPRESSION" "$KERNELS_COMPRESSION" "gzip bzip2 lzma xz lzop lz4 zstd" "false" "true"
+    check_variables_list "DISPLAY_DRIVER" "$DISPLAY_DRIVER" "auto intel amdgpu ati nvidia nvidia-lts nvidia-dkms nouveau" "false" "true"
     check_variables_boolean "KMS" "$KMS"
     check_variables_boolean "FASTBOOT" "$FASTBOOT"
     check_variables_boolean "FRAMEBUFFER_COMPRESSION" "$FRAMEBUFFER_COMPRESSION"
     check_variables_boolean "DISPLAY_DRIVER_DDX" "$DISPLAY_DRIVER_DDX"
     check_variables_boolean "DISPLAY_DRIVER_HARDWARE_ACCELERATION" "$DISPLAY_DRIVER_HARDWARE_ACCELERATION"
-    check_variables_list "DISPLAY_DRIVER_HARDWARE_ACCELERATION_INTEL" "$DISPLAY_DRIVER_HARDWARE_ACCELERATION_INTEL" "intel-media-driver libva-intel-driver" "false"
+    check_variables_list "DISPLAY_DRIVER_HARDWARE_ACCELERATION_INTEL" "$DISPLAY_DRIVER_HARDWARE_ACCELERATION_INTEL" "intel-media-driver libva-intel-driver" "false" "true"
     check_variables_value "TIMEZONE" "$TIMEZONE"
     check_variables_boolean "REFLECTOR" "$REFLECTOR"
     check_variables_value "PACMAN_MIRROR" "$PACMAN_MIRROR"
@@ -187,8 +187,8 @@ function check_variables() {
     check_variables_equals "ROOT_PASSWORD" "ROOT_PASSWORD_RETYPE" "$ROOT_PASSWORD" "$ROOT_PASSWORD_RETYPE"
     check_variables_equals "USER_PASSWORD" "USER_PASSWORD_RETYPE" "$USER_PASSWORD" "$USER_PASSWORD_RETYPE"
     check_variables_boolean "SYSTEMD_HOMED" "$SYSTEMD_HOMED"
-    check_variables_list "SYSTEMD_HOMED_STORAGE" "$SYSTEMD_HOMED_STORAGE" "auto luks subvolume directory fscrypt cifs" "true"
-    check_variables_list "SYSTEMD_HOMED_STORAGE_LUKS[\"type]\"" "${SYSTEMD_HOMED_STORAGE_LUKS["type"]}" "auto ext4 btrfs xfs"
+    check_variables_list "SYSTEMD_HOMED_STORAGE" "$SYSTEMD_HOMED_STORAGE" "auto luks subvolume directory fscrypt cifs" "true" "true"
+    check_variables_list "SYSTEMD_HOMED_STORAGE_LUKS[\"type]\"" "${SYSTEMD_HOMED_STORAGE_LUKS["type"]}" "auto ext4 btrfs xfs" "true" "true"
     if [ "$SYSTEMD_HOMED" == "true" ]; then
         if [ "$SYSTEMD_HOMED_STORAGE" == "fscrypt" ]; then
             check_variables_list "FILE_SYSTEM_TYPE" "$FILE_SYSTEM_TYPE" "ext4 f2fs" "true"
@@ -199,9 +199,9 @@ function check_variables() {
         fi
     fi
     check_variables_value "HOOKS" "$HOOKS"
-    check_variables_list "BOOTLOADER" "$BOOTLOADER" "grub refind systemd"
-    check_variables_list "CUSTOM_SHELL" "$CUSTOM_SHELL" "bash zsh dash fish"
-    check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde i3-wm i3-gaps deepin" "false"
+    check_variables_list "BOOTLOADER" "$BOOTLOADER" "grub refind systemd" "true" "true"
+    check_variables_list "CUSTOM_SHELL" "$CUSTOM_SHELL" "bash zsh dash fish" "true" "true"
+    check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde i3-wm i3-gaps deepin" "false" "true"
     check_variables_boolean "PACKAGES_MULTILIB" "$PACKAGES_MULTILIB"
     check_variables_boolean "PACKAGES_INSTALL" "$PACKAGES_INSTALL"
     check_variables_boolean "VAGRANT" "$VAGRANT"
@@ -228,8 +228,15 @@ function check_variables_list() {
     VALUE=$2
     VALUES=$3
     REQUIRED=$4
+    SINGLE="$5"
+
     if [ "$REQUIRED" == "" -o "$REQUIRED" == "true" ]; then
         check_variables_value "$NAME" "$VALUE"
+    fi
+
+    if [[ "$VALUE" != "" && ("$SINGLE" == "" || "$SINGLE" == "true") && "$VALUE" =~ " " ]]; then
+        echo "$NAME environment variable value [$VALUE] must be a single value of [$VALUES]."
+        exit
     fi
 
     if [ "$VALUE" != "" -a -z "$(echo "$VALUES" | grep -F -w "$VALUE")" ]; then

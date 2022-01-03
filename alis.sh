@@ -143,9 +143,9 @@ function check_variables() {
     check_variables_boolean "DEVICE_TRIM" "$DEVICE_TRIM"
     check_variables_boolean "LVM" "$LVM"
     check_variables_equals "LUKS_PASSWORD" "LUKS_PASSWORD_RETYPE" "$LUKS_PASSWORD" "$LUKS_PASSWORD_RETYPE"
-    check_variables_list "FILE_SYSTEM_TYPE" "$FILE_SYSTEM_TYPE" "ext4 btrfs xfs f2fs reiserfs"
+    check_variables_list "FILE_SYSTEM_TYPE" "$FILE_SYSTEM_TYPE" "ext4 btrfs xfs f2fs reiserfs" "true" "true"
     check_variables_size "BTRFS_SUBVOLUME_ROOT" ${#BTRFS_SUBVOLUME_ROOT[@]} 3
-    check_variables_list "BTRFS_SUBVOLUME_ROOT" "${BTRFS_SUBVOLUME_ROOT[2]}" "/"
+    check_variables_list "BTRFS_SUBVOLUME_ROOT" "${BTRFS_SUBVOLUME_ROOT[2]}" "/" "true" "true"
     if [ -n "$SWAP_SIZE" ]; then
         check_variables_size "BTRFS_SUBVOLUME_SWAP" ${#BTRFS_SUBVOLUME_SWAP[@]} 3
     fi
@@ -220,7 +220,7 @@ function check_variables_value() {
 function check_variables_boolean() {
     NAME=$1
     VALUE=$2
-    check_variables_list "$NAME" "$VALUE" "true false"
+    check_variables_list "$NAME" "$VALUE" "true false" "true" "true"
 }
 
 function check_variables_list() {
@@ -370,7 +370,7 @@ function checks() {
 
 function check_facts() {
     if [ "$BIOS_TYPE" == "bios" ]; then
-        check_variables_list "BOOTLOADER" "$BOOTLOADER" "grub"
+        check_variables_list "BOOTLOADER" "$BOOTLOADER" "grub" "true" "true"
     fi
 }
 

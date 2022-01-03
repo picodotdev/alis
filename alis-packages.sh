@@ -102,7 +102,7 @@ function check_variables_value() {
 function check_variables_boolean() {
     NAME=$1
     VALUE=$2
-    check_variables_list "$NAME" "$VALUE" "true false"
+    check_variables_list "$NAME" "$VALUE" "true false" "true" "true"
 }
 
 function check_variables_list() {

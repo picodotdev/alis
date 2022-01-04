@@ -252,26 +252,27 @@ function packages_aur() {
     if [ "$PACKAGES_AUR_INSTALL" == "true" ]; then
         pacman_install "git"
 
-        case "$PACKAGES_AUR_COMMAND" in
+        IFS=' ' COMMANDS=($PACKAGES_AUR_COMMAND)
+        for COMMAND in "${COMMANDS[@]}"
+        do
+            execute_aur "rm -rf /home/$USER_NAME/.alis/aur/$COMMAND && mkdir -p /home/$USER_NAME/.alis/aur && cd /home/$USER_NAME/.alis/aur && git clone https://aur.archlinux.org/$COMMAND.git && (cd $COMMAND && makepkg -si --noconfirm) && rm -rf /home/$USER_NAME/.alis/aur/$COMMAND"
+        done
+
+        case "${COMMANDS[0]]}" in
             "aurman" )
                 AUR_COMMAND="aurman"
-                execute_aur "rm -rf /home/$USER_NAME/.alis/aur/$PACKAGES_AUR_COMMAND && mkdir -p /home/$USER_NAME/.alis/aur && cd /home/$USER_NAME/.alis/aur && git clone https://aur.archlinux.org/$PACKAGES_AUR_COMMAND.git && (cd $PACKAGES_AUR_COMMAND && makepkg -si --noconfirm) && rm -rf /home/$USER_NAME/.alis/aur/$PACKAGES_AUR_COMMAND"
                 ;;
             "yay" )
                 AUR_COMMAND="yay"
-                execute_aur "rm -rf /home/$USER_NAME/.alis/aur/$PACKAGES_AUR_COMMAND && mkdir -p /home/$USER_NAME/.alis/aur && cd /home/$USER_NAME/.alis/aur && git clone https://aur.archlinux.org/$PACKAGES_AUR_COMMAND.git && (cd $PACKAGES_AUR_COMMAND && makepkg -si --noconfirm) && rm -rf /home/$USER_NAME/.alis/aur/$PACKAGES_AUR_COMMAND"
                 ;;
             "paru" )
                 AUR_COMMAND="paru"
-                execute_aur "rm -rf /home/$USER_NAME/.alis/aur/$PACKAGES_AUR_COMMAND && mkdir -p /home/$USER_NAME/.alis/aur && cd /home/$USER_NAME/.alis/aur && git clone https://aur.archlinux.org/$PACKAGES_AUR_COMMAND.git && (cd $PACKAGES_AUR_COMMAND && makepkg -si --noconfirm) && rm -rf /home/$USER_NAME/.alis/aur/$PACKAGES_AUR_COMMAND"
                 ;;
             "yay-bin" )
                 AUR_COMMAND="yay"
-                execute_aur "rm -rf /home/$USER_NAME/.alis/aur/$PACKAGES_AUR_COMMAND && mkdir -p /home/$USER_NAME/.alis/aur && cd /home/$USER_NAME/.alis/aur && git clone https://aur.archlinux.org/$PACKAGES_AUR_COMMAND.git && (cd $PACKAGES_AUR_COMMAND && makepkg -si --noconfirm) && rm -rf /home/$USER_NAME/.alis/aur/$PACKAGES_AUR_COMMAND"
                 ;;
             "paru-bin" | *)
                 AUR_COMMAND="paru"
-                execute_aur "rm -rf /home/$USER_NAME/.alis/aur/$PACKAGES_AUR_COMMAND && mkdir -p /home/$USER_NAME/.alis/aur && cd /home/$USER_NAME/.alis/aur && git clone https://aur.archlinux.org/$PACKAGES_AUR_COMMAND.git && (cd $PACKAGES_AUR_COMMAND && makepkg -si --noconfirm) && rm -rf /home/$USER_NAME/.alis/aur/$PACKAGES_AUR_COMMAND"
                 ;;
         esac
 

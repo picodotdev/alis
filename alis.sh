@@ -1703,6 +1703,9 @@ function packages() {
         USER_PASSWORD="$USER_PASSWORD" \
         PACKAGES_INSTALL_PIPEWIRE="$PACKAGES_INSTALL_PIPEWIRE" \
         ./alis-packages.sh
+        if [ $? != 0 ]; then
+            exit 1
+        fi
     fi
 }
 

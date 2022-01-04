@@ -84,6 +84,7 @@ function sanitize_variable() {
 
 function check_variables() {
     check_variables_boolean "PACKAGES_PACMAN_INSTALL" "$PACKAGES_PACMAN_INSTALL"
+    check_variables_boolean "PACKAGES_PACMAN_INSTALL_PIPEWIRE" "$PACKAGES_PACMAN_INSTALL_PIPEWIRE"
     check_variables_boolean "PACKAGES_FLATPAK_INSTALL" "$PACKAGES_FLATPAK_INSTALL"
     check_variables_boolean "PACKAGES_SDKMAN_INSTALL" "$PACKAGES_SDKMAN_INSTALL"
     check_variables_boolean "PACKAGES_AUR_INSTALL" "$PACKAGES_AUR_INSTALL"
@@ -210,7 +211,7 @@ function packages_pacman() {
             pacman_install "$PACKAGES_PACMAN"
         fi
 
-        if [ "$PACKAGES_INSTALL_PIPEWIRE" == "true" ] && [ -n "$PACKAGES_PACMAN_PIPEWIRE" ]; then
+        if [[ ("$PACKAGES_INSTALL_PIPEWIRE" == "true" || "$PACKAGES_PACMAN_INSTALL_PIPEWIRE" == "true") && -n "$PACKAGES_PACMAN_PIPEWIRE" ]]; then
             pacman_install "$PACKAGES_PACMAN_PIPEWIRE"
         fi
     fi

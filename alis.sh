@@ -1687,9 +1687,10 @@ function desktop_environment_deepin() {
 
 function packages() {
     if [ "$PACKAGES_INSTALL" == "true" ]; then
-        (USER_NAME=$USER_NAME \
-         USER_PASSWORD=$USER_PASSWORD \
-            ./alis-packages.sh)
+        USER_NAME="$USER_NAME" \
+        USER_PASSWORD="$USER_PASSWORD" \
+        PACKAGES_INSTALL_PIPEWIRE="$PACKAGES_INSTALL_PIPEWIRE" \
+        ./alis-packages.sh
     fi
 }
 

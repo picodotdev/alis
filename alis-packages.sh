@@ -96,7 +96,7 @@ function check_variables_value() {
     VALUE=$2
     if [ -z "$VALUE" ]; then
         echo "$NAME environment variable must have a value."
-        exit
+        exit 1
     fi
 }
 
@@ -119,12 +119,12 @@ function check_variables_list() {
 
     if [[ ("$SINGLE" == "" || "$SINGLE" == "true") && "$VALUE" != "" && "$VALUE" =~ " " ]]; then
         echo "$NAME environment variable value [$VALUE] must be a single value of [$VALUES]."
-        exit
+        exit 1
     fi
 
     if [ "$VALUE" != "" -a -z "$(echo "$VALUES" | grep -F -w "$VALUE")" ]; then
         echo "$NAME environment variable value [$VALUE] must be in [$VALUES]."
-        exit
+        exit 1
     fi
 }
 
@@ -135,7 +135,7 @@ function check_variables_equals() {
     VALUE2=$4
     if [ "$VALUE1" != "$VALUE2" ]; then
         echo "$NAME1 and $NAME2 must be equal [$VALUE1, $VALUE2]."
-        exit
+        exit 1
     fi
 }
 
@@ -145,7 +145,7 @@ function check_variables_size() {
     SIZE=$3
     if [ "$SIZE_EXPECT" != "$SIZE" ]; then
         echo "$NAME array size [$SIZE] must be [$SIZE_EXPECT]."
-        exit
+        exit 1
     fi
 }
 
@@ -212,7 +212,13 @@ function packages_pacman() {
         fi
 
         if [[ ("$PACKAGES_INSTALL_PIPEWIRE" == "true" || "$PACKAGES_PACMAN_INSTALL_PIPEWIRE" == "true") && -n "$PACKAGES_PACMAN_PIPEWIRE" ]]; then
+            if [ -n "$(echo "$PACKAGES_PACMAN_PIPEWIRE" | grep -F -w "pipewire-pulse")" ]; then
+                pacman_uninstall "pulseaudio pulseaudio-bluetooth"
+            fi
             pacman_install "$PACKAGES_PACMAN_PIPEWIRE"
+            if [ -n "$(echo "$PACKAGES_PACMAN_PIPEWIRE" | grep -F -w "pipewire-pulse")" ]; then
+                execute_user "systemctl enable --user pipewire-pulse.service"
+            fi
         fi
     fi
 }
@@ -299,7 +305,24 @@ function pacman_install() {
     done
     set -e
     if [ "$ERROR" == "true" ]; then
-        exit
+        exit 1
+    fi
+}
+
+function pacman_uninstall() {
+    ERROR="true"
+    set +e
+    IFS=' ' PACKAGES=($1)
+    COMMAND="pacman -R --noconfirm ${PACKAGES[@]}"
+    execute_sudo "$COMMAND"
+    if [ $? == 0 ]; then
+        ERROR="false"
+    else
+        sleep 10
+    fi
+    set -e
+    if [ "$ERROR" == "true" ]; then
+        exit 1
     fi
 }
 
@@ -325,7 +348,7 @@ function flatpak_install() {
     done
     set -e
     if [ "$ERROR" == "true" ]; then
-        exit
+        exit 1
     fi
 }
 
@@ -350,7 +373,7 @@ function sdkman_install() {
     done
     set -e
     if [ "$ERROR" == "true" ]; then
-        exit
+        exit 1
     fi
 }
 
@@ -371,7 +394,7 @@ function aur_install() {
     done
     set -e
     if [ "$ERROR" == "true" ]; then
-        exit
+        exit 1
     fi
 }
 

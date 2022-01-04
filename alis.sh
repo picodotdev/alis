@@ -214,7 +214,7 @@ function check_variables_value() {
     VALUE=$2
     if [ -z "$VALUE" ]; then
         echo "$NAME environment variable must have a value."
-        exit
+        exit 1
     fi
 }
 
@@ -237,12 +237,12 @@ function check_variables_list() {
 
     if [[ ("$SINGLE" == "" || "$SINGLE" == "true") && "$VALUE" != "" && "$VALUE" =~ " " ]]; then
         echo "$NAME environment variable value [$VALUE] must be a single value of [$VALUES]."
-        exit
+        exit 1
     fi
 
     if [ "$VALUE" != "" -a -z "$(echo "$VALUES" | grep -F -w "$VALUE")" ]; then
         echo "$NAME environment variable value [$VALUE] must be in [$VALUES]."
-        exit
+        exit 1
     fi
 }
 
@@ -253,7 +253,7 @@ function check_variables_equals() {
     VALUE2=$4
     if [ "$VALUE1" != "$VALUE2" ]; then
         echo "$NAME1 and $NAME2 must be equal [$VALUE1, $VALUE2]."
-        exit
+        exit 1
     fi
 }
 
@@ -263,7 +263,7 @@ function check_variables_size() {
     SIZE=$3
     if [ "$SIZE_EXPECT" != "$SIZE" ]; then
         echo "$NAME array size [$SIZE] must be [$SIZE_EXPECT]."
-        exit
+        exit 1
     fi
 }
 
@@ -279,10 +279,10 @@ function warning() {
         [Yy]* )
             ;;
         [Nn]* )
-            exit
+            exit 0
             ;;
         * )
-            exit
+            exit 0
             ;;
     esac
 }
@@ -522,7 +522,7 @@ function configure_network() {
     ping -c 1 -i 2 -W 5 -w 30 $PING_HOSTNAME
     if [ $? -ne 0 ]; then
         echo "Network ping check failed. Cannot continue."
-        exit
+        exit 1
     fi
 }
 
@@ -1796,7 +1796,23 @@ function pacman_install() {
     done
     set -e
     if [ "$ERROR" == "true" ]; then
-        exit
+        exit 1
+    fi
+}
+
+function pacman_uninstall() {
+    ERROR="true"
+    set +e
+    IFS=' ' PACKAGES=($1)
+    arch-chroot /mnt pacman -R --noconfirm ${PACKAGES[@]}
+    if [ $? == 0 ]; then
+        ERROR="false"
+    else
+        sleep 10
+    fi
+    set -e
+    if [ "$ERROR" == "true" ]; then
+        exit 1
     fi
 }
 

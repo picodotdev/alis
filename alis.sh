@@ -66,6 +66,7 @@ DEVICE_MMC=""
 CPU_VENDOR=""
 GPU_VENDOR=""
 VIRTUALBOX=""
+VMWARE=""
 CMDLINE_LINUX_ROOT=""
 CMDLINE_LINUX=""
 BTRFS_SUBVOLUME_ROOT=()
@@ -359,6 +360,10 @@ function facts() {
 
     if [ -n "$(systemd-detect-virt | grep -i oracle)" ]; then
         VIRTUALBOX="true"
+    fi
+
+    if [ -n "$(systemd-detect-virt | grep -i vmware)" ]; then
+        VMWARE="true"
     fi
 }
 
@@ -1099,6 +1104,13 @@ function virtualbox() {
     arch-chroot /mnt systemctl enable vboxservice.service
 }
 
+function vmware() {
+    print_step "vmware()"
+
+    pacman_install "open-vm-tools"
+    arch-chroot /mnt systemctl enable vmtoolsd.service
+}
+
 function users() {
     print_step "users()"
 
@@ -1223,7 +1235,7 @@ function bootloader() {
 
     BOOTLOADER_ALLOW_DISCARDS=""
 
-    if [ "$VIRTUALBOX" != "true" ]; then
+    if [ "$VIRTUALBOX" != "true" -a "$VMWARE" != "true" ]; then
         if [ "$CPU_VENDOR" == "intel" ]; then
             pacman_install "intel-ucode"
         fi
@@ -1327,7 +1339,7 @@ function bootloader_refind() {
 
     REFIND_MICROCODE=""
 
-    if [ "$VIRTUALBOX" != "true" ]; then
+    if [ "$VIRTUALBOX" != "true" -a "$VMWARE" != "true" ]; then
         if [ "$CPU_VENDOR" == "intel" ]; then
             REFIND_MICROCODE="initrd=/intel-ucode.img"
         fi
@@ -1445,7 +1457,7 @@ EOT
 
     SYSTEMD_MICROCODE=""
 
-    if [ "$VIRTUALBOX" != "true" ]; then
+    if [ "$VIRTUALBOX" != "true" -a "$VMWARE" != "true" ]; then
         if [ "$CPU_VENDOR" == "intel" ]; then
             SYSTEMD_MICROCODE="/intel-ucode.img"
         fi
@@ -1497,7 +1509,7 @@ EOT
 
         echo "title Arch Linux (lts-fallback)" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-lts-fallback.conf"
         echo "efi /vmlinuz-linux-lts" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-lts-fallback.conf"
-        if [ "$CPU_INTEL" == "true" -a "$VIRTUALBOX" != "true" ]; then
+        if [ -n "$SYSTEMD_MICROCODE" ]; then
             echo "initrd $SYSTEMD_MICROCODE" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-lts-fallback.conf"
         fi
         echo "initrd /initramfs-linux-lts-fallback.img" >> "/mnt$ESP_DIRECTORY/loader/entries/archlinux-lts-fallback.conf"
@@ -1904,6 +1916,7 @@ DEVICE_NVME="$DEVICE_NVME"
 DEVICE_MMC="$DEVICE_MMC"
 CPU_VENDOR="$CPU_VENDOR"
 VIRTUALBOX="$VIRTUALBOX"
+VMWARE="$VMWARE"
 CMDLINE_LINUX_ROOT="$CMDLINE_LINUX_ROOT"
 CMDLINE_LINUX="$CMDLINE_LINUX"
 BTRFS_SUBVOLUME_ROOT=("${BTRFS_SUBVOLUME_ROOT[@]}")
@@ -1914,7 +1927,7 @@ EOT
 }
 
 function main() {
-    ALL_STEPS=("configuration_install" "sanitize_variables" "check_variables" "warning" "init" "facts" "checks" "prepare" "partition" "install" "configuration" "mkinitcpio_configuration" "display_driver" "kernels" "mkinitcpio" "network" "virtualbox" "users" "bootloader" "custom_shell" "desktop_environment" "packages" "vagrant" "systemd_units" "end")
+    ALL_STEPS=("configuration_install" "sanitize_variables" "check_variables" "warning" "init" "facts" "checks" "prepare" "partition" "install" "configuration" "mkinitcpio_configuration" "display_driver" "kernels" "mkinitcpio" "network" "virtualbox" "vmware" "users" "bootloader" "custom_shell" "desktop_environment" "packages" "vagrant" "systemd_units" "end")
     STEP="configuration_install"
 
     if [ -n "$1" ]; then
@@ -1961,6 +1974,9 @@ function main() {
     execute_step "network" "${STEPS}"
     if [ "$VIRTUALBOX" == "true" ]; then
         execute_step "virtualbox" "${STEPS}"
+    fi
+    if [ "$VMWARE" == "true" ]; then
+        execute_step "vmware" "${STEPS}"
     fi
     execute_step "users" "${STEPS}"
     execute_step "bootloader" "${STEPS}"

@@ -216,9 +216,9 @@ function packages_pacman() {
                 pacman_uninstall "pulseaudio pulseaudio-bluetooth"
             fi
             pacman_install "$PACKAGES_PACMAN_PIPEWIRE"
-            if [ -n "$(echo "$PACKAGES_PACMAN_PIPEWIRE" | grep -F -w "pipewire-pulse")" ]; then
-                execute_user "systemctl enable --user pipewire-pulse.service"
-            fi
+            #if [ -n "$(echo "$PACKAGES_PACMAN_PIPEWIRE" | grep -F -w "pipewire-pulse")" ]; then
+            #    execute_user "systemctl enable --user pipewire-pulse.service"
+            #fi
         fi
     fi
 }
@@ -264,7 +264,7 @@ function packages_aur() {
             execute_aur "rm -rf /home/$USER_NAME/.alis/aur/$COMMAND && mkdir -p /home/$USER_NAME/.alis/aur && cd /home/$USER_NAME/.alis/aur && git clone https://aur.archlinux.org/$COMMAND.git && (cd $COMMAND && makepkg -si --noconfirm) && rm -rf /home/$USER_NAME/.alis/aur/$COMMAND"
         done
 
-        case "${COMMANDS[0]]}" in
+        case "${COMMANDS[0]}" in
             "aurman" )
                 AUR_COMMAND="aurman"
                 ;;
@@ -288,6 +288,32 @@ function packages_aur() {
     fi
 }
 
+function pacman_uninstall() {
+    ERROR="true"
+    set +e
+    IFS=' ' PACKAGES=($1)
+    PACKAGES_UNINSTALL=()
+    for PACKAGE in "${PACKAGES[@]}"
+    do
+        execute_user "pacman -Qi $PACKAGE > /dev/null 2>&1"
+        PACKAGE_INSTALLED=$?
+        if [ $PACKAGE_INSTALLED == 0 ]; then
+            PACKAGES_UNINSTALL+=("$PACKAGE")
+        fi
+    done
+    COMMAND="pacman -Rdd --noconfirm ${PACKAGES_UNINSTALL[@]}"
+    execute_sudo "$COMMAND"
+    if [ $? == 0 ]; then
+        ERROR="false"
+    else
+        sleep 10
+    fi
+    set -e
+    if [ "$ERROR" == "true" ]; then
+        exit 1
+    fi
+}
+
 function pacman_install() {
     ERROR="true"
     set +e
@@ -303,23 +329,6 @@ function pacman_install() {
             sleep 10
         fi
     done
-    set -e
-    if [ "$ERROR" == "true" ]; then
-        exit 1
-    fi
-}
-
-function pacman_uninstall() {
-    ERROR="true"
-    set +e
-    IFS=' ' PACKAGES=($1)
-    COMMAND="pacman -R --noconfirm ${PACKAGES[@]}"
-    execute_sudo "$COMMAND"
-    if [ $? == 0 ]; then
-        ERROR="false"
-    else
-        sleep 10
-    fi
     set -e
     if [ "$ERROR" == "true" ]; then
         exit 1
@@ -445,7 +454,7 @@ function execute_sudo() {
     if [ "$SYSTEM_INSTALLATION" == "true" ]; then
         arch-chroot /mnt bash -c "$COMMAND"
     else
-        bash -c "sudo $COMMAND"
+        sudo bash -c "$COMMAND"
     fi
 }
 

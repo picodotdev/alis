@@ -1803,22 +1803,6 @@ function pacman_install() {
     fi
 }
 
-function pacman_uninstall() {
-    ERROR="true"
-    set +e
-    IFS=' ' PACKAGES=($1)
-    arch-chroot /mnt pacman -R --noconfirm ${PACKAGES[@]}
-    if [ $? == 0 ]; then
-        ERROR="false"
-    else
-        sleep 10
-    fi
-    set -e
-    if [ "$ERROR" == "true" ]; then
-        exit 1
-    fi
-}
-
 function copy_logs() {
     ESCAPED_LUKS_PASSWORD=$(echo "${LUKS_PASSWORD}" | sed 's/[.[\*^$()+?{|]/[\\&]/g')
     ESCAPED_ROOT_PASSWORD=$(echo "${ROOT_PASSWORD}" | sed 's/[.[\*^$()+?{|]/[\\&]/g')

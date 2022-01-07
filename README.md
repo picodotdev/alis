@@ -32,6 +32,7 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 * [Recovery](https://github.com/picodotdev/alis#recovery)
 * [Video](https://github.com/picodotdev/alis#video)
 * [How you can help](https://github.com/picodotdev/alis#how-you-can-help)
+* [Media reference](https://github.com/picodotdev/alis#media-reference)
 * [Test in VirtualBox with Packer](https://github.com/picodotdev/alis#test-in-virtualbox-with-packer)
 * [Arch Linux Installation Media](https://github.com/picodotdev/alis#arch-linux-installation-media)
 * [Reference](https://github.com/picodotdev/alis#reference)
@@ -156,6 +157,12 @@ Arch Linux base installation installed in **less than 4 minutes** with a fiber i
 * Send pull requests
 * Share it in social networks, forums, create a blog post or video about it
 * Send me an email, I like to read that the script is being used and is useful :). Which are your computer specs, which is your alis configuration, if is your personal or working computer, if all worked fine or some suggestion to improve the script
+
+### Media reference
+
+* 2021.02 [Arch + Alis, Arco Linux](https://www.arcolinuxiso.com/aa/) ([video playlist](https://www.youtube.com/playlist?list=PLlloYVGq5pS7lMblPjiifVxxnMAqYzBU5))
+* 2020.07 [Arch installer - alis](https://r1ce.net/2020/07/07/arch-installer-alis/)
+* 2019.06 [Arch Linux OS Challenge: Install Arch 'The Easy Way' With These 2 Alternative Methods](https://www.forbes.com/sites/jasonevangelho/2019/06/10/arch-linux-os-challenge-2-alternatives-install-gui-script-easy/)
 
 ### Test in VirtualBox with Packer
 

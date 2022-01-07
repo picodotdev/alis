@@ -41,6 +41,8 @@ set -e
 # # ./alis.sh
 
 # global variables (no configuration, don't edit)
+START_TIMESTAMP=""
+END_TIMESTAMP=""
 ASCIINEMA=""
 BIOS_TYPE=""
 PARTITION_BOOT=""
@@ -298,6 +300,8 @@ function init_log() {
     if [ "$LOG" == "true" ]; then
         exec > >(tee -a $LOG_FILE)
         exec 2> >(tee -a $LOG_FILE >&2)
+        date -u -d @$(($(date -d "$Value2" '+%s') - $(date -d "$Value1" '+%s'))) '+%T'
+        date -u -d @$(($(date -d "$END_TIMESTAMP" '+%s') - $(date -d "$START_TIMESTAMP" '+%s'))) '+%T'
     fi
     set -o xtrace
 }
@@ -1960,6 +1964,7 @@ function main() {
     fi
 
     # execute steps
+    START_TIMESTAMP=$(date -u +"%F %T")
     execute_step "configuration_install" "${STEPS}"
     execute_step "sanitize_variables" "${STEPS}"
     execute_step "check_variables" "${STEPS}"
@@ -1997,6 +2002,9 @@ function main() {
         execute_step "vagrant" "${STEPS}"
     fi
     execute_step "systemd_units" "${STEPS}"
+    END_TIMESTAMP=$(date -u +"%F %T")
+    INSTALLATION_TIME=$(date -u -d @$(($(date -d "$END_TIMESTAMP" '+%s') - $(date -d "$START_TIMESTAMP" '+%s'))) '+%T')
+    echo "Installation start $START_TIMESTAMP, end $END_TIMESTAMP, time $INSTALLATION_TIME"
     execute_step "end" "${STEPS}"
 }
 

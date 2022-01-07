@@ -204,7 +204,7 @@ function check_variables() {
     check_variables_value "HOOKS" "$HOOKS"
     check_variables_list "BOOTLOADER" "$BOOTLOADER" "grub refind systemd" "true" "true"
     check_variables_list "CUSTOM_SHELL" "$CUSTOM_SHELL" "bash zsh dash fish" "true" "true"
-    check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde i3-wm i3-gaps deepin budgie" "false" "true"
+    check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde i3-wm i3-gaps deepin budgie bspwm" "false" "true"
     check_variables_boolean "PACKAGES_MULTILIB" "$PACKAGES_MULTILIB"
     check_variables_boolean "PACKAGES_INSTALL" "$PACKAGES_INSTALL"
     check_variables_boolean "VAGRANT" "$VAGRANT"
@@ -1654,6 +1654,9 @@ function desktop_environment() {
         "budgie" )
             desktop_environment_budgie
             ;;
+        "bspwm" )
+            desktop_environment_bspwm
+            ;;
     esac
 
     arch-chroot /mnt systemctl set-default graphical.target
@@ -1708,6 +1711,11 @@ function desktop_environment_deepin() {
 function desktop_environment_budgie() {
     pacman_install "budgie-desktop budgie-desktop-view budgie-screensaver gnome-control-center network-manager-applet gnome"
     arch-chroot /mnt systemctl enable gdm.service
+}
+
+function desktop_environment_bspwm() {
+    pacman_install "bspwm lightdm lightdm-gtk-greeter"
+    arch-chroot /mnt systemctl enable lightdm.service
 }
 
 function packages() {

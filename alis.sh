@@ -300,8 +300,6 @@ function init_log() {
     if [ "$LOG" == "true" ]; then
         exec > >(tee -a $LOG_FILE)
         exec 2> >(tee -a $LOG_FILE >&2)
-        date -u -d @$(($(date -d "$Value2" '+%s') - $(date -d "$Value1" '+%s'))) '+%T'
-        date -u -d @$(($(date -d "$END_TIMESTAMP" '+%s') - $(date -d "$START_TIMESTAMP" '+%s'))) '+%T'
     fi
     set -o xtrace
 }

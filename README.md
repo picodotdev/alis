@@ -160,7 +160,7 @@ Arch Linux base installation installed in **less than 4 minutes** with a fiber i
 
 ### Media reference
 
-* 2021.02 [Arch + Alis, Arco Linux](https://www.arcolinuxiso.com/aa/) ([video playlist](https://www.youtube.com/playlist?list=PLlloYVGq5pS7lMblPjiifVxxnMAqYzBU5))
+* 2022.01 [Arch + Alis, Arco Linux](https://www.arcolinuxiso.com/aa/) ([video playlist](https://www.youtube.com/playlist?list=PLlloYVGq5pS7lMblPjiifVxxnMAqYzBU5))
 * 2020.07 [Arch installer - alis](https://r1ce.net/2020/07/07/arch-installer-alis/)
 * 2019.06 [Arch Linux OS Challenge: Install Arch 'The Easy Way' With These 2 Alternative Methods](https://www.forbes.com/sites/jasonevangelho/2019/06/10/arch-linux-os-challenge-2-alternatives-install-gui-script-easy/)
 

@@ -1675,7 +1675,7 @@ function desktop_environment_mate() {
 }
 
 function desktop_environment_cinnamon() {
-    pacman_install "cinnamon lightdm lightdm-gtk-greeter xorg-server"
+    pacman_install "cinnamon gnome-terminal lightdm lightdm-gtk-greeter xorg-server"
     arch-chroot /mnt systemctl enable lightdm.service
 }
 

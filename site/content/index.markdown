@@ -168,27 +168,27 @@ url: "/"
         Minimum usage
       </p>
 {{< highlight bash "" >}}
-#                         # Start the system with latest Arch Linux installation media
-# loadkeys [keymap]       # Load keyboard keymap, eg. loadkeys es, loadkeys us, loadkeys de
-# curl -sL https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash     # Download alis scripts
-# vim alis.conf           # Edit configuration and change variables values with your preferences (system configuration)
-# ./alis.sh               # Start installation
+                        # Start the system with latest Arch Linux installation media
+loadkeys [keymap]       # Load keyboard keymap, eg. loadkeys es, loadkeys us, loadkeys de
+curl -sL https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash     # Download alis scripts
+vim alis.conf           # Edit configuration and change variables values with your preferences (system configuration)
+./alis.sh               # Start installation
 {{< / highlight >}}
       <p>
         Advanced usage
       </p>
 {{< highlight bash "" >}}
-#                         # Start the system with latest Arch Linux installation media
-# loadkeys [keymap]       # Load keyboard keymap, eg. loadkeys es, loadkeys us, loadkeys de
-# iwctl --passphrase "[WIFI_KEY]" station [WIFI_INTERFACE] connect "[WIFI_ESSID]"          # (Optional) Connect to WIFI network. _ip link show_ to know WIFI_INTERFACE.
-# curl -sL https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash     # Download alis scripts
-# # curl -sL https://git.io/JeaH6 | bash                                                   # Alternative download URL with URL shortener
-# ./alis-asciinema.sh     # (Optional) Start asciinema video recording
-# vim alis.conf           # Edit configuration and change variables values with your preferences (system configuration)
-# vim alis-packages.conf  # (Optional) Edit configuration and change variables values with your preferences (packages to install)
-#                         # (The preferred way to install packages is after system installation, see Packages installation)
-# ./alis.sh               # Start installation
-# ./alis-reboot.sh        # (Optional) Reboot the system, only necessary when REBOOT="false"
+                        # Start the system with latest Arch Linux installation media
+loadkeys [keymap]       # Load keyboard keymap, eg. loadkeys es, loadkeys us, loadkeys de
+iwctl --passphrase "[WIFI_KEY]" station [WIFI_INTERFACE] connect "[WIFI_ESSID]"          # (Optional) Connect to WIFI network. _ip link show_ to know WIFI_INTERFACE.
+curl -sL https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash     # Download alis scripts
+# curl -sL https://git.io/JeaH6 | bash                                                   # Alternative download URL with URL shortener
+./alis-asciinema.sh     # (Optional) Start asciinema video recording
+vim alis.conf           # Edit configuration and change variables values with your preferences (system configuration)
+vim alis-packages.conf  # (Optional) Edit configuration and change variables values with your preferences (packages to install)
+                        # (The preferred way to install packages is after system installation, see Packages installation)
+./alis.sh               # Start installation
+./alis-reboot.sh        # (Optional) Reboot the system, only necessary when REBOOT="false"
 {{< / highlight >}}
     </div>
   </div>
@@ -218,12 +218,12 @@ url: "/"
     After the base Arch Linux system is installed, alis can install packages with pacman, Flatpak, SDKMAN and from AUR.
     </p>
 {{< highlight bash "" >}}
-#                                  # After system installation start a user session
-# curl -sL https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash     # Download alis scripts
-# # curl -sL https://git.io/JeaH6 | bash                                                   # Alternative download URL with URL shortener
-# ./alis-packages-asciinema.sh     # (Optional) Start asciinema video recording
-# vim alis-packages.conf           # Edit configuration and change variables values with your preferences (packages to install)
-# ./alis-packages.sh               # Start packages installation
+                                 # After system installation start a user session
+curl -sL https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash     # Download alis scripts
+# curl -sL https://git.io/JeaH6 | bash                                                   # Alternative download URL with URL shortener
+./alis-packages-asciinema.sh     # (Optional) Start asciinema video recording
+vim alis-packages.conf           # Edit configuration and change variables values with your preferences (packages to install)
+./alis-packages.sh               # Start packages installation
 {{< / highlight >}}
     </div>
   </div>
@@ -240,21 +240,21 @@ url: "/"
       Boot from the latest <a href="https://www.archlinux.org/download/">original Arch Linux installation media</a>. After boot use the following comands to start the recovery, this will allow you to enter in the arch-chroot environment.
       </p>
 {{< highlight bash "" >}}
-#                                  # Start the system with latest Arch Linux installation media
-# loadkeys [keymap]                # Load keyboard keymap, eg. loadkeys es, loadkeys us, loadkeys de
-# iwctl --passphrase "[WIFI_KEY]" station [WIFI_INTERFACE] connect "[WIFI_ESSID]"          # (Optional) Connect to WIFI network. _ip link show_ to know WIFI_INTERFACE.
-# curl -sL https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash     # Download alis scripts
-# # curl -sL https://git.io/JeaH6 | bash                                                   # Alternative download URL with URL shortener
-# ./alis-recovery-asciinema.sh     # (Optional) Start asciinema video recording
-# vim alis-recovery.conf           # Edit configuration and change variables values with your last installation configuration with alis (mainly device and partition scheme)
-# ./alis-recovery.sh               # Start recovery
-# ./alis-recovery-reboot.sh        # Reboot the system
+                                 # Start the system with latest Arch Linux installation media
+loadkeys [keymap]                # Load keyboard keymap, eg. loadkeys es, loadkeys us, loadkeys de
+iwctl --passphrase "[WIFI_KEY]" station [WIFI_INTERFACE] connect "[WIFI_ESSID]"          # (Optional) Connect to WIFI network. _ip link show_ to know WIFI_INTERFACE.
+curl -sL https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash     # Download alis scripts
+# curl -sL https://git.io/JeaH6 | bash                                                   # Alternative download URL with URL shortener
+./alis-recovery-asciinema.sh     # (Optional) Start asciinema video recording
+vim alis-recovery.conf           # Edit configuration and change variables values with your last installation configuration with alis (mainly device and partition scheme)
+./alis-recovery.sh               # Start recovery
+./alis-recovery-reboot.sh        # Reboot the system
 {{< / highlight >}}
     </div>
   </div>
 </section>
 
-<section id="howyoucanhelp" class="section is-medium">
+<section id="how-you-can-help" class="section is-medium">
   <div class="container">
     <div class="title-wrapper has-text-centered">
       <h2 class="title is-2">How you can help</h2>
@@ -267,6 +267,22 @@ url: "/"
         <li>Send <a href="https://github.com/picodotdev/alis/pulls">pull requests</a></li>
         <li>Share it in social networks, forums, create a blog post or video about it</li>
         <li>Send me an email, I like to read that the script is being used and is useful :). Which are your computer specs, which is your alis configuration, if is your personal or working computer, if all worked fine or some suggestion to improve the script</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="media-reference" class="section is-medium">
+  <div class="container">
+    <div class="title-wrapper has-text-centered">
+      <h2 class="title is-2">Media reference</h2>
+      <div class="divider is-centered"></div>
+    </div>
+    <div class="content-wrapper">
+      <ul>
+        <li>2021.01 <a hred="https://www.arcolinuxiso.com/aa/">Arch + Alis, Arco Linux</a> (<a hred="https://www.youtube.com/playlist?list=PLlloYVGq5pS7lMblPjiifVxxnMAqYzBU5">video playlist</a>)</li>
+        <li>2020.07 <a hred="https://r1ce.net/2020/07/07/arch-installer-alis/">Arch installer - alis</a></li>
+        <li>2019.06 <a hred="https://www.forbes.com/sites/jasonevangelho/2019/06/10/arch-linux-os-challenge-2-alternatives-install-gui-script-easy/">Arch Linux OS Challenge: Install Arch 'The Easy Way' With These 2 Alternative Methods</a></li>
       </ul>
     </div>
   </div>

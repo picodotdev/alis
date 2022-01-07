@@ -13,9 +13,9 @@ If some time later after an system update for any reason the system does not boo
 
 Currently these scripts are for me but maybe they are useful for you too.
 
-Follow the [Arch Way](https://wiki.archlinux.org/index.php/Arch_Linux) of doing things and learn what this script does. This will allow you to know what is happening. 
+Follow the [Arch Way](https://wiki.archlinux.org/title/Arch_Linux) of doing things and learn what this script does. This will allow you to know what is happening.
 
-Please, don't ask for support for this script in Arch Linux forums, first read the [Arch Linux wiki](https://wiki.archlinux.org), the [Installation Guide](https://wiki.archlinux.org/index.php/Installation_guide) and the [General Recommendations](https://wiki.archlinux.org/index.php/General_recommendations), later compare those commands with the commands of this script.
+Please, don't ask for support for this script in Arch Linux forums, first read the [Arch Linux wiki](https://wiki.archlinux.org), the [Installation Guide](https://wiki.archlinux.org/title/Installation_guide) and the [General Recommendations](https://wiki.archlinux.org/title/General_recommendations), later compare those commands with the commands of this script.
 
 For new features, improvements and bugs fill an issue in GitHub or make a pull request. You can test it in a virtual machine (strongly recommended) like [VirtualBox](https://www.virtualbox.org/) before run it in real hardware. If you test it in real hardware please send me an email to pico.dev@gmail.com with the machine description and tell me if something goes wrong or all works fine. [Pull request](https://github.com/picodotdev/alis/pulls) and [new feature request](https://github.com/picodotdev/alis/issues) are welcome!
 
@@ -53,7 +53,7 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 * **Partition**: no LVM, LVM, LVM on LUKS, GPT on UEFI, MBR on BIOS
 * **File system**: ext4, btrfs (with subvols), xfs, f2fs, reiserfs
 * **Kernels**: linux, linux-lts, linux-hardened, linux-zen
-* **Desktop environment**: GNOME, KDE, XFCE, Mate, Cinnamon, LXDE, i3-wm, i3-gaps, Deepin
+* **Desktop environment**: GNOME, KDE, XFCE, Mate, Cinnamon, LXDE, i3-wm, i3-gaps, Deepin, Budgie
 * **Display managers**: GDM, SDDM, Lightdm, lxdm
 * **Graphics controller**: intel, nvidia and amd with optionally early KMS start. With intel optionally fastboot, hardware video acceleration and framebuffer compression.
 * **Bootloader**: GRUB, rEFInd, systemd-boot
@@ -85,9 +85,9 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 
 Download and boot from the latest <a href="https://www.archlinux.org/download/">original Arch Linux installation media</a>. After boot use the following commands to start the installation.
 
-Follow the <a href="https://wiki.archlinux.org/index.php/Arch_Linux">Arch Way</a> of doing things and learn what this script does. This will allow you to know what is happening. 
+Follow the <a href="https://wiki.archlinux.org/title/Arch_Linux">Arch Way</a> of doing things and learn what this script does. This will allow you to know what is happening. 
 
-Internet connection is required, with wireless WIFI connection see <a href="https://wiki.archlinux.org/index.php/Wireless_network_configuration#Wi-Fi_Protected_Access">Wireless_network_configuration</a> to bring up WIFI connection before start the installation.
+Internet connection is required, with wireless WIFI connection see <a href="https://wiki.archlinux.org/title/Wireless_network_configuration#Wi-Fi_Protected_Access">Wireless_network_configuration</a> to bring up WIFI connection before start the installation.
 
 Minimum usage
 
@@ -191,64 +191,65 @@ https://www.archlinux.org/download/
 
 ### Reference
 
-* https://wiki.archlinux.org/index.php/Installation_guide
-* https://wiki.archlinux.org/index.php/Main_page
-* https://wiki.archlinux.org/index.php/General_recommendations
-* https://wiki.archlinux.org/index.php/List_of_applications
-* https://wiki.archlinux.org/index.php/Intel_NUC
-* https://wiki.archlinux.org/index.php/Network_configuration
-* https://wiki.archlinux.org/index.php/Wireless_network_configuration
-* https://wiki.archlinux.org/index.php/Wireless_network_configuration#Connect_to_an_access_point
-* https://wiki.archlinux.org/index.php/NetworkManager
-* https://wiki.archlinux.org/index.php/Solid_State_Drives
-* https://wiki.archlinux.org/index.php/Solid_state_drive/NVMe
-* https://wiki.archlinux.org/index.php/Partitioning
-* https://wiki.archlinux.org/index.php/Fstab
-* https://wiki.archlinux.org/index.php/Swap
-* https://wiki.archlinux.org/index.php/Unified_Extensible_Firmware_Interface
-* https://wiki.archlinux.org/index.php/EFI_System_Partition
-* https://wiki.archlinux.org/index.php/File_systems
-* https://wiki.archlinux.org/index.php/Ext4
-* https://wiki.archlinux.org/index.php/Btrfs
-* https://wiki.archlinux.org/index.php/XFS
-* https://wiki.archlinux.org/index.php/F2FS
-* https://wiki.archlinux.org/index.php/Persistent_block_device_naming
-* https://wiki.archlinux.org/index.php/LVM
-* https://wiki.archlinux.org/index.php/Dm-crypt
-* https://wiki.archlinux.org/index.php/Dm-crypt/Device_encryption
-* https://wiki.archlinux.org/index.php/Dm-crypt/Encrypting_an_entire_system
-* https://wiki.archlinux.org/index.php/Pacman
-* https://wiki.archlinux.org/index.php/Arch_User_Repository
-* https://wiki.archlinux.org/index.php/Mirrors
-* https://wiki.archlinux.org/index.php/Reflector
-* https://wiki.archlinux.org/index.php/VirtualBox
-* https://wiki.archlinux.org/index.php/Mkinitcpio
-* https://wiki.archlinux.org/index.php/Intel_graphics
-* https://wiki.archlinux.org/index.php/AMDGPU
-* https://wiki.archlinux.org/index.php/ATI
-* https://wiki.archlinux.org/index.php/NVIDIA
-* https://wiki.archlinux.org/index.php/Nouveau
-* https://wiki.archlinux.org/index.php/Kernels
-* https://wiki.archlinux.org/index.php/Kernel_mode_setting
-* https://wiki.archlinux.org/index.php/Kernel_parameters
-* https://wiki.archlinux.org/index.php/Category:Boot_loaders
-* https://wiki.archlinux.org/index.php/GRUB
-* https://wiki.archlinux.org/index.php/REFInd
-* https://wiki.archlinux.org/index.php/Systemd-boot
-* https://wiki.archlinux.org/index.php/Systemd
-* https://wiki.archlinux.org/index.php/Systemd-homed
-* https://wiki.archlinux.org/index.php/Microcode
-* https://wiki.archlinux.org/index.php/Command-line_shell
+* https://wiki.archlinux.org/title/AMDGPU
+* https://wiki.archlinux.org/title/Arch_User_Repository
+* https://wiki.archlinux.org/title/ATI
 * https://wiki.archlinux.org/title/Bluetooth
-* https://wiki.archlinux.org/index.php/Wayland
-* https://wiki.archlinux.org/index.php/Xorg
-* https://wiki.archlinux.org/index.php/Desktop_environment
-* https://wiki.archlinux.org/index.php/GNOME
-* https://wiki.archlinux.org/index.php/KDE
-* https://wiki.archlinux.org/index.php/Xfce
-* https://wiki.archlinux.org/index.php/I3
+* https://wiki.archlinux.org/title/Btrfs
+* https://wiki.archlinux.org/title/Budgie
+* https://wiki.archlinux.org/title/Category:Boot_loaders
+* https://wiki.archlinux.org/title/Command-line_shell
 * https://wiki.archlinux.org/title/Deepin_Desktop_Environment
+* https://wiki.archlinux.org/title/Desktop_environment
+* https://wiki.archlinux.org/title/Dm-crypt
+* https://wiki.archlinux.org/title/Dm-crypt/Device_encryption
+* https://wiki.archlinux.org/title/Dm-crypt/Encrypting_an_entire_system
+* https://wiki.archlinux.org/title/EFI_System_Partition
+* https://wiki.archlinux.org/title/Ext4
+* https://wiki.archlinux.org/title/F2FS
+* https://wiki.archlinux.org/title/File_systems
+* https://wiki.archlinux.org/title/Fstab
+* https://wiki.archlinux.org/title/General_recommendations
+* https://wiki.archlinux.org/title/GNOME
+* https://wiki.archlinux.org/title/GRUB
+* https://wiki.archlinux.org/title/I3
+* https://wiki.archlinux.org/title/Installation_guide
+* https://wiki.archlinux.org/title/Intel_graphics
+* https://wiki.archlinux.org/title/Intel_NUC
+* https://wiki.archlinux.org/title/KDE
+* https://wiki.archlinux.org/title/Kernel_mode_setting
+* https://wiki.archlinux.org/title/Kernel_parameters
+* https://wiki.archlinux.org/title/Kernels
+* https://wiki.archlinux.org/title/List_of_applications
+* https://wiki.archlinux.org/title/LVM
+* https://wiki.archlinux.org/title/Main_page
+* https://wiki.archlinux.org/title/Microcode
+* https://wiki.archlinux.org/title/Mirrors
+* https://wiki.archlinux.org/title/Mkinitcpio
+* https://wiki.archlinux.org/title/Network_configuration
+* https://wiki.archlinux.org/title/NetworkManager
+* https://wiki.archlinux.org/title/Nouveau
+* https://wiki.archlinux.org/title/NVIDIA
+* https://wiki.archlinux.org/title/Pacman
+* https://wiki.archlinux.org/title/Partitioning
+* https://wiki.archlinux.org/title/Persistent_block_device_naming
 * https://wiki.archlinux.org/title/PipeWire
-* http://tldp.org/LDP/Bash-Beginners-Guide/html/
+* https://wiki.archlinux.org/title/REFInd
+* https://wiki.archlinux.org/title/Reflector
+* https://wiki.archlinux.org/title/Solid_state_drive/NVMe
+* https://wiki.archlinux.org/title/Solid_State_Drives
+* https://wiki.archlinux.org/title/Swap
+* https://wiki.archlinux.org/title/Systemd
+* https://wiki.archlinux.org/title/Systemd-boot
+* https://wiki.archlinux.org/title/Systemd-homed
+* https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface
+* https://wiki.archlinux.org/title/VirtualBox
+* https://wiki.archlinux.org/title/Wayland
+* https://wiki.archlinux.org/title/Wireless_network_configuration
+* https://wiki.archlinux.org/title/Wireless_network_configuration#Connect_to_an_access_point
+* https://wiki.archlinux.org/title/Xfce
+* https://wiki.archlinux.org/title/XFS
+* https://wiki.archlinux.org/title/Xorg
 * http://tldp.org/LDP/abs/html/
+* http://tldp.org/LDP/Bash-Beginners-Guide/html/
 

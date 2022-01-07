@@ -117,7 +117,7 @@ url: "/"
         <li><b>Partition</b>: no LVM, LVM, LVM on LUKS, GPT on UEFI, MBR on BIOS</li>
         <li><b>File system</b>: ext4, btrfs (with subvols), xfs, f2fs, reiserfs</li>
         <li><b>Kernels</b>: linux, linux-lts, linux-hardened, linux-zen</li>
-        <li><b>Desktop environment</b>: GNOME, KDE, XFCE, Mate, Cinnamon, LXDE, i3-wm, i3-gaps</li>
+        <li><b>Desktop environment</b>: GNOME, KDE, XFCE, Mate, Cinnamon, LXDE, i3-wm, i3-gaps, Deepin, Budgie</li>
         <li><b>Display managers</b>: GDM, SDDM, Lightdm, lxdm</li>
         <li><b>Graphics controller</b>: intel, nvidia and amd with optionally early KMS start. With intel optionally fastboot, hardware video acceleration and framebuffer compression.</li>
         <li><b>Bootloader</b>: GRUB, rEFInd, systemd-boot</li>
@@ -159,10 +159,10 @@ url: "/"
         Download and boot from the latest <a href="https://www.archlinux.org/download/">original Arch Linux installation media</a>. After boot use the following commands to start the installation.
       </p>
       <p>
-        Follow the <a href="https://wiki.archlinux.org/index.php/Arch_Linux">Arch Way</a> of doing things and learn what this script does. This will allow you to know what is happening. 
+        Follow the <a href="https://wiki.archlinux.org/title/Arch_Linux">Arch Way</a> of doing things and learn what this script does. This will allow you to know what is happening.
       </p>
       <p>
-      Internet connection is required, with wireless WIFI connection see <a href="https://wiki.archlinux.org/index.php/Wireless_network_configuration#Wi-Fi_Protected_Access">Wireless_network_configuration</a> to bring up WIFI connection before start the installation.
+      Internet connection is required, with wireless WIFI connection see <a href="https://wiki.archlinux.org/title/Wireless_network_configuration#Wi-Fi_Protected_Access">Wireless_network_configuration</a> to bring up WIFI connection before start the installation.
       </p>
       <p>
         Minimum usage

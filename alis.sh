@@ -204,7 +204,7 @@ function check_variables() {
     check_variables_value "HOOKS" "$HOOKS"
     check_variables_list "BOOTLOADER" "$BOOTLOADER" "grub refind systemd" "true" "true"
     check_variables_list "CUSTOM_SHELL" "$CUSTOM_SHELL" "bash zsh dash fish" "true" "true"
-    check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde i3-wm i3-gaps deepin" "false" "true"
+    check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde i3-wm i3-gaps deepin budgie" "false" "true"
     check_variables_boolean "PACKAGES_MULTILIB" "$PACKAGES_MULTILIB"
     check_variables_boolean "PACKAGES_INSTALL" "$PACKAGES_INSTALL"
     check_variables_boolean "VAGRANT" "$VAGRANT"
@@ -1653,6 +1653,9 @@ function desktop_environment() {
         "deepin" )
             desktop_environment_deepin
             ;;
+        "budgie" )
+            desktop_environment_budgie
+            ;;
     esac
 
     arch-chroot /mnt systemctl set-default graphical.target
@@ -1702,6 +1705,11 @@ function desktop_environment_deepin() {
     pacman_install "deepin deepin-extra deepin-kwin xorg xorg-server"
     arch-chroot /mnt sed -i 's/^#greeter-session=.*/greeter-session=lightdm-deepin-greeter/' /etc/lightdm/lightdm.conf
     arch-chroot /mnt systemctl enable lightdm.service
+}
+
+function desktop_environment_budgie() {
+    pacman_install "budgie-desktop budgie-desktop-view budgie-screensaver gnome-control-center network-manager-applet gnome"
+    arch-chroot /mnt systemctl enable gdm.service
 }
 
 function packages() {

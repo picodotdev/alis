@@ -898,6 +898,9 @@ function mkinitcpio_configuration() {
     if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
         pacman_install "btrfs-progs"
     fi
+    if [ "$FILE_SYSTEM_TYPE" == "xfs" ]; then
+        pacman_install "xfsprogs"
+    fi
     if [ "$FILE_SYSTEM_TYPE" == "f2fs" ]; then
         pacman_install "f2fs-tools"
     fi
@@ -1450,7 +1453,7 @@ Operation = Upgrade
 Target = systemd
 
 [Action]
-Description = Updating systemd-boot
+Description = Updating systemd-boot...
 When = PostTransaction
 Exec = /usr/bin/bootctl update
 EOT

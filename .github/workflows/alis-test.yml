@@ -1,0 +1,22 @@
+name: alis-test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Environment information
+        run: |
+          uname -a
+          lsb_release -a
+      - name: Install packages
+        run: |
+          sudo apt update
+          sudo apt install virt-manager
+      - name: Create virtual machine
+        run: |
+          sudo virt-install --name test --memory 2048 --arch=amd64 --machine=virt --virt-type=kvm --boot cdrom,hd --network=default,model=virtio --disk path=test.img,format=raw,device=disk,bus=virtio,size=16,cache=none --location=https://mirror.rackspace.com/archlinux/iso/2021.12.01/archlinux-2021.12.01-x86_64.iso --graphics vnc,listen=0.0.0.0
+
+

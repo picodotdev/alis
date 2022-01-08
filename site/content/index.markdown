@@ -133,7 +133,7 @@ url: "/"
         <li><b>systemd-homed</b> support</li>
         <li><b>PipeWire</b> support</li>
         <li><b>Multilib</b> support</li>
-        <li><b>Arch Linux</b> common and custom <b>packages installation</b></li>
+        <li>Pacman common and custom <b>packages installation</b> and <b>custom repositories</b></li>
         <li>Flatpak utility installation and <b>Flatpak packages installation</b></li>
         <li>SDKMAN utility installation and <b>SDKMAN packages installation</b></li>
         <li><b>AUR utility</b> installation (yay, aurman) and <b>AUR packages installation</b></li>

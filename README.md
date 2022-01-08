@@ -69,7 +69,7 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 * **systemd-homed** support
 * **PipeWire** support
 * **Multilib** support
-* **Arch Linux** common and custom **packages installation**
+* Pacman custom **packages installation** and **custom repositories**
 * Flatpak utility installation and **Flatpak packages installation**
 * SDKMAN utility installation and **SDKMAN packages installation**
 * **AUR utility** installation (paru, yay, aurman) and **AUR packages installation**
@@ -191,6 +191,9 @@ https://www.archlinux.org/download/
 
 ### Reference
 
+* https://archlinux.org/pacman/pacman.conf.5.html#_repository_sections
+* https://tldp.org/LDP/abs/html/
+* https://tldp.org/LDP/Bash-Beginners-Guide/html/
 * https://wiki.archlinux.org/title/AMDGPU
 * https://wiki.archlinux.org/title/Arch_User_Repository
 * https://wiki.archlinux.org/title/ATI
@@ -213,6 +216,7 @@ https://www.archlinux.org/download/
 * https://wiki.archlinux.org/title/General_recommendations
 * https://wiki.archlinux.org/title/GNOME
 * https://wiki.archlinux.org/title/GRUB
+* https://wiki.archlinux.org/title/Hardware_video_acceleration
 * https://wiki.archlinux.org/title/I3
 * https://wiki.archlinux.org/title/Installation_guide
 * https://wiki.archlinux.org/title/Intel_graphics
@@ -251,6 +255,4 @@ https://www.archlinux.org/download/
 * https://wiki.archlinux.org/title/Xfce
 * https://wiki.archlinux.org/title/XFS
 * https://wiki.archlinux.org/title/Xorg
-* http://tldp.org/LDP/abs/html/
-* http://tldp.org/LDP/Bash-Beginners-Guide/html/
 

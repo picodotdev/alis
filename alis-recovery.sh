@@ -378,12 +378,17 @@ function partition() {
 }
 
 function recovery() {
-    arch-chroot /mnt
+    arch-chroot /mnt /usr/bin/bash
 }
 
 function end() {
-    echo ""
-    echo "Recovery finalized. You will must do a explicit reboot (exit if in arch-chroot, ./alis-reboot.sh)."
+    if [ "$CHROOT" == "true" ]; then
+        echo ""
+        echo "Recovery finalized. You must do an explicit reboot (./alis-reboot.sh)."
+    else
+        echo ""
+        echo "Recovery started. You must do an explicit reboot after finalize recovery (exit if in arch-chroot, ./alis-reboot.sh)."
+    fi
 }
 
 function do_reboot() {

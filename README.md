@@ -213,6 +213,7 @@ https://www.archlinux.org/download/
 * https://wiki.archlinux.org/title/General_recommendations
 * https://wiki.archlinux.org/title/GNOME
 * https://wiki.archlinux.org/title/GRUB
+* https://wiki.archlinux.org/title/Hardware_video_acceleration
 * https://wiki.archlinux.org/title/I3
 * https://wiki.archlinux.org/title/Installation_guide
 * https://wiki.archlinux.org/title/Intel_graphics

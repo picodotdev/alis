@@ -3,7 +3,7 @@ set -e
 
 # Arch Linux Install Script Recovery (alis-recovery) start a recovery for an
 # failed installation or broken system.
-# Copyright (C) 2021 picodotdev
+# Copyright (C) 2022 picodotdev
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -120,6 +120,7 @@ function check_variables() {
         check_variables_list "PARTITION_MODE" "$PARTITION_MODE" "auto" "true"
     fi
     check_variables_value "PING_HOSTNAME" "$PING_HOSTNAME"
+    check_variables_value "CHROOT" "$CHROOT"
 }
 
 function check_variables_value() {
@@ -175,15 +176,6 @@ function check_variables_size() {
 
 function warning() {
     echo -e "${LIGHT_BLUE}Welcome to Arch Linux Install Script Recovery${NC}"
-    echo ""
-    echo "We will mount your system based on the settings"
-    echo "of the alis-recovery.conf file."
-    echo
-	echo "You will need to arch-chroot into /mnt"
-	echo "arch-chroot /mnt"
-	echo
-    echo "Once recovery tasks are finalized execute following commands:"
-    echo "exit, umount -R /mnt and reboot."
     echo ""
     read -p "Do you want to continue? [y/N] " yn
     case $yn in
@@ -346,9 +338,11 @@ function partition() {
     PARTITION_ROOT_NUMBER="$PARTITION_ROOT"
     PARTITION_BOOT_NUMBER="${PARTITION_BOOT_NUMBER//\/dev\/sda/}"
     PARTITION_BOOT_NUMBER="${PARTITION_BOOT_NUMBER//\/dev\/nvme0n1p/}"
+    PARTITION_BOOT_NUMBER="${PARTITION_BOOT_NUMBER//\/dev\/vda/}"
     PARTITION_BOOT_NUMBER="${PARTITION_BOOT_NUMBER//\/dev\/mmcblk0p/}"
     PARTITION_ROOT_NUMBER="${PARTITION_ROOT_NUMBER//\/dev\/sda/}"
     PARTITION_ROOT_NUMBER="${PARTITION_ROOT_NUMBER//\/dev\/nvme0n1p/}"
+    PARTITION_ROOT_NUMBER="${PARTITION_ROOT_NUMBER//\/dev\/vda/}"
     PARTITION_ROOT_NUMBER="${PARTITION_ROOT_NUMBER//\/dev\/mmcblk0p/}"
 
     # luks and lvm
@@ -387,6 +381,17 @@ function recovery() {
     arch-chroot /mnt
 }
 
+function end() {
+    echo ""
+    echo "Recovery finalized. You will must do a explicit reboot (exit if in arch-chroot, ./alis-reboot.sh)."
+}
+
+function do_reboot() {
+    umount -R /mnt/boot
+    umount -R /mnt
+    reboot
+}
+
 function main() {
     configuration_install
     sanitize_variables
@@ -396,18 +401,10 @@ function main() {
     facts
     prepare
     partition
-    #recovery
+    if [ "$CHROOT" == "true" ]; then
+        recovery
+    fi
+    end
 }
 
 main
-echo
-echo "Your system has been mounted in /mnt."
-echo "Chroot into your system with"
-echo "arch-chroot /mnt"
-echo "Once recovery tasks are finalized execute following commands:"
-echo "To get out of arch-chroot"
-echo "     exit"
-echo "To unmount"
-echo "     umount -R /mnt"
-echo "Now you can reboot."
-echo "     reboot"

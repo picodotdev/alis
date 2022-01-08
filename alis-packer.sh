@@ -3,7 +3,7 @@ set -e
 
 # Arch Linux Install Script (alis) installs unattended, automated
 # and customized Arch Linux system.
-# Copyright (C) 2021 picodotdev
+# Copyright (C) 2022 picodotdev
 
 CONFIG_FILE="alis-packer.json"
 CONFIG_FILE_SH="alis-packer-efi-ext4-systemd.sh"

@@ -3,7 +3,7 @@ set -e
 
 # Arch Linux Install Script Recovery (alis-recovery) start a recovery for an
 # failed installation or broken system.
-# Copyright (C) 2021 picodotdev
+# Copyright (C) 2022 picodotdev
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -120,6 +120,7 @@ function check_variables() {
         check_variables_list "PARTITION_MODE" "$PARTITION_MODE" "auto" "true"
     fi
     check_variables_value "PING_HOSTNAME" "$PING_HOSTNAME"
+    check_variables_value "CHROOT" "$CHROOT"
 }
 
 function check_variables_value() {
@@ -176,8 +177,6 @@ function check_variables_size() {
 function warning() {
     echo -e "${LIGHT_BLUE}Welcome to Arch Linux Install Script Recovery${NC}"
     echo ""
-    echo "Once finalized recovery tasks execute following commands: exit, umount -R /mnt, reboot."
-    echo ""
     read -p "Do you want to continue? [y/N] " yn
     case $yn in
         [Yy]* )
@@ -231,8 +230,6 @@ function facts() {
     fi
 }
 
-function check_facts() {
-}
 
 function prepare() {
     prepare_partition
@@ -341,9 +338,11 @@ function partition() {
     PARTITION_ROOT_NUMBER="$PARTITION_ROOT"
     PARTITION_BOOT_NUMBER="${PARTITION_BOOT_NUMBER//\/dev\/sda/}"
     PARTITION_BOOT_NUMBER="${PARTITION_BOOT_NUMBER//\/dev\/nvme0n1p/}"
+    PARTITION_BOOT_NUMBER="${PARTITION_BOOT_NUMBER//\/dev\/vda/}"
     PARTITION_BOOT_NUMBER="${PARTITION_BOOT_NUMBER//\/dev\/mmcblk0p/}"
     PARTITION_ROOT_NUMBER="${PARTITION_ROOT_NUMBER//\/dev\/sda/}"
     PARTITION_ROOT_NUMBER="${PARTITION_ROOT_NUMBER//\/dev\/nvme0n1p/}"
+    PARTITION_ROOT_NUMBER="${PARTITION_ROOT_NUMBER//\/dev\/vda/}"
     PARTITION_ROOT_NUMBER="${PARTITION_ROOT_NUMBER//\/dev\/mmcblk0p/}"
 
     # luks and lvm
@@ -382,6 +381,17 @@ function recovery() {
     arch-chroot /mnt
 }
 
+function end() {
+    echo ""
+    echo "Recovery finalized. You will must do a explicit reboot (exit if in arch-chroot, ./alis-reboot.sh)."
+}
+
+function do_reboot() {
+    umount -R /mnt/boot
+    umount -R /mnt
+    reboot
+}
+
 function main() {
     configuration_install
     sanitize_variables
@@ -389,11 +399,12 @@ function main() {
     warning
     init
     facts
-    check_facts
     prepare
     partition
-    #recovery
+    if [ "$CHROOT" == "true" ]; then
+        recovery
+    fi
+    end
 }
 
 main
-

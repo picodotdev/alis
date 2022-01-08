@@ -182,7 +182,7 @@ function warning() {
 	echo "You will need to arch-chroot into /mnt"
 	echo "arch-chroot /mnt"
 	echo
-    echo "Once finalized recovery tasks execute following commands:"
+    echo "Once recovery tasks are finalized execute following commands:"
     echo "exit, umount -R /mnt and reboot."
     echo ""
     read -p "Do you want to continue? [y/N] " yn
@@ -238,8 +238,6 @@ function facts() {
     fi
 }
 
-#function check_facts() {
-#}
 
 function prepare() {
     prepare_partition
@@ -396,7 +394,6 @@ function main() {
     warning
     init
     facts
-    #check_facts
     prepare
     partition
     #recovery

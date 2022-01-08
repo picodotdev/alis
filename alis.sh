@@ -204,7 +204,7 @@ function check_variables() {
     check_variables_value "HOOKS" "$HOOKS"
     check_variables_list "BOOTLOADER" "$BOOTLOADER" "grub refind systemd" "true" "true"
     check_variables_list "CUSTOM_SHELL" "$CUSTOM_SHELL" "bash zsh dash fish" "true" "true"
-    check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde i3-wm i3-gaps deepin budgie bspwm" "false" "true"
+    check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde i3-wm i3-gaps deepin budgie bspwm awesome qtile" "false" "true"
     check_variables_boolean "PACKAGES_MULTILIB" "$PACKAGES_MULTILIB"
     check_variables_boolean "PACKAGES_INSTALL" "$PACKAGES_INSTALL"
     check_variables_boolean "VAGRANT" "$VAGRANT"
@@ -1457,7 +1457,7 @@ Operation = Upgrade
 Target = systemd
 
 [Action]
-Description = Updating systemd-boot...
+Description = Updating systemd-boot
 When = PostTransaction
 Exec = /usr/bin/bootctl update
 EOT
@@ -1659,6 +1659,12 @@ function desktop_environment() {
         "bspwm" )
             desktop_environment_bspwm
             ;;
+        "awesome" )
+            desktop_environment_awesome
+            ;;
+        "qtile" )
+            desktop_environment_qtile
+            ;;
     esac
 
     arch-chroot /mnt systemctl set-default graphical.target
@@ -1717,6 +1723,16 @@ function desktop_environment_budgie() {
 
 function desktop_environment_bspwm() {
     pacman_install "bspwm lightdm lightdm-gtk-greeter"
+    arch-chroot /mnt systemctl enable lightdm.service
+}
+
+function desktop_environment_awesome() {
+    pacman_install "awesome vicious xterm lightdm lightdm-gtk-greeter xorg-server"
+    arch-chroot /mnt systemctl enable lightdm.service
+}
+
+function desktop_environment_qtile() {
+    pacman_install "qtile xterm lightdm lightdm-gtk-greeter xorg-server"
     arch-chroot /mnt systemctl enable lightdm.service
 }
 
@@ -2025,4 +2041,3 @@ function main() {
 }
 
 main $@
-

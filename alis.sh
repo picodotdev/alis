@@ -1736,7 +1736,6 @@ function desktop_environment_qtile() {
     arch-chroot /mnt systemctl enable lightdm.service
 }
 
-
 function packages() {
     if [ "$PACKAGES_INSTALL" == "true" ]; then
         USER_NAME="$USER_NAME" \
@@ -2042,4 +2041,3 @@ function main() {
 }
 
 main $@
-

@@ -69,7 +69,7 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 * **systemd-homed** support
 * **PipeWire** support
 * **Multilib** support
-* Pacman custom **packages installation** and **custom repositories**
+* Arch Linux custom **packages installation** and **repositories installation**
 * Flatpak utility installation and **Flatpak packages installation**
 * SDKMAN utility installation and **SDKMAN packages installation**
 * **AUR utility** installation (paru, yay, aurman) and **AUR packages installation**

@@ -1457,7 +1457,7 @@ Operation = Upgrade
 Target = systemd
 
 [Action]
-Description = Updating systemd-boot...
+Description = Updating systemd-boot
 When = PostTransaction
 Exec = /usr/bin/bootctl update
 EOT

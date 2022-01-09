@@ -202,7 +202,7 @@ function check_variables() {
         fi
     fi
     check_variables_value "HOOKS" "$HOOKS"
-    check_variables_list "BOOTLOADER" "$BOOTLOADER" "grub refind systemd" "true" "true"
+    check_variables_list "BOOTLOADER" "$BOOTLOADER" "auto grub refind systemd" "true" "true"
     check_variables_list "CUSTOM_SHELL" "$CUSTOM_SHELL" "bash zsh dash fish" "true" "true"
     check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde i3-wm i3-gaps deepin budgie bspwm awesome qtile" "false" "true"
     check_variables_boolean "PACKAGES_MULTILIB" "$PACKAGES_MULTILIB"
@@ -358,6 +358,14 @@ function facts() {
                 DISPLAY_DRIVER="nvidia"
                 ;;
         esac
+    fi
+
+    if [ "$BOOTLOADER" == "auto" ]; then
+        if [ "$BIOS_TYPE" == "uefi" ]; then
+            BOOTLOADER="systemd"
+        elif [ "$BIOS_TYPE" == "bios" ]; then
+            BOOTLOADER="grub"
+        fi
     fi
 
     if [ -n "$(systemd-detect-virt | grep -i oracle)" ]; then

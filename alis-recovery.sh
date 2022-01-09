@@ -358,22 +358,44 @@ function partition() {
         DEVICE_ROOT="/dev/mapper/$LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL"
     fi
 
-    PARTITION_OPTIONS="defaults"
+    # options
+    PARTITION_OPTIONS_BOOT="defaults"
+    PARTITION_OPTIONS_ROOT="defaults"
 
     if [ "$DEVICE_TRIM" == "true" ]; then
-        PARTITION_OPTIONS="$PARTITION_OPTIONS,noatime"
+        PARTITION_OPTIONS_BOOT="$PARTITION_OPTIONS_BOOT,noatime"
+        PARTITION_OPTIONS_ROOT="$PARTITION_OPTIONS_ROOT,noatime"
+        if [ "$FILE_SYSTEM_TYPE" == "f2fs" ]; then
+            PARTITION_OPTIONS_ROOT="$PARTITION_OPTIONS_ROOT,nodiscard"
+        fi
     fi
 
     # mount
     if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
-        mount -o "subvol=root,$PARTITION_OPTIONS,compress=zstd" "$DEVICE_ROOT" /mnt
-        mount -o "$PARTITION_OPTIONS" "$PARTITION_BOOT" /mnt/boot
-        mount -o "subvol=home,$PARTITION_OPTIONS,compress=zstd" "$DEVICE_ROOT" /mnt/home
-        mount -o "subvol=var,$PARTITION_OPTIONS,compress=zstd" "$DEVICE_ROOT" /mnt/var
-        mount -o "subvol=snapshots,$PARTITION_OPTIONS,compress=zstd" "$DEVICE_ROOT" /mnt/snapshots
+        # mount subvolumes
+        mount -o "subvol=${BTRFS_SUBVOLUME_ROOT[1]},$PARTITION_OPTIONS,compress=zstd" "$DEVICE_ROOT" "/mnt"
+        mkdir "/mnt/boot"
+        mount -o "$PARTITION_OPTIONS_BOOT" "$PARTITION_BOOT" "/mnt/boot"
+        for I in "${BTRFS_SUBVOLUMES_MOUNTPOINTS[@]}"; do
+            IFS=',' SUBVOLUME=($I)
+            if [ ${SUBVOLUME[0]} == "root" ]; then
+                continue
+            fi
+            if [ ${SUBVOLUME[0]} == "swap" -a -z "$SWAP_SIZE" ]; then
+                continue
+            fi
+            if [ ${SUBVOLUME[0]} == "swap" ]; then
+                mkdir -p -m 0755 "/mnt${SUBVOLUME[2]}"
+            else
+                mkdir -p "/mnt${SUBVOLUME[2]}"
+            fi
+            mount -o "subvol=${SUBVOLUME[1]},$PARTITION_OPTIONS_ROOT,compress=zstd" "$DEVICE_ROOT" "/mnt${SUBVOLUME[2]}"
+        done
     else
-        mount -o "$PARTITION_OPTIONS" $DEVICE_ROOT /mnt
-        mount -o "$PARTITION_OPTIONS" $PARTITION_BOOT /mnt/boot
+        mount -o "$PARTITION_OPTIONS_ROOT" "$DEVICE_ROOT" /mnt
+
+        mkdir /mnt/boot
+        mount -o "$PARTITION_OPTIONS_BOOT" "$PARTITION_BOOT" /mnt/boot
     fi
 }
 

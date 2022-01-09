@@ -53,7 +53,7 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 * **Partition**: no LVM, LVM, LVM on LUKS, GPT on UEFI, MBR on BIOS
 * **File system**: ext4, btrfs (with subvols), xfs, f2fs, reiserfs
 * **Kernels**: linux, linux-lts, linux-hardened, linux-zen
-* **Desktop environment**: GNOME, KDE, XFCE, Mate, Cinnamon, LXDE, i3-wm, i3-gaps, Deepin, Budgie, Bspwm, Awesome, Qtile
+* **Desktop environment**: GNOME, KDE, XFCE, Mate, Cinnamon, LXDE, i3-wm, i3-gaps, Deepin, Budgie, Bspwm, Awesome, Qtile, Openbox
 * **Display managers**: GDM, SDDM, Lightdm, lxdm
 * **Graphics controller**: intel, nvidia and amd with optionally early KMS start. With intel optionally fastboot, hardware video acceleration and framebuffer compression.
 * **Bootloader**: GRUB, rEFInd, systemd-boot
@@ -69,7 +69,7 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 * **systemd-homed** support
 * **PipeWire** support
 * **Multilib** support
-* Pacman custom **packages installation** and **custom repositories**
+* Arch Linux custom **packages installation** and **repositories installation**
 * Flatpak utility installation and **Flatpak packages installation**
 * SDKMAN utility installation and **SDKMAN packages installation**
 * **AUR utility** installation (paru, yay, aurman) and **AUR packages installation**
@@ -199,6 +199,7 @@ https://www.archlinux.org/download/
 * https://wiki.archlinux.org/title/ATI
 * https://wiki.archlinux.org/title/Bluetooth
 * https://wiki.archlinux.org/title/Bspwm
+* https://wiki.archlinux.org/title/Openbox
 * https://wiki.archlinux.org/title/Awesome
 * https://wiki.archlinux.org/title/Qtile
 * https://wiki.archlinux.org/title/Btrfs

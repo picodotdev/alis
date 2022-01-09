@@ -1,0 +1,28 @@
+name: alis-test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Environment information
+        run: |
+          uname -a
+          lsb_release -a
+          cat /proc/cpuinfo
+          df -h
+          ip addr
+      - uses: actions/checkout@v2
+        with:
+          ref: master
+      - name: Install packages
+        run: |
+          sudo apt update
+          sudo apt install virtualbox packer
+      - name: Create virtual machine
+        run: |
+          ls
+          ./alis-packer.sh
+

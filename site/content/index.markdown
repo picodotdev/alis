@@ -117,7 +117,7 @@ url: "/"
         <li><b>Partition</b>: no LVM, LVM, LVM on LUKS, GPT on UEFI, MBR on BIOS</li>
         <li><b>File system</b>: ext4, btrfs (with subvols), xfs, f2fs, reiserfs</li>
         <li><b>Kernels</b>: linux, linux-lts, linux-hardened, linux-zen</li>
-        <li><b>Desktop environment</b>: GNOME, KDE, XFCE, Mate, Cinnamon, LXDE, i3-wm, i3-gaps, Deepin, Budgie, bspwm</li>
+        <li><b>Desktop environment</b>: GNOME, KDE, XFCE, Mate, Cinnamon, LXDE, i3-wm, i3-gaps, Deepin, Budgie, Bspwm, Awesome, Qtile, Openbox</li>
         <li><b>Display managers</b>: GDM, SDDM, Lightdm, lxdm</li>
         <li><b>Graphics controller</b>: intel, nvidia and amd with optionally early KMS start. With intel optionally fastboot, hardware video acceleration and framebuffer compression.</li>
         <li><b>Bootloader</b>: GRUB, rEFInd, systemd-boot</li>
@@ -126,7 +126,7 @@ url: "/"
         <li><b>Periodic TRIM</b> for SSD storage</li>
         <li>Intel and AMD </b>processors microcode</b></li>
         <li>Optional <b>swap file</b></li>
-        <li><b>VirtualBox guest additions</b></li>
+        <li><b>VirtualBox guest additions</b> and <b>VMware tools</b> support</li>
         <li><b>Kernel compression</b> and <b>custom parameters</b></li>
         <li><b>Users creation</b> and <b>add to sudoers</b></li>
         <li><b>systemd units enable or disable</b></li>

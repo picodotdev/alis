@@ -62,7 +62,7 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 * **Periodic TRIM** for SSD storage
 * Intel and AMD **processors microcode**
 * Optional **swap file**
-* **VirtualBox guest additions**
+* **VirtualBox guest additions** and **VMware tools** support
 * **Kernel compression** and **custom parameters**
 * **Users creation** and **add to sudoers**
 * **systemd units enable or disable**

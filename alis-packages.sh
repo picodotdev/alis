@@ -209,8 +209,7 @@ function packages_pacman() {
     if [ "$PACKAGES_PACMAN_INSTALL" == "true" ]; then
         CUSTOM_REPOSITORIES="$(echo "$PACKAGES_PACMAN_CUSTOM_REPOSITORIES" | grep -E "^[^#]|\n^$")"
         if [ -n "$CUSTOM_REPOSITORIES" ]; then
-            COMMENT="#"
-            execute_sudo "echo -e "${COMMENT} alis\n$CUSTOM_REPOSITORIES" >> /etc/pacman.conf"
+            execute_sudo "echo -e \"# alis\n$CUSTOM_REPOSITORIES\" >> /etc/pacman.conf"
         fi
 
         if [ -n "$PACKAGES_PACMAN" ]; then

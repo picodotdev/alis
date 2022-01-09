@@ -1674,8 +1674,8 @@ function desktop_environment() {
             desktop_environment_qtile
             ;;
         "openbox" )
-                desktop_environment_openbox
-                ;;
+            desktop_environment_openbox
+            ;;
     esac
 
     arch-chroot /mnt systemctl set-default graphical.target

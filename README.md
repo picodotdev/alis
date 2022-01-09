@@ -197,11 +197,9 @@ https://www.archlinux.org/download/
 * https://wiki.archlinux.org/title/AMDGPU
 * https://wiki.archlinux.org/title/Arch_User_Repository
 * https://wiki.archlinux.org/title/ATI
+* https://wiki.archlinux.org/title/Awesome
 * https://wiki.archlinux.org/title/Bluetooth
 * https://wiki.archlinux.org/title/Bspwm
-* https://wiki.archlinux.org/title/Openbox
-* https://wiki.archlinux.org/title/Awesome
-* https://wiki.archlinux.org/title/Qtile
 * https://wiki.archlinux.org/title/Btrfs
 * https://wiki.archlinux.org/title/Budgie
 * https://wiki.archlinux.org/title/Category:Boot_loaders
@@ -238,10 +236,12 @@ https://www.archlinux.org/download/
 * https://wiki.archlinux.org/title/NetworkManager
 * https://wiki.archlinux.org/title/Nouveau
 * https://wiki.archlinux.org/title/NVIDIA
+* https://wiki.archlinux.org/title/Openbox
 * https://wiki.archlinux.org/title/Pacman
 * https://wiki.archlinux.org/title/Partitioning
 * https://wiki.archlinux.org/title/Persistent_block_device_naming
 * https://wiki.archlinux.org/title/PipeWire
+* https://wiki.archlinux.org/title/Qtile
 * https://wiki.archlinux.org/title/REFInd
 * https://wiki.archlinux.org/title/Reflector
 * https://wiki.archlinux.org/title/Solid_state_drive/NVMe

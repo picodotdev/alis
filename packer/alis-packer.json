@@ -10,7 +10,7 @@
       "type": "virtualbox-iso",
       "guest_os_type": "ArchLinux_64",
       "guest_additions_mode": "attach",
-      "headless": true,
+      "headless": false,
       "http_directory": ".",
       "vboxmanage": [
         ["modifyvm", "{{.Name}}", "--memory", "2048"],

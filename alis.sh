@@ -202,7 +202,7 @@ function check_variables() {
         fi
     fi
     check_variables_value "HOOKS" "$HOOKS"
-    check_variables_list "BOOTLOADER" "$BOOTLOADER" "grub refind systemd" "true" "true"
+    check_variables_list "BOOTLOADER" "$BOOTLOADER" "auto grub refind systemd" "true" "true"
     check_variables_list "CUSTOM_SHELL" "$CUSTOM_SHELL" "bash zsh dash fish" "true" "true"
     check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde i3-wm i3-gaps deepin budgie bspwm awesome qtile openbox" "false" "true"
     check_variables_boolean "PACKAGES_MULTILIB" "$PACKAGES_MULTILIB"
@@ -358,6 +358,14 @@ function facts() {
                 DISPLAY_DRIVER="nvidia"
                 ;;
         esac
+    fi
+
+    if [ "$BOOTLOADER" == "auto" ]; then
+        if [ "$BIOS_TYPE" == "uefi" ]; then
+            BOOTLOADER="systemd"
+        elif [ "$BIOS_TYPE" == "bios" ]; then
+            BOOTLOADER="grub"
+        fi
     fi
 
     if [ -n "$(systemd-detect-virt | grep -i oracle)" ]; then
@@ -713,7 +721,7 @@ function partition() {
 
         # mount subvolumes
         mount -o "subvol=${BTRFS_SUBVOLUME_ROOT[1]},$PARTITION_OPTIONS,compress=zstd" "$DEVICE_ROOT" "/mnt"
-        mkdir "/mnt/boot"
+        mkdir -p /mnt/boot
         mount -o "$PARTITION_OPTIONS_BOOT" "$PARTITION_BOOT" "/mnt/boot"
         for I in "${BTRFS_SUBVOLUMES_MOUNTPOINTS[@]}"; do
             IFS=',' SUBVOLUME=($I)
@@ -733,7 +741,7 @@ function partition() {
     else
         mount -o "$PARTITION_OPTIONS_ROOT" "$DEVICE_ROOT" /mnt
 
-        mkdir /mnt/boot
+        mkdir -p /mnt/boot
         mount -o "$PARTITION_OPTIONS_BOOT" "$PARTITION_BOOT" /mnt/boot
     fi
 
@@ -1684,7 +1692,7 @@ function desktop_environment_kde() {
 }
 
 function desktop_environment_xfce() {
-    pacman_install "xfce4 xfce4-goodies lightdm lightdm-gtk-greeter xorg-server"
+    pacman_install "xfce4 xfce4-goodies lightdm lightdm-gtk-greeter xorg-server pavucontrol"
     arch-chroot /mnt systemctl enable lightdm.service
 }
 

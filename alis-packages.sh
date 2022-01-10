@@ -408,7 +408,7 @@ function aur_install() {
     done
     set -e
     if [ "$ERROR" == "true" ]; then
-        exit 0
+        #exit 0
     fi
 }
 

@@ -167,7 +167,9 @@ function check_variables() {
     fi
     check_variables_equals "WIFI_KEY" "WIFI_KEY_RETYPE" "$WIFI_KEY" "$WIFI_KEY_RETYPE"
     check_variables_value "PING_HOSTNAME" "$PING_HOSTNAME"
+    check_variables_boolean "REFLECTOR" "$REFLECTOR"
     check_variables_value "PACMAN_MIRROR" "$PACMAN_MIRROR"
+    check_variables_boolean "PACMAN_PARALLEL_DOWNLOADS" "$PACMAN_PARALLEL_DOWNLOADS"
     check_variables_list "KERNELS" "$KERNELS" "linux-lts linux-lts-headers linux-hardened linux-hardened-headers linux-zen linux-zen-headers" "false" "false"
     check_variables_list "KERNELS_COMPRESSION" "$KERNELS_COMPRESSION" "gzip bzip2 lzma xz lzop lz4 zstd" "false" "true"
     check_variables_list "DISPLAY_DRIVER" "$DISPLAY_DRIVER" "auto intel amdgpu ati nvidia nvidia-lts nvidia-dkms nouveau" "false" "true"
@@ -178,8 +180,6 @@ function check_variables() {
     check_variables_boolean "DISPLAY_DRIVER_HARDWARE_VIDEO_ACCELERATION" "$DISPLAY_DRIVER_HARDWARE_VIDEO_ACCELERATION"
     check_variables_list "DISPLAY_DRIVER_HARDWARE_VIDEO_ACCELERATION_INTEL" "$DISPLAY_DRIVER_HARDWARE_VIDEO_ACCELERATION_INTEL" "intel-media-driver libva-intel-driver" "false" "true"
     check_variables_value "TIMEZONE" "$TIMEZONE"
-    check_variables_boolean "REFLECTOR" "$REFLECTOR"
-    check_variables_value "PACMAN_MIRROR" "$PACMAN_MIRROR"
     check_variables_value "LOCALES" "$LOCALES"
     check_variables_value "LOCALE_CONF" "$LOCALE_CONF"
     check_variables_value "LANG" "$LANG"
@@ -720,9 +720,9 @@ function partition() {
         umount /mnt
 
         # mount subvolumes
-        mount -o "subvol=${BTRFS_SUBVOLUME_ROOT[1]},$PARTITION_OPTIONS,compress=zstd" "$DEVICE_ROOT" "/mnt"
+        mount -o "subvol=${BTRFS_SUBVOLUME_ROOT[1]},$PARTITION_OPTIONS_ROOT,compress=zstd" "$DEVICE_ROOT" /mnt
         mkdir -p /mnt/boot
-        mount -o "$PARTITION_OPTIONS_BOOT" "$PARTITION_BOOT" "/mnt/boot"
+        mount -o "$PARTITION_OPTIONS_BOOT" "$PARTITION_BOOT" /mnt/boot
         for I in "${BTRFS_SUBVOLUMES_MOUNTPOINTS[@]}"; do
             IFS=',' SUBVOLUME=($I)
             if [ ${SUBVOLUME[0]} == "root" ]; then
@@ -784,18 +784,23 @@ function install() {
     fi
 
     sed -i 's/#Color/Color/' /etc/pacman.conf
-    sed -i 's/#ParallelDownloads/ParallelDownloads/' /etc/pacman.conf
+    if [ "$PACMAN_PARALLEL_DOWNLOADS" == "true" ]; then
+        sed -i 's/#ParallelDownloads/ParallelDownloads/' /etc/pacman.conf
+    else
+        sed -i 's/#ParallelDownloads\(.*\)/#ParallelDownloads\1\nDisableDownloadTimeout/' /etc/pacman.conf
+    fi
 
     pacstrap /mnt base base-devel linux linux-firmware
 
     sed -i 's/#Color/Color/' /mnt/etc/pacman.conf
-    sed -i 's/#ParallelDownloads/ParallelDownloads/' /mnt/etc/pacman.conf
+    if [ "$PACMAN_PARALLEL_DOWNLOADS" == "true" ]; then
+        sed -i 's/#ParallelDownloads/ParallelDownloads/' /mnt/etc/pacman.conf
+    else
+        sed -i 's/#ParallelDownloads\(.*\)/#ParallelDownloads\1\nDisableDownloadTimeout/' /mnt/etc/pacman.conf
+    fi
 
     if [ "$PACKAGES_MULTILIB" == "true" ]; then
-        echo "" >> /mnt/etc/pacman.conf
-        echo "[multilib]" >> /mnt/etc/pacman.conf
-        echo "Include = /etc/pacman.d/mirrorlist" >> /mnt/etc/pacman.conf
-        echo "" >> /mnt/etc/pacman.conf
+        sed -z -i 's/#\[multilib\]\n#/[multilib]\n/' /mnt/etc/pacman.conf
     fi
 }
 

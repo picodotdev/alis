@@ -407,9 +407,9 @@ function aur_install() {
         fi
     done
     set -e
-    if [ "$ERROR" == "true" ]; then
-        #exit 0
-    fi
+    #if [ "$ERROR" == "true" ]; then
+    #    exit 0
+    #fi
 }
 
 function systemd_units() {

@@ -157,7 +157,7 @@ function facts_commons() {
         BIOS_TYPE="bios"
     fi
 
-    if [ -f "$ASCIINEMA_FILE" ]; then
+    if [ -f "$ALIS_ASCIINEMA_FILE" -o -f "$RECOVERY_ASCIINEMA_FILE" ]; then
         ASCIINEMA="true"
     else
         ASCIINEMA="false"

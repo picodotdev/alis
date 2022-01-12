@@ -201,11 +201,11 @@ function facts_commons() {
         VMWARE="true"
     fi
 
-    if [ $(whoami) == "root" ]; then
+    USER_NAME="$(whoami)"
+    if [ "$USER_NAME" == "root" ]; then
         SYSTEM_INSTALLATION="true"
     else
         SYSTEM_INSTALLATION="false"
-        USER_NAME="$(whoami)"
     fi
 }
 

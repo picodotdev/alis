@@ -676,7 +676,7 @@ function mkinitcpio_configuration() {
 function display_driver() {
     print_step "display_driver()"
 
-    PACKAGES_DRIVER_AUR="false"
+    PACKAGES_DRIVER_PACMAN="true"
     PACKAGES_DRIVER=""
     PACKAGES_DRIVER_MULTILIB=""
     PACKAGES_DDX=""
@@ -707,18 +707,18 @@ function display_driver() {
             PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
             ;;
         "nvidia-470xx-dkms" )
-            PACKAGES_DRIVER_AUR="true"
+            PACKAGES_DRIVER_PACMAN="false"
             PACKAGES_DRIVER="nvidia-470xx-dkms"
             PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
             ;;
         "nvidia-390xx-dkms" )
-            PACKAGES_DRIVER_AUR="true"
-            PACKAGES_DRIVER="nvidia-dkms"
+            PACKAGES_DRIVER_PACMAN="false"
+            PACKAGES_DRIVER="nvidia-390xx-dkms"
             PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
             ;;
         "nvidia-340xx-dkms" )
-            PACKAGES_DRIVER_AUR="true"
-            PACKAGES_DRIVER="nvidia-dkms"
+            PACKAGES_DRIVER_PACMAN="false"
+            PACKAGES_DRIVER="nvidia-340xx-dkms"
             PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
             ;;
         "nouveau" )
@@ -820,7 +820,7 @@ function display_driver() {
         esac
     fi
 
-    if [ "$PACKAGES_DRIVER_AUR" == "false" ]; then
+    if [ "$PACKAGES_DRIVER_PACMAN" == "true" ]; then
         pacman_install "mesa $PACKAGES_DRIVER $PACKAGES_DDX $PACKAGES_VULKAN $PACKAGES_HARDWARE_ACCELERATION"
     else
         aur_install "mesa $PACKAGES_DRIVER $PACKAGES_DDX $PACKAGES_VULKAN $PACKAGES_HARDWARE_ACCELERATION"

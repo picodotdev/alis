@@ -38,6 +38,7 @@ declare -A SYSTEMD_HOMED_STORAGE_CIFS
 SYSTEMD_HOMED_STORAGE_LUKS=(["type"]="")
 SYSTEMD_HOMED_STORAGE_CIFS=(["domain"]="" ["service"]="")
 
+AUR_PACKAGE="paru-bin"
 AUR_COMMAND="paru"
 
 ALIS_CONF_FILE="alis.conf"
@@ -201,6 +202,24 @@ function facts_commons() {
     if [ -n "$(systemd-detect-virt | grep -i vmware)" ]; then
         VMWARE="true"
     fi
+
+    case "$AUR_PACKAGE" in
+        "aurman" )
+            AUR_COMMAND="aurman"
+            ;;
+        "yay" )
+            AUR_COMMAND="yay"
+            ;;
+        "paru" )
+            AUR_COMMAND="paru"
+            ;;
+        "yay-bin" )
+            AUR_COMMAND="yay"
+            ;;
+        "paru-bin" | *)
+            AUR_COMMAND="paru"
+            ;;
+    esac
 
     USER_NAME_INSTALL="$(whoami)"
     if [ "$USER_NAME_INSTALL" == "root" ]; then

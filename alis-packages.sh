@@ -44,7 +44,11 @@ set -eu
 COMMONS_FILE="alis-commons.sh"
 GLOBALS_FILE="alis-globals.conf"
 
-source "$COMMONS_FILE"
+set +u
+if [ "$SYSTEM_INSTALLATION" != "true" ]; then
+    source "$COMMONS_FILE"
+fi
+set -u
 source "$PACKAGES_CONF_FILE"
 
 function sanitize_variables() {

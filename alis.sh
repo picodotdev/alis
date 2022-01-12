@@ -46,7 +46,6 @@ GLOBALS_FILE="alis-globals.conf"
 
 source "$COMMONS_FILE"
 source "$ALIS_CONF_FILE"
-source "$GLOBALS_FILE"
 
 function sanitize_variables() {
     DEVICE=$(sanitize_variable "$DEVICE")

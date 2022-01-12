@@ -1625,41 +1625,6 @@ function load_globals() {
     fi
 }
 
-function save_globals() {
-    cat <<EOT > $GLOBALS_FILE
-ASCIINEMA="$ASCIINEMA"
-BIOS_TYPE="$BIOS_TYPE"
-PARTITION_BOOT="$PARTITION_BOOT"
-PARTITION_ROOT="$PARTITION_ROOT"
-PARTITION_BOOT_NUMBER="$PARTITION_BOOT_NUMBER"
-PARTITION_ROOT_NUMBER="$PARTITION_ROOT_NUMBER"
-DEVICE_ROOT="$DEVICE_ROOT"
-DEVICE_LVM="$DEVICE_LVM"
-LUKS_DEVICE_NAME="$LUKS_DEVICE_NAME"
-LVM_VOLUME_GROUP="$LVM_VOLUME_GROUP"
-LVM_VOLUME_LOGICAL="$LVM_VOLUME_LOGICAL"
-SWAPFILE="$SWAPFILE"
-BOOT_DIRECTORY="$BOOT_DIRECTORY"
-ESP_DIRECTORY="$ESP_DIRECTORY"
-UUID_BOOT="$UUID_BOOT"
-UUID_ROOT="$UUID_ROOT"
-PARTUUID_BOOT="$PARTUUID_BOOT"
-PARTUUID_ROOT="$PARTUUID_ROOT"
-DEVICE_SATA="$DEVICE_SATA"
-DEVICE_NVME="$DEVICE_NVME"
-DEVICE_MMC="$DEVICE_MMC"
-CPU_VENDOR="$CPU_VENDOR"
-VIRTUALBOX="$VIRTUALBOX"
-VMWARE="$VMWARE"
-CMDLINE_LINUX_ROOT="$CMDLINE_LINUX_ROOT"
-CMDLINE_LINUX="$CMDLINE_LINUX"
-BTRFS_SUBVOLUME_ROOT=("${BTRFS_SUBVOLUME_ROOT[@]}")
-BTRFS_SUBVOLUME_SWAP=("${BTRFS_SUBVOLUME_SWAP[@]}")
-declare -A SYSTEMD_HOMED_STORAGE_LUKS=(["type"]="${SYSTEMD_HOMED_STORAGE_LUKS["type"]}")
-declare -A SYSTEMD_HOMED_STORAGE_CIFS=(["domain"]="${SYSTEMD_HOMED_STORAGE_CIFS["domain"]}" ["service"]="${SYSTEMD_HOMED_STORAGE_CIFS["service"]}")
-EOT
-}
-
 function main() {
     ALL_STEPS=("sanitize_variables" "check_variables" "warning" "init" "facts" "checks" "prepare" "partition" "install" "configuration" "mkinitcpio_configuration" "display_driver" "kernels" "mkinitcpio" "network" "virtualbox" "vmware" "users" "bootloader" "custom_shell" "desktop_environment" "packages" "vagrant" "systemd_units" "end")
     STEP="sanitize_variables"

@@ -41,6 +41,9 @@ set -eu
 # # vim alis.conf
 # # ./alis.sh
 
+COMMONS_FILE="alis-commons.sh"
+GLOBALS_FILE="alis-globals.conf"
+
 function configuration_install() {
     source "$COMMONS_FILE"
     source "$ALIS_CONF_FILE"
@@ -1688,7 +1691,7 @@ function main() {
         return 0
     fi
 
-    if [ -n "$STEPS" ]; then
+    if [ -n "$STEP" ]; then
         load_globals
     fi
 

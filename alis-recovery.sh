@@ -41,6 +41,9 @@ set -eu
 # # vim alis-recovery.conf
 # # ./alis-recovery.sh
 
+COMMONS_FILE="alis-commons.sh"
+GLOBALS_FILE="alis-globals.conf"
+
 function configuration_install() {
     source "$COMMONS_FILE"
     source "$RECOVERY_CONF_FILE"

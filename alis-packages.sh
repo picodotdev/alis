@@ -41,6 +41,9 @@ set -eu
 # # vim alis-packages.conf
 # # ./alis-packages.sh
 
+COMMONS_FILE="alis-commons.sh"
+GLOBALS_FILE="alis-globals.conf"
+
 function configuration_install() {
     source "$COMMONS_FILE"
     source "$PACKAGES_CONF_FILE"

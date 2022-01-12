@@ -36,9 +36,6 @@ declare -A SYSTEMD_HOMED_STORAGE_CIFS
 
 AUR_COMMAND="paru"
 
-COMMONS_FILE="alis-commons.sh"
-GLOBALS_FILE="alis-globals.conf"
-
 ALIS_CONF_FILE="alis.conf"
 ALIS_LOG_FILE="alis.log"
 ALIS_ASCIINEMA_FILE="alis.asciinema"

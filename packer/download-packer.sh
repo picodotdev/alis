@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -eu
 
 curl -O http://$1:$2/alis.conf
 curl -O http://$1:$2/alis.sh

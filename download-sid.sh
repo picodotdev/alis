@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -eu
 
 # Arch Linux Install Script (alis) installs unattended, automated
 # and customized Arch Linux system.
@@ -34,6 +34,7 @@ rm -f alis-packages.conf
 rm -f alis-packages.sh
 rm -f alis-packages-asciinema.sh
 
+curl -O https://raw.githubusercontent.com/$GITHUB_USER/alis/$BRANCH/alis-commons.sh
 curl -O https://raw.githubusercontent.com/$GITHUB_USER/alis/$BRANCH/alis.conf
 curl -O https://raw.githubusercontent.com/$GITHUB_USER/alis/$BRANCH/alis.sh
 curl -O https://raw.githubusercontent.com/$GITHUB_USER/alis/$BRANCH/alis-asciinema.sh

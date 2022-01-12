@@ -57,6 +57,9 @@ VMWARE=""
 SYSTEM_INSTALLATION=""
 USER_NAME=""
 
+LOG="false"
+PACKAGES_PIPEWIRE="false"
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 LIGHT_BLUE='\033[1;34m'
@@ -281,9 +284,9 @@ function aur_install() {
         fi
     done
     set -e
-    #if [ "$ERROR" == "true" ]; then
-    #    exit 0
-    #fi
+    if [ "$ERROR" == "true" ]; then
+        return
+    fi
 }
 
 function aur_command_install() {

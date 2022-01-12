@@ -217,7 +217,7 @@ function flatpak_install() {
     done
     set -e
     if [ "$ERROR" == "true" ]; then
-        exit 1
+        return
     fi
 }
 
@@ -242,7 +242,7 @@ function sdkman_install() {
     done
     set -e
     if [ "$ERROR" == "true" ]; then
-        exit 1
+        return
     fi
 }
 

@@ -98,7 +98,7 @@ function check_variables_list() {
     VALUE=$2
     VALUES=$3
     REQUIRED=$4
-    SINGLE="$5"
+    SINGLE=$5
 
     if [ "$REQUIRED" == "" -o "$REQUIRED" == "true" ]; then
         check_variables_value "$NAME" "$VALUE"

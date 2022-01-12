@@ -111,7 +111,7 @@ function check_variables() {
     check_variables_value "PACMAN_MIRROR" "$PACMAN_MIRROR"
     check_variables_boolean "PACMAN_PARALLEL_DOWNLOADS" "$PACMAN_PARALLEL_DOWNLOADS"
     check_variables_list "KERNELS" "$KERNELS" "linux-lts linux-lts-headers linux-hardened linux-hardened-headers linux-zen linux-zen-headers" "false" "false"
-    check_variables_list "KERNELS_COMPRESSION" "$KERNELS_COMPRESSION" "gzip bzip2 lzma xz lzop lz4 zstd" "false" "true"    
+    check_variables_list "KERNELS_COMPRESSION" "$KERNELS_COMPRESSION" "gzip bzip2 lzma xz lzop lz4 zstd" "false" "true"
     check_variables_list "AUR_COMMAND" "$AUR_COMMAND" "paru-bin yay-bin paru yay aurman" "true" "true"
     check_variables_list "DISPLAY_DRIVER" "$DISPLAY_DRIVER" "auto intel amdgpu ati nvidia nvidia-lts nvidia-dkms nouveau" "false" "true"
     check_variables_boolean "KMS" "$KMS"
@@ -135,7 +135,7 @@ function check_variables() {
     check_variables_list "SYSTEMD_HOMED_STORAGE_LUKS[\"type]\"" "${SYSTEMD_HOMED_STORAGE_LUKS["type"]}" "auto ext4 btrfs xfs" "true" "true"
     if [ "$SYSTEMD_HOMED" == "true" ]; then
         if [ "$SYSTEMD_HOMED_STORAGE" == "fscrypt" ]; then
-            check_variables_list "FILE_SYSTEM_TYPE" "$FILE_SYSTEM_TYPE" "ext4 f2fs" "true"
+            check_variables_list "FILE_SYSTEM_TYPE" "$FILE_SYSTEM_TYPE" "ext4 f2fs" "true" "true"
         fi
         if [ "$SYSTEMD_HOMED_STORAGE" == "cifs" ]; then
             check_variables_value "SYSTEMD_HOMED_CIFS[\"domain]\"" "${SYSTEMD_HOMED_CIFS_DOMAIN["domain"]}"

@@ -677,10 +677,6 @@ function users() {
     print_step "users()"
 
     USERS_GROUPS="wheel,storage,optical"
-    if [ "$VIRTUALBOX" == "true" ]; then
-        USERS_GROUPS="${USERS_GROUPS},vboxsf"
-    fi
-
     create_user "$USER_NAME" "$USER_PASSWORD" "$USERS_GROUPS"
 
     for U in ${ADDITIONAL_USERS[@]}; do
@@ -977,6 +973,14 @@ function virtualbox() {
 
     pacman_install "virtualbox-guest-utils"
     arch-chroot /mnt systemctl enable vboxservice.service
+
+    USERS_GROUPS="vboxsf"
+    usermod -a -G "$USERS_GROUPS" "$USER_NAME"
+    for U in ${ADDITIONAL_USERS[@]}; do
+        IFS='=' S=(${U})
+        USER=${S[0]}
+        usermod -a -G "$USERS_GROUPS" "$USER_NAME"
+    done
 }
 
 function vmware() {

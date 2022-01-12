@@ -59,7 +59,7 @@ function sanitize_variables() {
     KERNELS=$(sanitize_variable "$KERNELS")
     KERNELS_COMPRESSION=$(sanitize_variable "$KERNELS_COMPRESSION")
     KERNELS_PARAMETERS=$(sanitize_variable "$KERNELS_PARAMETERS")
-    AUR_COMMAND=$(sanitize_variable "$AUR_COMMAND")
+    AUR_PACKAGE=$(sanitize_variable "$AUR_PACKAGE")
     DISPLAY_DRIVER=$(sanitize_variable "$DISPLAY_DRIVER")
     DISPLAY_DRIVER_HARDWARE_VIDEO_ACCELERATION_INTEL=$(sanitize_variable "$DISPLAY_DRIVER_HARDWARE_VIDEO_ACCELERATION_INTEL")
     SYSTEMD_HOMED_STORAGE=$(sanitize_variable "$SYSTEMD_HOMED_STORAGE")

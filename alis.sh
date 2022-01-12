@@ -60,13 +60,14 @@ function sanitize_variables() {
     KERNELS=$(sanitize_variable "$KERNELS")
     KERNELS_COMPRESSION=$(sanitize_variable "$KERNELS_COMPRESSION")
     KERNELS_PARAMETERS=$(sanitize_variable "$KERNELS_PARAMETERS")
+    AUR_COMMAND=$(sanitize_variable "$AUR_COMMAND")
+    DISPLAY_DRIVER=$(sanitize_variable "$DISPLAY_DRIVER")
+    DISPLAY_DRIVER_HARDWARE_VIDEO_ACCELERATION_INTEL=$(sanitize_variable "$DISPLAY_DRIVER_HARDWARE_VIDEO_ACCELERATION_INTEL")
     SYSTEMD_HOMED_STORAGE=$(sanitize_variable "$SYSTEMD_HOMED_STORAGE")
     SYSTEMD_HOMED_STORAGE_LUKS["type"]=$(sanitize_variable "${SYSTEMD_HOMED_STORAGE_LUKS["type"]}")
     BOOTLOADER=$(sanitize_variable "$BOOTLOADER")
     CUSTOM_SHELL=$(sanitize_variable "$CUSTOM_SHELL")
     DESKTOP_ENVIRONMENT=$(sanitize_variable "$DESKTOP_ENVIRONMENT")
-    DISPLAY_DRIVER=$(sanitize_variable "$DISPLAY_DRIVER")
-    DISPLAY_DRIVER_HARDWARE_VIDEO_ACCELERATION_INTEL=$(sanitize_variable "$DISPLAY_DRIVER_HARDWARE_VIDEO_ACCELERATION_INTEL")
     SYSTEMD_UNITS=$(sanitize_variable "$SYSTEMD_UNITS")
 
     for I in "${BTRFS_SUBVOLUMES_MOUNTPOINTS[@]}"; do
@@ -96,7 +97,7 @@ function check_variables() {
         IFS=',' SUBVOLUME=($I)
         check_variables_size "SUBVOLUME" ${#SUBVOLUME[@]} 3
     done
-    check_variables_list "PARTITION_MODE" "$PARTITION_MODE" "auto custom manual" "true"
+    check_variables_list "PARTITION_MODE" "$PARTITION_MODE" "auto custom manual" "true" "true"
     if [ "$PARTITION_MODE" == "custom" ]; then
         check_variables_value "PARTITION_CUSTOM_PARTED_UEFI" "$PARTITION_CUSTOM_PARTED_UEFI"
         check_variables_value "PARTITION_CUSTOM_PARTED_BIOS" "$PARTITION_CUSTOM_PARTED_BIOS"

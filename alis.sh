@@ -1686,9 +1686,13 @@ function main() {
         fi
     done
 
-    if [ "$STEP" == "steps" -o "$FOUND" == "false" ]; then
+    if [ "$STEP" == "steps" ]; then
         echo "Steps: $ALL_STEPS"
         return 0
+    fi
+    if [ "$FOUND" == "false" ]; then
+        echo "Steps: $ALL_STEPS"
+        return 1
     fi
 
     if [ -n "$STEP" ]; then

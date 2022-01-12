@@ -256,24 +256,38 @@ function main() {
     ALL_STEPS=("sanitize_variables" "check_variables" "init" "facts" "checks" "prepare" "packages" "systemd_units" "end")
     STEP="sanitize_variables"
 
-    if [ -n "$1" ]; then
-        STEP="$1"
-    fi
-    if [ "$STEP" == "steps" ]; then
-        echo "Steps: $ALL_STEPS"
-        return 0
-    fi
+    while getopts "s:" arg; do
+        case ${arg} in
+            s)
+                STEP=${OPTARG}
+                ;;
+            ?)
+                echo "Invalid option: -${OPTARG}."
+                exit 1
+            ;;
+        esac
+    done
 
     # get step execute from
     FOUND="false"
     STEPS=""
     for S in ${ALL_STEPS[@]}; do
-        if [ $FOUND = "true" -o "${STEP}" = "${S}" ]; then
+        if [ "$FOUND" == "true" -o "$STEP" == "$S" ]; then
             FOUND="true"
             STEPS="$STEPS $S"
         fi
     done
 
+    if [ "$STEP" == "steps" ]; then
+        echo "Steps: $ALL_STEPS"
+        return 0
+    fi
+    if [ "$FOUND" == "false" ]; then
+        echo "Steps: $ALL_STEPS"
+        return 1
+    fi
+
+    # execute steps
     execute_step "sanitize_variables" "${STEPS}"
     execute_step "check_variables" "${STEPS}"
     execute_step "init" "${STEPS}"

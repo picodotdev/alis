@@ -30,6 +30,7 @@ CMDLINE_LINUX_ROOT=""
 CMDLINE_LINUX=""
 BTRFS_SUBVOLUME_ROOT=()
 BTRFS_SUBVOLUME_SWAP=()
+USER_NAME_INSTALL="root"
 
 declare -A SYSTEMD_HOMED_STORAGE_LUKS
 declare -A SYSTEMD_HOMED_STORAGE_CIFS
@@ -201,8 +202,8 @@ function facts_commons() {
         VMWARE="true"
     fi
 
-    USER_NAME="$(whoami)"
-    if [ "$USER_NAME" == "root" ]; then
+    USER_NAME_INSTALL="$(whoami)"
+    if [ "$USER_NAME_INSTALL" == "root" ]; then
         SYSTEM_INSTALLATION="true"
     else
         SYSTEM_INSTALLATION="false"

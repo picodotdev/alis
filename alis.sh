@@ -673,6 +673,125 @@ function mkinitcpio_configuration() {
     fi
 }
 
+function users() {
+    print_step "users()"
+
+    USERS_GROUPS="wheel,storage,optical"
+    if [ "$VIRTUALBOX" == "true" ]; then
+        USERS_GROUPS="${USERS_GROUPS},vboxsf"
+    fi
+
+    create_user "$USER_NAME" "$USER_PASSWORD" "$USERS_GROUPS"
+
+    for U in ${ADDITIONAL_USERS[@]}; do
+        IFS='=' S=(${U})
+        USER=${S[0]}
+        PASSWORD=${S[1]}
+        create_user "$USER" "$PASSWORD" "$USERS_GROUPS"
+    done
+
+    arch-chroot /mnt sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
+
+    pacman_install "xdg-user-dirs"
+
+    if [ "$SYSTEMD_HOMED" == "true" ]; then
+        arch-chroot /mnt systemctl enable systemd-homed.service
+
+        cat <<EOT > "/mnt/etc/pam.d/nss-auth"
+#%PAM-1.0
+
+auth     sufficient pam_unix.so try_first_pass nullok
+auth     sufficient pam_systemd_home.so
+auth     required   pam_deny.so
+
+account  sufficient pam_unix.so
+account  sufficient pam_systemd_home.so
+account  required   pam_deny.so
+
+password sufficient pam_unix.so try_first_pass nullok sha512 shadow
+password sufficient pam_systemd_home.so
+password required   pam_deny.so
+EOT
+
+        cat <<EOT > "/mnt/etc/pam.d/system-auth"
+#%PAM-1.0
+
+auth      substack   nss-auth
+auth      optional   pam_permit.so
+auth      required   pam_env.so
+
+account   substack   nss-auth
+account   optional   pam_permit.so
+account   required   pam_time.so
+
+password  substack   nss-auth
+password  optional   pam_permit.so
+
+session   required  pam_limits.so
+session   optional  pam_systemd_home.so
+session   required  pam_unix.so
+session   optional  pam_permit.so
+EOT
+    fi
+}
+
+function create_user() {
+    USER=$1
+    PASSWORD=$2
+    USERS_GROUPS=$3
+    if [ "$SYSTEMD_HOMED" == "true" ]; then
+        create_user_homectl "$USER" "$PASSWORD" "$USERS_GROUPS"
+    else
+        create_user_useradd "$USER" "$PASSWORD" "$USERS_GROUPS"
+    fi
+}
+
+function create_user_homectl() {
+    USER=$1
+    PASSWORD=$2
+    USERS_GROUPS=$3
+    STORAGE="--storage=directory"
+    IMAGE_PATH="--image-path=/mnt/home/"
+    FS_TYPE=""
+    CIFS_DOMAIN=""
+    CIFS_USERNAME=""
+    CIFS_SERVICE=""
+    TZ=$(echo ${TIMEZONE} | sed "s/\/usr\/share\/zoneinfo\///g")
+    L=$(echo ${LOCALE_CONF[0]} | sed "s/LANG=//g")
+
+    if [ "$SYSTEMD_HOMED_STORAGE" != "auto" ]; then
+        STORAGE="--storage=$SYSTEMD_HOMED_STORAGE"
+    fi
+    if [ "$SYSTEMD_HOMED_STORAGE" == "luks" -a "${SYSTEMD_HOMED_STORAGE_LUKS["type"]}" != "auto" ]; then
+        FS_TYPE="--fs-type=${SYSTEMD_HOMED_STORAGE_LUKS["type"]}"
+    fi
+    if [ "$SYSTEMD_HOMED_STORAGE" == "luks" ]; then
+        IMAGE_PATH="--image-path=/mnt/home/$USER.home"
+    fi
+    if [ "$SYSTEMD_HOMED_STORAGE" == "cifs" ]; then
+        CIFS_DOMAIN="--cifs-domain=${SYSTEMD_HOMED_CIFS_DOMAIN["domain"]}"
+        CIFS_USERNAME="--cifs-user-name=$USER"
+        CIFS_SERVICE="--cifs-service=${SYSTEMD_HOMED_CIFS_SERVICE["service"]}"
+    fi
+    if [ "$SYSTEMD_HOMED_STORAGE" == "luks" -a "${SYSTEMD_HOMED_STORAGE_LUKS["type"]}" == "auto" ]; then
+        pacman_install "btrfs-progs"
+    fi
+
+    systemctl start systemd-homed.service
+    sleep 10 # #151 avoid Operation on home <USER> failed: Transport endpoint is not conected.
+    homectl create $USER --enforce-password-policy=no --timezone=$TZ --language=$L $STORAGE $IMAGE_PATH $FS_TYPE $CIFS_DOMAIN $CIFS_USERNAME $CIFS_SERVICE -G "$USERS_GROUPS"
+    sleep 10 # #151 avoid Operation on home <USER> failed: Transport endpoint is not conected.
+    cp -a "/var/lib/systemd/home/." "/mnt/var/lib/systemd/home/"
+}
+
+function create_user_useradd() {
+    USER=$1
+    PASSWORD=$2
+    USERS_GROUPS=$3
+    arch-chroot /mnt useradd -m -G "$USERS_GROUPS" -s /bin/bash $USER
+    printf "$PASSWORD\n$PASSWORD" | arch-chroot /mnt passwd $USER
+}
+
 function display_driver() {
     print_step "display_driver()"
 
@@ -865,125 +984,6 @@ function vmware() {
 
     pacman_install "open-vm-tools"
     arch-chroot /mnt systemctl enable vmtoolsd.service
-}
-
-function users() {
-    print_step "users()"
-
-    USERS_GROUPS="wheel,storage,optical"
-    if [ "$VIRTUALBOX" == "true" ]; then
-        USERS_GROUPS="${USERS_GROUPS},vboxsf"
-    fi
-
-    create_user "$USER_NAME" "$USER_PASSWORD" "$USERS_GROUPS"
-
-    for U in ${ADDITIONAL_USERS[@]}; do
-        IFS='=' S=(${U})
-        USER=${S[0]}
-        PASSWORD=${S[1]}
-        create_user "$USER" "$PASSWORD" "$USERS_GROUPS"
-    done
-
-    arch-chroot /mnt sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
-
-    pacman_install "xdg-user-dirs"
-
-    if [ "$SYSTEMD_HOMED" == "true" ]; then
-        arch-chroot /mnt systemctl enable systemd-homed.service
-
-        cat <<EOT > "/mnt/etc/pam.d/nss-auth"
-#%PAM-1.0
-
-auth     sufficient pam_unix.so try_first_pass nullok
-auth     sufficient pam_systemd_home.so
-auth     required   pam_deny.so
-
-account  sufficient pam_unix.so
-account  sufficient pam_systemd_home.so
-account  required   pam_deny.so
-
-password sufficient pam_unix.so try_first_pass nullok sha512 shadow
-password sufficient pam_systemd_home.so
-password required   pam_deny.so
-EOT
-
-        cat <<EOT > "/mnt/etc/pam.d/system-auth"
-#%PAM-1.0
-
-auth      substack   nss-auth
-auth      optional   pam_permit.so
-auth      required   pam_env.so
-
-account   substack   nss-auth
-account   optional   pam_permit.so
-account   required   pam_time.so
-
-password  substack   nss-auth
-password  optional   pam_permit.so
-
-session   required  pam_limits.so
-session   optional  pam_systemd_home.so
-session   required  pam_unix.so
-session   optional  pam_permit.so
-EOT
-    fi
-}
-
-function create_user() {
-    USER=$1
-    PASSWORD=$2
-    USERS_GROUPS=$3
-    if [ "$SYSTEMD_HOMED" == "true" ]; then
-        create_user_homectl "$USER" "$PASSWORD" "$USERS_GROUPS"
-    else
-        create_user_useradd "$USER" "$PASSWORD" "$USERS_GROUPS"
-    fi
-}
-
-function create_user_homectl() {
-    USER=$1
-    PASSWORD=$2
-    USERS_GROUPS=$3
-    STORAGE="--storage=directory"
-    IMAGE_PATH="--image-path=/mnt/home/"
-    FS_TYPE=""
-    CIFS_DOMAIN=""
-    CIFS_USERNAME=""
-    CIFS_SERVICE=""
-    TZ=$(echo ${TIMEZONE} | sed "s/\/usr\/share\/zoneinfo\///g")
-    L=$(echo ${LOCALE_CONF[0]} | sed "s/LANG=//g")
-
-    if [ "$SYSTEMD_HOMED_STORAGE" != "auto" ]; then
-        STORAGE="--storage=$SYSTEMD_HOMED_STORAGE"
-    fi
-    if [ "$SYSTEMD_HOMED_STORAGE" == "luks" -a "${SYSTEMD_HOMED_STORAGE_LUKS["type"]}" != "auto" ]; then
-        FS_TYPE="--fs-type=${SYSTEMD_HOMED_STORAGE_LUKS["type"]}"
-    fi
-    if [ "$SYSTEMD_HOMED_STORAGE" == "luks" ]; then
-        IMAGE_PATH="--image-path=/mnt/home/$USER.home"
-    fi
-    if [ "$SYSTEMD_HOMED_STORAGE" == "cifs" ]; then
-        CIFS_DOMAIN="--cifs-domain=${SYSTEMD_HOMED_CIFS_DOMAIN["domain"]}"
-        CIFS_USERNAME="--cifs-user-name=$USER"
-        CIFS_SERVICE="--cifs-service=${SYSTEMD_HOMED_CIFS_SERVICE["service"]}"
-    fi
-    if [ "$SYSTEMD_HOMED_STORAGE" == "luks" -a "${SYSTEMD_HOMED_STORAGE_LUKS["type"]}" == "auto" ]; then
-        pacman_install "btrfs-progs"
-    fi
-
-    systemctl start systemd-homed.service
-    sleep 10 # #151 avoid Operation on home <USER> failed: Transport endpoint is not conected.
-    homectl create $USER --enforce-password-policy=no --timezone=$TZ --language=$L $STORAGE $IMAGE_PATH $FS_TYPE $CIFS_DOMAIN $CIFS_USERNAME $CIFS_SERVICE -G "$USERS_GROUPS"
-    sleep 10 # #151 avoid Operation on home <USER> failed: Transport endpoint is not conected.
-    cp -a "/var/lib/systemd/home/." "/mnt/var/lib/systemd/home/"
-}
-
-function create_user_useradd() {
-    USER=$1
-    PASSWORD=$2
-    USERS_GROUPS=$3
-    arch-chroot /mnt useradd -m -G "$USERS_GROUPS" -s /bin/bash $USER
-    printf "$PASSWORD\n$PASSWORD" | arch-chroot /mnt passwd $USER
 }
 
 function bootloader() {
@@ -1625,7 +1625,7 @@ function load_globals() {
 }
 
 function main() {
-    ALL_STEPS=("sanitize_variables" "check_variables" "warning" "init" "facts" "checks" "prepare" "partition" "install" "configuration" "mkinitcpio_configuration" "display_driver" "kernels" "mkinitcpio" "network" "virtualbox" "vmware" "users" "bootloader" "custom_shell" "desktop_environment" "packages" "vagrant" "systemd_units" "end")
+    ALL_STEPS=("sanitize_variables" "check_variables" "warning" "init" "facts" "checks" "prepare" "partition" "install" "configuration" "mkinitcpio_configuration" "users" "display_driver" "kernels" "mkinitcpio" "network" "virtualbox" "vmware" "bootloader" "custom_shell" "desktop_environment" "packages" "vagrant" "systemd_units" "end")
     STEP="sanitize_variables"
 
     while getopts "s:" arg; do
@@ -1676,6 +1676,7 @@ function main() {
     execute_step "install" "${STEPS}"
     execute_step "configuration" "${STEPS}"
     execute_step "mkinitcpio_configuration" "${STEPS}"
+    execute_step "users" "${STEPS}"
     if [ -n "$DISPLAY_DRIVER" ]; then
         execute_step "display_driver" "${STEPS}"
     fi
@@ -1688,7 +1689,6 @@ function main() {
     if [ "$VMWARE" == "true" ]; then
         execute_step "vmware" "${STEPS}"
     fi
-    execute_step "users" "${STEPS}"
     execute_step "bootloader" "${STEPS}"
     if [ -n "$CUSTOM_SHELL" ]; then
         execute_step "custom_shell" "${STEPS}"

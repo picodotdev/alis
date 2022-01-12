@@ -44,10 +44,8 @@ set -eu
 COMMONS_FILE="alis-commons.sh"
 GLOBALS_FILE="alis-globals.conf"
 
-function configuration_install() {
-    source "$COMMONS_FILE"
-    source "$RECOVERY_CONF_FILE"
-}
+source "$COMMONS_FILE"
+source "$RECOVERY_CONF_FILE"
 
 function sanitize_variables() {
     DEVICE=$(sanitize_variable "$DEVICE")
@@ -176,7 +174,6 @@ function end() {
 }
 
 function main() {
-    configuration_install
     sanitize_variables
     check_variables
     warning

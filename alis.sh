@@ -44,10 +44,8 @@ set -eu
 COMMONS_FILE="alis-commons.sh"
 GLOBALS_FILE="alis-globals.conf"
 
-function configuration_install() {
-    source "$COMMONS_FILE"
-    source "$ALIS_CONF_FILE"
-}
+source "$COMMONS_FILE"
+source "$ALIS_CONF_FILE"
 
 function sanitize_variables() {
     DEVICE=$(sanitize_variable "$DEVICE")
@@ -1661,8 +1659,8 @@ EOT
 }
 
 function main() {
-    ALL_STEPS=("configuration_install" "sanitize_variables" "check_variables" "warning" "init" "facts" "checks" "prepare" "partition" "install" "configuration" "mkinitcpio_configuration" "display_driver" "kernels" "mkinitcpio" "network" "virtualbox" "vmware" "users" "bootloader" "custom_shell" "desktop_environment" "packages" "vagrant" "systemd_units" "end")
-    STEP="configuration_install"
+    ALL_STEPS=("sanitize_variables" "check_variables" "warning" "init" "facts" "checks" "prepare" "partition" "install" "configuration" "mkinitcpio_configuration" "display_driver" "kernels" "mkinitcpio" "network" "virtualbox" "vmware" "users" "bootloader" "custom_shell" "desktop_environment" "packages" "vagrant" "systemd_units" "end")
+    STEP="sanitize_variables"
 
     while getopts "s:" arg; do
         case ${arg} in
@@ -1697,7 +1695,6 @@ function main() {
 
     # execute steps
     START_TIMESTAMP=$(date -u +"%F %T")
-    execute_step "configuration_install" "${STEPS}"
     execute_step "sanitize_variables" "${STEPS}"
     execute_step "check_variables" "${STEPS}"
     execute_step "warning" "${STEPS}"

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -eu
 
 # Arch Linux Install Script (alis) installs unattended, automated
 # and customized Arch Linux system.
@@ -33,63 +33,17 @@ set -e
 # [2] https://wiki.archlinux.org/index.php/Installation_guide
 # [3] https://wiki.archlinux.org/index.php/General_recommendations
 
+# Script to install an Arch Linux system.
+#
 # Usage:
 # # loadkeys es
-# # iwctl --passphrase "[WIFI_KEY]" station [WIFI_INTERFACE] connect "[WIFI_ESSID]"          # (Optional) Connect to WIFI network. _ip link show_ to know WIFI_INTERFACE.
-# # curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash, curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash -s -- -u [github user], or with URL shortener curl -sL https://git.io/JeaH6 | bash
+# # curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash
 # # vim alis.conf
 # # ./alis.sh
 
-# global variables (no configuration, don't edit)
-START_TIMESTAMP=""
-END_TIMESTAMP=""
-ASCIINEMA=""
-BIOS_TYPE=""
-PARTITION_BOOT=""
-PARTITION_ROOT=""
-PARTITION_BOOT_NUMBER=""
-PARTITION_ROOT_NUMBER=""
-DEVICE_ROOT=""
-DEVICE_LVM=""
-LUKS_DEVICE_NAME="cryptroot"
-LVM_VOLUME_GROUP="vg"
-LVM_VOLUME_LOGICAL="root"
-SWAPFILE="/swapfile"
-BOOT_DIRECTORY=""
-ESP_DIRECTORY=""
-#PARTITION_BOOT_NUMBER=0
-UUID_BOOT=""
-UUID_ROOT=""
-PARTUUID_BOOT=""
-PARTUUID_ROOT=""
-DEVICE_SATA=""
-DEVICE_NVME=""
-DEVICE_MMC=""
-CPU_VENDOR=""
-GPU_VENDOR=""
-VIRTUALBOX=""
-VMWARE=""
-CMDLINE_LINUX_ROOT=""
-CMDLINE_LINUX=""
-BTRFS_SUBVOLUME_ROOT=()
-BTRFS_SUBVOLUME_SWAP=()
-
-# configuration variables declartion (no configuration, don't edit)
-declare -A SYSTEMD_HOMED_STORAGE_LUKS
-declare -A SYSTEMD_HOMED_STORAGE_CIFS
-
-CONF_FILE="alis.conf"
-GLOBALS_FILE="alis-globals.conf"
-LOG_FILE="alis.log"
-ASCIINEMA_FILE="alis.asciinema"
-
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-LIGHT_BLUE='\033[1;34m'
-NC='\033[0m'
-
 function configuration_install() {
-    source "$CONF_FILE"
+    source "$COMMONS_FILE"
+    source "$ALIS_CONF_FILE"
 }
 
 function sanitize_variables() {
@@ -121,22 +75,6 @@ function sanitize_variables() {
             BTRFS_SUBVOLUME_SWAP=("${SUBVOLUME[@]}")
         fi
     done
-}
-
-function sanitize_variable() {
-    VARIABLE=$1
-    VARIABLE=$(echo $VARIABLE | sed "s/![^ ]*//g") # remove disabled
-    VARIABLE=$(echo $VARIABLE | sed "s/ {2,}/ /g") # remove unnecessary white spaces
-    VARIABLE=$(echo $VARIABLE | sed 's/^[[:space:]]*//') # trim leading
-    VARIABLE=$(echo $VARIABLE | sed 's/[[:space:]]*$//') # trim trailing
-    echo "$VARIABLE"
-}
-
-function trim_variable() {
-    VARIABLE=$1
-    VARIABLE=$(echo $VARIABLE | sed 's/^[[:space:]]*//') # trim leading
-    VARIABLE=$(echo $VARIABLE | sed 's/[[:space:]]*$//') # trim trailing
-    echo "$VARIABLE"
 }
 
 function check_variables() {
@@ -171,7 +109,8 @@ function check_variables() {
     check_variables_value "PACMAN_MIRROR" "$PACMAN_MIRROR"
     check_variables_boolean "PACMAN_PARALLEL_DOWNLOADS" "$PACMAN_PARALLEL_DOWNLOADS"
     check_variables_list "KERNELS" "$KERNELS" "linux-lts linux-lts-headers linux-hardened linux-hardened-headers linux-zen linux-zen-headers" "false" "false"
-    check_variables_list "KERNELS_COMPRESSION" "$KERNELS_COMPRESSION" "gzip bzip2 lzma xz lzop lz4 zstd" "false" "true"
+    check_variables_list "KERNELS_COMPRESSION" "$KERNELS_COMPRESSION" "gzip bzip2 lzma xz lzop lz4 zstd" "false" "true"    
+    check_variables_list "AUR_COMMAND" "$AUR_COMMAND" "paru-bin yay-bin paru yay aurman" "true" "true"
     check_variables_list "DISPLAY_DRIVER" "$DISPLAY_DRIVER" "auto intel amdgpu ati nvidia nvidia-lts nvidia-dkms nouveau" "false" "true"
     check_variables_boolean "KMS" "$KMS"
     check_variables_boolean "FASTBOOT" "$FASTBOOT"
@@ -211,64 +150,6 @@ function check_variables() {
     check_variables_boolean "REBOOT" "$REBOOT"
 }
 
-function check_variables_value() {
-    NAME=$1
-    VALUE=$2
-    if [ -z "$VALUE" ]; then
-        echo "$NAME environment variable must have a value."
-        exit 1
-    fi
-}
-
-function check_variables_boolean() {
-    NAME=$1
-    VALUE=$2
-    check_variables_list "$NAME" "$VALUE" "true false" "true" "true"
-}
-
-function check_variables_list() {
-    NAME=$1
-    VALUE=$2
-    VALUES=$3
-    REQUIRED=$4
-    SINGLE="$5"
-
-    if [ "$REQUIRED" == "" -o "$REQUIRED" == "true" ]; then
-        check_variables_value "$NAME" "$VALUE"
-    fi
-
-    if [[ ("$SINGLE" == "" || "$SINGLE" == "true") && "$VALUE" != "" && "$VALUE" =~ " " ]]; then
-        echo "$NAME environment variable value [$VALUE] must be a single value of [$VALUES]."
-        exit 1
-    fi
-
-    if [ "$VALUE" != "" -a -z "$(echo "$VALUES" | grep -F -w "$VALUE")" ]; then
-        echo "$NAME environment variable value [$VALUE] must be in [$VALUES]."
-        exit 1
-    fi
-}
-
-function check_variables_equals() {
-    NAME1=$1
-    NAME2=$2
-    VALUE1=$3
-    VALUE2=$4
-    if [ "$VALUE1" != "$VALUE2" ]; then
-        echo "$NAME1 and $NAME2 must be equal [$VALUE1, $VALUE2]."
-        exit 1
-    fi
-}
-
-function check_variables_size() {
-    NAME=$1
-    SIZE_EXPECT=$2
-    SIZE=$3
-    if [ "$SIZE_EXPECT" != "$SIZE" ]; then
-        echo "$NAME array size [$SIZE] must be [$SIZE_EXPECT]."
-        exit 1
-    fi
-}
-
 function warning() {
     echo -e "${LIGHT_BLUE}Welcome to Arch Linux Install Script${NC}"
     echo ""
@@ -292,59 +173,14 @@ function warning() {
 function init() {
     print_step "init()"
 
-    init_log
-    loadkeys $KEYS
-}
-
-function init_log() {
-    if [ "$LOG" == "true" ]; then
-        exec > >(tee -a $LOG_FILE)
-        exec 2> >(tee -a $LOG_FILE >&2)
-    fi
-    set -o xtrace
+    init_log "$LOG" "$ALIS_LOG_FILE"
+    loadkeys "$KEYS"
 }
 
 function facts() {
     print_step "facts()"
 
-    if [ -d /sys/firmware/efi ]; then
-        BIOS_TYPE="uefi"
-    else
-        BIOS_TYPE="bios"
-    fi
-
-    if [ -f "$ASCIINEMA_FILE" ]; then
-        ASCIINEMA="true"
-    else
-        ASCIINEMA="false"
-    fi
-
-    DEVICE_SATA="false"
-    DEVICE_NVME="false"
-    DEVICE_MMC="false"
-    if [ -n "$(echo $DEVICE | grep "^/dev/[a-z]d[a-z]")" ]; then
-        DEVICE_SATA="true"
-    elif [ -n "$(echo $DEVICE | grep "^/dev/nvme")" ]; then
-        DEVICE_NVME="true"
-    elif [ -n "$(echo $DEVICE | grep "^/dev/mmc")" ]; then
-        DEVICE_MMC="true"
-    fi
-
-    if [ -n "$(lscpu | grep GenuineIntel)" ]; then
-        CPU_VENDOR="intel"
-    elif [ -n "$(lscpu | grep AuthenticAMD)" ]; then
-        CPU_VENDOR="amd"
-    fi
-
-    if [ -n "$(lspci -nn | grep "\[03" | grep -i intel)" ]; then
-        GPU_VENDOR="intel"
-    elif [ -n "$(lspci -nn | grep "\[03" | grep -i amd)" ]; then
-        GPU_VENDOR="amd"
-    elif [ -n "$(lspci -nn | grep "\[03" | grep -i nvidia)" ]; then
-        GPU_VENDOR="nvidia"
-    elif [ -n "$(lspci -nn | grep "\[03" | grep -i vmware)" ]; then
-        GPU_VENDOR="vmware"
-    fi
+    facts_commons
 
     if [ "$DISPLAY_DRIVER" == "auto" ]; then
         case "$GPU_VENDOR" in
@@ -366,14 +202,6 @@ function facts() {
         elif [ "$BIOS_TYPE" == "bios" ]; then
             BOOTLOADER="grub"
         fi
-    fi
-
-    if [ -n "$(systemd-detect-virt | grep -i oracle)" ]; then
-        VIRTUALBOX="true"
-    fi
-
-    if [ -n "$(systemd-detect-virt | grep -i vmware)" ]; then
-        VMWARE="true"
     fi
 }
 
@@ -522,94 +350,13 @@ function ask_passwords() {
     done
 }
 
-function configure_network() {
-    if [ -n "$WIFI_INTERFACE" ]; then
-        iwctl --passphrase "$WIFI_KEY" station $WIFI_INTERFACE connect "$WIFI_ESSID"
-        sleep 10
-    fi
-
-    # only one ping -c 1, ping gets stuck if -c 5
-    ping -c 1 -i 2 -W 5 -w 30 $PING_HOSTNAME
-    if [ $? -ne 0 ]; then
-        echo "Network ping check failed. Cannot continue."
-        exit 1
-    fi
-}
-
 function partition() {
     print_step "partition()"
 
     partprobe -s $DEVICE
 
     # setup
-    if [ "$PARTITION_MODE" == "auto" ]; then
-        PARTITION_PARTED_FILE_SYSTEM_TYPE="$FILE_SYSTEM_TYPE"
-        if [ "$PARTITION_PARTED_FILE_SYSTEM_TYPE" == "f2fs" ]; then
-            PARTITION_PARTED_FILE_SYSTEM_TYPE=""
-        fi
-        PARTITION_PARTED_UEFI="mklabel gpt mkpart ESP fat32 1MiB 512MiB mkpart root $PARTITION_PARTED_FILE_SYSTEM_TYPE 512MiB 100% set 1 esp on"
-        PARTITION_PARTED_BIOS="mklabel msdos mkpart primary ext4 4MiB 512MiB mkpart primary $PARTITION_PARTED_FILE_SYSTEM_TYPE 512MiB 100% set 1 boot on"
-
-        if [ "$BIOS_TYPE" == "uefi" ]; then
-            if [ "$DEVICE_SATA" == "true" ]; then
-                PARTITION_BOOT="${DEVICE}1"
-                PARTITION_ROOT="${DEVICE}2"
-                DEVICE_ROOT="${DEVICE}2"
-            fi
-
-            if [ "$DEVICE_NVME" == "true" ]; then
-                PARTITION_BOOT="${DEVICE}p1"
-                PARTITION_ROOT="${DEVICE}p2"
-                DEVICE_ROOT="${DEVICE}p2"
-            fi
-
-            if [ "$DEVICE_MMC" == "true" ]; then
-                PARTITION_BOOT="${DEVICE}p1"
-                PARTITION_ROOT="${DEVICE}p2"
-                DEVICE_ROOT="${DEVICE}p2"
-            fi
-        fi
-
-        if [ "$BIOS_TYPE" == "bios" ]; then
-            if [ "$DEVICE_SATA" == "true" ]; then
-                PARTITION_BOOT="${DEVICE}1"
-                PARTITION_ROOT="${DEVICE}2"
-                DEVICE_ROOT="${DEVICE}2"
-            fi
-
-            if [ "$DEVICE_NVME" == "true" ]; then
-                PARTITION_BOOT="${DEVICE}p1"
-                PARTITION_ROOT="${DEVICE}p2"
-                DEVICE_ROOT="${DEVICE}p2"
-            fi
-
-            if [ "$DEVICE_MMC" == "true" ]; then
-                PARTITION_BOOT="${DEVICE}p1"
-                PARTITION_ROOT="${DEVICE}p2"
-                DEVICE_ROOT="${DEVICE}p2"
-            fi
-        fi
-    elif [ "$PARTITION_MODE" == "custom" ]; then
-        PARTITION_PARTED_UEFI="$PARTITION_CUSTOM_PARTED_UEFI"
-        PARTITION_PARTED_BIOS="$PARTITION_CUSTOM_PARTED_BIOS"
-    fi
-
-    if [ "$PARTITION_MODE" == "custom" -o "$PARTITION_MODE" == "manual" ]; then
-        PARTITION_BOOT="$PARTITION_CUSTOMMANUAL_BOOT"
-        PARTITION_ROOT="$PARTITION_CUSTOMMANUAL_ROOT"
-        DEVICE_ROOT="${PARTITION_ROOT}"
-    fi
-
-    PARTITION_BOOT_NUMBER="$PARTITION_BOOT"
-    PARTITION_ROOT_NUMBER="$PARTITION_ROOT"
-    PARTITION_BOOT_NUMBER="${PARTITION_BOOT_NUMBER//\/dev\/sda/}"
-    PARTITION_BOOT_NUMBER="${PARTITION_BOOT_NUMBER//\/dev\/nvme0n1p/}"
-    PARTITION_BOOT_NUMBER="${PARTITION_BOOT_NUMBER//\/dev\/vda/}"
-    PARTITION_BOOT_NUMBER="${PARTITION_BOOT_NUMBER//\/dev\/mmcblk0p/}"
-    PARTITION_ROOT_NUMBER="${PARTITION_ROOT_NUMBER//\/dev\/sda/}"
-    PARTITION_ROOT_NUMBER="${PARTITION_ROOT_NUMBER//\/dev\/nvme0n1p/}"
-    PARTITION_ROOT_NUMBER="${PARTITION_ROOT_NUMBER//\/dev\/vda/}"
-    PARTITION_ROOT_NUMBER="${PARTITION_ROOT_NUMBER//\/dev\/mmcblk0p/}"
+    partition_setup
 
     # partition
     if [ "$PARTITION_MODE" == "auto" ]; then
@@ -695,55 +442,10 @@ function partition() {
     fi
 
     # options
-    PARTITION_OPTIONS_BOOT="defaults"
-    PARTITION_OPTIONS_ROOT="defaults"
-
-    if [ "$DEVICE_TRIM" == "true" ]; then
-        PARTITION_OPTIONS_BOOT="$PARTITION_OPTIONS_BOOT,noatime"
-        PARTITION_OPTIONS_ROOT="$PARTITION_OPTIONS_ROOT,noatime"
-        if [ "$FILE_SYSTEM_TYPE" == "f2fs" ]; then
-            PARTITION_OPTIONS_ROOT="$PARTITION_OPTIONS_ROOT,nodiscard"
-        fi
-    fi
+    partition_options
 
     # mount
-    if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
-        # create subvolumes
-        mount -o "$PARTITION_OPTIONS" "$DEVICE_ROOT" /mnt
-        for I in "${BTRFS_SUBVOLUMES_MOUNTPOINTS[@]}"; do
-            IFS=',' SUBVOLUME=($I)
-            if [ ${SUBVOLUME[0]} == "swap" -a -z "$SWAP_SIZE" ]; then
-                continue
-            fi
-            btrfs subvolume create "/mnt/${SUBVOLUME[1]}"
-        done
-        umount /mnt
-
-        # mount subvolumes
-        mount -o "subvol=${BTRFS_SUBVOLUME_ROOT[1]},$PARTITION_OPTIONS_ROOT,compress=zstd" "$DEVICE_ROOT" /mnt
-        mkdir -p /mnt/boot
-        mount -o "$PARTITION_OPTIONS_BOOT" "$PARTITION_BOOT" /mnt/boot
-        for I in "${BTRFS_SUBVOLUMES_MOUNTPOINTS[@]}"; do
-            IFS=',' SUBVOLUME=($I)
-            if [ ${SUBVOLUME[0]} == "root" ]; then
-                continue
-            fi
-            if [ ${SUBVOLUME[0]} == "swap" -a -z "$SWAP_SIZE" ]; then
-                continue
-            fi
-            if [ ${SUBVOLUME[0]} == "swap" ]; then
-                mkdir -p -m 0755 "/mnt${SUBVOLUME[2]}"
-            else
-                mkdir -p "/mnt${SUBVOLUME[2]}"
-            fi
-            mount -o "subvol=${SUBVOLUME[1]},$PARTITION_OPTIONS_ROOT,compress=zstd" "$DEVICE_ROOT" "/mnt${SUBVOLUME[2]}"
-        done
-    else
-        mount -o "$PARTITION_OPTIONS_ROOT" "$DEVICE_ROOT" /mnt
-
-        mkdir -p /mnt/boot
-        mount -o "$PARTITION_OPTIONS_BOOT" "$PARTITION_BOOT" /mnt/boot
-    fi
+    partition_mount
 
     # swap
     if [ -n "$SWAP_SIZE" ]; then
@@ -972,6 +674,7 @@ function mkinitcpio_configuration() {
 function display_driver() {
     print_step "display_driver()"
 
+    PACKAGES_DRIVER_AUR="false"
     PACKAGES_DRIVER=""
     PACKAGES_DRIVER_MULTILIB=""
     PACKAGES_DDX=""
@@ -998,6 +701,21 @@ function display_driver() {
             PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
             ;;
         "nvidia-dkms" )
+            PACKAGES_DRIVER="nvidia-dkms"
+            PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
+            ;;
+        "nvidia-470xx-dkms" )
+            PACKAGES_DRIVER_AUR="true"
+            PACKAGES_DRIVER="nvidia-470xx-dkms"
+            PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
+            ;;
+        "nvidia-390xx-dkms" )
+            PACKAGES_DRIVER_AUR="true"
+            PACKAGES_DRIVER="nvidia-dkms"
+            PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
+            ;;
+        "nvidia-340xx-dkms" )
+            PACKAGES_DRIVER_AUR="true"
             PACKAGES_DRIVER="nvidia-dkms"
             PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
             ;;
@@ -1081,6 +799,18 @@ function display_driver() {
                 PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
                 PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
                 ;;
+            "nvidia-470xx-dkms" )
+                PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
+                PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
+                ;;
+            "nvidia-390xx-dkms" )
+                PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
+                PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
+                ;;
+            "nvidia-340xx-dkms" )
+                PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
+                PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
+                ;;
             "nouveau" )
                 PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
                 PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
@@ -1088,7 +818,11 @@ function display_driver() {
         esac
     fi
 
-    pacman_install "mesa $PACKAGES_DRIVER $PACKAGES_DDX $PACKAGES_VULKAN $PACKAGES_HARDWARE_ACCELERATION"
+    if [ "$PACKAGES_DRIVER_AUR" == "false" ]; then
+        pacman_install "mesa $PACKAGES_DRIVER $PACKAGES_DDX $PACKAGES_VULKAN $PACKAGES_HARDWARE_ACCELERATION"
+    else
+        aur_install "mesa $PACKAGES_DRIVER $PACKAGES_DDX $PACKAGES_VULKAN $PACKAGES_HARDWARE_ACCELERATION"
+    fi
 
     if [ "$PACKAGES_MULTILIB" == "true" ]; then
         pacman_install "$PACKAGES_DRIVER_MULTILIB $PACKAGES_VULKAN_MULTILIB $PACKAGES_HARDWARE_ACCELERATION_MULTILIB"
@@ -1761,9 +1495,9 @@ function packages() {
     if [ "$PACKAGES_INSTALL" == "true" ]; then
         USER_NAME="$USER_NAME" \
         USER_PASSWORD="$USER_PASSWORD" \
-        PACKAGES_INSTALL_PIPEWIRE="$PACKAGES_INSTALL_PIPEWIRE" \
+        PACKAGES_PIPEWIRE="$PACKAGES_PIPEWIRE" \
         ./alis-packages.sh
-        if [ $? != 0 ]; then
+        if [ "$?" != "0" ]; then
             exit 1
         fi
     fi
@@ -1775,28 +1509,6 @@ function vagrant() {
     arch-chroot /mnt systemctl enable sshd.service
     arch-chroot /mnt ssh-keygen -A
     arch-chroot /mnt sshd -t
-}
-
-function systemd_units() {
-    IFS=' ' UNITS=($SYSTEMD_UNITS)
-    for U in ${UNITS[@]}; do
-        ACTION=""
-        UNIT=${U}
-        if [[ $UNIT == -* ]]; then
-            ACTION="disable"
-            UNIT=$(echo $UNIT | sed "s/^-//g")
-        elif [[ $UNIT == +* ]]; then
-            ACTION="enable"
-            UNIT=$(echo $UNIT | sed "s/^+//g")
-        elif [[ $UNIT =~ ^[a-zA-Z0-9]+ ]]; then
-            ACTION="enable"
-            UNIT=$UNIT
-        fi
-
-        if [ -n "$ACTION" ]; then
-            arch-chroot /mnt systemctl $ACTION $UNIT
-        fi
-    done
 }
 
 function end() {
@@ -1843,34 +1555,14 @@ function end() {
     fi
 }
 
-function pacman_install() {
-    ERROR="true"
-    set +e
-    IFS=' ' PACKAGES=($1)
-    for VARIABLE in {1..5}
-    do
-        arch-chroot /mnt pacman -Syu --noconfirm --needed ${PACKAGES[@]}
-        if [ $? == 0 ]; then
-            ERROR="false"
-            break
-        else
-            sleep 10
-        fi
-    done
-    set -e
-    if [ "$ERROR" == "true" ]; then
-        exit 1
-    fi
-}
-
 function copy_logs() {
     ESCAPED_LUKS_PASSWORD=$(echo "${LUKS_PASSWORD}" | sed 's/[.[\*^$()+?{|]/[\\&]/g')
     ESCAPED_ROOT_PASSWORD=$(echo "${ROOT_PASSWORD}" | sed 's/[.[\*^$()+?{|]/[\\&]/g')
     ESCAPED_USER_PASSWORD=$(echo "${USER_PASSWORD}" | sed 's/[.[\*^$()+?{|]/[\\&]/g')
 
-    if [ -f "$CONF_FILE" ]; then
-        SOURCE_FILE="$CONF_FILE"
-        FILE="/mnt/var/log/alis/$CONF_FILE"
+    if [ -f "$ALIS_CONF_FILE" ]; then
+        SOURCE_FILE="$ALIS_CONF_FILE"
+        FILE="/mnt/var/log/alis/$ALIS_CONF_FILE"
 
         mkdir -p /mnt/var/log/alis
         cp "$SOURCE_FILE" "$FILE"
@@ -1886,9 +1578,9 @@ function copy_logs() {
             sed -i "s/${ESCAPED_USER_PASSWORD}/******/g" "$FILE"
         fi
     fi
-    if [ -f "$LOG_FILE" ]; then
-        SOURCE_FILE="$LOG_FILE"
-        FILE="/mnt/var/log/alis/$LOG_FILE"
+    if [ -f "$ALIS_LOG_FILE" ]; then
+        SOURCE_FILE="$ALIS_LOG_FILE"
+        FILE="/mnt/var/log/alis/$ALIS_LOG_FILE"
 
         mkdir -p /mnt/var/log/alis
         cp "$SOURCE_FILE" "$FILE"
@@ -1904,9 +1596,9 @@ function copy_logs() {
             sed -i "s/${ESCAPED_USER_PASSWORD}/******/g" "$FILE"
         fi
     fi
-    if [ -f "$ASCIINEMA_FILE" ]; then
-        SOURCE_FILE="$ASCIINEMA_FILE"
-        FILE="/mnt/var/log/alis/$ASCIINEMA_FILE"
+    if [ -f "$ALIS_ASCIINEMA_FILE" ]; then
+        SOURCE_FILE="$ALIS_ASCIINEMA_FILE"
+        FILE="/mnt/var/log/alis/$ALIS_ASCIINEMA_FILE"
 
         mkdir -p /mnt/var/log/alis
         cp "$SOURCE_FILE" "$FILE"
@@ -1921,30 +1613,6 @@ function copy_logs() {
         if [ -n "$ESCAPED_USER_PASSWORD" ]; then
             sed -i "s/${ESCAPED_USER_PASSWORD}/******/g" "$FILE"
         fi
-    fi
-}
-
-function do_reboot() {
-    umount -R /mnt/boot
-    umount -R /mnt
-    reboot
-}
-
-function print_step() {
-    STEP="$1"
-    echo ""
-    echo -e "${LIGHT_BLUE}# ${STEP} step${NC}"
-    echo ""
-}
-
-function execute_step() {
-    STEP="$1"
-    STEPS="$2"
-    if [[ " $STEPS " =~ " $STEP " ]]; then
-        eval $STEP
-        save_globals
-    else
-        echo "Skipping $STEP"
     fi
 }
 
@@ -1993,9 +1661,17 @@ function main() {
     ALL_STEPS=("configuration_install" "sanitize_variables" "check_variables" "warning" "init" "facts" "checks" "prepare" "partition" "install" "configuration" "mkinitcpio_configuration" "display_driver" "kernels" "mkinitcpio" "network" "virtualbox" "vmware" "users" "bootloader" "custom_shell" "desktop_environment" "packages" "vagrant" "systemd_units" "end")
     STEP="configuration_install"
 
-    if [ -n "$1" ]; then
-        STEP="$1"
-    fi
+    while getopts "s:" arg; do
+        case ${arg} in
+            s)
+                STEP=${OPTARG}
+                ;;
+            ?)
+                echo "Invalid option: -${OPTARG}."
+                exit 1
+            ;;
+        esac
+    done
 
     # get step execute from
     FOUND="false"
@@ -2012,7 +1688,7 @@ function main() {
         return 0
     fi
 
-    if [ -n "$1" ]; then
+    if [ -n "$STEPS" ]; then
         load_globals
     fi
 

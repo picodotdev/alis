@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -eu
 
 # Arch Linux Install Script Recovery (alis-recovery) start a recovery for an
 # failed installation or broken system.
@@ -33,67 +33,17 @@ set -e
 # [2] https://wiki.archlinux.org/index.php/Installation_guide
 # [3] https://wiki.archlinux.org/index.php/General_recommendations
 
-# Reference:
-# * [Change root](https://wiki.archlinux.org/index.php/Change_root)
-# * [Deactivate volume group](https://wiki.archlinux.org/index.php/LVM#Deactivate_volume_group)
-
+# Starts the reccovery of a Arch Linux system installed with alis.
+#
 # Usage:
 # # loadkeys es
-# # iwctl --passphrase "[WIFI_KEY]" station [WIFI_INTERFACE] connect "[WIFI_ESSID]"          # (Optional) Connect to WIFI network. _ip link show_ to know WIFI_INTERFACE.
-# # curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash, or with URL shortener curl -sL https://git.io/JeaH6 | bash
+# # curl -sL https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash
 # # vim alis-recovery.conf
 # # ./alis-recovery.sh
 
-# global variables (no configuration, don't edit)
-START_TIMESTAMP=""
-END_TIMESTAMP=""
-ASCIINEMA=""
-BIOS_TYPE=""
-PARTITION_BOOT=""
-PARTITION_ROOT=""
-PARTITION_BOOT_NUMBER=""
-PARTITION_ROOT_NUMBER=""
-DEVICE_ROOT=""
-DEVICE_LVM=""
-LUKS_DEVICE_NAME="cryptroot"
-LVM_VOLUME_GROUP="vg"
-LVM_VOLUME_LOGICAL="root"
-SWAPFILE="/swapfile"
-BOOT_DIRECTORY=""
-ESP_DIRECTORY=""
-#PARTITION_BOOT_NUMBER=0
-UUID_BOOT=""
-UUID_ROOT=""
-PARTUUID_BOOT=""
-PARTUUID_ROOT=""
-DEVICE_SATA=""
-DEVICE_NVME=""
-DEVICE_MMC=""
-CPU_VENDOR=""
-GPU_VENDOR=""
-VIRTUALBOX=""
-VMWARE=""
-CMDLINE_LINUX_ROOT=""
-CMDLINE_LINUX=""
-BTRFS_SUBVOLUME_ROOT=()
-BTRFS_SUBVOLUME_SWAP=()
-
-# configuration variables declartion (no configuration, don't edit)
-declare -A SYSTEMD_HOMED_STORAGE_LUKS
-declare -A SYSTEMD_HOMED_STORAGE_CIFS
-
-CONF_FILE="alis-recovery.conf"
-GLOBALS_FILE="alis-globals.conf"
-LOG_FILE="alis-recovery.log"
-ASCIINEMA_FILE="alis-recovery.asciinema"
-
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-LIGHT_BLUE='\033[1;34m'
-NC='\033[0m'
-
 function configuration_install() {
-    source "$CONF_FILE"
+    source "$COMMONS_FILE"
+    source "$RECOVERY_CONF_FILE"
 }
 
 function sanitize_variables() {
@@ -113,87 +63,6 @@ function sanitize_variables() {
     done
 }
 
-function sanitize_variable() {
-    VARIABLE=$1
-    VARIABLE=$(echo $VARIABLE | sed "s/![^ ]*//g") # remove disabled
-    VARIABLE=$(echo $VARIABLE | sed "s/ {2,}/ /g") # remove unnecessary white spaces
-    VARIABLE=$(echo $VARIABLE | sed 's/^[[:space:]]*//') # trim leading
-    VARIABLE=$(echo $VARIABLE | sed 's/[[:space:]]*$//') # trim trailing
-    echo "$VARIABLE"
-}
-
-function check_variables() {
-    check_variables_value "KEYS" "$KEYS"
-    check_variables_value "DEVICE" "$DEVICE"
-    check_variables_boolean "LVM" "$LVM"
-    check_variables_equals "LUKS_PASSWORD" "LUKS_PASSWORD_RETYPE" "$LUKS_PASSWORD" "$LUKS_PASSWORD_RETYPE"
-    check_variables_list "PARTITION_MODE" "$PARTITION_MODE" "auto custom manual" "true"
-    if [ "$PARTITION_MODE" == "custom" ]; then
-        check_variables_value "PARTITION_CUSTOM_PARTED_UEFI" "$PARTITION_CUSTOM_PARTED_UEFI"
-        check_variables_value "PARTITION_CUSTOM_PARTED_BIOS" "$PARTITION_CUSTOM_PARTED_BIOS"
-    fi
-    if [ "$PARTITION_MODE" == "custom" -o "$PARTITION_MODE" == "manual" ]; then
-        check_variables_value "PARTITION_CUSTOMMANUAL_BOOT" "$PARTITION_CUSTOMMANUAL_BOOT"
-        check_variables_value "PARTITION_CUSTOMMANUAL_ROOT" "$PARTITION_CUSTOMMANUAL_ROOT"
-    fi
-    if [ "$LVM" == "true" ]; then
-        check_variables_list "PARTITION_MODE" "$PARTITION_MODE" "auto" "true"
-    fi
-    check_variables_value "PING_HOSTNAME" "$PING_HOSTNAME"
-    check_variables_value "CHROOT" "$CHROOT"
-}
-
-function check_variables_value() {
-    NAME=$1
-    VALUE=$2
-    if [ -z "$VALUE" ]; then
-        echo "$NAME environment variable must have a value."
-        exit
-    fi
-}
-
-function check_variables_boolean() {
-    NAME=$1
-    VALUE=$2
-    check_variables_list "$NAME" "$VALUE" "true false"
-}
-
-function check_variables_list() {
-    NAME=$1
-    VALUE=$2
-    VALUES=$3
-    REQUIRED=$4
-    if [ "$REQUIRED" == "" -o "$REQUIRED" == "true" ]; then
-        check_variables_value "$NAME" "$VALUE"
-    fi
-
-    if [ "$VALUE" != "" -a -z "$(echo "$VALUES" | grep -F -w "$VALUE")" ]; then
-        echo "$NAME environment variable value [$VALUE] must be in [$VALUES]."
-        exit
-    fi
-}
-
-function check_variables_equals() {
-    NAME1=$1
-    NAME2=$2
-    VALUE1=$3
-    VALUE2=$4
-    if [ "$VALUE1" != "$VALUE2" ]; then
-        echo "$NAME1 and $NAME2 must be equal [$VALUE1, $VALUE2]."
-        exit
-    fi
-}
-
-function check_variables_size() {
-    NAME=$1
-    SIZE_EXPECT=$2
-    SIZE=$3
-    if [ "$SIZE_EXPECT" != "$SIZE" ]; then
-        echo "$NAME array size [$SIZE] must be [$SIZE_EXPECT]."
-        exit
-    fi
-}
-
 function warning() {
     echo -e "${LIGHT_BLUE}Welcome to Arch Linux Install Script Recovery${NC}"
     echo ""
@@ -211,69 +80,21 @@ function warning() {
 }
 
 function init() {
-    init_log
-    loadkeys $KEYS
-}
+    print_step "init()"
 
-function init_log() {
-    if [ "$LOG" == "true" ]; then
-        exec > >(tee -a $LOG_FILE)
-        exec 2> >(tee -a $LOG_FILE >&2)
-    fi
-    set -o xtrace
+    init_log "$LOG" "$RECOVERY_LOG_FILE"
+    loadkeys "$KEYS"
 }
 
 function facts() {
-    if [ -d /sys/firmware/efi ]; then
-        BIOS_TYPE="uefi"
-    else
-        BIOS_TYPE="bios"
-    fi
+    print_step "facts()"
 
-    if [ -f "$ASCIINEMA_FILE" ]; then
-        ASCIINEMA="true"
-    else
-        ASCIINEMA="false"
-    fi
-
-    DEVICE_SATA="false"
-    DEVICE_NVME="false"
-    DEVICE_MMC="false"
-    if [ -n "$(echo $DEVICE | grep "^/dev/[a-z]d[a-z]")" ]; then
-        DEVICE_SATA="true"
-    elif [ -n "$(echo $DEVICE | grep "^/dev/nvme")" ]; then
-        DEVICE_NVME="true"
-    elif [ -n "$(echo $DEVICE | grep "^/dev/mmc")" ]; then
-        DEVICE_MMC="true"
-    fi
-
-    if [ -n "$(lscpu | grep GenuineIntel)" ]; then
-        CPU_VENDOR="intel"
-    elif [ -n "$(lscpu | grep AuthenticAMD)" ]; then
-        CPU_VENDOR="amd"
-    fi
-
-    if [ -n "$(lspci -nn | grep "\[03" | grep -i intel)" ]; then
-        GPU_VENDOR="intel"
-    elif [ -n "$(lspci -nn | grep "\[03" | grep -i amd)" ]; then
-        GPU_VENDOR="amd"
-    elif [ -n "$(lspci -nn | grep "\[03" | grep -i nvidia)" ]; then
-        GPU_VENDOR="nvidia"
-    elif [ -n "$(lspci -nn | grep "\[03" | grep -i vmware)" ]; then
-        GPU_VENDOR="vmware"
-    fi
-
-    if [ -n "$(systemd-detect-virt | grep -i oracle)" ]; then
-        VIRTUALBOX="true"
-    fi
-
-    if [ -n "$(systemd-detect-virt | grep -i vmware)" ]; then
-        VMWARE="true"
-    fi
+    facts_commons
 }
 
-
 function prepare() {
+    print_step "prepare()"
+
     prepare_partition
     configure_network
     ask_passwords
@@ -291,19 +112,6 @@ function prepare_partition() {
         cryptsetup close $LUKS_DEVICE_NAME
     fi
     partprobe $DEVICE
-}
-
-function configure_network() {
-    if [ -n "$WIFI_INTERFACE" ]; then
-        iwctl --passphrase "$WIFI_KEY" station $WIFI_INTERFACE connect "$WIFI_ESSID"
-        sleep 10
-    fi
-
-    ping -c 1 -i 2 -W 5 -w 30 $PING_HOSTNAME
-    if [ $? -ne 0 ]; then
-        echo "Network ping check failed. Cannot continue."
-        exit
-    fi
 }
 
 function ask_passwords() {
@@ -324,68 +132,10 @@ function ask_passwords() {
 }
 
 function partition() {
+    print_step "partition()"
+
     # setup
-    if [ "$PARTITION_MODE" == "auto" ]; then
-        if [ "$BIOS_TYPE" == "uefi" ]; then
-            if [ "$DEVICE_SATA" == "true" ]; then
-                PARTITION_BOOT="${DEVICE}1"
-                PARTITION_ROOT="${DEVICE}2"
-                DEVICE_ROOT="${DEVICE}2"
-            fi
-
-            if [ "$DEVICE_NVME" == "true" ]; then
-                PARTITION_BOOT="${DEVICE}p1"
-                PARTITION_ROOT="${DEVICE}p2"
-                DEVICE_ROOT="${DEVICE}p2"
-            fi
-
-            if [ "$DEVICE_MMC" == "true" ]; then
-                PARTITION_BOOT="${DEVICE}p1"
-                PARTITION_ROOT="${DEVICE}p2"
-                DEVICE_ROOT="${DEVICE}p2"
-            fi
-        fi
-
-        if [ "$BIOS_TYPE" == "bios" ]; then
-            if [ "$DEVICE_SATA" == "true" ]; then
-                PARTITION_BOOT="${DEVICE}1"
-                PARTITION_ROOT="${DEVICE}2"
-                DEVICE_ROOT="${DEVICE}2"
-            fi
-
-            if [ "$DEVICE_NVME" == "true" ]; then
-                PARTITION_BOOT="${DEVICE}p1"
-                PARTITION_ROOT="${DEVICE}p2"
-                DEVICE_ROOT="${DEVICE}p2"
-            fi
-
-            if [ "$DEVICE_MMC" == "true" ]; then
-                PARTITION_BOOT="${DEVICE}p1"
-                PARTITION_ROOT="${DEVICE}p2"
-                DEVICE_ROOT="${DEVICE}p2"
-            fi
-        fi
-    elif [ "$PARTITION_MODE" == "custom" ]; then
-        PARTITION_PARTED_UEFI="$PARTITION_CUSTOM_PARTED_UEFI"
-        PARTITION_PARTED_BIOS="$PARTITION_CUSTOM_PARTED_BIOS"
-    fi
-
-    if [ "$PARTITION_MODE" == "custom" -o "$PARTITION_MODE" == "manual" ]; then
-        PARTITION_BOOT="$PARTITION_CUSTOMMANUAL_BOOT"
-        PARTITION_ROOT="$PARTITION_CUSTOMMANUAL_ROOT"
-        DEVICE_ROOT="${PARTITION_ROOT}"
-    fi
-
-    PARTITION_BOOT_NUMBER="$PARTITION_BOOT"
-    PARTITION_ROOT_NUMBER="$PARTITION_ROOT"
-    PARTITION_BOOT_NUMBER="${PARTITION_BOOT_NUMBER//\/dev\/sda/}"
-    PARTITION_BOOT_NUMBER="${PARTITION_BOOT_NUMBER//\/dev\/nvme0n1p/}"
-    PARTITION_BOOT_NUMBER="${PARTITION_BOOT_NUMBER//\/dev\/vda/}"
-    PARTITION_BOOT_NUMBER="${PARTITION_BOOT_NUMBER//\/dev\/mmcblk0p/}"
-    PARTITION_ROOT_NUMBER="${PARTITION_ROOT_NUMBER//\/dev\/sda/}"
-    PARTITION_ROOT_NUMBER="${PARTITION_ROOT_NUMBER//\/dev\/nvme0n1p/}"
-    PARTITION_ROOT_NUMBER="${PARTITION_ROOT_NUMBER//\/dev\/vda/}"
-    PARTITION_ROOT_NUMBER="${PARTITION_ROOT_NUMBER//\/dev\/mmcblk0p/}"
+    partition_setup
 
     # luks and lvm
     if [ -n "$LUKS_PASSWORD" ]; then
@@ -401,44 +151,10 @@ function partition() {
     fi
 
     # options
-    PARTITION_OPTIONS_BOOT="defaults"
-    PARTITION_OPTIONS_ROOT="defaults"
-
-    if [ "$DEVICE_TRIM" == "true" ]; then
-        PARTITION_OPTIONS_BOOT="$PARTITION_OPTIONS_BOOT,noatime"
-        PARTITION_OPTIONS_ROOT="$PARTITION_OPTIONS_ROOT,noatime"
-        if [ "$FILE_SYSTEM_TYPE" == "f2fs" ]; then
-            PARTITION_OPTIONS_ROOT="$PARTITION_OPTIONS_ROOT,nodiscard"
-        fi
-    fi
+    partition_options
 
     # mount
-    if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
-        # mount subvolumes
-        mount -o "subvol=${BTRFS_SUBVOLUME_ROOT[1]},$PARTITION_OPTIONS_ROOT,compress=zstd" "$DEVICE_ROOT" /mnt
-        mkdir -p /mnt/boot
-        mount -o "$PARTITION_OPTIONS_BOOT" "$PARTITION_BOOT" /mnt/boot
-        for I in "${BTRFS_SUBVOLUMES_MOUNTPOINTS[@]}"; do
-            IFS=',' SUBVOLUME=($I)
-            if [ ${SUBVOLUME[0]} == "root" ]; then
-                continue
-            fi
-            if [ ${SUBVOLUME[0]} == "swap" -a -z "$SWAP_SIZE" ]; then
-                continue
-            fi
-            if [ ${SUBVOLUME[0]} == "swap" ]; then
-                mkdir -p -m 0755 "/mnt${SUBVOLUME[2]}"
-            else
-                mkdir -p "/mnt${SUBVOLUME[2]}"
-            fi
-            mount -o "subvol=${SUBVOLUME[1]},$PARTITION_OPTIONS_ROOT,compress=zstd" "$DEVICE_ROOT" "/mnt${SUBVOLUME[2]}"
-        done
-    else
-        mount -o "$PARTITION_OPTIONS_ROOT" "$DEVICE_ROOT" /mnt
-
-        mkdir -p /mnt/boot
-        mount -o "$PARTITION_OPTIONS_BOOT" "$PARTITION_BOOT" /mnt/boot
-    fi
+    partition_mount
 }
 
 function recovery() {
@@ -447,14 +163,13 @@ function recovery() {
 
 function end() {
     echo ""
-    echo -e "${GREEN}Recovery started.${NC} You must do an explicit reboot after finalize recovery (exit if in arch-chroot, ./alis-reboot.sh)."
+    if [ "$CHROOT" == "false" ]; then
+        echo -e "${GREEN}Recovery started.${NC}"
+    else
+        echo -e "${GREEN}Recovery ended.${NC}"
+    fi
+    echo "You must do an explicit reboot after finalize recovery (exit if in arch-chroot, ./alis-reboot.sh)."
     echo ""
-}
-
-function do_reboot() {
-    umount -R /mnt/boot
-    umount -R /mnt
-    reboot
 }
 
 function main() {

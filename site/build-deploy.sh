@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -eu
 
 (cd deploy/ && git pull)
 hugo --destination="deploy"

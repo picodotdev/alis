@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -eu
 
 # Arch Linux Install Script Packages (alis-packages) installs software
 # packages.
@@ -33,34 +33,17 @@ set -e
 # [2] https://wiki.archlinux.org/index.php/Installation_guide
 # [3] https://wiki.archlinux.org/index.php/General_recommendations
 
-# Reference:
-# * [Change root](https://wiki.archlinux.org/index.php/Change_root)
-# * [Deactivate volume group](https://wiki.archlinux.org/index.php/LVM#Deactivate_volume_group)
-
+# Installs packages in a Arch Linux system.
+#
 # Usage:
 # # loadkeys es
-# # curl https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash, or with URL shortener curl -sL https://git.io/JeaH6 | bash
+# # curl -sL https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash
 # # vim alis-packages.conf
-# # sudo ./alis-packages.sh
-
-# enviroment variables
-#USER_NAME=""
-#USER_PASSWORD=""
-
-# global variables (no configuration, don't edit)
-SYSTEM_INSTALLATION="false"
-AUR_COMMAND="paru"
-
-CONF_FILE="alis-packages.conf"
-LOG_FILE="alis-packages.log"
-
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-LIGHT_BLUE='\033[1;34m'
-NC='\033[0m'
+# # ./alis-packages.sh
 
 function configuration_install() {
-    source "$CONF_FILE"
+    source "$COMMONS_FILE"
+    source "$PACKAGES_CONF_FILE"
 }
 
 function sanitize_variables() {
@@ -73,15 +56,6 @@ function sanitize_variables() {
     SYSTEMD_UNITS=$(sanitize_variable "$SYSTEMD_UNITS")
 }
 
-function sanitize_variable() {
-    VARIABLE=$1
-    VARIABLE=$(echo $VARIABLE | sed "s/![^ ]*//g") # remove disabled
-    VARIABLE=$(echo $VARIABLE | sed "s/ {2,}/ /g") # remove unnecessary white spaces
-    VARIABLE=$(echo $VARIABLE | sed 's/^[[:space:]]*//') # trim leading
-    VARIABLE=$(echo $VARIABLE | sed 's/[[:space:]]*$//') # trim trailing
-    echo "$VARIABLE"
-}
-
 function check_variables() {
     check_variables_boolean "PACKAGES_PACMAN_INSTALL" "$PACKAGES_PACMAN_INSTALL"
     check_variables_boolean "PACKAGES_PACMAN_INSTALL_PIPEWIRE" "$PACKAGES_PACMAN_INSTALL_PIPEWIRE"
@@ -91,85 +65,14 @@ function check_variables() {
     check_variables_list "PACKAGES_AUR_COMMAND" "$PACKAGES_AUR_COMMAND" "paru-bin yay-bin paru yay aurman" "true" "false"
 }
 
-function check_variables_value() {
-    NAME=$1
-    VALUE=$2
-    if [ -z "$VALUE" ]; then
-        echo "$NAME environment variable must have a value."
-        exit 1
-    fi
-}
-
-function check_variables_boolean() {
-    NAME=$1
-    VALUE=$2
-    check_variables_list "$NAME" "$VALUE" "true false" "true" "true"
-}
-
-function check_variables_list() {
-    NAME=$1
-    VALUE=$2
-    VALUES=$3
-    REQUIRED=$4
-    SINGLE="$5"
-
-    if [ "$REQUIRED" == "" -o "$REQUIRED" == "true" ]; then
-        check_variables_value "$NAME" "$VALUE"
-    fi
-
-    if [[ ("$SINGLE" == "" || "$SINGLE" == "true") && "$VALUE" != "" && "$VALUE" =~ " " ]]; then
-        echo "$NAME environment variable value [$VALUE] must be a single value of [$VALUES]."
-        exit 1
-    fi
-
-    if [ "$VALUE" != "" -a -z "$(echo "$VALUES" | grep -F -w "$VALUE")" ]; then
-        echo "$NAME environment variable value [$VALUE] must be in [$VALUES]."
-        exit 1
-    fi
-}
-
-function check_variables_equals() {
-    NAME1=$1
-    NAME2=$2
-    VALUE1=$3
-    VALUE2=$4
-    if [ "$VALUE1" != "$VALUE2" ]; then
-        echo "$NAME1 and $NAME2 must be equal [$VALUE1, $VALUE2]."
-        exit 1
-    fi
-}
-
-function check_variables_size() {
-    NAME=$1
-    SIZE_EXPECT=$2
-    SIZE=$3
-    if [ "$SIZE_EXPECT" != "$SIZE" ]; then
-        echo "$NAME array size [$SIZE] must be [$SIZE_EXPECT]."
-        exit 1
-    fi
-}
-
 function init() {
-    init_log
-}
-
-function init_log() {
-    if [ "$LOG" == "true" ]; then
-        exec > >(tee -a $LOG_FILE)
-        exec 2> >(tee -a $LOG_FILE >&2)
-    fi
-    set -o xtrace
+    init_log "$LOG" "$PACKAGES_LOG_FILE"
 }
 
 function facts() {
     print_step "facts()"
 
-    if [ $(whoami) == "root" ]; then
-        SYSTEM_INSTALLATION="true"
-    else
-        SYSTEM_INSTALLATION="false"
-        USER_NAME="$(whoami)"
-    fi
+    facts_commons
 }
 
 function checks() {
@@ -216,7 +119,7 @@ function packages_pacman() {
             pacman_install "$PACKAGES_PACMAN"
         fi
 
-        if [[ ("$PACKAGES_INSTALL_PIPEWIRE" == "true" || "$PACKAGES_PACMAN_INSTALL_PIPEWIRE" == "true") && -n "$PACKAGES_PACMAN_PIPEWIRE" ]]; then
+        if [[ ("$PACKAGES_PIPEWIRE" == "true" || "$PACKAGES_PACMAN_INSTALL_PIPEWIRE" == "true") && -n "$PACKAGES_PACMAN_PIPEWIRE" ]]; then
             if [ -n "$(echo "$PACKAGES_PACMAN_PIPEWIRE" | grep -F -w "pipewire-pulse")" ]; then
                 pacman_uninstall "pulseaudio pulseaudio-bluetooth"
             fi
@@ -261,12 +164,10 @@ function packages_aur() {
     print_step "packages_aur()"
 
     if [ "$PACKAGES_AUR_INSTALL" == "true" ]; then
-        pacman_install "git"
-
         IFS=' ' COMMANDS=($PACKAGES_AUR_COMMAND)
         for COMMAND in "${COMMANDS[@]}"
         do
-            execute_aur "rm -rf /home/$USER_NAME/.alis/aur/$COMMAND && mkdir -p /home/$USER_NAME/.alis/aur && cd /home/$USER_NAME/.alis/aur && git clone https://aur.archlinux.org/$COMMAND.git && (cd $COMMAND && makepkg -si --noconfirm) && rm -rf /home/$USER_NAME/.alis/aur/$COMMAND"
+            aur_command_install "$USER_NAME" "$COMMAND"
         done
 
         case "${COMMANDS[0]}" in
@@ -290,53 +191,6 @@ function packages_aur() {
         if [ -n "$PACKAGES_AUR" ]; then
             aur_install "$PACKAGES_AUR"
         fi
-    fi
-}
-
-function pacman_uninstall() {
-    ERROR="true"
-    set +e
-    IFS=' ' PACKAGES=($1)
-    PACKAGES_UNINSTALL=()
-    for PACKAGE in "${PACKAGES[@]}"
-    do
-        execute_user "pacman -Qi $PACKAGE > /dev/null 2>&1"
-        PACKAGE_INSTALLED=$?
-        if [ $PACKAGE_INSTALLED == 0 ]; then
-            PACKAGES_UNINSTALL+=("$PACKAGE")
-        fi
-    done
-    COMMAND="pacman -Rdd --noconfirm ${PACKAGES_UNINSTALL[@]}"
-    execute_sudo "$COMMAND"
-    if [ $? == 0 ]; then
-        ERROR="false"
-    else
-        sleep 10
-    fi
-    set -e
-    if [ "$ERROR" == "true" ]; then
-        exit 1
-    fi
-}
-
-function pacman_install() {
-    ERROR="true"
-    set +e
-    IFS=' ' PACKAGES=($1)
-    for VARIABLE in {1..5}
-    do
-        COMMAND="pacman -Syu --noconfirm --needed ${PACKAGES[@]}"
-        execute_sudo "$COMMAND"
-        if [ $? == 0 ]; then
-            ERROR="false"
-            break
-        else
-            sleep 10
-        fi
-    done
-    set -e
-    if [ "$ERROR" == "true" ]; then
-        exit 1
     fi
 }
 
@@ -391,108 +245,10 @@ function sdkman_install() {
     fi
 }
 
-function aur_install() {
-    ERROR="true"
-    set +e
-    IFS=' ' PACKAGES=($1)
-    for VARIABLE in {1..5}
-    do
-        COMMAND="$AUR_COMMAND -Syu --noconfirm --needed ${PACKAGES[@]}"
-        execute_aur "$COMMAND"
-        if [ $? == 0 ]; then
-            ERROR="false"
-            break
-        else
-            sleep 10
-        fi
-    done
-    set -e
-    #if [ "$ERROR" == "true" ]; then
-    #    exit 0
-    #fi
-}
-
-function systemd_units() {
-    IFS=' ' UNITS=($SYSTEMD_UNITS)
-    for U in ${UNITS[@]}; do
-        ACTION=""
-        UNIT=${U}
-        if [[ $UNIT == -* ]]; then
-            ACTION="disable"
-            UNIT=$(echo $UNIT | sed "s/^-//g")
-        elif [[ $UNIT == +* ]]; then
-            ACTION="enable"
-            UNIT=$(echo $UNIT | sed "s/^+//g")
-        elif [[ $UNIT =~ ^[a-zA-Z0-9]+ ]]; then
-            ACTION="enable"
-            UNIT=$UNIT
-        fi
-
-        if [ -n "$ACTION" ]; then
-            execute_sudo "systemctl $ACTION $UNIT"
-        fi
-    done
-}
-
-function execute_flatpak() {
-    COMMAND="$1"
-    if [ "$SYSTEM_INSTALLATION" == "true" ]; then
-        arch-chroot /mnt bash -c "$COMMAND"
-    else
-        bash -c "$COMMAND"
-    fi
-}
-
-function execute_aur() {
-    COMMAND="$1"
-    if [ "$SYSTEM_INSTALLATION" == "true" ]; then
-        arch-chroot /mnt sed -i 's/^%wheel ALL=(ALL) ALL$/%wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers
-        arch-chroot /mnt bash -c "echo -e \"$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n\" | su $USER_NAME -s /usr/bin/bash -c \"$COMMAND\""
-        arch-chroot /mnt sed -i 's/^%wheel ALL=(ALL) NOPASSWD: ALL$/%wheel ALL=(ALL) ALL/' /etc/sudoers
-    else
-        bash -c "$COMMAND"
-    fi
-}
-
-function execute_sudo() {
-    COMMAND="$1"
-    if [ "$SYSTEM_INSTALLATION" == "true" ]; then
-        arch-chroot /mnt bash -c "$COMMAND"
-    else
-        sudo bash -c "$COMMAND"
-    fi
-}
-
-function execute_user() {
-    COMMAND="$1"
-    if [ "$SYSTEM_INSTALLATION" == "true" ]; then
-        arch-chroot /mnt bash -c "su $USER_NAME -s /usr/bin/bash -c \"$COMMAND\""
-    else
-        bash -c "$COMMAND"
-    fi
-}
-
 function end() {
     echo ""
     echo -e "${GREEN}Arch Linux packages installed successfully"'!'"${NC}"
     echo ""
-}
-
-function print_step() {
-    STEP="$1"
-    echo ""
-    echo -e "${LIGHT_BLUE}# ${STEP} step${NC}"
-    echo ""
-}
-
-function execute_step() {
-    STEP="$1"
-    STEPS="$2"
-    if [[ " $STEPS " =~ " $STEP " ]]; then
-        eval $STEP
-    else
-        echo "Skipping $STEP"
-    fi
 }
 
 function main() {

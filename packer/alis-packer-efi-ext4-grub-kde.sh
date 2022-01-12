@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -eu
 
 sed -i "s/LOG=.*/LOG=\"false\"/" ./alis.conf
 sed -i "s#DEVICE=.*#DEVICE=\"/dev/sda\"#" ./alis.conf

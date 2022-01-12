@@ -292,7 +292,7 @@ function aur_install() {
     set +e
     which "$AUR_COMMAND"
     if [ "$AUR_COMMAND" != "0" ]; then
-        aur_command_install "$USER_NAME" "$AUR_COMMAND"
+        aur_command_install "$USER_NAME" "$AUR_PACKAGE"
     fi
     IFS=' ' PACKAGES=($1)
     for VARIABLE in {1..5}

@@ -293,9 +293,9 @@ function aur_install() {
 }
 
 function aur_command_install() {
+    pacman_install "git"
     USER_NAME="$1"
     COMMAND="$2"
-    pacman_install "git"
     execute_aur "rm -rf /home/$USER_NAME/.alis/aur/$COMMAND && mkdir -p /home/$USER_NAME/.alis/aur && cd /home/$USER_NAME/.alis/aur && git clone https://aur.archlinux.org/$COMMAND.git && (cd $COMMAND && makepkg -si --noconfirm) && rm -rf /home/$USER_NAME/.alis/aur/$COMMAND"
 }
 

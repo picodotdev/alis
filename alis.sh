@@ -975,11 +975,11 @@ function virtualbox() {
     arch-chroot /mnt systemctl enable vboxservice.service
 
     USERS_GROUPS="vboxsf"
-    usermod -a -G "$USERS_GROUPS" "$USER_NAME"
+    arch-chroot /mnt usermod -a -G "$USERS_GROUPS" "$USER_NAME"
     for U in ${ADDITIONAL_USERS[@]}; do
         IFS='=' S=(${U})
         USER=${S[0]}
-        usermod -a -G "$USERS_GROUPS" "$USER_NAME"
+        arch-chroot /mnt usermod -a -G "$USERS_GROUPS" "$USER_NAME"
     done
 }
 

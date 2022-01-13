@@ -268,14 +268,14 @@ function prepare_partition() {
 
 function ask_passwords() {
     if [ "$LUKS_PASSWORD" == "ask" ]; then
-        PASSWORD_TYPED="false"
+        local PASSWORD_TYPED="false"
         while [ "$PASSWORD_TYPED" != "true" ]; do
             read -sp 'Type LUKS password: ' LUKS_PASSWORD
             echo ""
             read -sp 'Retype LUKS password: ' LUKS_PASSWORD_RETYPE
             echo ""
             if [ "$LUKS_PASSWORD" == "$LUKS_PASSWORD_RETYPE" ]; then
-                PASSWORD_TYPED="true"
+                local PASSWORD_TYPED="true"
             else
                 echo "LUKS password don't match. Please, type again."
             fi
@@ -283,14 +283,14 @@ function ask_passwords() {
     fi
 
     if [ -n "$WIFI_INTERFACE" -a "$WIFI_KEY" == "ask" ]; then
-        PASSWORD_TYPED="false"
+        local PASSWORD_TYPED="false"
         while [ "$PASSWORD_TYPED" != "true" ]; do
             read -sp 'Type WIFI key: ' WIFI_KEY
             echo ""
             read -sp 'Retype WIFI key: ' WIFI_KEY_RETYPE
             echo ""
             if [ "$WIFI_KEY" == "$WIFI_KEY_RETYPE" ]; then
-                PASSWORD_TYPED="true"
+                local PASSWORD_TYPED="true"
             else
                 echo "WIFI key don't match. Please, type again."
             fi
@@ -298,14 +298,14 @@ function ask_passwords() {
     fi
 
     if [ "$ROOT_PASSWORD" == "ask" ]; then
-        PASSWORD_TYPED="false"
+        local PASSWORD_TYPED="false"
         while [ "$PASSWORD_TYPED" != "true" ]; do
             read -sp 'Type root password: ' ROOT_PASSWORD
             echo ""
             read -sp 'Retype root password: ' ROOT_PASSWORD_RETYPE
             echo ""
             if [ "$ROOT_PASSWORD" == "$ROOT_PASSWORD_RETYPE" ]; then
-                PASSWORD_TYPED="true"
+                local PASSWORD_TYPED="true"
             else
                 echo "Root password don't match. Please, type again."
             fi
@@ -313,14 +313,14 @@ function ask_passwords() {
     fi
 
     if [ "$USER_PASSWORD" == "ask" ]; then
-        PASSWORD_TYPED="false"
+        local PASSWORD_TYPED="false"
         while [ "$PASSWORD_TYPED" != "true" ]; do
             read -sp 'Type user password: ' USER_PASSWORD
             echo ""
             read -sp 'Retype user password: ' USER_PASSWORD_RETYPE
             echo ""
             if [ "$USER_PASSWORD" == "$USER_PASSWORD_RETYPE" ]; then
-                PASSWORD_TYPED="true"
+                local PASSWORD_TYPED="true"
             else
                 echo "User password don't match. Please, type again."
             fi
@@ -328,21 +328,21 @@ function ask_passwords() {
     fi
 
     for I in ${!ADDITIONAL_USERS[@]}; do
-        VALUE=${ADDITIONAL_USERS[${I}]}
-        IFS='=' S=($VALUE)
-        USER=${S[0]}
-        PASSWORD=${S[1]}
-        PASSWORD_RETYPE=""
+        local VALUE=${ADDITIONAL_USERS[${I}]}
+        IFS='=' local S=($VALUE)
+        local USER=${S[0]}
+        local PASSWORD=${S[1]}
+        local PASSWORD_RETYPE=""
 
         if [ "$PASSWORD" == "ask" ]; then
-            PASSWORD_TYPED="false"
+            local PASSWORD_TYPED="false"
             while [ "$PASSWORD_TYPED" != "true" ]; do
                 read -sp "Type user ($USER) password: " PASSWORD
                 echo ""
                 read -sp "Retype user ($USER) password: " PASSWORD_RETYPE
                 echo ""
                 if [ "$PASSWORD" == "$PASSWORD_RETYPE" ]; then
-                    PASSWORD_TYPED="true"
+                    local PASSWORD_TYPED="true"
                     ADDITIONAL_USERS[${I}]="${USER}=${PASSWORD}"
                 else
                     echo "User ($USER) password don't match. Please, type again."
@@ -479,9 +479,9 @@ function install() {
         echo "Server = $PACMAN_MIRROR" > /etc/pacman.d/mirrorlist
     fi
     if [ "$REFLECTOR" == "true" ]; then
-        COUNTRIES=()
+        local COUNTRIES=()
         for COUNTRY in "${REFLECTOR_COUNTRIES[@]}"; do
-            COUNTRIES+=(--country "${COUNTRY}")
+            local COUNTRIES+=(--country "${COUNTRY}")
         done
         pacman -Sy --noconfirm reflector
         reflector "${COUNTRIES[@]}" --latest 25 --age 24 --protocol https --completion-percent 100 --sort rate --save /etc/pacman.d/mirrorlist
@@ -543,18 +543,18 @@ function configuration() {
     echo -e "$KEYMAP\n$FONT\n$FONT_MAP" > /mnt/etc/vconsole.conf
     echo $HOSTNAME > /mnt/etc/hostname
 
-    OPTIONS=""
+    local OPTIONS=""
     if [ -n "$KEYLAYOUT" ]; then
-        OPTIONS="$OPTIONS"$'\n'"    Option \"XkbLayout\" \"$KEYLAYOUT\""
+        local OPTIONS="$OPTIONS"$'\n'"    Option \"XkbLayout\" \"$KEYLAYOUT\""
     fi
     if [ -n "$KEYMODEL" ]; then
-        OPTIONS="$OPTIONS"$'\n'"    Option \"XkbModel\" \"$KEYMODEL\""
+        local OPTIONS="$OPTIONS"$'\n'"    Option \"XkbModel\" \"$KEYMODEL\""
     fi
     if [ -n "$KEYVARIANT" ]; then
-        OPTIONS="$OPTIONS"$'\n'"    Option \"XkbVariant\" \"$KEYVARIANT\""
+        local OPTIONS="$OPTIONS"$'\n'"    Option \"XkbVariant\" \"$KEYVARIANT\""
     fi
     if [ -n "$KEYOPTIONS" ]; then
-        OPTIONS="$OPTIONS"$'\n'"    Option \"XkbOptions\" \"$KEYOPTIONS\""
+        local OPTIONS="$OPTIONS"$'\n'"    Option \"XkbOptions\" \"$KEYOPTIONS\""
     fi
 
     arch-chroot /mnt mkdir -p "/etc/X11/xorg.conf.d/"
@@ -580,33 +580,33 @@ function mkinitcpio_configuration() {
     print_step "mkinitcpio_configuration()"
 
     if [ "$KMS" == "true" ]; then
-        MKINITCPIO_KMS_MODULES=""
+        local MKINITCPIO_KMS_MODULES=""
         case "$DISPLAY_DRIVER" in
             "intel" )
-                MKINITCPIO_KMS_MODULES="i915"
+                local MKINITCPIO_KMS_MODULES="i915"
                 ;;
             "amdgpu" )
-                MKINITCPIO_KMS_MODULES="amdgpu"
+                local MKINITCPIO_KMS_MODULES="amdgpu"
                 ;;
             "ati" )
-                MKINITCPIO_KMS_MODULES="radeon"
+                local MKINITCPIO_KMS_MODULES="radeon"
                 ;;
             "nvidia" | "nvidia-lts"  | "nvidia-dkms" )
-                MKINITCPIO_KMS_MODULES="nvidia nvidia_modeset nvidia_uvm nvidia_drm"
+                local MKINITCPIO_KMS_MODULES="nvidia nvidia_modeset nvidia_uvm nvidia_drm"
                 ;;
             "nouveau" )
-                MKINITCPIO_KMS_MODULES="nouveau"
+                local MKINITCPIO_KMS_MODULES="nouveau"
                 ;;
         esac
-        MODULES="$MODULES $MKINITCPIO_KMS_MODULES"
+        local MODULES="$MODULES $MKINITCPIO_KMS_MODULES"
     fi
     if [ "$DISPLAY_DRIVER" == "intel" ]; then
-        OPTIONS=""
+        local OPTIONS=""
         if [ "$FASTBOOT" == "true" ]; then
-            OPTIONS="$OPTIONS fastboot=1"
+            local OPTIONS="$OPTIONS fastboot=1"
         fi
         if [ "$FRAMEBUFFER_COMPRESSION" == "true" ]; then
-            OPTIONS="$OPTIONS enable_fbc=1"
+            local OPTIONS="$OPTIONS enable_fbc=1"
         fi
         if [ -n "$OPTIONS"]; then
             echo "options i915 $OPTIONS" > /mnt/etc/modprobe.d/i915.conf
@@ -629,26 +629,26 @@ function mkinitcpio_configuration() {
         pacman_install "reiserfsprogs"
     fi
     if [ "$LVM" == "true" ]; then
-        HOOKS=$(echo $HOOKS | sed 's/!lvm2/lvm2/')
+        local HOOKS=$(echo $HOOKS | sed 's/!lvm2/lvm2/')
     fi
     if [ "$BOOTLOADER" == "systemd" ]; then
-        HOOKS=$(echo $HOOKS | sed 's/!systemd/systemd/')
-        HOOKS=$(echo $HOOKS | sed 's/!sd-vconsole/sd-vconsole/')
+        local HOOKS=$(echo $HOOKS | sed 's/!systemd/systemd/')
+        local HOOKS=$(echo $HOOKS | sed 's/!sd-vconsole/sd-vconsole/')
         if [ -n "$LUKS_PASSWORD" ]; then
-            HOOKS=$(echo $HOOKS | sed 's/!sd-encrypt/sd-encrypt/')
+            local HOOKS=$(echo $HOOKS | sed 's/!sd-encrypt/sd-encrypt/')
         fi
     else
-        HOOKS=$(echo $HOOKS | sed 's/!udev/udev/')
-        HOOKS=$(echo $HOOKS | sed 's/!usr/usr/')
-        HOOKS=$(echo $HOOKS | sed 's/!keymap/keymap/')
-        HOOKS=$(echo $HOOKS | sed 's/!consolefont/consolefont/')
+        local HOOKS=$(echo $HOOKS | sed 's/!udev/udev/')
+        local HOOKS=$(echo $HOOKS | sed 's/!usr/usr/')
+        local HOOKS=$(echo $HOOKS | sed 's/!keymap/keymap/')
+        local HOOKS=$(echo $HOOKS | sed 's/!consolefont/consolefont/')
         if [ -n "$LUKS_PASSWORD" ]; then
-            HOOKS=$(echo $HOOKS | sed 's/!encrypt/encrypt/')
+            local HOOKS=$(echo $HOOKS | sed 's/!encrypt/encrypt/')
         fi
     fi
 
-    HOOKS=$(sanitize_variable "$HOOKS")
-    MODULES=$(sanitize_variable "$MODULES")
+    local HOOKS=$(sanitize_variable "$HOOKS")
+    local MODULES=$(sanitize_variable "$MODULES")
     arch-chroot /mnt sed -i "s/^HOOKS=(.*)$/HOOKS=($HOOKS)/" /etc/mkinitcpio.conf
     arch-chroot /mnt sed -i "s/^MODULES=(.*)/MODULES=($MODULES)/" /etc/mkinitcpio.conf
 
@@ -676,13 +676,13 @@ function mkinitcpio_configuration() {
 function users() {
     print_step "users()"
 
-    USERS_GROUPS="wheel,storage,optical"
+    local USERS_GROUPS="wheel,storage,optical"
     create_user "$USER_NAME" "$USER_PASSWORD" "$USERS_GROUPS"
 
     for U in ${ADDITIONAL_USERS[@]}; do
-        IFS='=' S=(${U})
-        USER=${S[0]}
-        PASSWORD=${S[1]}
+        IFS='=' local S=(${U})
+        local USER=${S[0]}
+        local PASSWORD=${S[1]}
         create_user "$USER" "$PASSWORD" "$USERS_GROUPS"
     done
 
@@ -732,9 +732,9 @@ EOT
 }
 
 function create_user() {
-    USER=$1
-    PASSWORD=$2
-    USERS_GROUPS=$3
+    local USER=$1
+    local PASSWORD=$2
+    local USERS_GROUPS=$3
     if [ "$SYSTEMD_HOMED" == "true" ]; then
         create_user_homectl "$USER" "$PASSWORD" "$USERS_GROUPS"
     else
@@ -743,31 +743,31 @@ function create_user() {
 }
 
 function create_user_homectl() {
-    USER=$1
-    PASSWORD=$2
-    USERS_GROUPS=$3
-    STORAGE="--storage=directory"
-    IMAGE_PATH="--image-path=/mnt/home/"
-    FS_TYPE=""
-    CIFS_DOMAIN=""
-    CIFS_USERNAME=""
-    CIFS_SERVICE=""
-    TZ=$(echo ${TIMEZONE} | sed "s/\/usr\/share\/zoneinfo\///g")
-    L=$(echo ${LOCALE_CONF[0]} | sed "s/LANG=//g")
+    local USER=$1
+    local PASSWORD=$2
+    local USERS_GROUPS=$3
+    local STORAGE="--storage=directory"
+    local IMAGE_PATH="--image-path=/mnt/home/"
+    local FS_TYPE=""
+    local CIFS_DOMAIN=""
+    local CIFS_USERNAME=""
+    local CIFS_SERVICE=""
+    local TZ=$(echo ${TIMEZONE} | sed "s/\/usr\/share\/zoneinfo\///g")
+    local L=$(echo ${LOCALE_CONF[0]} | sed "s/LANG=//g")
 
     if [ "$SYSTEMD_HOMED_STORAGE" != "auto" ]; then
-        STORAGE="--storage=$SYSTEMD_HOMED_STORAGE"
+        local STORAGE="--storage=$SYSTEMD_HOMED_STORAGE"
     fi
     if [ "$SYSTEMD_HOMED_STORAGE" == "luks" -a "${SYSTEMD_HOMED_STORAGE_LUKS["type"]}" != "auto" ]; then
-        FS_TYPE="--fs-type=${SYSTEMD_HOMED_STORAGE_LUKS["type"]}"
+        local FS_TYPE="--fs-type=${SYSTEMD_HOMED_STORAGE_LUKS["type"]}"
     fi
     if [ "$SYSTEMD_HOMED_STORAGE" == "luks" ]; then
-        IMAGE_PATH="--image-path=/mnt/home/$USER.home"
+        local IMAGE_PATH="--image-path=/mnt/home/$USER.home"
     fi
     if [ "$SYSTEMD_HOMED_STORAGE" == "cifs" ]; then
-        CIFS_DOMAIN="--cifs-domain=${SYSTEMD_HOMED_CIFS_DOMAIN["domain"]}"
-        CIFS_USERNAME="--cifs-user-name=$USER"
-        CIFS_SERVICE="--cifs-service=${SYSTEMD_HOMED_CIFS_SERVICE["service"]}"
+        local CIFS_DOMAIN="--cifs-domain=${SYSTEMD_HOMED_CIFS_DOMAIN["domain"]}"
+        local CIFS_USERNAME="--cifs-user-name=$USER"
+        local CIFS_SERVICE="--cifs-service=${SYSTEMD_HOMED_CIFS_SERVICE["service"]}"
     fi
     if [ "$SYSTEMD_HOMED_STORAGE" == "luks" -a "${SYSTEMD_HOMED_STORAGE_LUKS["type"]}" == "auto" ]; then
         pacman_install "btrfs-progs"
@@ -781,110 +781,110 @@ function create_user_homectl() {
 }
 
 function create_user_useradd() {
-    USER=$1
-    PASSWORD=$2
-    USERS_GROUPS=$3
+    local USER=$1
+    local PASSWORD=$2
+    local USERS_GROUPS=$3
     arch-chroot /mnt useradd -m -G "$USERS_GROUPS" -s /bin/bash $USER
-    printf "$PASSWORD\n$PASSWORD" | arch-chroot /mnt passwd $USER
+    printf "$USER_PASSWORD\n$USER_PASSWORD" | arch-chroot /mnt passwd $USER
 }
 
 function display_driver() {
     print_step "display_driver()"
 
-    PACKAGES_DRIVER_PACMAN="true"
-    PACKAGES_DRIVER=""
-    PACKAGES_DRIVER_MULTILIB=""
-    PACKAGES_DDX=""
-    PACKAGES_VULKAN=""
-    PACKAGES_VULKAN_MULTILIB=""
-    PACKAGES_HARDWARE_ACCELERATION=""
-    PACKAGES_HARDWARE_ACCELERATION_MULTILIB=""
+    local PACKAGES_DRIVER_PACMAN="true"
+    local PACKAGES_DRIVER=""
+    local PACKAGES_DRIVER_MULTILIB=""
+    local PACKAGES_DDX=""
+    local PACKAGES_VULKAN=""
+    local PACKAGES_VULKAN_MULTILIB=""
+    local PACKAGES_HARDWARE_ACCELERATION=""
+    local PACKAGES_HARDWARE_ACCELERATION_MULTILIB=""
     case "$DISPLAY_DRIVER" in
         "intel" )
-            PACKAGES_DRIVER_MULTILIB="lib32-mesa"
+            local PACKAGES_DRIVER_MULTILIB="lib32-mesa"
             ;;
         "amdgpu" )
-            PACKAGES_DRIVER_MULTILIB="lib32-mesa"
+            local PACKAGES_DRIVER_MULTILIB="lib32-mesa"
             ;;
         "ati" )
-            PACKAGES_DRIVER_MULTILIB="lib32-mesa"
+            local PACKAGES_DRIVER_MULTILIB="lib32-mesa"
             ;;
         "nvidia" )
-            PACKAGES_DRIVER="nvidia"
-            PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
+            local PACKAGES_DRIVER="nvidia"
+            local PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
             ;;
         "nvidia-lts" )
-            PACKAGES_DRIVER="nvidia-lts"
-            PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
+            local PACKAGES_DRIVER="nvidia-lts"
+            local PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
             ;;
         "nvidia-dkms" )
-            PACKAGES_DRIVER="nvidia-dkms"
-            PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
+            local PACKAGES_DRIVER="nvidia-dkms"
+            local PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
             ;;
         "nvidia-470xx-dkms" )
-            PACKAGES_DRIVER_PACMAN="false"
-            PACKAGES_DRIVER="nvidia-470xx-dkms"
-            PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
+            local PACKAGES_DRIVER_PACMAN="false"
+            local PACKAGES_DRIVER="nvidia-470xx-dkms"
+            local PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
             ;;
         "nvidia-390xx-dkms" )
-            PACKAGES_DRIVER_PACMAN="false"
-            PACKAGES_DRIVER="nvidia-390xx-dkms"
-            PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
+            local PACKAGES_DRIVER_PACMAN="false"
+            local PACKAGES_DRIVER="nvidia-390xx-dkms"
+            local PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
             ;;
         "nvidia-340xx-dkms" )
-            PACKAGES_DRIVER_PACMAN="false"
-            PACKAGES_DRIVER="nvidia-340xx-dkms"
-            PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
+            local PACKAGES_DRIVER_PACMAN="false"
+            local PACKAGES_DRIVER="nvidia-340xx-dkms"
+            local PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
             ;;
         "nouveau" )
-            PACKAGES_DRIVER_MULTILIB="lib32-mesa"
+            local PACKAGES_DRIVER_MULTILIB="lib32-mesa"
             ;;
     esac
     if [ "$DISPLAY_DRIVER_DDX" == "true" ]; then
         case "$DISPLAY_DRIVER" in
             "intel" )
-                PACKAGES_DDX="xf86-video-intel"
+                local PACKAGES_DDX="xf86-video-intel"
                 ;;
             "amdgpu" )
-                PACKAGES_DDX="xf86-video-amdgpu"
+                local PACKAGES_DDX="xf86-video-amdgpu"
                 ;;
             "ati" )
-                PACKAGES_DDX="xf86-video-ati"
+                local PACKAGES_DDX="xf86-video-ati"
                 ;;
             "nouveau" )
-                PACKAGES_DDX="xf86-video-nouveau"
+                local PACKAGES_DDX="xf86-video-nouveau"
                 ;;
         esac
     fi
     if [ "$VULKAN" == "true" ]; then
         case "$DISPLAY_DRIVER" in
             "intel" )
-                PACKAGES_VULKAN="vulkan-intel vulkan-icd-loader"
-                PACKAGES_VULKAN_MULTILIB="lib32-vulkan-intel lib32-vulkan-icd-loader"
+                local PACKAGES_VULKAN="vulkan-intel vulkan-icd-loader"
+                local PACKAGES_VULKAN_MULTILIB="lib32-vulkan-intel lib32-vulkan-icd-loader"
                 ;;
             "amdgpu" )
-                PACKAGES_VULKAN="vulkan-radeon vulkan-icd-loader"
-                PACKAGES_VULKAN_MULTILIB="lib32-vulkan-radeon lib32-vulkan-icd-loader"
+                local PACKAGES_VULKAN="vulkan-radeon vulkan-icd-loader"
+                local PACKAGES_VULKAN_MULTILIB="lib32-vulkan-radeon lib32-vulkan-icd-loader"
                 ;;
             "ati" )
-                PACKAGES_VULKAN="vulkan-radeon vulkan-icd-loader"
-                PACKAGES_VULKAN_MULTILIB="lib32-vulkan-radeon lib32-vulkan-icd-loader"
+                local PACKAGES_VULKAN="vulkan-radeon vulkan-icd-loader"
+                local PACKAGES_VULKAN_MULTILIB="lib32-vulkan-radeon lib32-vulkan-icd-loader"
                 ;;
             "nvidia" )
-                PACKAGES_VULKAN="nvidia-utils vulkan-icd-loader"
-                PACKAGES_VULKAN_MULTILIB="lib32-nvidia-utils lib32-vulkan-icd-loader"
+                local PACKAGES_VULKAN="nvidia-utils vulkan-icd-loader"
+                local PACKAGES_VULKAN_MULTILIB="lib32-nvidia-utils lib32-vulkan-icd-loader"
                 ;;
             "nvidia-lts" )
-                PACKAGES_VULKAN="nvidia-utils vulkan-icd-loader"
-                PACKAGES_VULKAN_MULTILIB="lib32-nvidia-utils lib32-vulkan-icd-loader"
+                local PACKAGES_VULKAN="nvidia-utils vulkan-icd-loader"
+                local PACKAGES_VULKAN_MULTILIB="lib32-nvidia-utils lib32-vulkan-icd-loader"
                 ;;
             "nvidia-dkms" )
-                PACKAGES_VULKAN="nvidia-utils vulkan-icd-loader"
-                PACKAGES_VULKAN_MULTILIB="lib32-nvidia-utils lib32-vulkan-icd-loader"
+                local PACKAGES_VULKAN="nvidia-utils vulkan-icd-loader"
+                local PACKAGES_VULKAN_MULTILIB="lib32-nvidia-utils lib32-vulkan-icd-loader"
                 ;;
             "nouveau" )
-                PACKAGES_VULKAN=""
-                PACKAGES_VULKAN_MULTILIB=""
+                local PACKAGES_VULKAN=""
+                local PACKAGES_VULKAN_MULTILIB=""
                 ;;
         esac
     fi
@@ -892,45 +892,45 @@ function display_driver() {
         case "$DISPLAY_DRIVER" in
             "intel" )
                 if [ -n "$DISPLAY_DRIVER_HARDWARE_VIDEO_ACCELERATION_INTEL" ]; then
-                    PACKAGES_HARDWARE_ACCELERATION="$DISPLAY_DRIVER_HARDWARE_VIDEO_ACCELERATION_INTEL"
-                    PACKAGES_HARDWARE_ACCELERATION_MULTILIB=""
+                    local PACKAGES_HARDWARE_ACCELERATION="$DISPLAY_DRIVER_HARDWARE_VIDEO_ACCELERATION_INTEL"
+                    local PACKAGES_HARDWARE_ACCELERATION_MULTILIB=""
                 fi
                 ;;
             "amdgpu" )
-                PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
-                PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
+                local PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
+                local PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
                 ;;
             "ati" )
-                PACKAGES_HARDWARE_ACCELERATION="mesa-vdpau"
-                PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-mesa-vdpau"
+                local PACKAGES_HARDWARE_ACCELERATION="mesa-vdpau"
+                local PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-mesa-vdpau"
                 ;;
             "nvidia" )
-                PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
-                PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
+                local PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
+                local PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
                 ;;
             "nvidia-lts" )
-                PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
-                PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
+                local PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
+                local PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
                 ;;
             "nvidia-dkms" )
-                PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
-                PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
+                local PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
+                local PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
                 ;;
             "nvidia-470xx-dkms" )
-                PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
-                PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
+                local PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
+                local PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
                 ;;
             "nvidia-390xx-dkms" )
-                PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
-                PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
+                local PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
+                local PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
                 ;;
             "nvidia-340xx-dkms" )
-                PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
-                PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
+                local PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
+                local PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
                 ;;
             "nouveau" )
-                PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
-                PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
+                local PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
+                local PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
                 ;;
         esac
     fi
@@ -974,12 +974,12 @@ function virtualbox() {
     pacman_install "virtualbox-guest-utils"
     arch-chroot /mnt systemctl enable vboxservice.service
 
-    USERS_GROUPS="vboxsf"
+    local USERS_GROUPS="vboxsf"
     arch-chroot /mnt usermod -a -G "$USERS_GROUPS" "$USER_NAME"
     for U in ${ADDITIONAL_USERS[@]}; do
-        IFS='=' S=(${U})
-        USER=${S[0]}
-        arch-chroot /mnt usermod -a -G "$USERS_GROUPS" "$USER_NAME"
+        IFS='=' local S=(${U})
+        local USER=${S[0]}
+        arch-chroot /mnt usermod -a -G "$USERS_GROUPS" "$USER"
     done
 }
 
@@ -1097,14 +1097,14 @@ function bootloader_refind() {
     arch-chroot /mnt sed -i 's/^#scan_all_linux_kernels.*/scan_all_linux_kernels false/' "$ESP_DIRECTORY/EFI/refind/refind.conf"
     #arch-chroot /mnt sed -i 's/^#default_selection "+,bzImage,vmlinuz"/default_selection "+,bzImage,vmlinuz"/' "$ESP_DIRECTORY/EFI/refind/refind.conf"
 
-    REFIND_MICROCODE=""
+    local REFIND_MICROCODE=""
 
     if [ "$VIRTUALBOX" != "true" -a "$VMWARE" != "true" ]; then
         if [ "$CPU_VENDOR" == "intel" ]; then
-            REFIND_MICROCODE="initrd=/intel-ucode.img"
+            local REFIND_MICROCODE="initrd=/intel-ucode.img"
         fi
         if [ "$CPU_VENDOR" == "amd" ]; then
-            REFIND_MICROCODE="initrd=/amd-ucode.img"
+            local REFIND_MICROCODE="initrd=/amd-ucode.img"
         fi
     fi
 
@@ -1215,14 +1215,14 @@ When = PostTransaction
 Exec = /usr/bin/bootctl update
 EOT
 
-    SYSTEMD_MICROCODE=""
+    local SYSTEMD_MICROCODE=""
 
     if [ "$VIRTUALBOX" != "true" -a "$VMWARE" != "true" ]; then
         if [ "$CPU_VENDOR" == "intel" ]; then
-            SYSTEMD_MICROCODE="/intel-ucode.img"
+            local SYSTEMD_MICROCODE="/intel-ucode.img"
         fi
         if [ "$CPU_VENDOR" == "amd" ]; then
-            SYSTEMD_MICROCODE="/amd-ucode.img"
+            local SYSTEMD_MICROCODE="/amd-ucode.img"
         fi
     fi
 
@@ -1336,19 +1336,19 @@ EOT
 function custom_shell() {
     print_step "custom_shell()"
 
-    CUSTOM_SHELL_PATH=""
+    local CUSTOM_SHELL_PATH=""
     case "$CUSTOM_SHELL" in
         "zsh" )
             pacman_install "zsh"
-            CUSTOM_SHELL_PATH="/usr/bin/zsh"
+            local CUSTOM_SHELL_PATH="/usr/bin/zsh"
             ;;
         "dash" )
             pacman_install "dash"
-            CUSTOM_SHELL_PATH="/usr/bin/dash"
+            local CUSTOM_SHELL_PATH="/usr/bin/dash"
             ;;
         "fish" )
             pacman_install "fish"
-            CUSTOM_SHELL_PATH="/usr/bin/fish"
+            local CUSTOM_SHELL_PATH="/usr/bin/fish"
             ;;
     esac
 
@@ -1356,8 +1356,8 @@ function custom_shell() {
         custom_shell_user "root" $CUSTOM_SHELL_PATH
         custom_shell_user "$USER_NAME" $CUSTOM_SHELL_PATH
         for U in ${ADDITIONAL_USERS[@]}; do
-            IFS='=' S=(${U})
-            USER=${S[0]}
+            IFS='=' local S=(${U})
+            local USER=${S[0]}
             custom_shell_user "$USER" $CUSTOM_SHELL_PATH
         done
     fi
@@ -1365,8 +1365,8 @@ function custom_shell() {
 
 
 function custom_shell_user() {
-    USER=$1
-    CUSTOM_SHELL_PATH=$2
+    local USER="$1"
+    local CUSTOM_SHELL_PATH="$2"
 
     if [ "$SYSTEMD_HOMED" == "true" -a "$USER" != "root" ]; then
         homectl update --shell=$CUSTOM_SHELL_PATH $USER
@@ -1562,13 +1562,13 @@ function end() {
 }
 
 function copy_logs() {
-    ESCAPED_LUKS_PASSWORD=$(echo "${LUKS_PASSWORD}" | sed 's/[.[\*^$()+?{|]/[\\&]/g')
-    ESCAPED_ROOT_PASSWORD=$(echo "${ROOT_PASSWORD}" | sed 's/[.[\*^$()+?{|]/[\\&]/g')
-    ESCAPED_USER_PASSWORD=$(echo "${USER_PASSWORD}" | sed 's/[.[\*^$()+?{|]/[\\&]/g')
+    local ESCAPED_LUKS_PASSWORD=$(echo "${LUKS_PASSWORD}" | sed 's/[.[\*^$()+?{|]/[\\&]/g')
+    local ESCAPED_ROOT_PASSWORD=$(echo "${ROOT_PASSWORD}" | sed 's/[.[\*^$()+?{|]/[\\&]/g')
+    local ESCAPED_USER_PASSWORD=$(echo "${USER_PASSWORD}" | sed 's/[.[\*^$()+?{|]/[\\&]/g')
 
     if [ -f "$ALIS_CONF_FILE" ]; then
-        SOURCE_FILE="$ALIS_CONF_FILE"
-        FILE="/mnt/var/log/alis/$ALIS_CONF_FILE"
+        local SOURCE_FILE="$ALIS_CONF_FILE"
+        local FILE="/mnt/var/log/alis/$ALIS_CONF_FILE"
 
         mkdir -p /mnt/var/log/alis
         cp "$SOURCE_FILE" "$FILE"
@@ -1585,8 +1585,8 @@ function copy_logs() {
         fi
     fi
     if [ -f "$ALIS_LOG_FILE" ]; then
-        SOURCE_FILE="$ALIS_LOG_FILE"
-        FILE="/mnt/var/log/alis/$ALIS_LOG_FILE"
+        local SOURCE_FILE="$ALIS_LOG_FILE"
+        local FILE="/mnt/var/log/alis/$ALIS_LOG_FILE"
 
         mkdir -p /mnt/var/log/alis
         cp "$SOURCE_FILE" "$FILE"
@@ -1603,8 +1603,8 @@ function copy_logs() {
         fi
     fi
     if [ -f "$ALIS_ASCIINEMA_FILE" ]; then
-        SOURCE_FILE="$ALIS_ASCIINEMA_FILE"
-        FILE="/mnt/var/log/alis/$ALIS_ASCIINEMA_FILE"
+        local SOURCE_FILE="$ALIS_ASCIINEMA_FILE"
+        local FILE="/mnt/var/log/alis/$ALIS_ASCIINEMA_FILE"
 
         mkdir -p /mnt/var/log/alis
         cp "$SOURCE_FILE" "$FILE"
@@ -1629,13 +1629,13 @@ function load_globals() {
 }
 
 function main() {
-    ALL_STEPS=("sanitize_variables" "check_variables" "warning" "init" "facts" "checks" "prepare" "partition" "install" "configuration" "mkinitcpio_configuration" "users" "display_driver" "kernels" "mkinitcpio" "network" "virtualbox" "vmware" "bootloader" "custom_shell" "desktop_environment" "packages" "vagrant" "systemd_units" "end")
-    STEP="sanitize_variables"
+    local ALL_STEPS=("sanitize_variables" "check_variables" "warning" "init" "facts" "checks" "prepare" "partition" "install" "configuration" "mkinitcpio_configuration" "users" "display_driver" "kernels" "mkinitcpio" "network" "virtualbox" "vmware" "bootloader" "custom_shell" "desktop_environment" "packages" "vagrant" "systemd_units" "end")
+    local STEP="sanitize_variables"
 
     while getopts "s:" arg; do
         case ${arg} in
             s)
-                STEP=${OPTARG}
+                local STEP=${OPTARG}
                 ;;
             ?)
                 echo "Invalid option: -${OPTARG}."
@@ -1645,12 +1645,12 @@ function main() {
     done
 
     # get step execute from
-    FOUND="false"
-    STEPS=""
+    local FOUND="false"
+    local STEPS=""
     for S in ${ALL_STEPS[@]}; do
         if [ "$FOUND" == "true" -o "$STEP" == "$S" ]; then
-            FOUND="true"
-            STEPS="$STEPS $S"
+            local FOUND="true"
+            local STEPS="$STEPS $S"
         fi
     done
 
@@ -1668,7 +1668,7 @@ function main() {
     fi
 
     # execute steps
-    START_TIMESTAMP=$(date -u +"%F %T")
+    local START_TIMESTAMP=$(date -u +"%F %T")
     execute_step "sanitize_variables" "${STEPS}"
     execute_step "check_variables" "${STEPS}"
     execute_step "warning" "${STEPS}"
@@ -1705,8 +1705,8 @@ function main() {
         execute_step "vagrant" "${STEPS}"
     fi
     execute_step "systemd_units" "${STEPS}"
-    END_TIMESTAMP=$(date -u +"%F %T")
-    INSTALLATION_TIME=$(date -u -d @$(($(date -d "$END_TIMESTAMP" '+%s') - $(date -d "$START_TIMESTAMP" '+%s'))) '+%T')
+    local END_TIMESTAMP=$(date -u +"%F %T")
+    local INSTALLATION_TIME=$(date -u -d @$(($(date -d "$END_TIMESTAMP" '+%s') - $(date -d "$START_TIMESTAMP" '+%s'))) '+%T')
     echo "Installation start $START_TIMESTAMP, end $END_TIMESTAMP, time $INSTALLATION_TIME"
     execute_step "end" "${STEPS}"
 }

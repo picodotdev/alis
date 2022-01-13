@@ -71,24 +71,24 @@ LIGHT_BLUE='\033[1;34m'
 NC='\033[0m'
 
 function sanitize_variable() {
-    VARIABLE=$1
-    VARIABLE=$(echo $VARIABLE | sed "s/![^ ]*//g") # remove disabled
-    VARIABLE=$(echo $VARIABLE | sed "s/ {2,}/ /g") # remove unnecessary white spaces
-    VARIABLE=$(echo $VARIABLE | sed 's/^[[:space:]]*//') # trim leading
-    VARIABLE=$(echo $VARIABLE | sed 's/[[:space:]]*$//') # trim trailing
+    local VARIABLE=$1
+    local VARIABLE=$(echo $VARIABLE | sed "s/![^ ]*//g") # remove disabled
+    local VARIABLE=$(echo $VARIABLE | sed "s/ {2,}/ /g") # remove unnecessary white spaces
+    local VARIABLE=$(echo $VARIABLE | sed 's/^[[:space:]]*//') # trim leading
+    local VARIABLE=$(echo $VARIABLE | sed 's/[[:space:]]*$//') # trim trailing
     echo "$VARIABLE"
 }
 
 function trim_variable() {
-    VARIABLE=$1
-    VARIABLE=$(echo $VARIABLE | sed 's/^[[:space:]]*//') # trim leading
-    VARIABLE=$(echo $VARIABLE | sed 's/[[:space:]]*$//') # trim trailing
+    local VARIABLE=$1
+    local VARIABLE=$(echo $VARIABLE | sed 's/^[[:space:]]*//') # trim leading
+    local VARIABLE=$(echo $VARIABLE | sed 's/[[:space:]]*$//') # trim trailing
     echo "$VARIABLE"
 }
 
 function check_variables_value() {
-    NAME=$1
-    VALUE=$2
+    local NAME=$1
+    local VALUE=$2
     if [ -z "$VALUE" ]; then
         echo "$NAME environment variable must have a value."
         exit 1
@@ -96,17 +96,17 @@ function check_variables_value() {
 }
 
 function check_variables_boolean() {
-    NAME=$1
-    VALUE=$2
+    local NAME=$1
+    local VALUE=$2
     check_variables_list "$NAME" "$VALUE" "true false" "true" "true"
 }
 
 function check_variables_list() {
-    NAME=$1
-    VALUE=$2
-    VALUES=$3
-    REQUIRED=$4
-    SINGLE=$5
+    local NAME=$1
+    local VALUE=$2
+    local VALUES=$3
+    local REQUIRED=$4
+    local SINGLE=$5
 
     if [ "$REQUIRED" == "" -o "$REQUIRED" == "true" ]; then
         check_variables_value "$NAME" "$VALUE"
@@ -124,10 +124,10 @@ function check_variables_list() {
 }
 
 function check_variables_equals() {
-    NAME1=$1
-    NAME2=$2
-    VALUE1=$3
-    VALUE2=$4
+    local NAME1=$1
+    local NAME2=$2
+    local VALUE1=$3
+    local VALUE2=$4
     if [ "$VALUE1" != "$VALUE2" ]; then
         echo "$NAME1 and $NAME2 must be equal [$VALUE1, $VALUE2]."
         exit 1
@@ -135,9 +135,9 @@ function check_variables_equals() {
 }
 
 function check_variables_size() {
-    NAME=$1
-    SIZE_EXPECT=$2
-    SIZE=$3
+    local NAME=$1
+    local SIZE_EXPECT=$2
+    local SIZE=$3
     if [ "$SIZE_EXPECT" != "$SIZE" ]; then
         echo "$NAME array size [$SIZE] must be [$SIZE_EXPECT]."
         exit 1
@@ -230,8 +230,8 @@ function facts_commons() {
 }
 
 function init_log() {
-    ENABLE=$1
-    FILE=$2
+    local ENABLE=$1
+    local FILE=$2
     if [ "$ENABLE" == "true" ]; then
         exec > >(tee -a $FILE)
         exec 2> >(tee -a $FILE >&2)
@@ -240,25 +240,25 @@ function init_log() {
 }
 
 function pacman_uninstall() {
-    ERROR="true"
+    local ERROR="true"
     set +e
-    IFS=' ' PACKAGES=($1)
-    PACKAGES_UNINSTALL=()
+    IFS=' ' local PACKAGES=($1)
+    local PACKAGES_UNINSTALL=()
     for PACKAGE in "${PACKAGES[@]}"
     do
         execute_user "pacman -Qi $PACKAGE > /dev/null 2>&1"
-        PACKAGE_INSTALLED=$?
+        local PACKAGE_INSTALLED=$?
         if [ $PACKAGE_INSTALLED == 0 ]; then
-            PACKAGES_UNINSTALL+=("$PACKAGE")
+            local PACKAGES_UNINSTALL+=("$PACKAGE")
         fi
     done
     if [ -z "${PACKAGES_UNINSTALL[@]}" ]; then
         return
     fi
-    COMMAND="pacman -Rdd --noconfirm ${PACKAGES_UNINSTALL[@]}"
+    local COMMAND="pacman -Rdd --noconfirm ${PACKAGES_UNINSTALL[@]}"
     execute_sudo "$COMMAND"
     if [ $? == 0 ]; then
-        ERROR="false"
+        local ERROR="false"
     fi
     set -e
     if [ "$ERROR" == "true" ]; then
@@ -267,15 +267,15 @@ function pacman_uninstall() {
 }
 
 function pacman_install() {
-    ERROR="true"
+    local ERROR="true"
     set +e
-    IFS=' ' PACKAGES=($1)
+    IFS=' ' local PACKAGES=($1)
     for VARIABLE in {1..5}
     do
-        COMMAND="pacman -Syu --noconfirm --needed ${PACKAGES[@]}"
+        local COMMAND="pacman -Syu --noconfirm --needed ${PACKAGES[@]}"
         execute_sudo "$COMMAND"
         if [ $? == 0 ]; then
-            ERROR="false"
+            local ERROR="false"
             break
         else
             sleep 10
@@ -288,19 +288,19 @@ function pacman_install() {
 }
 
 function aur_install() {
-    ERROR="true"
+    local ERROR="true"
     set +e
     which "$AUR_COMMAND"
     if [ "$AUR_COMMAND" != "0" ]; then
         aur_command_install "$USER_NAME" "$AUR_PACKAGE"
     fi
-    IFS=' ' PACKAGES=($1)
+    IFS=' ' local PACKAGES=($1)
     for VARIABLE in {1..5}
     do
-        COMMAND="$AUR_COMMAND -Syu --noconfirm --needed ${PACKAGES[@]}"
+        local COMMAND="$AUR_COMMAND -Syu --noconfirm --needed ${PACKAGES[@]}"
         execute_aur "$COMMAND"
         if [ $? == 0 ]; then
-            ERROR="false"
+            local ERROR="false"
             break
         else
             sleep 10
@@ -314,25 +314,25 @@ function aur_install() {
 
 function aur_command_install() {
     pacman_install "git"
-    USER_NAME="$1"
-    COMMAND="$2"
+    local USER_NAME="$1"
+    local COMMAND="$2"
     execute_aur "rm -rf /home/$USER_NAME/.alis/aur/$COMMAND && mkdir -p /home/$USER_NAME/.alis/aur && cd /home/$USER_NAME/.alis/aur && git clone https://aur.archlinux.org/$COMMAND.git && (cd $COMMAND && makepkg -si --noconfirm) && rm -rf /home/$USER_NAME/.alis/aur/$COMMAND"
 }
 
 function systemd_units() {
-    IFS=' ' UNITS=($SYSTEMD_UNITS)
+    IFS=' ' local UNITS=($SYSTEMD_UNITS)
     for U in ${UNITS[@]}; do
-        ACTION=""
-        UNIT=${U}
+        local ACTION=""
+        local UNIT=${U}
         if [[ $UNIT == -* ]]; then
-            ACTION="disable"
-            UNIT=$(echo $UNIT | sed "s/^-//g")
+            local ACTION="disable"
+            local UNIT=$(echo $UNIT | sed "s/^-//g")
         elif [[ $UNIT == +* ]]; then
-            ACTION="enable"
-            UNIT=$(echo $UNIT | sed "s/^+//g")
+            local ACTION="enable"
+            local UNIT=$(echo $UNIT | sed "s/^+//g")
         elif [[ $UNIT =~ ^[a-zA-Z0-9]+ ]]; then
-            ACTION="enable"
-            UNIT=$UNIT
+            local ACTION="enable"
+            local UNIT=$UNIT
         fi
 
         if [ -n "$ACTION" ]; then
@@ -342,7 +342,7 @@ function systemd_units() {
 }
 
 function execute_flatpak() {
-    COMMAND="$1"
+    local COMMAND="$1"
     if [ "$SYSTEM_INSTALLATION" == "true" ]; then
         arch-chroot /mnt bash -c "$COMMAND"
     else
@@ -351,7 +351,7 @@ function execute_flatpak() {
 }
 
 function execute_aur() {
-    COMMAND="$1"
+    local COMMAND="$1"
     if [ "$SYSTEM_INSTALLATION" == "true" ]; then
         arch-chroot /mnt sed -i 's/^%wheel ALL=(ALL) ALL$/%wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers
         arch-chroot /mnt bash -c "echo -e \"$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n\" | su $USER_NAME -s /usr/bin/bash -c \"$COMMAND\""
@@ -362,7 +362,7 @@ function execute_aur() {
 }
 
 function execute_sudo() {
-    COMMAND="$1"
+    local COMMAND="$1"
     if [ "$SYSTEM_INSTALLATION" == "true" ]; then
         arch-chroot /mnt bash -c "$COMMAND"
     else
@@ -371,7 +371,8 @@ function execute_sudo() {
 }
 
 function execute_user() {
-    COMMAND="$1"
+    local USER_NAME="$1"
+    local COMMAND="$2"
     if [ "$SYSTEM_INSTALLATION" == "true" ]; then
         arch-chroot /mnt bash -c "su $USER_NAME -s /usr/bin/bash -c \"$COMMAND\""
     else

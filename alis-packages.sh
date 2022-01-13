@@ -115,7 +115,7 @@ function packages_pacman() {
     print_step "packages_pacman()"
 
     if [ "$PACKAGES_PACMAN_INSTALL" == "true" ]; then
-        CUSTOM_REPOSITORIES="$(echo "$PACKAGES_PACMAN_CUSTOM_REPOSITORIES" | grep -E "^[^#]|\n^$"; exit 0)"
+        local CUSTOM_REPOSITORIES="$(echo "$PACKAGES_PACMAN_CUSTOM_REPOSITORIES" | grep -E "^[^#]|\n^$"; exit 0)"
         if [ -n "$CUSTOM_REPOSITORIES" ]; then
             execute_sudo "echo -e \"# alis\n$CUSTOM_REPOSITORIES\" >> /etc/pacman.conf"
         fi
@@ -130,7 +130,7 @@ function packages_pacman() {
             fi
             pacman_install "$PACKAGES_PACMAN_PIPEWIRE"
             #if [ -n "$(echo "$PACKAGES_PACMAN_PIPEWIRE" | grep -F -w "pipewire-pulse")" ]; then
-            #    execute_user "systemctl enable --user pipewire-pulse.service"
+            #    execute_user "$USER_NAME" "systemctl enable --user pipewire-pulse.service"
             #fi
         fi
     fi
@@ -155,12 +155,12 @@ function packages_sdkman() {
 
     if [ "$PACKAGES_SDKMAN_INSTALL" == "true" ]; then
         pacman_install "zip unzip"
-        execute_user "curl -s https://get.sdkman.io | bash"
+        execute_user "$USER_NAME" "curl -s https://get.sdkman.io | bash"
 
         if [ -n "$PACKAGES_SDKMAN" ]; then
-            execute_user "sed -i 's/sdkman_auto_answer=.*/sdkman_auto_answer=true/g' /home/$USER_NAME/.sdkman/etc/config"
+            execute_user "$USER_NAME" "sed -i 's/sdkman_auto_answer=.*/sdkman_auto_answer=true/g' /home/$USER_NAME/.sdkman/etc/config"
             sdkman_install "$PACKAGES_SDKMAN"
-            execute_user "sed -i 's/sdkman_auto_answer=.*/sdkman_auto_answer=false/g' /home/$USER_NAME/.sdkman/etc/config"
+            execute_user "$USER_NAME" "sed -i 's/sdkman_auto_answer=.*/sdkman_auto_answer=false/g' /home/$USER_NAME/.sdkman/etc/config"
         fi
     fi
 }
@@ -169,7 +169,7 @@ function packages_aur() {
     print_step "packages_aur()"
 
     if [ "$PACKAGES_AUR_INSTALL" == "true" ]; then
-        IFS=' ' COMMANDS=($PACKAGES_AUR_COMMAND)
+        IFS=' ' local COMMANDS=($PACKAGES_AUR_COMMAND)
         for COMMAND in "${COMMANDS[@]}"
         do
             aur_command_install "$USER_NAME" "$COMMAND"
@@ -200,20 +200,20 @@ function packages_aur() {
 }
 
 function flatpak_install() {
-    OPTIONS=""
+    local OPTIONS=""
     if [ "$SYSTEM_INSTALLATION" == "true" ]; then
-        OPTIONS="--system"
+        local OPTIONS="--system"
     fi
 
-    ERROR="true"
+    local ERROR="true"
     set +e
-    IFS=' ' PACKAGES=($1)
+    IFS=' ' local PACKAGES=($1)
     for VARIABLE in {1..5}
     do
-        COMMAND="flatpak install $OPTIONS -y flathub ${PACKAGES[@]}"
+        local COMMAND="flatpak install $OPTIONS -y flathub ${PACKAGES[@]}"
         execute_flatpak "$COMMAND"
         if [ $? == 0 ]; then
-            ERROR="false"
+            local ERROR="false"
             break
         else
             sleep 10
@@ -226,18 +226,18 @@ function flatpak_install() {
 }
 
 function sdkman_install() {
-    ERROR="true"
+    local ERROR="true"
     set +e
-    IFS=' ' PACKAGES=($1)
+    IFS=' ' local PACKAGES=($1)
     for PACKAGE in "${PACKAGES[@]}"
     do
-        IFS=':' PACKAGE=($PACKAGE)
+        IFS=':' local PACKAGE=($PACKAGE)
         for VARIABLE in {1..5}
         do
-            COMMAND="source /home/$USER_NAME/.sdkman/bin/sdkman-init.sh && sdk install ${PACKAGE[@]}"
-            execute_user "$COMMAND"
+            local COMMAND="source /home/$USER_NAME/.sdkman/bin/sdkman-init.sh && sdk install ${PACKAGE[@]}"
+            execute_user "$USER_NAME" "$COMMAND"
             if [ $? == 0 ]; then
-                ERROR="false"
+                local ERROR="false"
                 break
             else
                 sleep 10

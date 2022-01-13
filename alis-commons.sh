@@ -513,13 +513,13 @@ function partition_setup() {
 
 function partition_options() {
     PARTITION_OPTIONS_BOOT="defaults"
-    PARTITION_OPTIONS_ROOT="defaults"
+    PARTITION_OPTIONS="defaults"
 
     if [ "$DEVICE_TRIM" == "true" ]; then
         PARTITION_OPTIONS_BOOT="$PARTITION_OPTIONS_BOOT,noatime"
-        PARTITION_OPTIONS_ROOT="$PARTITION_OPTIONS_ROOT,noatime"
+        PARTITION_OPTIONS="$PARTITION_OPTIONS,noatime"
         if [ "$FILE_SYSTEM_TYPE" == "f2fs" ]; then
-            PARTITION_OPTIONS_ROOT="$PARTITION_OPTIONS_ROOT,nodiscard"
+            PARTITION_OPTIONS="$PARTITION_OPTIONS,nodiscard"
         fi
     fi
 }
@@ -538,7 +538,7 @@ function partition_mount() {
         umount /mnt
 
         # mount subvolumes
-        mount -o "subvol=${BTRFS_SUBVOLUME_ROOT[1]},$PARTITION_OPTIONS_ROOT,compress=zstd" "$DEVICE_ROOT" /mnt
+        mount -o "subvol=${BTRFS_SUBVOLUME_ROOT[1]},$PARTITION_OPTIONS,compress=zstd" "$DEVICE_ROOT" /mnt
         mkdir -p /mnt/boot
         mount -o "$PARTITION_OPTIONS_BOOT" "$PARTITION_BOOT" /mnt/boot
         for I in "${BTRFS_SUBVOLUMES_MOUNTPOINTS[@]}"; do
@@ -554,10 +554,10 @@ function partition_mount() {
             else
                 mkdir -p "/mnt${SUBVOLUME[2]}"
             fi
-            mount -o "subvol=${SUBVOLUME[1]},$PARTITION_OPTIONS_ROOT,compress=zstd" "$DEVICE_ROOT" "/mnt${SUBVOLUME[2]}"
+            mount -o "subvol=${SUBVOLUME[1]},$PARTITION_OPTIONS,compress=zstd" "$DEVICE_ROOT" "/mnt${SUBVOLUME[2]}"
         done
     else
-        mount -o "$PARTITION_OPTIONS_ROOT" "$DEVICE_ROOT" /mnt
+        mount -o "$PARTITION_OPTIONS" "$DEVICE_ROOT" /mnt
 
         mkdir -p /mnt/boot
         mount -o "$PARTITION_OPTIONS_BOOT" "$PARTITION_BOOT" /mnt/boot

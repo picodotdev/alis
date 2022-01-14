@@ -8,6 +8,7 @@ set -eu
 # Common functions and definitions.
 
 # global variables (no configuration, don't edit)
+COMMOMS_LOADED="true"
 START_TIMESTAMP=""
 END_TIMESTAMP=""
 PARTITION_BOOT=""
@@ -49,6 +50,7 @@ RECOVERY_LOG_FILE="alis-recovery.log"
 RECOVERY_ASCIINEMA_FILE="alis-recovery.asciinema"
 PACKAGES_CONF_FILE="alis-packages.conf"
 PACKAGES_LOG_FILE="alis-packages.log"
+GLOBALS_FILE="alis-globals.conf"
 
 BIOS_TYPE=""
 ASCIINEMA=""
@@ -60,7 +62,6 @@ GPU_VENDOR=""
 VIRTUALBOX=""
 VMWARE=""
 SYSTEM_INSTALLATION=""
-USER_NAME=""
 
 LOG="false"
 PACKAGES_PIPEWIRE="false"

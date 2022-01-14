@@ -42,10 +42,9 @@ set -eu
 # # ./alis-packages.sh
 
 COMMONS_FILE="alis-commons.sh"
-GLOBALS_FILE="alis-globals.conf"
 
 set +u
-if [ "$SYSTEM_INSTALLATION" != "true" ]; then
+if [ "$COMMOMS_LOADED" != "true" ]; then
     source "$COMMONS_FILE"
 fi
 set -u
@@ -78,6 +77,10 @@ function facts() {
     print_step "facts()"
 
     facts_commons
+
+    if [ -z "$USER_NAME" ]; then
+        USER_NAME="$(whoami)"
+    fi
 }
 
 function checks() {
@@ -86,7 +89,7 @@ function checks() {
     check_variables_value "USER_NAME" "$USER_NAME"
 
     if [ -n "$PACKAGES_PACMAN" ]; then
-        pacman -Si $PACKAGES_PACMAN
+        pacman -Syi $PACKAGES_PACMAN
     fi
 
     if [ "$SYSTEM_INSTALLATION" == "false" ]; then
@@ -296,6 +299,7 @@ function main() {
     execute_step "check_variables" "${STEPS}"
     execute_step "init" "${STEPS}"
     execute_step "facts" "${STEPS}"
+    execute_step "checks" "${STEPS}"
     execute_step "prepare" "${STEPS}"
     execute_step "packages" "${STEPS}"
     execute_step "systemd_units" "${STEPS}"

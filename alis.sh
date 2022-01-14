@@ -42,7 +42,6 @@ set -eu
 # # ./alis.sh
 
 COMMONS_FILE="alis-commons.sh"
-GLOBALS_FILE="alis-globals.conf"
 
 source "$COMMONS_FILE"
 source "$ALIS_CONF_FILE"
@@ -1501,7 +1500,7 @@ function packages() {
     if [ "$PACKAGES_INSTALL" == "true" ]; then
         USER_NAME="$USER_NAME" \
         USER_PASSWORD="$USER_PASSWORD" \
-        PACKAGES_PIPEWIRE="$PACKAGES_PIPEWIRE" \
+        PACKAGES_PIPEWIRE="$PACKAGES_PIPEWIRE"
         ./alis-packages.sh
         if [ "$?" != "0" ]; then
             exit 1

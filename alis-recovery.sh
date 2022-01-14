@@ -41,15 +41,9 @@ set -eu
 # # vim alis-recovery.conf
 # # ./alis-recovery.sh
 
-declare -A SYSTEMD_HOMED_STORAGE_LUKS
-declare -A SYSTEMD_HOMED_STORAGE_CIFS
-
 function init_config() {
     COMMONS_FILE="alis-commons.sh"
     GLOBALS_FILE="alis-globals.conf"
-
-    SYSTEMD_HOMED_STORAGE_LUKS=(["type"]="")
-    SYSTEMD_HOMED_STORAGE_CIFS=(["domain"]="" ["service"]="")
 
     source "$COMMONS_FILE"
     source "$RECOVERY_CONF_FILE"

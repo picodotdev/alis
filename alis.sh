@@ -41,17 +41,15 @@ set -eu
 # # vim alis.conf
 # # ./alis.sh
 
-declare -A SYSTEMD_HOMED_STORAGE_LUKS
-declare -A SYSTEMD_HOMED_STORAGE_CIFS
-
 function init_config() {
     local COMMONS_FILE="alis-commons.sh"
 
-    SYSTEMD_HOMED_STORAGE_LUKS=(["type"]="")
-    SYSTEMD_HOMED_STORAGE_CIFS=(["domain"]="" ["service"]="")
-
     source "$COMMONS_FILE"
     source "$ALIS_CONF_FILE"
+
+    export USER_NAME
+    export USER_PASSWORD
+    export PACKAGES_PIPEWIRE
 }
 
 function sanitize_variables() {
@@ -70,7 +68,7 @@ function sanitize_variables() {
     DISPLAY_DRIVER=$(sanitize_variable "$DISPLAY_DRIVER")
     DISPLAY_DRIVER_HARDWARE_VIDEO_ACCELERATION_INTEL=$(sanitize_variable "$DISPLAY_DRIVER_HARDWARE_VIDEO_ACCELERATION_INTEL")
     SYSTEMD_HOMED_STORAGE=$(sanitize_variable "$SYSTEMD_HOMED_STORAGE")
-    SYSTEMD_HOMED_STORAGE_LUKS=(["type"]=$(sanitize_variable "${SYSTEMD_HOMED_STORAGE_LUKS["type"]}"))
+    SYSTEMD_HOMED_STORAGE_LUKS_TYPE=$(sanitize_variable "$SYSTEMD_HOMED_STORAGE_LUKS_TYPE")
     BOOTLOADER=$(sanitize_variable "$BOOTLOADER")
     CUSTOM_SHELL=$(sanitize_variable "$CUSTOM_SHELL")
     DESKTOP_ENVIRONMENT=$(sanitize_variable "$DESKTOP_ENVIRONMENT")
@@ -139,7 +137,7 @@ function check_variables() {
     check_variables_equals "USER_PASSWORD" "USER_PASSWORD_RETYPE" "$USER_PASSWORD" "$USER_PASSWORD_RETYPE"
     check_variables_boolean "SYSTEMD_HOMED" "$SYSTEMD_HOMED"
     check_variables_list "SYSTEMD_HOMED_STORAGE" "$SYSTEMD_HOMED_STORAGE" "auto luks subvolume directory fscrypt cifs" "true" "true"
-    check_variables_list "SYSTEMD_HOMED_STORAGE_LUKS[\"type]\"" "${SYSTEMD_HOMED_STORAGE_LUKS["type"]}" "auto ext4 btrfs xfs" "true" "true"
+    check_variables_list "SYSTEMD_HOMED_STORAGE_LUKS_TYPE" "$SYSTEMD_HOMED_STORAGE_LUKS_TYPE" "auto ext4 btrfs xfs" "true" "true"
     if [ "$SYSTEMD_HOMED" == "true" ]; then
         if [ "$SYSTEMD_HOMED_STORAGE" == "fscrypt" ]; then
             check_variables_list "FILE_SYSTEM_TYPE" "$FILE_SYSTEM_TYPE" "ext4 f2fs" "true" "true"
@@ -765,8 +763,8 @@ function create_user_homectl() {
     if [ "$SYSTEMD_HOMED_STORAGE" != "auto" ]; then
         local STORAGE="--storage=$SYSTEMD_HOMED_STORAGE"
     fi
-    if [ "$SYSTEMD_HOMED_STORAGE" == "luks" -a "${SYSTEMD_HOMED_STORAGE_LUKS["type"]}" != "auto" ]; then
-        local FS_TYPE="--fs-type=${SYSTEMD_HOMED_STORAGE_LUKS["type"]}"
+    if [ "$SYSTEMD_HOMED_STORAGE" == "luks" -a "$SYSTEMD_HOMED_STORAGE_LUKS_TYPE" != "auto" ]; then
+        local FS_TYPE="--fs-type=$SYSTEMD_HOMED_STORAGE_LUKS_TYPE"
     fi
     if [ "$SYSTEMD_HOMED_STORAGE" == "luks" ]; then
         local IMAGE_PATH="--image-path=/mnt/home/$USER.home"
@@ -776,7 +774,7 @@ function create_user_homectl() {
         local CIFS_USERNAME="--cifs-user-name=$USER"
         local CIFS_SERVICE="--cifs-service=${SYSTEMD_HOMED_CIFS_SERVICE["service"]}"
     fi
-    if [ "$SYSTEMD_HOMED_STORAGE" == "luks" -a "${SYSTEMD_HOMED_STORAGE_LUKS["type"]}" == "auto" ]; then
+    if [ "$SYSTEMD_HOMED_STORAGE" == "luks" -a "$SYSTEMD_HOMED_STORAGE_LUKS_TYPE}" == "auto" ]; then
         pacman_install "btrfs-progs"
     fi
 
@@ -1506,9 +1504,6 @@ function desktop_environment_openbox() {
 
 function packages() {
     if [ "$PACKAGES_INSTALL" == "true" ]; then
-        USER_NAME="$USER_NAME" \
-        USER_PASSWORD="$USER_PASSWORD" \
-        PACKAGES_PIPEWIRE="$PACKAGES_PIPEWIRE" \
         ./alis-packages.sh
         if [ "$?" != "0" ]; then
             exit 1

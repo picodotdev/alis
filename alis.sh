@@ -1505,7 +1505,7 @@ function packages() {
     if [ "$PACKAGES_INSTALL" == "true" ]; then
         USER_NAME="$USER_NAME" \
         USER_PASSWORD="$USER_PASSWORD" \
-        PACKAGES_PIPEWIRE="$PACKAGES_PIPEWIRE"
+        PACKAGES_PIPEWIRE="$PACKAGES_PIPEWIRE" \
         ./alis-packages.sh
         if [ "$?" != "0" ]; then
             exit 1

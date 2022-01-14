@@ -1542,9 +1542,16 @@ function end() {
 
         set +e
         for (( i = 15; i >= 1; i-- )); do
-            read -r -s -n 1 -t 1 -p "Rebooting in $i seconds... Press any key to abort."$'\n' KEY
-            if [ $? -eq 0 ]; then
+            read -r -s -n 1 -t 1 -p "Rebooting in $i seconds... Press Esc key to abort ot press R key to reboot now."$'\n' KEY
+            local CODE="$?"
+            if [ "$CODE" != "0" ]; then
+                continue
+            fi
+            if [ "$KEY" == $'\e' ]; then
                 REBOOT="false"
+                break
+            elif [ "$KEY" == "r" -o "$KEY" == "R" ]; then
+                REBOOT="true"
                 break
             fi
         done

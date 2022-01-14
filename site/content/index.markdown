@@ -14,6 +14,8 @@ url: "/"
           An easy and fast way to install Arch Linux.
           <br>
           Boot. Get. Configure. Install. Enjoy.
+          <br>
+          The Executable Arch Linux Installation Guide
         </h2>
         <p class="has-text-centered">
           <a class="button cta primary-btn raised" href="#system-installation">

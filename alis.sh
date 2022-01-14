@@ -760,7 +760,7 @@ function create_user() {
 function create_user_homectl() {
     local USER=$1
     local PASSWORD=$2
-    local USERS_GROUPS=$3
+    local USER_GROUPS=$3
     local STORAGE="--storage=directory"
     local IMAGE_PATH="--image-path=/mnt/home/$USER"
     local FS_TYPE=""
@@ -790,7 +790,7 @@ function create_user_homectl() {
 
     systemctl start systemd-homed.service
     sleep 10 # #151 avoid Operation on home <USER> failed: Transport endpoint is not conected.
-    homectl create "$USER" --enforce-password-policy=no --timezone="$TZ" --language="$L" $STORAGE $IMAGE_PATH $FS_TYPE $CIFS_DOMAIN $CIFS_USERNAME $CIFS_SERVICE -G "$USERS_GROUPS"
+    homectl create "$USER" --enforce-password-policy=no --timezone="$TZ" --language="$L" $STORAGE $IMAGE_PATH $FS_TYPE $CIFS_DOMAIN $CIFS_USERNAME $CIFS_SERVICE -G "$USER_GROUPS"
     sleep 10 # #151 avoid Operation on home <USER> failed: Transport endpoint is not conected.
     cp -a "/var/lib/systemd/home/." "/mnt/var/lib/systemd/home/"
 }
@@ -798,18 +798,18 @@ function create_user_homectl() {
 function create_user_useradd() {
     local USER=$1
     local PASSWORD=$2
-    local USERS_GROUPS=$3
-    arch-chroot /mnt useradd -m -G "$USERS_GROUPS" -s /bin/bash $USER
+    local USER_GROUPS=$3
+    arch-chroot /mnt useradd -m -G "$USER_GROUPS" -s /bin/bash $USER
     printf "$USER_PASSWORD\n$USER_PASSWORD" | arch-chroot /mnt passwd $USER
 }
 
 function user_add_groups() {
     local USER="$1"
-    local GROUPS="$2"
+    local USER_GROUPS="$2"
     if [ "$SYSTEMD_HOMED" == "true" ]; then
-        homectl update "$USER" -G "$GROUPS"
+        homectl update "$USER" -G "$USER_GROUPS"
     else
-        arch-chroot /mnt usermod -a -G "$GROUPS" "$USER"
+        arch-chroot /mnt usermod -a -G "$USER_GROUPS" "$USER"
     fi
 }
 
@@ -1000,13 +1000,13 @@ function virtualbox() {
     pacman_install "virtualbox-guest-utils"
     arch-chroot /mnt systemctl enable vboxservice.service
 
-    local USERS_GROUPS="vboxsf"
-    user_add_groups "$USER_NAME" "$USERS_GROUPS"
+    local USER_GROUPS="vboxsf"
+    user_add_groups "$USER_NAME" "$USER_GROUPS"
 
     for U in ${ADDITIONAL_USERS[@]}; do
         IFS='=' local S=(${U})
         local USER=${S[0]}
-        user_add_groups "$USER" "$USERS_GROUPS"
+        user_add_groups "$USER" "$USER_GROUPS"
     done
 }
 

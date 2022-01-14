@@ -144,6 +144,7 @@ function check_variables() {
         fi
     fi
     check_variables_value "HOOKS" "$HOOKS"
+    check_variables_boolean "BOOTCTL_REMOVE" "$BOOTCTL_REMOVE"
     check_variables_list "BOOTLOADER" "$BOOTLOADER" "auto grub refind systemd" "true" "true"
     check_variables_list "CUSTOM_SHELL" "$CUSTOM_SHELL" "bash zsh dash fish" "true" "true"
     check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde i3-wm i3-gaps deepin budgie bspwm awesome qtile openbox" "false" "true"
@@ -1074,6 +1075,10 @@ function bootloader() {
     fi
 
     CMDLINE_LINUX=$(trim_variable "$CMDLINE_LINUX")
+
+    if [ "$BOOTCTL_REMOVE" == "true" ]; then
+        arch-chroot /mnt bootctl --path="$ESP_DIRECTORY" remove
+    fi
 
     case "$BOOTLOADER" in
         "grub" )

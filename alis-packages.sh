@@ -41,7 +41,7 @@ set -eu
 # # vim alis-packages.conf
 # # ./alis-packages.sh
 
-function init() {
+function init_config() {
     local COMMONS_FILE="alis-commons.sh"
 
     set +u
@@ -297,7 +297,7 @@ function main() {
     fi
 
     # execute steps
-    init
+    init_config
     execute_step "sanitize_variables" "${STEPS}"
     execute_step "check_variables" "${STEPS}"
     execute_step "init" "${STEPS}"

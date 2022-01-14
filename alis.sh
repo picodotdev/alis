@@ -41,7 +41,7 @@ set -eu
 # # vim alis.conf
 # # ./alis.sh
 
-function init() {
+function init_config() {
     local COMMONS_FILE="alis-commons.sh"
 
     source "$COMMONS_FILE"
@@ -1670,7 +1670,7 @@ function main() {
 
     # execute steps
     local START_TIMESTAMP=$(date -u +"%F %T")
-    init
+    init_config
     execute_step "sanitize_variables" "${STEPS}"
     execute_step "check_variables" "${STEPS}"
     execute_step "warning" "${STEPS}"

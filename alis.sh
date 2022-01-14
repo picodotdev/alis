@@ -41,11 +41,12 @@ set -eu
 # # vim alis.conf
 # # ./alis.sh
 
+declare -A SYSTEMD_HOMED_STORAGE_LUKS
+declare -A SYSTEMD_HOMED_STORAGE_CIFS
+
 function init_config() {
     local COMMONS_FILE="alis-commons.sh"
 
-    declare -A SYSTEMD_HOMED_STORAGE_LUKS
-    declare -A SYSTEMD_HOMED_STORAGE_CIFS
     SYSTEMD_HOMED_STORAGE_LUKS=(["type"]="")
     SYSTEMD_HOMED_STORAGE_CIFS=(["domain"]="" ["service"]="")
 

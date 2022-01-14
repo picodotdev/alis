@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eu
+set -eu$
 
 ./build-deploy.sh
 ./deploy-github.sh

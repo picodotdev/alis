@@ -69,17 +69,17 @@ NC='\033[0m'
 
 function sanitize_variable() {
     local VARIABLE="$1"
-    local VARIABLE=$(echo $VARIABLE | sed "s/![^ ]*//g") # remove disabled
-    local VARIABLE=$(echo $VARIABLE | sed "s/ {2,}/ /g") # remove unnecessary white spaces
-    local VARIABLE=$(echo $VARIABLE | sed 's/^[[:space:]]*//') # trim leading
-    local VARIABLE=$(echo $VARIABLE | sed 's/[[:space:]]*$//') # trim trailing
+    local VARIABLE=$(echo "$VARIABLE" | sed "s/![^ ]*//g") # remove disabled
+    local VARIABLE=$(echo "$VARIABLE" | sed -r "s/ {2,}/ /g") # remove unnecessary white spaces
+    local VARIABLE=$(echo "$VARIABLE" | sed 's/^[[:space:]]*//') # trim leading
+    local VARIABLE=$(echo "$VARIABLE" | sed 's/[[:space:]]*$//') # trim trailing
     echo "$VARIABLE"
 }
 
 function trim_variable() {
     local VARIABLE="$1"
-    local VARIABLE=$(echo $VARIABLE | sed 's/^[[:space:]]*//') # trim leading
-    local VARIABLE=$(echo $VARIABLE | sed 's/[[:space:]]*$//') # trim trailing
+    local VARIABLE=$(echo "$VARIABLE" | sed 's/^[[:space:]]*//') # trim leading
+    local VARIABLE=$(echo "$VARIABLE" | sed 's/[[:space:]]*$//') # trim trailing
     echo "$VARIABLE"
 }
 

@@ -68,7 +68,7 @@ LIGHT_BLUE='\033[1;34m'
 NC='\033[0m'
 
 function sanitize_variable() {
-    local VARIABLE=$1
+    local VARIABLE="$1"
     local VARIABLE=$(echo $VARIABLE | sed "s/![^ ]*//g") # remove disabled
     local VARIABLE=$(echo $VARIABLE | sed "s/ {2,}/ /g") # remove unnecessary white spaces
     local VARIABLE=$(echo $VARIABLE | sed 's/^[[:space:]]*//') # trim leading
@@ -77,15 +77,15 @@ function sanitize_variable() {
 }
 
 function trim_variable() {
-    local VARIABLE=$1
+    local VARIABLE="$1"
     local VARIABLE=$(echo $VARIABLE | sed 's/^[[:space:]]*//') # trim leading
     local VARIABLE=$(echo $VARIABLE | sed 's/[[:space:]]*$//') # trim trailing
     echo "$VARIABLE"
 }
 
 function check_variables_value() {
-    local NAME=$1
-    local VALUE=$2
+    local NAME="$1"
+    local VALUE="$2"
     if [ -z "$VALUE" ]; then
         echo "$NAME environment variable must have a value."
         exit 1
@@ -93,17 +93,17 @@ function check_variables_value() {
 }
 
 function check_variables_boolean() {
-    local NAME=$1
-    local VALUE=$2
+    local NAME="$1"
+    local VALUE="$2"
     check_variables_list "$NAME" "$VALUE" "true false" "true" "true"
 }
 
 function check_variables_list() {
-    local NAME=$1
-    local VALUE=$2
-    local VALUES=$3
-    local REQUIRED=$4
-    local SINGLE=$5
+    local NAME="$1"
+    local VALUE="$2"
+    local VALUES="$3"
+    local REQUIRED="$4"
+    local SINGLE="$5"
 
     if [ "$REQUIRED" == "" -o "$REQUIRED" == "true" ]; then
         check_variables_value "$NAME" "$VALUE"
@@ -121,10 +121,10 @@ function check_variables_list() {
 }
 
 function check_variables_equals() {
-    local NAME1=$1
-    local NAME2=$2
-    local VALUE1=$3
-    local VALUE2=$4
+    local NAME1="$1"
+    local NAME2="$2"
+    local VALUE1="$3"
+    local VALUE2="$4"
     if [ "$VALUE1" != "$VALUE2" ]; then
         echo "$NAME1 and $NAME2 must be equal [$VALUE1, $VALUE2]."
         exit 1
@@ -132,9 +132,9 @@ function check_variables_equals() {
 }
 
 function check_variables_size() {
-    local NAME=$1
-    local SIZE_EXPECT=$2
-    local SIZE=$3
+    local NAME="$1"
+    local SIZE_EXPECT="$2"
+    local SIZE="$3"
     if [ "$SIZE_EXPECT" != "$SIZE" ]; then
         echo "$NAME array size [$SIZE] must be [$SIZE_EXPECT]."
         exit 1
@@ -227,8 +227,8 @@ function facts_commons() {
 }
 
 function init_log() {
-    local ENABLE=$1
-    local FILE=$2
+    local ENABLE="$1"
+    local FILE="$2"
     if [ "$ENABLE" == "true" ]; then
         exec > >(tee -a $FILE)
         exec 2> >(tee -a $FILE >&2)

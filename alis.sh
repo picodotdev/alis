@@ -623,7 +623,7 @@ function mkinitcpio_configuration() {
         if [ "$FRAMEBUFFER_COMPRESSION" == "true" ]; then
             local OPTIONS="$OPTIONS enable_fbc=1"
         fi
-        if [ -n "$OPTIONS"]; then
+        if [ -n "$OPTIONS" ]; then
             echo "options i915 $OPTIONS" > /mnt/etc/modprobe.d/i915.conf
         fi
     fi
@@ -644,28 +644,29 @@ function mkinitcpio_configuration() {
         pacman_install "reiserfsprogs"
     fi
     if [ "$LVM" == "true" ]; then
-        local HOOKS=$(echo $HOOKS | sed 's/!lvm2/lvm2/')
+        HOOKS=$(echo $HOOKS | sed 's/!lvm2/lvm2/')
     fi
     if [ "$BOOTLOADER" == "systemd" ]; then
-        local HOOKS=$(echo $HOOKS | sed 's/!systemd/systemd/')
-        local HOOKS=$(echo $HOOKS | sed 's/!sd-vconsole/sd-vconsole/')
+        HOOKS=$(echo $HOOKS | sed 's/!systemd/systemd/')
+        HOOKS=$(echo $HOOKS | sed 's/!sd-vconsole/sd-vconsole/')
         if [ -n "$LUKS_PASSWORD" ]; then
-            local HOOKS=$(echo $HOOKS | sed 's/!sd-encrypt/sd-encrypt/')
+            HOOKS=$(echo $HOOKS | sed 's/!sd-encrypt/sd-encrypt/')
         fi
     else
-        local HOOKS=$(echo $HOOKS | sed 's/!udev/udev/')
-        local HOOKS=$(echo $HOOKS | sed 's/!usr/usr/')
-        local HOOKS=$(echo $HOOKS | sed 's/!keymap/keymap/')
-        local HOOKS=$(echo $HOOKS | sed 's/!consolefont/consolefont/')
+        HOOKS=$(echo $HOOKS | sed 's/!udev/udev/')
+        HOOKS=$(echo $HOOKS | sed 's/!usr/usr/')
+        HOOKS=$(echo $HOOKS | sed 's/!keymap/keymap/')
+        HOOKS=$(echo $HOOKS | sed 's/!consolefont/consolefont/')
         if [ -n "$LUKS_PASSWORD" ]; then
-            local HOOKS=$(echo $HOOKS | sed 's/!encrypt/encrypt/')
+            HOOKS=$(echo $HOOKS | sed 's/!encrypt/encrypt/')
         fi
     fi
 
-    local HOOKS=$(sanitize_variable "$HOOKS")
-    local MODULES=$(sanitize_variable "$MODULES")
+    HOOKS=$(sanitize_variable "$HOOKS")
+    MODULES=$(sanitize_variable "$MODULES")
     arch-chroot /mnt sed -i "s/^HOOKS=(.*)$/HOOKS=($HOOKS)/" /etc/mkinitcpio.conf
     arch-chroot /mnt sed -i "s/^MODULES=(.*)/MODULES=($MODULES)/" /etc/mkinitcpio.conf
+    sleep 60
 
     if [ "$KERNELS_COMPRESSION" != "" ]; then
         arch-chroot /mnt sed -i 's/^#COMPRESSION="'"$KERNELS_COMPRESSION"'"/COMPRESSION="'"$KERNELS_COMPRESSION"'"/' /etc/mkinitcpio.conf

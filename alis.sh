@@ -803,6 +803,17 @@ function create_user_useradd() {
     printf "$USER_PASSWORD\n$USER_PASSWORD" | arch-chroot /mnt passwd $USER
 }
 
+function user_add_groups() {
+    local USER="$1"
+    local GROUPS="$2"
+    if [ "$SYSTEMD_HOMED" == "true" ]; then
+        homectl update "$USER" -G "$GROUPS"
+    else
+        arch-chroot /mnt usermod -a -G "$GROUPS" "$USER"
+    fi
+}
+
+
 function display_driver() {
     print_step "display_driver()"
 
@@ -990,11 +1001,12 @@ function virtualbox() {
     arch-chroot /mnt systemctl enable vboxservice.service
 
     local USERS_GROUPS="vboxsf"
-    arch-chroot /mnt usermod -a -G "$USERS_GROUPS" "$USER_NAME"
+    user_add_groups "$USER_NAME" "$USERS_GROUPS"
+
     for U in ${ADDITIONAL_USERS[@]}; do
         IFS='=' local S=(${U})
         local USER=${S[0]}
-        arch-chroot /mnt usermod -a -G "$USERS_GROUPS" "$USER"
+        user_add_groups "$USER" "$USERS_GROUPS"
     done
 }
 

@@ -41,14 +41,16 @@ set -eu
 # # vim alis-packages.conf
 # # ./alis-packages.sh
 
-COMMONS_FILE="alis-commons.sh"
+function init() {
+    local COMMONS_FILE="alis-commons.sh"
 
-set +u
-if [ "$COMMOMS_LOADED" != "true" ]; then
-    source "$COMMONS_FILE"
-fi
-set -u
-source "$PACKAGES_CONF_FILE"
+    set +u
+    if [ "$COMMOMS_LOADED" != "true" ]; then
+        source "$COMMONS_FILE"
+    fi
+    set -u
+    source "$PACKAGES_CONF_FILE"
+}
 
 function sanitize_variables() {
     PACKAGES_PACMAN=$(sanitize_variable "$PACKAGES_PACMAN")
@@ -295,6 +297,7 @@ function main() {
     fi
 
     # execute steps
+    init
     execute_step "sanitize_variables" "${STEPS}"
     execute_step "check_variables" "${STEPS}"
     execute_step "init" "${STEPS}"

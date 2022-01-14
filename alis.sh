@@ -41,10 +41,12 @@ set -eu
 # # vim alis.conf
 # # ./alis.sh
 
-COMMONS_FILE="alis-commons.sh"
+function init() {
+    local COMMONS_FILE="alis-commons.sh"
 
-source "$COMMONS_FILE"
-source "$ALIS_CONF_FILE"
+    source "$COMMONS_FILE"
+    source "$ALIS_CONF_FILE"
+}
 
 function sanitize_variables() {
     DEVICE=$(sanitize_variable "$DEVICE")
@@ -1668,6 +1670,7 @@ function main() {
 
     # execute steps
     local START_TIMESTAMP=$(date -u +"%F %T")
+    init
     execute_step "sanitize_variables" "${STEPS}"
     execute_step "check_variables" "${STEPS}"
     execute_step "warning" "${STEPS}"

@@ -144,7 +144,6 @@ function check_variables() {
         fi
     fi
     check_variables_value "HOOKS" "$HOOKS"
-    check_variables_boolean "BOOTCTL_REMOVE" "$BOOTCTL_REMOVE"
     check_variables_list "BOOTLOADER" "$BOOTLOADER" "auto grub refind systemd" "true" "true"
     check_variables_list "CUSTOM_SHELL" "$CUSTOM_SHELL" "bash zsh dash fish" "true" "true"
     check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde i3-wm i3-gaps deepin budgie bspwm awesome qtile openbox" "false" "true"
@@ -667,7 +666,6 @@ function mkinitcpio_configuration() {
     MODULES=$(sanitize_variable "$MODULES")
     arch-chroot /mnt sed -i "s/^HOOKS=(.*)$/HOOKS=($HOOKS)/" /etc/mkinitcpio.conf
     arch-chroot /mnt sed -i "s/^MODULES=(.*)/MODULES=($MODULES)/" /etc/mkinitcpio.conf
-    sleep 60
 
     if [ "$KERNELS_COMPRESSION" != "" ]; then
         arch-chroot /mnt sed -i 's/^#COMPRESSION="'"$KERNELS_COMPRESSION"'"/COMPRESSION="'"$KERNELS_COMPRESSION"'"/' /etc/mkinitcpio.conf
@@ -1076,10 +1074,6 @@ function bootloader() {
 
     CMDLINE_LINUX=$(trim_variable "$CMDLINE_LINUX")
 
-    if [ "$BIOS_TYPE" == "uefi" -a "$BOOTCTL_REMOVE" == "true" ]; then
-        arch-chroot /mnt bootctl --path="$ESP_DIRECTORY" remove
-    fi
-
     case "$BOOTLOADER" in
         "grub" )
             bootloader_grub
@@ -1220,7 +1214,7 @@ EOT
 
 function bootloader_systemd() {
     arch-chroot /mnt systemd-machine-id-setup
-    arch-chroot /mnt bootctl --path="$ESP_DIRECTORY" install
+    arch-chroot /mnt bootctl install
 
     arch-chroot /mnt mkdir -p "$ESP_DIRECTORY/loader/"
     arch-chroot /mnt mkdir -p "$ESP_DIRECTORY/loader/entries/"

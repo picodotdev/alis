@@ -1664,7 +1664,7 @@ function main() {
         return 1
     fi
 
-    if [ -n "$STEP" ]; then
+    if [ "$STEP" != "sanitize_variables" ]; then
         load_globals
     fi
 

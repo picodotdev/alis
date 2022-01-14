@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eua
+set -eu
 
 # Arch Linux Install Script (alis) installs unattended, automated
 # and customized Arch Linux system.
@@ -1500,7 +1500,10 @@ function desktop_environment_openbox() {
 
 function packages() {
     if [ "$PACKAGES_INSTALL" == "true" ]; then
-        ./alis-packages.sh
+        USER_NAME="$USER_NAME" \
+        USER_PASSWORD="$USER_PASSWORD" \
+        PACKAGES_PIPEWIRE="$PACKAGES_PIPEWIRE" \
+            ./alis-packages.sh
         if [ "$?" != "0" ]; then
             exit 1
         fi

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eua
+set -eu
 
 # Arch Linux Install Script Packages (alis-packages) installs software
 # packages.

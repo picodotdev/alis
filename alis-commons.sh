@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eua
+set -eu
 
 # Arch Linux Install Script (alis) installs unattended, automated
 # and customized Arch Linux system.

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eu$
+set -eu
 
 mv deploy/ deploy-backup/
 mkdir deploy/

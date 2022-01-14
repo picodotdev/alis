@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eua
+set -eu
 
 # Arch Linux Install Script Recovery (alis-recovery) start a recovery for an
 # failed installation or broken system.

@@ -53,6 +53,7 @@ function sanitize_variables() {
     DEVICE=$(sanitize_variable "$DEVICE")
     FILE_SYSTEM_TYPE=$(sanitize_variable "$FILE_SYSTEM_TYPE")
     PARTITION_MODE=$(sanitize_variable "$PARTITION_MODE")
+    SWAP_SIZE=$(sanitize_variable "$SWAP_SIZE")
     PARTITION_CUSTOMMANUAL_BOOT=$(sanitize_variable "$PARTITION_CUSTOMMANUAL_BOOT")
     PARTITION_CUSTOMMANUAL_ROOT=$(sanitize_variable "$PARTITION_CUSTOMMANUAL_ROOT")
 
@@ -64,6 +65,27 @@ function sanitize_variables() {
             BTRFS_SUBVOLUME_SWAP=("${SUBVOLUME[@]}")
         fi
     done
+}
+
+function check_variables() {
+    check_variables_value "KEYS" "$KEYS"
+    check_variables_boolean "LOG" "$LOG"
+    check_variables_value "DEVICE" "$DEVICE"
+    check_variables_boolean "DEVICE_TRIM" "$DEVICE_TRIM"
+    check_variables_boolean "LVM" "$LVM"
+    check_variables_equals "LUKS_PASSWORD" "LUKS_PASSWORD_RETYPE" "$LUKS_PASSWORD" "$LUKS_PASSWORD_RETYPE"
+    check_variables_list "FILE_SYSTEM_TYPE" "$FILE_SYSTEM_TYPE" "ext4 btrfs xfs f2fs reiserfs" "true" "true"
+    check_variables_size "BTRFS_SUBVOLUME_ROOT" ${#BTRFS_SUBVOLUME_ROOT[@]} 3
+    check_variables_list "BTRFS_SUBVOLUME_ROOT" "${BTRFS_SUBVOLUME_ROOT[2]}" "/" "true" "true"
+    if [ -n "$SWAP_SIZE" ]; then
+        check_variables_size "BTRFS_SUBVOLUME_SWAP" ${#BTRFS_SUBVOLUME_SWAP[@]} 3
+    fi
+    for I in "${BTRFS_SUBVOLUMES_MOUNTPOINTS[@]}"; do
+        IFS=',' SUBVOLUME=($I)
+        check_variables_size "SUBVOLUME" ${#SUBVOLUME[@]} 3
+    done
+    check_variables_list "PARTITION_MODE" "$PARTITION_MODE" "auto custom manual" "true" "true"
+    check_variables_boolean "CHROOT" "$CHROOT"
 }
 
 function warning() {

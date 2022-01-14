@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eu
+set -eua
 
 # Arch Linux Install Script (alis) installs unattended, automated
 # and customized Arch Linux system.
@@ -58,6 +58,8 @@ VMWARE=""
 SYSTEM_INSTALLATION=""
 
 LOG="false"
+USER_NAME="picodotdev"
+USER_PASSWORD="ask"
 PACKAGES_PIPEWIRE="false"
 
 RED='\033[0;31m'

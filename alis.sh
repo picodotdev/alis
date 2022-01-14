@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eu
+set -eua
 
 # Arch Linux Install Script (alis) installs unattended, automated
 # and customized Arch Linux system.
@@ -46,10 +46,6 @@ function init_config() {
 
     source "$COMMONS_FILE"
     source "$ALIS_CONF_FILE"
-
-    export USER_NAME
-    export USER_PASSWORD
-    export PACKAGES_PIPEWIRE
 }
 
 function sanitize_variables() {

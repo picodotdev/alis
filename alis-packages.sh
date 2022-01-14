@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eu
+set -eua
 
 # Arch Linux Install Script Packages (alis-packages) installs software
 # packages.
@@ -262,8 +262,8 @@ function end() {
 }
 
 function main() {
-    ALL_STEPS=("sanitize_variables" "check_variables" "init" "facts" "checks" "prepare" "packages" "systemd_units" "end")
-    STEP="sanitize_variables"
+    local ALL_STEPS=("sanitize_variables" "check_variables" "init" "facts" "checks" "prepare" "packages" "systemd_units" "end")
+    local STEP="sanitize_variables"
 
     while getopts "s:" arg; do
         case ${arg} in

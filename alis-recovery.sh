@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eu
+set -eua
 
 # Arch Linux Install Script Recovery (alis-recovery) start a recovery for an
 # failed installation or broken system.
@@ -42,8 +42,8 @@ set -eu
 # # ./alis-recovery.sh
 
 function init_config() {
-    COMMONS_FILE="alis-commons.sh"
-    GLOBALS_FILE="alis-globals.conf"
+    local COMMONS_FILE="alis-commons.sh"
+    local GLOBALS_FILE="alis-globals.conf"
 
     source "$COMMONS_FILE"
     source "$RECOVERY_CONF_FILE"

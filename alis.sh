@@ -46,6 +46,8 @@ function init_config() {
 
     declare -A SYSTEMD_HOMED_STORAGE_LUKS
     declare -A SYSTEMD_HOMED_STORAGE_CIFS
+    SYSTEMD_HOMED_STORAGE_LUKS=(["type"]="")
+    SYSTEMD_HOMED_STORAGE_CIFS=(["domain"]="" ["service"]="")
 
     source "$COMMONS_FILE"
     source "$ALIS_CONF_FILE"

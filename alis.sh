@@ -447,6 +447,20 @@ function partition() {
     # options
     partition_options
 
+    # create
+    if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
+        # create subvolumes
+        mount -o "$PARTITION_OPTIONS" "$DEVICE_ROOT" /mnt
+        for I in "${BTRFS_SUBVOLUMES_MOUNTPOINTS[@]}"; do
+            IFS=',' SUBVOLUME=($I)
+            if [ ${SUBVOLUME[0]} == "swap" -a -z "$SWAP_SIZE" ]; then
+                continue
+            fi
+            btrfs subvolume create "/mnt/${SUBVOLUME[1]}"
+        done
+        umount /mnt
+    fi
+
     # mount
     partition_mount
 

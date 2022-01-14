@@ -1076,7 +1076,7 @@ function bootloader() {
 
     CMDLINE_LINUX=$(trim_variable "$CMDLINE_LINUX")
 
-    if [ "$BOOTCTL_REMOVE" == "true" ]; then
+    if [ "$BIOS_TYPE" == "uefi" -a "$BOOTCTL_REMOVE" == "true" ]; then
         arch-chroot /mnt bootctl --path="$ESP_DIRECTORY" remove
     fi
 

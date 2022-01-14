@@ -41,11 +41,16 @@ set -eu
 # # vim alis-recovery.conf
 # # ./alis-recovery.sh
 
-COMMONS_FILE="alis-commons.sh"
-GLOBALS_FILE="alis-globals.conf"
+function init_config() {
+    COMMONS_FILE="alis-commons.sh"
+    GLOBALS_FILE="alis-globals.conf"
 
-source "$COMMONS_FILE"
-source "$RECOVERY_CONF_FILE"
+    declare -A SYSTEMD_HOMED_STORAGE_LUKS
+    declare -A SYSTEMD_HOMED_STORAGE_CIFS
+
+    source "$COMMONS_FILE"
+    source "$RECOVERY_CONF_FILE"
+}
 
 function sanitize_variables() {
     DEVICE=$(sanitize_variable "$DEVICE")
@@ -174,6 +179,7 @@ function end() {
 }
 
 function main() {
+    init_config
     sanitize_variables
     check_variables
     warning

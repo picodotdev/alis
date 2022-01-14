@@ -44,6 +44,9 @@ set -eu
 function init_config() {
     local COMMONS_FILE="alis-commons.sh"
 
+    declare -A SYSTEMD_HOMED_STORAGE_LUKS
+    declare -A SYSTEMD_HOMED_STORAGE_CIFS
+
     source "$COMMONS_FILE"
     source "$ALIS_CONF_FILE"
 }
@@ -64,7 +67,7 @@ function sanitize_variables() {
     DISPLAY_DRIVER=$(sanitize_variable "$DISPLAY_DRIVER")
     DISPLAY_DRIVER_HARDWARE_VIDEO_ACCELERATION_INTEL=$(sanitize_variable "$DISPLAY_DRIVER_HARDWARE_VIDEO_ACCELERATION_INTEL")
     SYSTEMD_HOMED_STORAGE=$(sanitize_variable "$SYSTEMD_HOMED_STORAGE")
-    SYSTEMD_HOMED_STORAGE_LUKS["type"]=$(sanitize_variable "${SYSTEMD_HOMED_STORAGE_LUKS["type"]}")
+    SYSTEMD_HOMED_STORAGE_LUKS=(["type"]=$(sanitize_variable "${SYSTEMD_HOMED_STORAGE_LUKS["type"]}"))
     BOOTLOADER=$(sanitize_variable "$BOOTLOADER")
     CUSTOM_SHELL=$(sanitize_variable "$CUSTOM_SHELL")
     DESKTOP_ENVIRONMENT=$(sanitize_variable "$DESKTOP_ENVIRONMENT")

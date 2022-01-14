@@ -762,7 +762,7 @@ function create_user_homectl() {
     local PASSWORD=$2
     local USERS_GROUPS=$3
     local STORAGE="--storage=directory"
-    local IMAGE_PATH="--image-path=/mnt/home/"
+    local IMAGE_PATH="--image-path=/mnt/home/$USER"
     local FS_TYPE=""
     local CIFS_DOMAIN=""
     local CIFS_USERNAME=""
@@ -771,26 +771,26 @@ function create_user_homectl() {
     local L=$(echo ${LOCALE_CONF[0]} | sed "s/LANG=//g")
 
     if [ "$SYSTEMD_HOMED_STORAGE" != "auto" ]; then
-        local STORAGE="--storage=$SYSTEMD_HOMED_STORAGE"
+        local STORAGE="--storage="$SYSTEMD_HOMED_STORAGE""
     fi
     if [ "$SYSTEMD_HOMED_STORAGE" == "luks" -a "$SYSTEMD_HOMED_STORAGE_LUKS_TYPE" != "auto" ]; then
-        local FS_TYPE="--fs-type=$SYSTEMD_HOMED_STORAGE_LUKS_TYPE"
+        local FS_TYPE="--fs-type="$SYSTEMD_HOMED_STORAGE_LUKS_TYPE""
     fi
     if [ "$SYSTEMD_HOMED_STORAGE" == "luks" ]; then
-        local IMAGE_PATH="--image-path=/mnt/home/$USER.home"
+        local IMAGE_PATH="--image-path="/mnt/home/$USER.home""
     fi
     if [ "$SYSTEMD_HOMED_STORAGE" == "cifs" ]; then
-        local CIFS_DOMAIN="--cifs-domain=${SYSTEMD_HOMED_CIFS_DOMAIN["domain"]}"
-        local CIFS_USERNAME="--cifs-user-name=$USER"
-        local CIFS_SERVICE="--cifs-service=${SYSTEMD_HOMED_CIFS_SERVICE["service"]}"
+        local CIFS_DOMAIN="--cifs-domain="${SYSTEMD_HOMED_CIFS_DOMAIN["domain"]}""
+        local CIFS_USERNAME="--cifs-user-name="$USER""
+        local CIFS_SERVICE="--cifs-service="${SYSTEMD_HOMED_CIFS_SERVICE["service"]}""
     fi
-    if [ "$SYSTEMD_HOMED_STORAGE" == "luks" -a "$SYSTEMD_HOMED_STORAGE_LUKS_TYPE}" == "auto" ]; then
+    if [ "$SYSTEMD_HOMED_STORAGE" == "luks" -a "$SYSTEMD_HOMED_STORAGE_LUKS_TYPE" == "auto" ]; then
         pacman_install "btrfs-progs"
     fi
 
     systemctl start systemd-homed.service
     sleep 10 # #151 avoid Operation on home <USER> failed: Transport endpoint is not conected.
-    homectl create $USER --enforce-password-policy=no --timezone=$TZ --language=$L $STORAGE $IMAGE_PATH $FS_TYPE $CIFS_DOMAIN $CIFS_USERNAME $CIFS_SERVICE -G "$USERS_GROUPS"
+    homectl create "$USER" --enforce-password-policy=no --timezone="$TZ" --language="$L" $STORAGE $IMAGE_PATH $FS_TYPE $CIFS_DOMAIN $CIFS_USERNAME $CIFS_SERVICE -G "$USERS_GROUPS"
     sleep 10 # #151 avoid Operation on home <USER> failed: Transport endpoint is not conected.
     cp -a "/var/lib/systemd/home/." "/mnt/var/lib/systemd/home/"
 }

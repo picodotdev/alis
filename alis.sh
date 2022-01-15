@@ -1632,7 +1632,7 @@ function copy_logs() {
         if [ -n "$ESCAPED_ROOT_PASSWORD" ]; then
             sed -i "s/${ESCAPED_ROOT_PASSWORD}/******/g" "$FILE"
         fi
-        if [ -n "$ESCAPED_USER_PASWORD" ]; then
+        if [ -n "$ESCAPED_USER_PASSWORD" ]; then
             sed -i "s/${ESCAPED_USER_PASSWORD}/******/g" "$FILE"
         fi
     fi

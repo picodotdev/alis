@@ -45,6 +45,7 @@ function init_config() {
     local COMMONS_FILE="alis-commons.sh"
 
     source "$COMMONS_FILE"
+    source "$COMMONS_CONF_FILE"
     source "$ALIS_CONF_FILE"
 }
 
@@ -154,7 +155,7 @@ function check_variables() {
 }
 
 function warning() {
-    echo -e "${LIGHT_BLUE}Welcome to Arch Linux Install Script${NC}"
+    echo -e "${BLUE}Welcome to Arch Linux Install Script${NC}"
     echo ""
     echo -e "${RED}Warning"'!'"${NC}"
     echo -e "${RED}This script deletes all partitions of the persistent${NC}"
@@ -185,6 +186,14 @@ function facts() {
 
     facts_commons
 
+    if [ -n "$(echo "$DEVICE" | grep "^/dev/[a-z]d[a-z]")" ]; then
+        DEVICE_SATA="true"
+    elif [ -n "$(echo "$DEVICE" | grep "^/dev/nvme")" ]; then
+        DEVICE_NVME="true"
+    elif [ -n "$(echo "$DEVICE" | grep "^/dev/mmc")" ]; then
+        DEVICE_MMC="true"
+    fi
+
     if [ "$DISPLAY_DRIVER" == "auto" ]; then
         case "$GPU_VENDOR" in
             "intel" )
@@ -198,6 +207,24 @@ function facts() {
                 ;;
         esac
     fi
+
+    case "$AUR_PACKAGE" in
+        "aurman" )
+            AUR_COMMAND="aurman"
+            ;;
+        "yay" )
+            AUR_COMMAND="yay"
+            ;;
+        "paru" )
+            AUR_COMMAND="paru"
+            ;;
+        "yay-bin" )
+            AUR_COMMAND="yay"
+            ;;
+        "paru-bin" | *)
+            AUR_COMMAND="paru"
+            ;;
+    esac
 
     if [ "$BOOTLOADER" == "auto" ]; then
         if [ "$BIOS_TYPE" == "uefi" ]; then
@@ -1464,7 +1491,7 @@ function desktop_environment_kde() {
 }
 
 function desktop_environment_xfce() {
-    pacman_install "xfce4 xfce4-goodies lightdm lightdm-gtk-greeter xorg-server pavucontrol"
+    pacman_install "xfce4 xfce4-goodies lightdm lightdm-gtk-greeter xorg-server pavucontrol pulseaudio"
     arch-chroot /mnt systemctl enable lightdm.service
 }
 
@@ -1525,10 +1552,13 @@ function desktop_environment_openbox() {
 }
 
 function packages() {
+    print_step "packages()"
+
     if [ "$PACKAGES_INSTALL" == "true" ]; then
         USER_NAME="$USER_NAME" \
         USER_PASSWORD="$USER_PASSWORD" \
         PACKAGES_PIPEWIRE="$PACKAGES_PIPEWIRE" \
+        COMMOMS_LOADED="$COMMOMS_LOADED" \
             ./alis-packages.sh
         if [ "$?" != "0" ]; then
             exit 1
@@ -1656,94 +1686,49 @@ function copy_logs() {
     fi
 }
 
-function load_globals() {
-    if [ -f "$GLOBALS_FILE" ]; then
-        source "$GLOBALS_FILE"
-    fi
-}
-
 function main() {
-    local ALL_STEPS=("sanitize_variables" "check_variables" "warning" "init" "facts" "checks" "prepare" "partition" "install" "configuration" "mkinitcpio_configuration" "users" "display_driver" "kernels" "mkinitcpio" "network" "virtualbox" "vmware" "bootloader" "custom_shell" "desktop_environment" "packages" "vagrant" "systemd_units" "end")
-    local STEP="sanitize_variables"
-
-    while getopts "s:" arg; do
-        case ${arg} in
-            s)
-                local STEP=${OPTARG}
-                ;;
-            ?)
-                echo "Invalid option: -${OPTARG}."
-                exit 1
-            ;;
-        esac
-    done
-
-    # get step execute from
-    local FOUND="false"
-    local STEPS=""
-    for S in ${ALL_STEPS[@]}; do
-        if [ "$FOUND" == "true" -o "$STEP" == "$S" ]; then
-            local FOUND="true"
-            local STEPS="$STEPS $S"
-        fi
-    done
-
-    if [ "$STEP" == "steps" ]; then
-        echo "Steps: $ALL_STEPS"
-        return 0
-    fi
-    if [ "$FOUND" == "false" ]; then
-        echo "Steps: $ALL_STEPS"
-        return 1
-    fi
-
-    if [ "$STEP" != "sanitize_variables" ]; then
-        load_globals
-    fi
-
-    # execute steps
     local START_TIMESTAMP=$(date -u +"%F %T")
     init_config
-    execute_step "sanitize_variables" "${STEPS}"
-    execute_step "check_variables" "${STEPS}"
-    execute_step "warning" "${STEPS}"
-    execute_step "init" "${STEPS}"
-    execute_step "facts" "${STEPS}"
-    execute_step "checks" "${STEPS}"
-    execute_step "prepare" "${STEPS}"
-    execute_step "partition" "${STEPS}"
-    execute_step "install" "${STEPS}"
-    execute_step "configuration" "${STEPS}"
-    execute_step "mkinitcpio_configuration" "${STEPS}"
-    execute_step "users" "${STEPS}"
+    execute_step "sanitize_variables"
+    execute_step "check_variables"
+    execute_step "warning"
+    execute_step "init"
+    execute_step "facts"
+    execute_step "checks"
+    execute_step "prepare"
+    execute_step "partition"
+    execute_step "install"
+    execute_step "configuration"
+    execute_step "mkinitcpio_configuration"
+    execute_step "users"
     if [ -n "$DISPLAY_DRIVER" ]; then
-        execute_step "display_driver" "${STEPS}"
+        execute_step "display_driver"
     fi
-    execute_step "kernels" "${STEPS}"
-    execute_step "mkinitcpio" "${STEPS}"
-    execute_step "network" "${STEPS}"
+    execute_step "kernels"
+    execute_step "mkinitcpio"
+    execute_step "network"
     if [ "$VIRTUALBOX" == "true" ]; then
-        execute_step "virtualbox" "${STEPS}"
+        execute_step "virtualbox"
     fi
     if [ "$VMWARE" == "true" ]; then
-        execute_step "vmware" "${STEPS}"
+        execute_step "vmware"
     fi
-    execute_step "bootloader" "${STEPS}"
+    execute_step "bootloader"
     if [ -n "$CUSTOM_SHELL" ]; then
-        execute_step "custom_shell" "${STEPS}"
+        execute_step "custom_shell"
     fi
     if [ -n "$DESKTOP_ENVIRONMENT" ]; then
-        execute_step "desktop_environment" "${STEPS}"
+        execute_step "desktop_environment"
     fi
-    execute_step "packages" "${STEPS}"
+    execute_step "packages"
     if [ "$VAGRANT" == "true" ]; then
-        execute_step "vagrant" "${STEPS}"
+        execute_step "vagrant"
     fi
-    execute_step "systemd_units" "${STEPS}"
+    execute_step "systemd_units"
     local END_TIMESTAMP=$(date -u +"%F %T")
     local INSTALLATION_TIME=$(date -u -d @$(($(date -d "$END_TIMESTAMP" '+%s') - $(date -d "$START_TIMESTAMP" '+%s'))) '+%T')
-    echo "Installation start $START_TIMESTAMP, end $END_TIMESTAMP, time $INSTALLATION_TIME"
-    execute_step "end" "${STEPS}"
+    echo -e "Installation start ${WHITE}$START_TIMESTAMP${NC}, end ${WHITE}$END_TIMESTAMP${NC}, time ${WHITE}$INSTALLATION_TIME${NC}"
+    execute_step "end"
 }
 
 main $@

@@ -44,9 +44,10 @@ set -eu
 function init_config() {
     local COMMONS_FILE="alis-commons.sh"
 
+    source "$COMMONS_FILE"
     set +u
     if [ "$COMMOMS_LOADED" != "true" ]; then
-        source "$COMMONS_FILE"
+        source "$COMMONS_CONF_FILE"
     fi
     set -u
     source "$PACKAGES_CONF_FILE"
@@ -180,7 +181,9 @@ function packages_aur() {
             aur_command_install "$USER_NAME" "$COMMAND"
         done
 
-        case "${COMMANDS[0]}" in
+        AUR_PACKAGE="${COMMANDS[0]}"
+
+        case "${AUR_PACKAGE}" in
             "aurman" )
                 AUR_COMMAND="aurman"
                 ;;
@@ -262,51 +265,20 @@ function end() {
 }
 
 function main() {
-    local ALL_STEPS=("sanitize_variables" "check_variables" "init" "facts" "checks" "prepare" "packages" "systemd_units" "end")
-    local STEP="sanitize_variables"
-
-    while getopts "s:" arg; do
-        case ${arg} in
-            s)
-                STEP=${OPTARG}
-                ;;
-            ?)
-                echo "Invalid option: -${OPTARG}."
-                exit 1
-            ;;
-        esac
-    done
-
-    # get step execute from
-    FOUND="false"
-    STEPS=""
-    for S in ${ALL_STEPS[@]}; do
-        if [ "$FOUND" == "true" -o "$STEP" == "$S" ]; then
-            FOUND="true"
-            STEPS="$STEPS $S"
-        fi
-    done
-
-    if [ "$STEP" == "steps" ]; then
-        echo "Steps: $ALL_STEPS"
-        return 0
-    fi
-    if [ "$FOUND" == "false" ]; then
-        echo "Steps: $ALL_STEPS"
-        return 1
-    fi
-
-    # execute steps
+    local START_TIMESTAMP=$(date -u +"%F %T")
     init_config
-    execute_step "sanitize_variables" "${STEPS}"
-    execute_step "check_variables" "${STEPS}"
-    execute_step "init" "${STEPS}"
-    execute_step "facts" "${STEPS}"
-    execute_step "checks" "${STEPS}"
-    execute_step "prepare" "${STEPS}"
-    execute_step "packages" "${STEPS}"
-    execute_step "systemd_units" "${STEPS}"
-    execute_step "end" "${STEPS}"
+    execute_step "sanitize_variables"
+    execute_step "check_variables"
+    execute_step "init"
+    execute_step "facts"
+    execute_step "checks"
+    execute_step "prepare"
+    execute_step "packages"
+    execute_step "systemd_units"
+    local END_TIMESTAMP=$(date -u +"%F %T")
+    local INSTALLATION_TIME=$(date -u -d @$(($(date -d "$END_TIMESTAMP" '+%s') - $(date -d "$START_TIMESTAMP" '+%s'))) '+%T')
+    echo -e "Installation packages start ${WHITE}$START_TIMESTAMP${NC}, end ${WHITE}$END_TIMESTAMP${NC}, time ${WHITE}$INSTALLATION_TIME${NC}"
+    execute_step "end"
 }
 
 main $@

@@ -43,9 +43,9 @@ set -eu
 
 function init_config() {
     local COMMONS_FILE="alis-commons.sh"
-    local GLOBALS_FILE="alis-globals.conf"
 
     source "$COMMONS_FILE"
+    source "$COMMONS_CONF_FILE"
     source "$RECOVERY_CONF_FILE"
 }
 
@@ -89,7 +89,7 @@ function check_variables() {
 }
 
 function warning() {
-    echo -e "${LIGHT_BLUE}Welcome to Arch Linux Install Script Recovery${NC}"
+    echo -e "${BLUE}Welcome to Arch Linux Install Script Recovery${NC}"
     echo ""
     read -p "Do you want to continue? [y/N] " yn
     case $yn in
@@ -115,6 +115,14 @@ function facts() {
     print_step "facts()"
 
     facts_commons
+
+    if [ -n "$(echo "$DEVICE" | grep "^/dev/[a-z]d[a-z]")" ]; then
+        DEVICE_SATA="true"
+    elif [ -n "$(echo "$DEVICE" | grep "^/dev/nvme")" ]; then
+        DEVICE_NVME="true"
+    elif [ -n "$(echo "$DEVICE" | grep "^/dev/mmc")" ]; then
+        DEVICE_MMC="true"
+    fi
 }
 
 function prepare() {

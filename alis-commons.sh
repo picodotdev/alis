@@ -7,35 +7,7 @@ set -eu
 
 # Common functions and definitions.
 
-# global variables (no configuration, don't edit)
-COMMOMS_LOADED="true"
-START_TIMESTAMP=""
-END_TIMESTAMP=""
-PARTITION_BOOT=""
-PARTITION_ROOT=""
-PARTITION_BOOT_NUMBER=""
-PARTITION_ROOT_NUMBER=""
-DEVICE_ROOT=""
-DEVICE_LVM=""
-LUKS_DEVICE_NAME="cryptroot"
-LVM_VOLUME_GROUP="vg"
-LVM_VOLUME_LOGICAL="root"
-SWAPFILE="/swapfile"
-BOOT_DIRECTORY=""
-ESP_DIRECTORY=""
-UUID_BOOT=""
-UUID_ROOT=""
-PARTUUID_BOOT=""
-PARTUUID_ROOT=""
-CMDLINE_LINUX_ROOT=""
-CMDLINE_LINUX=""
-BTRFS_SUBVOLUME_ROOT=()
-BTRFS_SUBVOLUME_SWAP=()
-USER_NAME_INSTALL="root"
-
-AUR_PACKAGE="paru-bin"
-AUR_COMMAND="paru"
-
+# common static variables
 ALIS_CONF_FILE="alis.conf"
 ALIS_LOG_FILE="alis.log"
 ALIS_ASCIINEMA_FILE="alis.asciinema"
@@ -44,27 +16,12 @@ RECOVERY_LOG_FILE="alis-recovery.log"
 RECOVERY_ASCIINEMA_FILE="alis-recovery.asciinema"
 PACKAGES_CONF_FILE="alis-packages.conf"
 PACKAGES_LOG_FILE="alis-packages.log"
-GLOBALS_FILE="alis-globals.conf"
+COMMONS_CONF_FILE="alis-commons.conf"
 
-BIOS_TYPE=""
-ASCIINEMA=""
-DEVICE_SATA="false"
-DEVICE_NVME="false"
-DEVICE_MMC="false"
-CPU_VENDOR=""
-GPU_VENDOR=""
-VIRTUALBOX=""
-VMWARE=""
-SYSTEM_INSTALLATION=""
-
-LOG="false"
-USER_NAME="picodotdev"
-USER_PASSWORD="ask"
-PACKAGES_PIPEWIRE="false"
-
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-LIGHT_BLUE='\033[1;34m'
+RED='\033[0;91m'
+GREEN='\033[0;92m'
+BLUE='\033[0;96m'
+WHITE='\033[0;97m'
 NC='\033[0m'
 
 function sanitize_variable() {
@@ -168,14 +125,6 @@ function facts_commons() {
         ASCIINEMA="false"
     fi
 
-    if [ -n "$(echo "$DEVICE" | grep "^/dev/[a-z]d[a-z]")" ]; then
-        DEVICE_SATA="true"
-    elif [ -n "$(echo "$DEVICE" | grep "^/dev/nvme")" ]; then
-        DEVICE_NVME="true"
-    elif [ -n "$(echo "$DEVICE" | grep "^/dev/mmc")" ]; then
-        DEVICE_MMC="true"
-    fi
-
     if [ -n "$(lscpu | grep GenuineIntel)" ]; then
         CPU_VENDOR="intel"
     elif [ -n "$(lscpu | grep AuthenticAMD)" ]; then
@@ -199,24 +148,6 @@ function facts_commons() {
     if [ -n "$(systemd-detect-virt | grep -i vmware)" ]; then
         VMWARE="true"
     fi
-
-    case "$AUR_PACKAGE" in
-        "aurman" )
-            AUR_COMMAND="aurman"
-            ;;
-        "yay" )
-            AUR_COMMAND="yay"
-            ;;
-        "paru" )
-            AUR_COMMAND="paru"
-            ;;
-        "yay-bin" )
-            AUR_COMMAND="yay"
-            ;;
-        "paru-bin" | *)
-            AUR_COMMAND="paru"
-            ;;
-    esac
 
     USER_NAME_INSTALL="$(whoami)"
     if [ "$USER_NAME_INSTALL" == "root" ]; then
@@ -243,7 +174,7 @@ function pacman_uninstall() {
     local PACKAGES_UNINSTALL=()
     for PACKAGE in "${PACKAGES[@]}"
     do
-        execute_user "pacman -Qi $PACKAGE > /dev/null 2>&1"
+        execute_sudo "pacman -Qi $PACKAGE > /dev/null 2>&1"
         local PACKAGE_INSTALLED=$?
         if [ $PACKAGE_INSTALLED == 0 ]; then
             local PACKAGES_UNINSTALL+=("$PACKAGE")
@@ -386,52 +317,13 @@ function do_reboot() {
 function print_step() {
     STEP="$1"
     echo ""
-    echo -e "${LIGHT_BLUE}# ${STEP} step${NC}"
+    echo -e "${BLUE}# ${STEP} step${NC}"
     echo ""
 }
 
 function execute_step() {
-    STEP="$1"
-    STEPS="$2"
-    if [[ " $STEPS " =~ " $STEP " ]]; then
-        eval $STEP
-        save_globals
-    else
-        echo "Skipping $STEP"
-    fi
-}
-
-function save_globals() {
-    cat <<EOT > $GLOBALS_FILE
-ASCIINEMA="$ASCIINEMA"
-BIOS_TYPE="$BIOS_TYPE"
-PARTITION_BOOT="$PARTITION_BOOT"
-PARTITION_ROOT="$PARTITION_ROOT"
-PARTITION_BOOT_NUMBER="$PARTITION_BOOT_NUMBER"
-PARTITION_ROOT_NUMBER="$PARTITION_ROOT_NUMBER"
-DEVICE_ROOT="$DEVICE_ROOT"
-DEVICE_LVM="$DEVICE_LVM"
-LUKS_DEVICE_NAME="$LUKS_DEVICE_NAME"
-LVM_VOLUME_GROUP="$LVM_VOLUME_GROUP"
-LVM_VOLUME_LOGICAL="$LVM_VOLUME_LOGICAL"
-SWAPFILE="$SWAPFILE"
-BOOT_DIRECTORY="$BOOT_DIRECTORY"
-ESP_DIRECTORY="$ESP_DIRECTORY"
-UUID_BOOT="$UUID_BOOT"
-UUID_ROOT="$UUID_ROOT"
-PARTUUID_BOOT="$PARTUUID_BOOT"
-PARTUUID_ROOT="$PARTUUID_ROOT"
-DEVICE_SATA="$DEVICE_SATA"
-DEVICE_NVME="$DEVICE_NVME"
-DEVICE_MMC="$DEVICE_MMC"
-CPU_VENDOR="$CPU_VENDOR"
-VIRTUALBOX="$VIRTUALBOX"
-VMWARE="$VMWARE"
-CMDLINE_LINUX_ROOT="$CMDLINE_LINUX_ROOT"
-CMDLINE_LINUX="$CMDLINE_LINUX"
-BTRFS_SUBVOLUME_ROOT=("${BTRFS_SUBVOLUME_ROOT[@]}")
-BTRFS_SUBVOLUME_SWAP=("${BTRFS_SUBVOLUME_SWAP[@]}")
-EOT
+    local STEP="$1"
+    eval "$STEP"
 }
 
 function partition_setup() {

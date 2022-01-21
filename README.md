@@ -23,7 +23,7 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 
 [![Arch Linux](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux.svg "Arch Linux")](https://www.archlinux.org/)
 
-### Index
+## Index
 
 * [Principles](https://github.com/picodotdev/alis#principles)
 * [Features](https://github.com/picodotdev/alis#features)
@@ -39,7 +39,7 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 * [Arch Linux Installation Media](https://github.com/picodotdev/alis#arch-linux-installation-media)
 * [Reference](https://github.com/picodotdev/alis#reference)
 
-### Principles
+## Principles
 
 * Use the original Arch Linux installation media
 * As much unattended and automated as possible, require as little interactivity as possible
@@ -47,7 +47,7 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 * Provide support for system recovery
 * Provide support for installation log
 
-### Features
+## Features
 
 * **System**: UEFI, BIOS
 * **Storage**: SATA, NVMe and MMC
@@ -84,7 +84,7 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 * Wait after installation for an **abortable reboot**
 * **Use your own configuration**
 
-### System installation
+## System installation
 
 Download and boot from the latest <a href="https://www.archlinux.org/download/">original Arch Linux installation media</a>. After boot use the following commands to start the installation.
 
@@ -118,7 +118,7 @@ Advanced usage
 # ./alis-reboot.sh        # (Optional) Reboot the system, only necessary when REBOOT="false"
 ```
 
-### Packages installation
+## Packages installation
 
 After the base Arch Linux system is installed, alis can install packages with pacman, Flatpak, SDKMAN and from AUR.
 
@@ -131,7 +131,7 @@ After the base Arch Linux system is installed, alis can install packages with pa
 # ./alis-packages.sh               # Start packages installation
 ```
 
-### Recovery
+## Recovery
 
 Boot from the latest <a href="https://www.archlinux.org/download/">original Arch Linux installation media</a>. After boot use the following commands to start the recovery, this will allow you to enter in the arch-chroot environment.
 
@@ -147,25 +147,25 @@ Boot from the latest <a href="https://www.archlinux.org/download/">original Arch
 # ./alis-recovery-reboot.sh        # Reboot the system
 ```
 
-### Screenshots
+## Screenshots
 
-These are sample desktop environments that can be installed.
+These are some desktop environments that can be installed.
 
-[![Arch Linux](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-gnome-thumb.jpg "Arch Linux with GNOME")](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-gnome-thumb.jpg)
-[![Arch Linux](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-kde-thumb.jpg "Arch Linux with KDE")](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-kde-thumb.jpg)
-[![Arch Linux](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-xfce-thumb.jpg "Arch Linux with XFCE")](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-xfce-thumb.jpg)
-[![Arch Linux](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-cinnamon-thumb.jpg "Arch Linux with Cinnamon")](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-cinnamon-thumb.jpg)
-[![Arch Linux](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-mate-thumb.jpg "Arch Linux with Mate")](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-mate-thumb.jpg)
-[![Arch Linux](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-lxde-thumb.jpg "Arch Linux with LXDE")](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-lxde-thumb.jpg)
-[![Arch Linux](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-root-thumb.jpg "Arch Linux unloking LUKS on boot")](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-root-thumb.jpg)
+[![Arch Linux](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-gnome-thumb.jpg "Arch Linux with GNOME")](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-gnome.jpg)
+[![Arch Linux](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-kde-thumb.jpg "Arch Linux with KDE")](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-kde.jpg)
+[![Arch Linux](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-xfce-thumb.jpg "Arch Linux with XFCE")](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-xfce.jpg)
+[![Arch Linux](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-cinnamon-thumb.jpg "Arch Linux with Cinnamon")](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-cinnamon.jpg)
+[![Arch Linux](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-mate-thumb.jpg "Arch Linux with Mate")](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-mate.jpg)
+[![Arch Linux](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-lxde-thumb.jpg "Arch Linux with LXDE")](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-lxde.jpg)
+[![Arch Linux](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-root-password-thumb.png "Arch Linux unloking LUKS on boot")](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-root-password.png)
 
-### Video
+## Video
 
 Arch Linux base installation installed in **less than 4 minutes** with a fiber internet connection and a NVMe SSD. Don't trust me? See the video.
 
 [![asciicast](https://asciinema.org/a/444025.png)](https://asciinema.org/a/444025)
 
-### How you can help
+## How you can help
 
 * Test in VirtualBox and create an issue if something does not work, attach the main parts of the used configuration file and the error message
 * Create issues with new features
@@ -173,17 +173,17 @@ Arch Linux base installation installed in **less than 4 minutes** with a fiber i
 * Share it in social networks, forums, create a blog post or video about it
 * Send me an email, I like to read that the script is being used and is useful :). Which are your computer specs, which is your alis configuration, if is your personal or working computer, if all worked fine or some suggestion to improve the script
 
-### Media reference
+## Media reference
 
 * 2022.01 [Arch + Alis, Arco Linux](https://www.arcolinuxiso.com/aa/) ([video playlist](https://www.youtube.com/playlist?list=PLlloYVGq5pS7lMblPjiifVxxnMAqYzBU5))
 * 2020.07 [Arch installer - alis](https://r1ce.net/2020/07/07/arch-installer-alis/)
 * 2019.06 [Arch Linux OS Challenge: Install Arch 'The Easy Way' With These 2 Alternative Methods](https://www.forbes.com/sites/jasonevangelho/2019/06/10/arch-linux-os-challenge-2-alternatives-install-gui-script-easy/)
 
-### Alternatives
+## Alternatives
 
-Threre are other quite good similar projects that can be used as alternative to install a vanilla Arch Linux without any additions.
+There are other quite good similar projects that can be used as alternative to install a vanilla Arch Linux without any additions.
 
-* [Archinstall](https://github.com/archlinux/archinstall) (included in the installation media)
+* [Arch Installer](https://github.com/archlinux/archinstall) (included in the installation media)
 * [archfi](https://github.com/MatMoul/archfi/)
 * [Archlinux Ultimate Installer (aui)](https://github.com/helmuthdu/aui) (only accepts patches)
 
@@ -196,7 +196,7 @@ Also, if you prefer to install an Arch Linux using a guided graphical installer 
 * [RebornOS](https://rebornos.org/)
 * [BlackArch](https://blackarch.org/)
 
-### Test in VirtualBox with Packer
+## Test in VirtualBox with Packer
 
 VirtualBox and [Packer](https://packer.io/) are required.
 
@@ -217,11 +217,11 @@ $ ./alis-packer.sh -c alis-packer-efi-ext4-grub-kde.sh
 $ ./alis-packer.sh -c alis-packer-efi-ext4-grub-xfce.sh
 ```
 
-### Arch Linux Installation Media
+## Arch Linux Installation Media
 
 https://www.archlinux.org/download/
 
-### Reference
+## Reference
 
 * https://archlinux.org/pacman/pacman.conf.5.html#_repository_sections
 * https://tldp.org/LDP/abs/html/

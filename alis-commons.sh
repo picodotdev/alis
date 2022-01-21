@@ -17,6 +17,7 @@ RECOVERY_ASCIINEMA_FILE="alis-recovery.asciinema"
 PACKAGES_CONF_FILE="alis-packages.conf"
 PACKAGES_LOG_FILE="alis-packages.log"
 COMMONS_CONF_FILE="alis-commons.conf"
+PROVISION_DIRECTORY="files/"
 
 RED='\033[0;91m'
 GREEN='\033[0;92m'

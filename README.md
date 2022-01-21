@@ -1,7 +1,7 @@
 # alis
 
-![Arch Linux](https://img.shields.io/badge/-ArchLinux-black?logo=arch-linux)
-![Bash](https://img.shields.io/badge/sh-bash-black)
+![Arch Linux](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-badge.svg)
+![Bash](https://raw.githubusercontent.com/picodotdev/alis/master/images/sh-bash-badge.svg)
 
 Arch Linux Install Script (or alis, also known as _the Arch Linux executable installation guide and wiki_) installs unattended, automated and customized Arch Linux system.
 
@@ -21,7 +21,7 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 
 **Arch Linux Install Script (alis) is based on Arch Linux but is NOT approved, sponsored, or affiliated with Arch Linux or its related projects.**
 
-[![Arch Linux](https://picodotdev.github.io/alis/images/logos/archlinux.svg "Arch Linux")](https://www.archlinux.org/)
+[![Arch Linux](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux.svg "Arch Linux")](https://www.archlinux.org/)
 
 ### Index
 
@@ -144,6 +144,16 @@ Boot from the latest <a href="https://www.archlinux.org/download/">original Arch
 # ./alis-recovery.sh               # Start recovery
 # ./alis-recovery-reboot.sh        # Reboot the system
 ```
+
+### Screenshots
+
+[![Arch Linux](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-gnome-thumb.jpg "Arch Linux with GNOME")](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-gnome-thumb.jpg)
+[![Arch Linux](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-kde-thumb.jpg "Arch Linux with KDE")](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-kde-thumb.jpg)
+[![Arch Linux](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-xfce-thumb.jpg "Arch Linux with XFCE")](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-xfce-thumb.jpg)
+[![Arch Linux](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-cinnamon-thumb.jpg "Arch Linux with Cinnamon")](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-cinnamon-thumb.jpg)
+[![Arch Linux](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-mate-thumb.jpg "Arch Linux with Mate")](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-mate-thumb.jpg)
+[![Arch Linux](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-lxde-thumb.jpg "Arch Linux with LXDE")](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-lxde-thumb.jpg)
+[![Arch Linux](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-root-thumb.jpg "Arch Linux unloking LUKS on boot")](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-root-thumb.jpg)
 
 ### Video
 

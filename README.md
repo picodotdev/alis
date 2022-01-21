@@ -30,9 +30,11 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 * [System installation](https://github.com/picodotdev/alis#system-installation)
 * [Packages installation](https://github.com/picodotdev/alis#packages-installation)
 * [Recovery](https://github.com/picodotdev/alis#recovery)
+* [Screenshots](https://github.com/picodotdev/alis#screenshots)
 * [Video](https://github.com/picodotdev/alis#video)
 * [How you can help](https://github.com/picodotdev/alis#how-you-can-help)
 * [Media reference](https://github.com/picodotdev/alis#media-reference)
+* [Alternatives](https://github.com/picodotdev/alis#alternatives)
 * [Test in VirtualBox with Packer](https://github.com/picodotdev/alis#test-in-virtualbox-with-packer)
 * [Arch Linux Installation Media](https://github.com/picodotdev/alis#arch-linux-installation-media)
 * [Reference](https://github.com/picodotdev/alis#reference)
@@ -147,6 +149,8 @@ Boot from the latest <a href="https://www.archlinux.org/download/">original Arch
 
 ### Screenshots
 
+These are sample desktop environments that can be installed.
+
 [![Arch Linux](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-gnome-thumb.jpg "Arch Linux with GNOME")](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-gnome-thumb.jpg)
 [![Arch Linux](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-kde-thumb.jpg "Arch Linux with KDE")](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-kde-thumb.jpg)
 [![Arch Linux](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-xfce-thumb.jpg "Arch Linux with XFCE")](https://raw.githubusercontent.com/picodotdev/alis/master/images/archlinux-xfce-thumb.jpg)
@@ -174,6 +178,23 @@ Arch Linux base installation installed in **less than 4 minutes** with a fiber i
 * 2022.01 [Arch + Alis, Arco Linux](https://www.arcolinuxiso.com/aa/) ([video playlist](https://www.youtube.com/playlist?list=PLlloYVGq5pS7lMblPjiifVxxnMAqYzBU5))
 * 2020.07 [Arch installer - alis](https://r1ce.net/2020/07/07/arch-installer-alis/)
 * 2019.06 [Arch Linux OS Challenge: Install Arch 'The Easy Way' With These 2 Alternative Methods](https://www.forbes.com/sites/jasonevangelho/2019/06/10/arch-linux-os-challenge-2-alternatives-install-gui-script-easy/)
+
+### Alternatives
+
+Threre are other quite good similar projects that can be used as alternative to install a vanilla Arch Linux without any additions.
+
+* [Archinstall](https://github.com/archlinux/archinstall) (included in the installation media)
+* [archfi](https://github.com/MatMoul/archfi/)
+* [Archlinux Ultimate Installer (aui)](https://github.com/helmuthdu/aui) (only accepts patches)
+
+Also, if you prefer to install an Arch Linux using a guided graphical installer you can choose an [Arch based distribution](https://wiki.archlinux.org/title/Arch-based_distributions#Active). 
+
+* [ArcoLinux](https://arcolinux.com/)
+* [Manjaro](https://manjaro.org/)
+* [EndeavourOS](https://endeavouros.com/)
+* [Archlabs](https://archlabslinux.com/)
+* [RebornOS](https://rebornos.org/)
+* [BlackArch](https://blackarch.org/)
 
 ### Test in VirtualBox with Packer
 

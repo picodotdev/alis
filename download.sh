@@ -22,6 +22,6 @@ done
 
 set -o xtrace
 curl -sL -o "alis-$BRANCH.zip" https://github.com/$GITHUB_USER/alis/archive/refs/heads/$BRANCH.zip
-unzip "alis-$BRANCH.zip"
-cp -R "alis-$BRANCH/*.sh" "alis-$BRANCH/*.conf" "alis-$BRANCH/files/" ./
+bsdtar -x -f "alis-$BRANCH.zip"
+cp -R alis-$BRANCH/*.sh alis-$BRANCH/*.conf alis-$BRANCH/files/ ./
 chmod +x *.sh

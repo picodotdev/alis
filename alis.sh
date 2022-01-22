@@ -69,7 +69,6 @@ function sanitize_variables() {
     BOOTLOADER=$(sanitize_variable "$BOOTLOADER")
     CUSTOM_SHELL=$(sanitize_variable "$CUSTOM_SHELL")
     DESKTOP_ENVIRONMENT=$(sanitize_variable "$DESKTOP_ENVIRONMENT")
-    PROVISION_IGNORE_FILES=$(sanitize_variable "$PROVISION_IGNORE_FILES")
     SYSTEMD_UNITS=$(sanitize_variable "$SYSTEMD_UNITS")
 
     for I in "${BTRFS_SUBVOLUMES_MOUNTPOINTS[@]}"; do
@@ -151,6 +150,7 @@ function check_variables() {
     check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde i3-wm i3-gaps deepin budgie bspwm awesome qtile openbox" "false" "true"
     check_variables_boolean "PACKAGES_MULTILIB" "$PACKAGES_MULTILIB"
     check_variables_boolean "PACKAGES_INSTALL" "$PACKAGES_INSTALL"
+    check_variables_boolean "PROVISION" "$PROVISION"
     check_variables_boolean "VAGRANT" "$VAGRANT"
     check_variables_boolean "REBOOT" "$REBOOT"
 }
@@ -1570,14 +1570,7 @@ function packages() {
 function provision() {
     print_step "provision()"
 
-    # copy files from files/ to /mnt ignoring files to ignore and preserving directories
-    local FILES=".alis-ignore-file"
-    if [ -n "$PROVISION_IGNORE_FILES" ]; then
-        local FILES="$PROVISION_IGNORE_FILES"
-    fi
-    echo "$FILES" > ignore-file.txt
-    (cd "$PROVISION_DIRECTORY" && find . -type f -print | sed 's/^\.//g' | sort | grep --invert-match -f ../ignore-file.txt | xargs -I % bash -c 'cp -v --parents ".%" /mnt')
-    rm ignore-file.txt
+    (cd "$PROVISION_DIRECTORY" && cp -vr --parents . /mnt)
 }
 
 function vagrant() {
@@ -1735,7 +1728,9 @@ function main() {
         execute_step "desktop_environment"
     fi
     execute_step "packages"
-    execute_step "provision"
+    if [ "$PROVISION" == "true" ]; then
+        execute_step "provision"
+    fi
     if [ "$VAGRANT" == "true" ]; then
         execute_step "vagrant"
     fi

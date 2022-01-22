@@ -21,8 +21,8 @@ while getopts "u:" arg; do
 done
 
 set -o xtrace
-pacman -Sy --noconfirm git
-git clone --depth 1 --branch "$BRANCH" "https://github.com/$GITHUB_USER/alis.git"
-cp -R alis/*.sh alis/*.conf alis/files/ ./
+curl -sL -o "alis-$BRANCH.zip" https://github.com/$GITHUB_USER/alis/archive/refs/heads/$BRANCH.zip
+bsdtar -x -f "alis-$BRANCH.zip"
+cp -R alis-$BRANCH/*.sh alis-$BRANCH/*.conf alis-$BRANCH/files/ ./
 chmod +x *.sh
 

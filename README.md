@@ -196,6 +196,10 @@ Also, if you prefer to install an Arch Linux using a guided graphical installer 
 * [RebornOS](https://rebornos.org/)
 * [BlackArch](https://blackarch.org/)
 
+Also and recomended for new Arch Linux new comers follow the Arch Way of doing things is a good way to use and learn about Arch. There are many guides out here, the official Arch Linux installation guide the first one. These are other good ones that explains step by step from instalation media creation to fist boot and programs installation, all the necessary to start.
+
+* [The Arch Linux Handbook](https://www.freecodecamp.org/news/how-to-install-arch-linux/)
+
 ## Test in VirtualBox with Packer
 
 VirtualBox and [Packer](https://packer.io/) are required.

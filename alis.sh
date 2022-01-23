@@ -439,7 +439,7 @@ function partition() {
             fi
             pvs $DEVICE_LVM
             if [ $? == 0 ]; then
-                pvremove -y $LVM_DEVICE
+                pvremove -y $DEVICE_LVM
             fi
             set -e
 

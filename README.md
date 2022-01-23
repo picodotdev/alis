@@ -55,7 +55,7 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 * **Partition**: no LVM, LVM, LVM on LUKS, GPT on UEFI, MBR on BIOS
 * **File system**: ext4, btrfs (with subvols), xfs, f2fs, reiserfs
 * **Kernels**: linux, linux-lts, linux-hardened, linux-zen
-* **Desktop environment**: GNOME, KDE, XFCE, Mate, Cinnamon, LXDE, i3-wm, i3-gaps, Deepin, Budgie, Bspwm, Awesome, Qtile, Openbox
+* **Desktop environment**: GNOME, KDE, XFCE, Mate, Cinnamon, LXDE, i3-wm, i3-gaps, Deepin, Budgie, Bspwm, Awesome, Qtile, Openbox, Leftwm, Dusk
 * **Display managers**: GDM, SDDM, Lightdm, lxdm
 * **Graphics controller**: intel, nvidia and amd with optionally early KMS start. With intel optionally fastboot, hardware video acceleration and framebuffer compression.
 * **Bootloader**: GRUB, rEFInd, systemd-boot
@@ -241,6 +241,7 @@ https://www.archlinux.org/download/
 * https://wiki.archlinux.org/title/Dm-crypt
 * https://wiki.archlinux.org/title/Dm-crypt/Device_encryption
 * https://wiki.archlinux.org/title/Dm-crypt/Encrypting_an_entire_system
+* https://github.com/bakkeby/dusk
 * https://wiki.archlinux.org/title/EFI_System_Partition
 * https://wiki.archlinux.org/title/Ext4
 * https://wiki.archlinux.org/title/F2FS
@@ -258,6 +259,7 @@ https://www.archlinux.org/download/
 * https://wiki.archlinux.org/title/Kernel_mode_setting
 * https://wiki.archlinux.org/title/Kernel_parameters
 * https://wiki.archlinux.org/title/Kernels
+* https://wiki.archlinux.org/title/LeftWM
 * https://wiki.archlinux.org/title/List_of_applications
 * https://wiki.archlinux.org/title/LVM
 * https://wiki.archlinux.org/title/Main_page

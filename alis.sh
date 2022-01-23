@@ -147,7 +147,7 @@ function check_variables() {
     check_variables_value "HOOKS" "$HOOKS"
     check_variables_list "BOOTLOADER" "$BOOTLOADER" "auto grub refind systemd" "true" "true"
     check_variables_list "CUSTOM_SHELL" "$CUSTOM_SHELL" "bash zsh dash fish" "true" "true"
-    check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde i3-wm i3-gaps deepin budgie bspwm awesome qtile openbox" "false" "true"
+    check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde i3-wm i3-gaps deepin budgie bspwm awesome qtile openbox leftwm dusk" "false" "true"
     check_variables_boolean "PACKAGES_MULTILIB" "$PACKAGES_MULTILIB"
     check_variables_boolean "PACKAGES_INSTALL" "$PACKAGES_INSTALL"
     check_variables_boolean "PROVISION" "$PROVISION"
@@ -1475,6 +1475,12 @@ function desktop_environment() {
             ;;
         "openbox" )
             desktop_environment_openbox
+                ;;
+        "dusk" )
+                desktop_environment_dusk
+                ;;
+        "leftwm" )
+            desktop_environment_leftwm
             ;;
     esac
 
@@ -1549,6 +1555,19 @@ function desktop_environment_qtile() {
 
 function desktop_environment_openbox() {
     pacman_install "openbox obconf xterm lightdm lightdm-gtk-greeter xorg-server"
+    arch-chroot /mnt systemctl enable lightdm.service
+}
+
+function desktop_environment_dusk() {
+    #dusk-git in AUR - set in alis-packages.conf
+    pacman_install "dmenu xterm lightdm lightdm-gtk-greeter xorg-server"
+    arch-chroot /mnt systemctl enable lightdm.service
+}
+
+function desktop_environment_leftwm() {
+    #leftwm-git in AUR - set in alis-packages.conf
+    #leftwm-theme-git in AUR - set in alis-packages.conf
+    pacman_install "dmenu xterm lightdm lightdm-gtk-greeter xorg-server"
     arch-chroot /mnt systemctl enable lightdm.service
 }
 

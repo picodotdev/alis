@@ -228,6 +228,7 @@ https://www.archlinux.org/download/
 ## Reference
 
 * https://archlinux.org/pacman/pacman.conf.5.html#_repository_sections
+* https://gitlab.archlinux.org/archlinux/archiso/-/blob/master/configs/releng/packages.x86_64
 * https://tldp.org/LDP/abs/html/
 * https://tldp.org/LDP/Bash-Beginners-Guide/html/
 * https://wiki.archlinux.org/title/AMDGPU

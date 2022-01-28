@@ -518,6 +518,8 @@ function partition() {
 function install() {
     print_step "install()"
 
+    pacman -Sy --noconfirm archlinux-keyring
+
     if [ -n "$PACMAN_MIRROR" ]; then
         echo "Server = $PACMAN_MIRROR" > /etc/pacman.d/mirrorlist
     fi

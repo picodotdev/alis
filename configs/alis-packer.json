@@ -28,13 +28,10 @@
       "boot_wait": "5s",
       "boot_command": [
         "<wait3s><up><up><up><up><up><enter><wait45s>",
-        "curl -O http://{{.HTTPIP}}:{{.HTTPPort}}/packer/download-packer.sh<enter><wait1s>",
-        "chmod +x ./*.sh<enter><wait1s>",
-        "./download-packer.sh \"{{.HTTPIP}}\" \"{{.HTTPPort}}\" {{user `config_file_sh`}}<enter><wait1s>",
-        "./alis-packer-conf.sh<enter><wait1s>",
-        "./alis-asciinema.sh<enter><wait15>",
+        "curl -sL http://raw.githubusercontent.com/picodotdev/alis/{{user `branch`}}/download{{user `branch_qualifier`}}.sh | bash<enter><wait1s>",
         "loadkeys en<enter><wait1>",
-        "less alis.conf<enter><wait3s><pageDown><wait3s><pageDown><wait3s><pageDown><wait3s><pageDown><wait3s><pageDown><wait3s><pageDown><wait3s>q<wait1s>",
+        "./alis-asciinema.sh<enter><wait15>",
+        "less alis.conf<enter><wait2s><pageDown><wait2s><pageDown><wait2s><pageDown><wait2s><pageDown><wait2s><pageDown><wait2s><pageDown><wait2s>q<wait1s>",
         "./alis.sh<enter><wait1s>y<wait1s><enter>"
       ],
       "shutdown_command": "echo 'vagrant' | sudo -S systemctl poweroff",

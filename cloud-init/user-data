@@ -1,0 +1,8 @@
+#cloud-config
+users:
+  - name: root
+    ssh_authorized_keys:
+      - ${SSH_RSA}
+bootcmd:
+  - sed -i -E 's/#?PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
+  - sed -i -E 's/#?PermitEmptyPasswords no/PermitEmptyPasswords yes/' /etc/ssh/sshd_config

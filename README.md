@@ -30,6 +30,7 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 * [System installation](https://github.com/picodotdev/alis#system-installation)
 * [Packages installation](https://github.com/picodotdev/alis#packages-installation)
 * [Recovery](https://github.com/picodotdev/alis#recovery)
+* [SSH install and cloud-init](https://github.com/picodotdev/alis#ssh-install-and-cloud-init)
 * [Screenshots](https://github.com/picodotdev/alis#screenshots)
 * [Video](https://github.com/picodotdev/alis#video)
 * [How you can help](https://github.com/picodotdev/alis#how-you-can-help)
@@ -72,6 +73,7 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 * **PipeWire** support
 * **Multilib** support
 * **Files provision** support
+* **SSH install** and **cloud-init** support
 * Arch Linux custom **packages installation** and **repositories installation**
 * Flatpak utility installation and **Flatpak packages installation**
 * SDKMAN utility installation and **SDKMAN packages installation**
@@ -145,6 +147,28 @@ Boot from the latest <a href="https://www.archlinux.org/download/">original Arch
 # vim alis-recovery.conf           # Edit configuration and change variables values with your last installation configuration with alis (mainly device and partition scheme)
 # ./alis-recovery.sh               # Start recovery
 # ./alis-recovery-reboot.sh        # Reboot the system
+```
+
+## SSH install and cloud-init
+
+SSH install and cloud-init allows to install Arch Linux unattended and automated way in local virtual machines and cloud environments.
+
+Build the cloud-init ISO, mount it in the VM along side the official Arch Linux installation media, start the VM and get its IP address.
+
+```
+$ ./alis-cloud-init-iso.sh
+```
+
+SSH to the VM.
+
+```
+$ ./alis-cloud-init-ssh.sh -i "${IP_ADDRESS}"
+```
+
+Or, start a unattended installation with the provided configuration.
+
+```
+$ ./alis-cloud-init-ssh.sh -i "${IP_ADDRESS}" -c "alis-config-efi-ext4-systemd.sh"
 ```
 
 ## Screenshots
@@ -240,6 +264,7 @@ https://www.archlinux.org/download/
 * https://wiki.archlinux.org/title/Btrfs
 * https://wiki.archlinux.org/title/Budgie
 * https://wiki.archlinux.org/title/Category:Boot_loaders
+* https://wiki.archlinux.org/title/Cloud-init
 * https://wiki.archlinux.org/title/Command-line_shell
 * https://wiki.archlinux.org/title/Deepin_Desktop_Environment
 * https://wiki.archlinux.org/title/Desktop_environment
@@ -257,6 +282,7 @@ https://www.archlinux.org/download/
 * https://wiki.archlinux.org/title/GRUB
 * https://wiki.archlinux.org/title/Hardware_video_acceleration
 * https://wiki.archlinux.org/title/I3
+* https://wiki.archlinux.org/title/Install_Arch_Linux_via_SSH
 * https://wiki.archlinux.org/title/Installation_guide
 * https://wiki.archlinux.org/title/Intel_graphics
 * https://wiki.archlinux.org/title/Intel_NUC

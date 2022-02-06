@@ -40,7 +40,7 @@ jobs:
       - name: Generate content
         run: |
           cd site/
-          hugo gen chromastyles --style=github > themes/alis/static/assets/syntax.css
+          hugo gen chromastyles --style=github > themes/alis/assets/syntax.css
           hugo --destination="deploy/" --gc --cleanDestinationDir
       - name: Echo content (deploy)
         run: |

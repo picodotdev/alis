@@ -1,530 +1,339 @@
 <!DOCTYPE html>
-<html lang="en-us">
+<html lang="en">
   <head>
-    
-
-<meta name="description" content="Hardcoded description; the author should update :)" />
+    <meta name="description" content="A simple powerful Bash based script for an unattended, easy and fast way to install Arch Linux. Developed from many Arch Linux Wiki pages that fully automates the installation of a Arch Linux system after booting from the original Arch Linux installation media.">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta http-equiv="x-ua-compatible" content="ie=edge">
+<link rel="icon" type="image/png" href="/alis/images/favicon.png" />
     <title>alis :. Arch Linux Install Script</title>
     
-<link rel="icon" type="image/png" href="/alis/images/favicon.png" />
+
 <link href="https://fonts.googleapis.com/css?family=Open&#43;Sans:400,600" rel="stylesheet">
-<link rel="stylesheet" type="text/css" href="/alis/css/style.min.e27a45a8eaaa213011996c5371b7cefe4e4d07249359cdd32e281995962699a6.css" integrity="sha256-4npFqOqqITARmWxTcbfO/k5NBySTWc3TLigZlZYmmaY=">
-<link rel="stylesheet" type="text/css" href="/alis/css/icons.css">
-<link rel="stylesheet" type="text/css" href="/alis/css/syntax.css">
-<link rel="stylesheet" type="text/css" href="/alis/css/main.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+<link rel="stylesheet" type="text/css" href="/alis/syntax.css" integrity="">
+<link rel="stylesheet" type="text/css" href="/alis/css/main.css" integrity="">
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 
-    
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-12874075-6"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-12874075-6"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
 
-      gtag('config', 'UA-12874075-6');
-    </script>
+    gtag('config', 'UA-12874075-6');
+</script>
   </head>
   <body>
-    <a href="https://github.com/picodotdev/alis/" style="position: absolute; top: 0px; right: 0px; z-index: 99999;"><img width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_darkblue_121621.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1"></a>
-
-    
-
-    
-
-<nav class="navbar is-fresh is-transparent no-shadow" role="navigation" aria-label="main navigation">
-  <div class="container">
-    <div class="navbar-brand">
-      <a class="navbar-item title" href="https://github.com/picodotdev/alis/">
-        alis
-      </a>
-
-      <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbar-menu">
-        <span aria-hidden="true"></span>
-        <span aria-hidden="true"></span>
-        <span aria-hidden="true"></span>
-      </a>
-    </div>
-
-    <div id="navbar-menu" class="navbar-menu is-static">
-
-      <div class="navbar-end">
-        <a href="#whaisit" class="navbar-item is-secondary">
-          What is it?
-        </a>
-        <a href="#principles" class="navbar-item is-secondary">
-          Principles
-        </a>
-        <a href="#features" class="navbar-item is-secondary">
-          Features
-        </a>
-        <a href="#system-installation" class="navbar-item is-secondary">
-          System installation
-        </a>
-        <a href="#video" class="navbar-item is-secondary">
-          Video
-        </a>
-        <a href="https://github.com/picodotdev/alis/" class="navbar-item is-secondary">
-          GitHub
-        </a>
-        <div class="navbar-item has-dropdown is-hoverable">
-          <a class="navbar-link">
-            More
-          </a>
-
-          <div class="navbar-dropdown">
-            <a href="#packages-installation" class="navbar-item">
-              Packages installation
-            </a>
-            <a href="#recovery" class="navbar-item">
-              Recovery
-            </a>
-            <a href="#howyoucanhelp" class="navbar-item">
-              How you can help
-            </a>
-          </div>
-        </div>
-      </div>
+    <div class="container-fluid">
+      <header>
+        <div class="row">
+          <div class="col">
+            <div class="container">
+              <div class="row">
+                <div class="col">
+                  <nav class="navbar navbar-expand-lg navbar-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/alis/">alis</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        
+        <li class="nav-item">
+          <a class="nav-link" aria-current="page" href="/alis/">Home</a>
+        </li>
+        
+        <li class="nav-item">
+          <a class="nav-link" aria-current="page" href="/alis/#what-is">What is alis?</a>
+        </li>
+        
+        <li class="nav-item">
+          <a class="nav-link" aria-current="page" href="https://github.com/picodotdev/alis/">Source code</a>
+        </li>
+        
+      </ul>
     </div>
   </div>
 </nav>
-
-
-
-<nav id="navbar-clone" class="navbar is-fresh is-transparent" role="navigation" aria-label="main navigation">
-  <div class="container">
-    <div class="navbar-brand">
-      <a class="navbar-item title" href="https://github.com/picodotdev/alis/">
-        alis
-      </a>
-
-      <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="cloned-navbar-menu">
-        <span aria-hidden="true"></span>
-        <span aria-hidden="true"></span>
-        <span aria-hidden="true"></span>
-      </a>
-    </div>
-
-    <div id="cloned-navbar-menu" class="navbar-menu is-fixed">
-
-      <div class="navbar-end">
-        <a href="#whaisit" class="navbar-item is-secondary">
-          What is it?
-        </a>
-        <a href="#principles" class="navbar-item is-secondary">
-          Principles
-        </a>
-        <a href="#features" class="navbar-item is-secondary">
-          Features
-        </a>
-        <a href="#system-installation" class="navbar-item is-secondary">
-          System installation
-        </a>
-        <a href="#video" class="navbar-item is-secondary">
-          Video
-        </a>
-        <a href="https://github.com/picodotdev/alis/" class="navbar-item is-secondary">
-          GitHub
-        </a>
-        <div class="navbar-item has-dropdown is-hoverable">
-          <a class="navbar-link">
-            More
-          </a>
-
-          <div class="navbar-dropdown">
-            <a href="#packages-installation" class="navbar-item">
-              Packages installation
-            </a>
-            <a href="#recovery" class="navbar-item">
-              Recovery
-            </a>
-            <a href="#howyoucanhelp" class="navbar-item">
-              How you can help
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-</div>
-</nav>
-
-<section class="section is-medium">
-  <div class="container">
-    <div class="hero-body">
-  <div class="container">
-    <div class="columns is-vcentered">
-      <div class="column is-10 is-offset-1 landing-caption">
-        <h1 class="title is-1 is-size-x5 is-bold is-spaced has-text-centered">
-          Arch Linux Install Script
-        </h1>
-        <h2 class="subtitle is-3 is-muted has-text-centered">
-          An easy and fast way to install Arch Linux.
-          <br>
-          Boot. Get. Configure. Install. Enjoy.
-        </h2>
-        <p class="has-text-centered">
-          <a class="button cta primary-btn raised" href="#system-installation">
-            How to install
-          </a>
-          <a class="button cta primary-btn raised" href="#video">
-            See it in video
-          </a>
-        </p>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="hero-body">
-  <div class="container">
-    <div class="columns is-vcentered">
-      <div class="column is-6 is-offset-3 has-text-centered">
-        <figure class="image">
-          <a href="https://www.archlinux.org/"><img src="images/logos/archlinux.svg" alt="Arch Linux"></a>
-        </figure>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="container">
-  <div class="columns is-vcentered">
-    <div class="column is-8 is-offset-2 has-text-centered">
-      <div class="col-12 adblock-container-billboard">
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3533636310991304" crossorigin="anonymous"></script>
-        <!-- alis-auto-billboard -->
-        <div class="adsense adsense-billboard">
-          <ins class="adsbygoogle"
-              style="display:block"
-              data-ad-client="ca-pub-3533636310991304"
-              data-ad-slot="8430508513"
-              data-ad-format="auto"
-              data-full-width-responsive="true"></ins>
-          <script>
-              (adsbygoogle = window.adsbygoogle || []).push({});
-          </script>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-<section id="whaisit" class="section is-medium">
-  <div class="container">
-    <div class="title-wrapper has-text-centered">
-      <h2 class="title is-2">What is it?</h2>
-      <div class="divider is-centered"></div>
-    </div>
-    <div class="content-wrapper">
-      <p>
-        Arch Linux Install Script (or alis, also known as <i>the Arch Linux executable installation guide and wiki</i>) installs unattended, automated and customized Arch Linux system.
-      </p>
-      <p>
-        It is a simple bash script based in many Arch Linux Wiki pages that fully automates the installation of a Arch Linux system after booting from the original Arch Linux installation media. It contains the same commands that you would type and execute one by one interactively to complete the installation. The only user intervention needed is to edit a configuration file to choose the installation options and preferences from partitioning, to encryption, bootloader, file system, language and keyboard mapping, desktop environment, kernels, packages to install and graphic drivers. This automation makes the installation easy and fast, fast as less than 4 minutes.
-      </p>
-      <p>
-        If some time later after an system update for any reason the system does not boot correctly a recovery script is also provided to enter in a recovery mode that allows to downgrade packages or execute any other commands to restore the system. Also a log of the installation can be taken with <a href="https://asciinema.org/">asciinema</a>.
-      </p>
-      <p class="has-text-danger">
-        Warning! This script can delete all partitions of the persistent storage. It is recommended to test it first in a virtual machine like <a href="https://www.virtualbox.org/">VirtualBox</a>.
-      </p>
-    </div>
-  </div>
-</section>
-<section id="principles" class="section is-medium">
-  <div class="container">
-    <div class="title-wrapper has-text-centered">
-      <h2 class="title is-2">Principles</h2>
-      <div class="divider is-centered"></div>
-    </div>
-    <div class="content-wrapper">
-      <ul>
-        <li>Use the original Arch Linux installation media</li>
-        <li>As much unattended and automated as possible, require as little interactivity as possible</li>
-        <li>Allow to customize the installation to cover the most common cases</li>
-        <li>Provide support for system recovery</li>
-        <li>Provide support for installation log</li>
-      </ul>
-    </div>
-  </div>
-</section>
-<section id="features" class="section is-medium">
-  <div class="container">
-    <div class="title-wrapper has-text-centered">
-      <h2 class="title is-2">Features</h2>
-      <div class="divider is-centered"></div>
-    </div>
-    <div class="content-wrapper">
-      <ul>
-        <li><b>System</b>: UEFI, BIOS</li>
-        <li><b>Storage</b>: SATA, NVMe and MMC</li>
-        <li><b>Encryption</b>: root partition encrypted and no encrypted</li>
-        <li><b>Partition</b>: no LVM, LVM, LVM on LUKS, GPT on UEFI, MBR on BIOS</li>
-        <li><b>File system</b>: ext4, btrfs (with subvols), xfs, f2fs, reiserfs</li>
-        <li><b>Kernels</b>: linux, linux-lts, linux-hardened, linux-zen</li>
-        <li><b>Desktop environment</b>: GNOME, KDE, XFCE, Mate, Cinnamon, LXDE, i3-wm, i3-gaps, Deepin, Budgie, Bspwm, Awesome, Qtile, Openbox</li>
-        <li><b>Display managers</b>: GDM, SDDM, Lightdm, lxdm</li>
-        <li><b>Graphics controller</b>: intel, nvidia and amd with optionally early KMS start. With intel optionally fastboot, hardware video acceleration and framebuffer compression.</li>
-        <li><b>Bootloader</b>: GRUB, rEFInd, systemd-boot</li>
-        <li><b>Custom shell</b>: bash, zsh, dash, fish</li>
-        <li><b>WPA WIFI network</b> installation</li>
-        <li><b>Periodic TRIM</b> for SSD storage</li>
-        <li>Intel and AMD </b>processors microcode</b></li>
-        <li>Optional <b>swap file</b></li>
-        <li><b>VirtualBox guest additions</b> and <b>VMware tools</b> support</li>
-        <li><b>Kernel compression</b> and <b>custom parameters</b></li>
-        <li><b>Users creation</b> and <b>add to sudoers</b></li>
-        <li><b>systemd units enable or disable</b></li>
-        <li><b>systemd-homed</b> support</li>
-        <li><b>PipeWire</b> support</li>
-        <li><b>Multilib</b> support</li>
-        <li>Arch Linux custom <b>packages installation</b> and <b>repositories installation</b></li>
-        <li>Flatpak utility installation and <b>Flatpak packages installation</b></li>
-        <li>SDKMAN utility installation and <b>SDKMAN packages installation</b></li>
-        <li><b>AUR utility</b> installation (yay, aurman) and <b>AUR packages installation</b></li>
-        <li><b>Packages installation after base system installation</b> (preferred way of packages installation)</li>
-        <li>Script for download installation and <b>recovery scripts</b> and configuration files</li>
-        <li><b>Retry packages download</b> on connection/mirror error</li>
-        <li><b>Packer support</b> for testing in VirtualBox</li>
-        <li><b>Installation log</b> with all commands executed and output in a file and/or <b>asciinema video</b></li>
-        <li>Wait after installation for an <b>abortable reboot</b></li>
-        <li>Fork the repository and <b>use your own configuration</b></li>
-      </ul>
-  </div>
-</section>
-<section id="system-installation" class="section is-medium">
-  <div class="container">
-    <div class="title-wrapper has-text-centered">
-      <h2 class="title is-2">System installation</h2>
-      <div class="divider is-centered"></div>
-    </div>
-    <div class="content-wrapper">
-      <p>
-        Download and boot from the latest <a href="https://www.archlinux.org/download/">original Arch Linux installation media</a>. After boot use the following commands to start the installation.
-      </p>
-      <p>
-        Follow the <a href="https://wiki.archlinux.org/title/Arch_Linux">Arch Way</a> of doing things and learn what this script does. This will allow you to know what is happening.
-      </p>
-      <p>
-      Internet connection is required, with wireless WIFI connection see <a href="https://wiki.archlinux.org/title/Wireless_network_configuration#Wi-Fi_Protected_Access">Wireless_network_configuration</a> to bring up WIFI connection before start the installation.
-      </p>
-      <p>
-        Minimum usage
-      </p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">                        <span class="c1"># Start the system with latest Arch Linux installation media</span>
-loadkeys <span class="o">[</span>keymap<span class="o">]</span>       <span class="c1"># Load keyboard keymap, eg. loadkeys es, loadkeys us, loadkeys de</span>
-curl -sL https://raw.githubusercontent.com/picodotdev/alis/master/download.sh <span class="p">|</span> bash     <span class="c1"># Download alis scripts</span>
-vim alis.conf           <span class="c1"># Edit configuration and change variables values with your preferences (system configuration)</span>
-./alis.sh               <span class="c1"># Start installation</span></code></pre></div>
-      <p>
-        Advanced usage
-      </p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">                        <span class="c1"># Start the system with latest Arch Linux installation media</span>
-loadkeys <span class="o">[</span>keymap<span class="o">]</span>       <span class="c1"># Load keyboard keymap, eg. loadkeys es, loadkeys us, loadkeys de</span>
-iwctl --passphrase <span class="s2">&#34;[WIFI_KEY]&#34;</span> station <span class="o">[</span>WIFI_INTERFACE<span class="o">]</span> connect <span class="s2">&#34;[WIFI_ESSID]&#34;</span>          <span class="c1"># (Optional) Connect to WIFI network. _ip link show_ to know WIFI_INTERFACE.</span>
-curl -sL https://raw.githubusercontent.com/picodotdev/alis/master/download.sh <span class="p">|</span> bash     <span class="c1"># Download alis scripts</span>
-<span class="c1"># curl -sL https://git.io/JeaH6 | bash                                                   # Alternative download URL with URL shortener</span>
-./alis-asciinema.sh     <span class="c1"># (Optional) Start asciinema video recording</span>
-vim alis.conf           <span class="c1"># Edit configuration and change variables values with your preferences (system configuration)</span>
-vim alis-packages.conf  <span class="c1"># (Optional) Edit configuration and change variables values with your preferences (packages to install)</span>
-                        <span class="c1"># (The preferred way to install packages is after system installation, see Packages installation)</span>
-./alis.sh               <span class="c1"># Start installation</span>
-./alis-reboot.sh        <span class="c1"># (Optional) Reboot the system, only necessary when REBOOT=&#34;false&#34;</span></code></pre></div>
-    </div>
-  </div>
-</section>
-<section id="video" class="section is-medium">
-  <div class="container">
-    <div class="title-wrapper has-text-centered">
-      <h2 class="title is-2">Video</h2>
-      <div class="divider is-centered"></div>
-    </div>
-    <div class="content-wrapper">
-       <p>Arch Linux base installation installed in <b>less than 4 minutes</b> with a fiber internet connection and a NVMe SSD. Don't trust me? See the video.</p>
-       <script type="text/javascript" src="https://asciinema.org/a/444025.js" data-size="medium" data-cols="160" data-rows="40" id="asciicast-444025" async></script>
-    </div>
-  </div>
-</section>
-<section id="packages-installation" class="section is-medium">
-  <div class="container">
-    <div class="title-wrapper has-text-centered">
-      <h2 class="title is-2">Packages installation</h2>
-      <div class="divider is-centered"></div>
-    </div>
-    <div class="content-wrapper">
-    <p>
-    After the base Arch Linux system is installed, alis can install packages with pacman, Flatpak, SDKMAN and from AUR.
-    </p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">                                 <span class="c1"># After system installation start a user session</span>
-curl -sL https://raw.githubusercontent.com/picodotdev/alis/master/download.sh <span class="p">|</span> bash     <span class="c1"># Download alis scripts</span>
-<span class="c1"># curl -sL https://git.io/JeaH6 | bash                                                   # Alternative download URL with URL shortener</span>
-./alis-packages-asciinema.sh     <span class="c1"># (Optional) Start asciinema video recording</span>
-vim alis-packages.conf           <span class="c1"># Edit configuration and change variables values with your preferences (packages to install)</span>
-./alis-packages.sh               <span class="c1"># Start packages installation</span></code></pre></div>
-    </div>
-  </div>
-</section>
-<section id="recovery" class="section is-medium">
-  <div class="container">
-    <div class="title-wrapper has-text-centered">
-      <h2 class="title is-2">Recovery</h2>
-      <div class="divider is-centered"></div>
-    </div>
-    <div class="content-wrapper">
-      <p>
-      Boot from the latest <a href="https://www.archlinux.org/download/">original Arch Linux installation media</a>. After boot use the following comands to start the recovery, this will allow you to enter in the arch-chroot environment.
-      </p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">                                 <span class="c1"># Start the system with latest Arch Linux installation media</span>
-loadkeys <span class="o">[</span>keymap<span class="o">]</span>                <span class="c1"># Load keyboard keymap, eg. loadkeys es, loadkeys us, loadkeys de</span>
-iwctl --passphrase <span class="s2">&#34;[WIFI_KEY]&#34;</span> station <span class="o">[</span>WIFI_INTERFACE<span class="o">]</span> connect <span class="s2">&#34;[WIFI_ESSID]&#34;</span>          <span class="c1"># (Optional) Connect to WIFI network. _ip link show_ to know WIFI_INTERFACE.</span>
-curl -sL https://raw.githubusercontent.com/picodotdev/alis/master/download.sh <span class="p">|</span> bash     <span class="c1"># Download alis scripts</span>
-<span class="c1"># curl -sL https://git.io/JeaH6 | bash                                                   # Alternative download URL with URL shortener</span>
-./alis-recovery-asciinema.sh     <span class="c1"># (Optional) Start asciinema video recording</span>
-vim alis-recovery.conf           <span class="c1"># Edit configuration and change variables values with your last installation configuration with alis (mainly device and partition scheme)</span>
-./alis-recovery.sh               <span class="c1"># Start recovery</span>
-./alis-recovery-reboot.sh        <span class="c1"># Reboot the system</span></code></pre></div>
-    </div>
-  </div>
-</section>
-<section id="how-you-can-help" class="section is-medium">
-  <div class="container">
-    <div class="title-wrapper has-text-centered">
-      <h2 class="title is-2">How you can help</h2>
-      <div class="divider is-centered"></div>
-    </div>
-    <div class="content-wrapper">
-      <ul>
-        <li>Test in VirtualBox and create an issue if something does not work, attach the main parts of the used configuration file and the error message</li>
-        <li><a href="https://github.com/picodotdev/alis/issues">Create issues</a> with new features</li>
-        <li>Send <a href="https://github.com/picodotdev/alis/pulls">pull requests</a></li>
-        <li>Share it in social networks, forums, create a blog post or video about it</li>
-        <li>Send me an email, I like to read that the script is being used and is useful :). Which are your computer specs, which is your alis configuration, if is your personal or working computer, if all worked fine or some suggestion to improve the script</li>
-      </ul>
-    </div>
-  </div>
-</section>
-<section id="media-reference" class="section is-medium">
-  <div class="container">
-    <div class="title-wrapper has-text-centered">
-      <h2 class="title is-2">Media reference</h2>
-      <div class="divider is-centered"></div>
-    </div>
-    <div class="content-wrapper">
-      <ul>
-        <li>2022.01 <a href="https://www.arcolinuxiso.com/aa/">Arch + Alis, Arco Linux</a> (<a href="https://www.youtube.com/playlist?list=PLlloYVGq5pS7lMblPjiifVxxnMAqYzBU5">video playlist</a>)</li>
-        <li>2020.07 <a href="https://r1ce.net/2020/07/07/arch-installer-alis/">Arch installer - alis</a></li>
-        <li>2019.06 <a href="https://www.forbes.com/sites/jasonevangelho/2019/06/10/arch-linux-os-challenge-2-alternatives-install-gui-script-easy/">Arch Linux OS Challenge: Install Arch 'The Easy Way' With These 2 Alternative Methods</a></li>
-      </ul>
-    </div>
-  </div>
-</section>
-<div class="container">
-  <div class="columns is-vcentered">
-    <div class="column is-8 is-offset-2 has-text-centered">
-      <div class="col-12 adblock-container-billboard">
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3533636310991304" crossorigin="anonymous"></script>
-        <!-- alis-auto-billboard -->
-        <div class="adsense adsense-billboard">
-          <ins class="adsbygoogle"
-              style="display:block"
-              data-ad-client="ca-pub-3533636310991304"
-              data-ad-slot="8430508513"
-              data-ad-format="auto"
-              data-full-width-responsive="true"></ins>
-          <script>
-              (adsbygoogle = window.adsbygoogle || []).push({});
-          </script>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-  </div>
-</section>
-
-
-      
-<footer class="footer footer-dark">
-  <div class="container">
-    <div class="columns">
-      <div class="column">
-        <div class="footer-logo">
-          <a class="navbar-item title" href="https://github.com/picodotdev/alis/">
-            alis
-          </a>
-        </div>
-      </div>
-        <div class="column">
-          <div class="footer-column">
-            <div class="footer-header">
-                <h3>Documentation</h3>
-            </div>
-            <ul class="link-list">
-              <li>
-                <a href="#whaisit">
-                  What is it?
-                </a>
-              </li>
-              <li>
-                <a href="#principles">
-                  Principles
-                </a>
-              </li>
-              <li>
-                <a href="#features">
-                  Features
-                </a>
-              </li>
-              <li>
-                <a href="#system-installation">
-                  System installation
-                </a>
-              </li>
-              <li>
-                <a href="#recovery">
-                  Recovery
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-      <div class="column">
-        <div class="footer-column">
-          <div class="footer-header">
-            <h3></h3>
-            <nav class="level is-mobile">
-              <div class="level-left">
-                <a class="level-item" href="https://github.com/picodotdev/alis/">
-                  <span class="icon"><i class="fa fa-github"></i></span>
-                </a>
+                </div>
               </div>
-            </nav>
+            </div>
+          </div>
+        </div>
+      </header>
+      <article>
+        <div class="row">
+          <div class="col">
+            <div class="container">
+              <div class="row">
+                <div class="col">
+                  
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <div class="p-5">
+        <div class="container-fluid py-5 text-center">
+          <h1>Arch Linux Install Script</h1>
+          <p class="fs-3 text-muted">A simple powerful Bash based script for an unattended, easy and fast way<br> to install Arch Linux.</p>
+          <p class="fs-3 text-muted">Boot. Get. Configure. Install. Enjoy.</p>
+          <ul class="list-unstyled list-inline">
+            <li class="list-inline-item"><a href="#usage">Usage</a></li>
+            <li class="list-inline-item"><a href="#video">See it in video</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col col-auto">
+      <figure class="text-center">
+        <a href="https://www.archlinux.org/"><img src="images/logotypes/archlinux-logo-dark.svg" width="400" alt="Arch Linux"></a>
+      </figure>
+    </div>
+    <div class="col col-auto">
+      <figure class="text-center">
+        <a href="https://www.gnu.org/software/bash/"><img src="images/logotypes/bash.svg" width="300" alt="Bash"></a>
+      </figure>
+    </div>
+  </div>
+  <div class="row justify-content-center">
+    <div class="col col-auto">
+      <figure class="text-center">
+        <a href="https://www.gnu.org/"><img src="images/logotypes/gnu.svg" width="150" alt="GNU"></a>
+      </figure>
+    </div>
+    <div class="col col-auto">
+      <figure class="text-center">
+        <a href="https://www.kernel.org/"><img src="images/logotypes/linux.svg" width="150" alt="Linux"></a>
+      </figure>
+    </div>
+  </div>
+</div>
+<section id="what-is" class="mt-4">
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <h2 class="fs-3 fw-bold">What is alis?</h2>
+<p>Arch Linux Install Script (or alis, also known as <em>the Arch Linux executable installation guide and wiki</em>) installs unattended, automated and customized Arch Linux system.</p>
+<p>It is a simple Bash script developed from many Arch Linux Wiki pages that fully automates the installation of a <a href="https://archlinux.org/">Arch Linux</a> system after booting from the original Arch Linux installation media. It contains the same commands that you would type and execute one by one interactively to complete the installation. The only user intervention needed is to edit a configuration file to choose the installation options and preferences from partitioning, to encryption, bootloader, file system, language and keyboard mapping, desktop environment, kernels, packages to install and graphic drivers. This automation makes the installation easy and fast, as fast as your internet connection allows.</p>
+
+      </div>
+    </div>
+  </div>
+</section>
+<section id="higlights" class="mt-4">
+  <div class="container">
+    <div class="row justify-content-around">
+      <div class="col-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title fw-bold">Bash based</h5>
+            <p class="card-text">Contains the same commands you type on a manual install one after another. Being Bash based is easy to compare the script commands with your own manual recipe and easy to compare with the commands provided by the Arch Linux wiki pages and other installation guides.</p>
+            <a href="https://github.com/picodotdev/alis" class="card-link">Source code</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title fw-bold">Simple configuration</h5>
+            <p class="card-text">The configuration is a simple Bash file that defines some environment variables to customize the installation to each user own preferences. Simple variables but that allow most common and quite advanced configurations.</p>
+            <a href="https://github.com/picodotdev/alis/blob/master/alis.conf" class="card-link">Configuration file</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title fw-bold">Unattended</h5>
+            <p class="card-text">Fully automated to complete the installation easy and fast, as fast as your internet connection allows. Not a guided script means is not necessary to spend time on respond slowly the same questions over and over on each usage.</p>
+            <a href="#video" class="card-link">See the video</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row justify-content-around mt-4">
+      <div class="col-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title fw-bold">Desktop environments</h5>
+            <p class="card-text">Choose between the most popular GNU/Linux desktop environments like <a href="https://www.gnome.org/">GNOME</a>, <a href="https://kde.org/">KDE</a>, <a href="https://xfce.org/">XFCE</a> or discover and try alternative graphical environments options like <a href="https://github.com/Airblader/i3">i3-gap</a>, <a href="https://www.deepin.org/en/dde/">Deepin</a>, <a href="https://github.com/BuddiesOfBudgie/budgie-desktop">Budgie</a> and others. Pick one from more than 10 available environments.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title fw-bold">Advanced features</h5>
+            <p class="card-text">Based on more than 70 Arch Linux wiki pages to get a successful installation also for advanced features like LVM, LUKS encryption, BTRFS filesystem with subvolumes, alternative kernels, systemd-boot, systemd-homed, PipeWire, AUR utility or SSH install for virtual machines.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title fw-bold">And much more!</h5>
+            <p class="card-text">These are a small feature set selection provided by alis. Read the complete list.</p>
+            <a href="https://github.com/picodotdev/alis#features" class="card-link">Full feature set list</a>
           </div>
         </div>
       </div>
     </div>
   </div>
-</footer>
-<div class="container">
-  <div class="columns">
-    <div class="column">
-      <p class="is-size-6 has-text-centered">
-        Built with Hugo and GitHub Pages. Theme based on hugo-fresh.<br>
-        Arch Linux Install Script is based on Arch Linux but is NOT approved, sponsored, or affiliated with Arch Linux or its related projects.
-      </p>
+</section>
+<section id="usage" class="mt-4">
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <h2 class="fs-3 fw-bold">Usage</h2>
+        <p>Only 4 commands away to have a vanilla Arch Linux system.</p>
+        
+
+
+
+
+
+
+
+
+<div class="code">
+    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span><span class="lnt">3&#10;</span><span class="lnt">4&#10;</span><span class="lnt">5&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="c1">#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Start the system with latest Arch Linux installation media</span>&#10;<span class="c1"># loadkeys [keymap]&nbsp;&nbsp;&nbsp;&nbsp;   # Load keyboard keymap, eg. loadkeys es, loadkeys us, loadkeys de</span>&#10;<span class="c1"># curl -sL https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash&nbsp;&nbsp;&nbsp;&nbsp; # Download alis scripts</span>&#10;<span class="c1"># vim alis.conf&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   # Edit configuration and change variables values with your preferences (system configuration)</span>&#10;<span class="c1"># ./alis.sh&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   # Start installation</span></code></pre></td></tr></table>&#10;</div>&#10;</div>
+    <div class="highlight-meta">
+        <span>install.sh</span>
+    </div>
+</div>
+      </div>
     </div>
   </div>
+</section>
+<section id="video" class="mt-4">
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <h2 class="fs-3 fw-bold">Video</h2>
+        <p>Arch Linux base installation installed in less than 4 minutes with a fiber internet connection and a NVMe SSD. Don't trust? See the video.</p>
+        <p>Type the system installation commands and wait to the installation complete. After a reboot the system is ready to use and customized with your choosen preferences.</p>
+        <script type="text/javascript" src="https://asciinema.org/a/444025.js" data-size="medium" data-cols="160" data-rows="40" id="asciicast-444025" async></script>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="screenshots" class="mt-4">
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <h2 class="fs-3 fw-bold">Screenshots</h2>
+        <p>Once the installation ends you have a ready to use system with your choosen preferences including all the free software latest version you wish to do produtive task from browsing, multimedia and office programs, to programming languages, compilers and server software and tools for creative and artistic tasks.</p>
+        <p>These are some desktop environments that can be installed.</p>
+        <div class="p-5">
+          <div id="desktopEnvironmentsCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-indicators">
+              <button type="button" data-bs-target="#desktopEnvironmentsCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="GNOME"></button>
+              <button type="button" data-bs-target="#desktopEnvironmentsCarousel" data-bs-slide-to="1" aria-label="KDE"></button>
+              <button type="button" data-bs-target="#desktopEnvironmentsCarousel" data-bs-slide-to="2" aria-label="XFCE"></button>
+            </div>
+            <div class="carousel-inner">
+              <div class="carousel-item active" data-bs-interval="10000">
+                <img src="images/archlinux-gnome.jpg" class="d-block w-100" alt="Arch Linux with GNOME desktop environment installed with alis">
+                <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50">
+                  <h5>Arch Linux with GNOME desktop environment installed with alis</h5>
+                </div>
+              </div>
+              <div class="carousel-item" data-bs-interval="10000">
+                <img src="images/archlinux-kde.jpg" class="d-block w-100" alt="Arch Linux with KDE desktop environment installed with alis">
+                <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50">
+                  <h5>Arch Linux with KDE desktop environment installed with alis</h5>
+                </div>
+              </div>
+              <div class="carousel-item" data-bs-interval="10000">
+                <img src="images/archlinux-xfce.jpg" class="d-block w-100" alt="Arch Linux with XFCE desktop environment installed with alis">
+                <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50">
+                  <h5>Arch Linux with XFCE desktop environment installed with alis</h5>
+                </div>
+              </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#desktopEnvironmentsCarousel" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#desktopEnvironmentsCarousel" data-bs-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Next</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+                </div>
+                <div class="col col-sidebar">
+                  <div class="sticky-top sticky-sidebar mt-3 mb-3">
+                    <div class="adblock-sidebar-container-left">
+  <div class="adsense adsense-vertical">
+    <ins class="adsbygoogle"
+      style="display:block"
+      data-ad-client="ca-pub-3533636310991304"
+      data-ad-slot="3667532428"
+      data-ad-format="auto"
+      data-full-width-responsive="true"></ins>
+  </div>
+  <script type="text/javascript">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
 </div>
-
-
-      
-      <div id="backtotop"><a href="#"></a></div>
-    
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-<script src="https://unpkg.com/feather-icons"></script>
-<script src="/alis/js/fresh.js"></script>
-<script src="/alis/js/jquery.panelslider.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+      <footer>
+        <div class="row">
+          <div class="col">
+            <div class="container pt-3">
+              <div class="row justify-content-around">
+                <div class="col-4">
+                  <p class="fw-bold">alis</p>
+                  <p>A simple powerful Bash based script for an unattended, easy and fast way to install Arch Linux. Developed from many Arch Linux Wiki pages that fully automates the installation of a Arch Linux system after booting from the original Arch Linux installation media.</p>
+                </div>
+                <div class="col-2 offset-1 text-center">
+                  <ul class="list-unstyled">
+                    
+                    <li><a href="/alis/">Home</a></li>
+                    
+                    <li><a href="/alis/#what-is">What is alis?</a></li>
+                    
+                    <li><a href="https://github.com/picodotdev/alis/">Source code</a></li>
+                    
+                  </ul>
+                </div>
+                <div class="col-4 offset-1 text-center">
+                  <a href="https://www.archlinux.org/"><img src="images/logotypes/archlinux-logo-light.svg" width="200" alt="Arch Linux"></a>
+                  <a href="https://www.gnu.org/software/bash/"><img src="images/logotypes/bash.svg" width="150" alt="Bash"></a>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col">
+                  <p>
+                    <a href="https://github.com/picodotdev/alis">alis</a> by <a href="https://twitter.com/picodotdev">pico.dev</a> and other contributors is licensed under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public License v3.0</a>.<br>
+                    Site powered by <a href="https://gohugo.io/">Hugo</a>, <a href="https://github.com">GitHub</a>, <a href="https://pages.github.com/">GitHub Pages</a> and <a href="https://getbootstrap.com/">Bootstrap</a>.<br>
+                    Arch Linux Install Script is based on Arch Linux but is NOT approved, sponsored, or affiliated with Arch Linux or its related projects.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
   </body>
 </html>

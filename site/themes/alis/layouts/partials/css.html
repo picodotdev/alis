@@ -1,19 +1,9 @@
-{{- $inServerMode := .Site.IsServer }}
-{{- $sass         := "style.sass" }}
-{{- $cssTarget    := "css/style.css" }}
-{{- $cssOpts      := cond ($inServerMode) (dict "targetPath" $cssTarget "enableSourceMap" true) (dict "targetPath" $cssTarget "outputStyle" "compressed") }}
-{{- $fontFace     := replace .Site.Params.font.name " " "+" }}
-{{- $fontSizes    := delimit .Site.Params.font.sizes "," }}
-{{- $fontUrl      := printf "https://fonts.googleapis.com/css?family=%s:%s" $fontFace $fontSizes }}
-<link rel="icon" type="image/png" href="{{ "images/favicon.png" | relURL }}" />
-<link href="{{ $fontUrl }}" rel="stylesheet">
-{{- if $inServerMode }}
-{{- $css := resources.Get $sass | toCSS $cssOpts }}
-<link rel="stylesheet" type="text/css" href="{{ $css.RelPermalink }}">
-{{- else }}
-{{- $css := resources.Get $sass | toCSS $cssOpts | minify | fingerprint }}
-<link rel="stylesheet" type="text/css" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">
-{{- end }}
-<link rel="stylesheet" type="text/css" href="{{ "css/icons.css" | relURL }}">
-<link rel="stylesheet" type="text/css" href="{{ "css/syntax.css" | relURL }}">
-<link rel="stylesheet" type="text/css" href="{{ "css/main.css" | relURL }}">
+{{- $cssOpts := (dict "targetPath" "css/main.css" "outputStyle" "compressed" "enableSourceMap" true) }}
+{{- $mainCss := resources.Get "main.scss" | toCSS $cssOpts }}
+{{- $syntaxCss := resources.Get "syntax.css" }}
+
+<link href="https://fonts.googleapis.com/css?family=Open&#43;Sans:400,600" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+<link rel="stylesheet" type="text/css" href="{{ $syntaxCss.RelPermalink }}" integrity="{{ $syntaxCss.Data.Integrity }}">
+<link rel="stylesheet" type="text/css" href="{{ $mainCss.RelPermalink }}" integrity="{{ $mainCss.Data.Integrity }}">

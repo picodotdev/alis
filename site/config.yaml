@@ -1,10 +1,19 @@
-baseURL: https://picodotdev.github.io/alis/
-languageCode: en-us
 title: "alis :. Arch Linux Install Script"
-theme: alis
+baseURL: https://picodotdev.github.io/alis/
+languageCode: "en"
+defaultContentLanguage: "en"
+metadataformat: "yaml"
+timeout: 360000"
+theme: "alis"
+
+author:
+  name: "picodotdev"
+  description: "Ingeniero de software. I ♥ Java, GNU/Linux and libre software."
+
 disableKinds:
 - taxonomy
 - taxonomyTerm
+
 markup:
   goldmark:
     renderer:
@@ -20,51 +29,38 @@ markup:
     style: github
     tabWidth: 4
 
+pygmentsUseClasses: true
+pygmentsOptions: linenos=table,linenostart=1
+pygmentsStyle: github
+
+imaging:
+  resampleFilter: "box"
+  quality: 90
+
+menu:
+  navbar:
+    - Name: "Home"
+      URL: "/"
+      Weight: 1
+    - Name: "What is alis?"
+      URL: "/#what-is"
+      Weight: 2
+    - Name: "Source code"
+      URL: "https://github.com/picodotdev/alis/"
+      Weight: 3
+  footer:
+    - Name: "Home"
+      URL: "/"
+      Weight: 1
+    - Name: "What is alis?"
+      URL: "/#what-is"
+      Weight: 2
+    - Name: "Source code"
+      URL: "https://github.com/picodotdev/alis/"
+      Weight: 3
+
 params:
-  description: 
-  navbarlogo:
-    text: "alis"
-    link: https://github.com/picodotdev/alis/
+  description: "A simple powerful Bash based script for an unattended, easy and fast way to install Arch Linux. Developed from many Arch Linux Wiki pages that fully automates the installation of a Arch Linux system after booting from the original Arch Linux installation media."
   font:
     name: "Open Sans"
     sizes: [400,600]
-  navbar:
-  - title: What is it?
-    url: "#whaisit"
-  - title: Principles
-    url: "#principles"
-  - title: Features
-    url: "#features"
-  - title: System installation
-    url: "#system-installation"
-  - title: Video
-    url: "#video"
-  - title: GitHub
-    url: "https://github.com/picodotdev/alis/"
-  - title: More
-    sublinks:
-    - title: Packages installation
-      url: "#packages-installation"
-    - title: Recovery
-      url: "#recovery"
-    - title: How you can help
-      url: "#howyoucanhelp"
-  footer:
-    socialmedia:
-    - link: https://github.com/picodotdev/alis/
-      icon: github
-    bulmalogo: true
-    quicklinks:
-      column1:
-        title: "Documentation"
-        links:
-        - text: What is it?
-          link: "#whaisit"
-        - text: Principles
-          link: "#principles"
-        - text: Features
-          link: "#features"
-        - text: System installation
-          link: "#system-installation"
-        - text: Recovery
-          link: "#recovery"

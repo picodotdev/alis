@@ -1,0 +1,129 @@
+$arch-color: #08c;
+$arch-background-color: #f6f9fc;
+$arch-background-dark-color: #222;
+$arch-background-font-color: white;
+
+body {
+  font-family: 'Open Sans', sans-serif;;
+  font-size: 1.1em;
+  background-color: $arch-background-color;
+}
+
+a {
+  color: $arch-color;
+}
+
+a:visited {
+  color: lighten($arch-color, 5%);
+}
+
+a:hover {
+  color: darken($arch-color, 5%);
+}
+
+h1 {
+  font-size: 5em;
+  font-weight: bold;
+}
+
+header {
+  min-height: 40px;
+  padding: 10px 15px;
+  background: $arch-background-dark-color;
+  border-bottom: 5px $arch-color solid;
+
+  .navbar-light .navbar-nav .nav-link {
+    color: $arch-background-font-color;
+    font-weight: bold;
+  }
+
+  .navbar-light .navbar-nav .nav-link.active, .navbar-light .navbar-nav .show > .nav-link {
+    color: $arch-background-font-color;
+    font-weight: bold;
+  }
+}
+
+footer {
+  font-size: 0.9em;
+  min-height: 100px;
+  padding: 10px 15px;
+  background: $arch-background-dark-color;
+  border-top: 5px $arch-color solid;
+  color: $arch-background-font-color;
+}
+
+.container-fluid {
+  padding-right: 0px;
+  padding-left: 0px;
+}
+
+.row {
+  margin-right: 0px;
+  margin-left: 0px;
+}
+
+.navbar {
+  font-weight: bold;
+}
+
+.card {
+  border: 1px solid #bcd;
+  border-radius: 0rem;
+}
+
+div.code {
+  border: 1px solid #ddd;
+  border-radius: 0em;
+  margin-bottom: 1em;
+
+  div.highlight {
+    font-size: 1em;
+    border-bottom: 1px solid #ddd;
+
+    table {
+      overflow: auto;
+
+      td:nth-child(2) {
+        width: 100%;
+      }
+    }
+  }
+
+  div.highlight-meta {
+    font-size: 1em;
+    background-color: #f7f7f7;
+    padding: 6px;
+
+    span.raw {
+      float: right;
+    }
+
+    span, a {
+      color: #666;
+      font-weight: 600;
+      text-decoration: none;
+      font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol;
+      font-size: 0.8em;
+    }
+  }
+
+  pre {
+    margin-bottom: 0rem;
+  }
+}
+
+div.col-sidebar {
+  width: 0px;
+}
+
+div.sticky-sidebar {
+  width: 300px;
+  height: 600px;
+  top: 15px;
+  overflow: visible;
+}
+
+div.adblock-sidebar-container-left {
+  width: 300px;
+  height: 600px;
+}

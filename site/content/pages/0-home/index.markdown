@@ -16,7 +16,7 @@ tags: []
       <div class="p-5">
         <div class="container-fluid py-5 text-center">
           <h1>Arch Linux Install Script</h1>
-          <p class="fs-3 text-muted">A simple powerful Bash based script for an unattended, easy and fast way<br> to install Arch Linux.</p>
+          <p class="fs-3 text-muted">A simple powerful Bash based script for an unattended, easy and fast way to install Arch Linux.</p>
           <p class="fs-3 text-muted">Boot. Get. Configure. Install. Enjoy.</p>
           <ul class="list-unstyled list-inline">
             <li class="list-inline-item"><a href="#usage">Usage</a></li>
@@ -73,7 +73,7 @@ It is a simple Bash script developed from many Arch Linux Wiki pages that fully 
 <section id="higlights" class="mt-4">
   <div class="container">
     <div class="row justify-content-around">
-      <div class="col-4">
+      <div class="col-lg-4 col-sm-12">
         <div class="card">
           <div class="card-body">
             <h5 class="card-title fw-bold">Bash based</h5>
@@ -82,7 +82,7 @@ It is a simple Bash script developed from many Arch Linux Wiki pages that fully 
           </div>
         </div>
       </div>
-      <div class="col-4">
+      <div class="col-lg-4 col-sm-12">
         <div class="card">
           <div class="card-body">
             <h5 class="card-title fw-bold">Simple configuration</h5>
@@ -91,18 +91,18 @@ It is a simple Bash script developed from many Arch Linux Wiki pages that fully 
           </div>
         </div>
       </div>
-      <div class="col-4">
+      <div class="col-lg-4 col-sm-12">
         <div class="card">
           <div class="card-body">
             <h5 class="card-title fw-bold">Unattended</h5>
-            <p class="card-text">Fully automated to complete the installation easy and fast, as fast as your internet connection allows. Not a guided script means is not necessary to spend time on respond slowly the same questions over and over on each usage.</p>
+            <p class="card-text">Fully automated to complete the installation easy and fast, as fast as your internet connection allows. Not a guided script means is not necessary to spend time on answer slowly the same questions over and over on each usage.</p>
             <a href="#video" class="card-link">See the video</a>
           </div>
         </div>
       </div>
     </div>
     <div class="row justify-content-around mt-4">
-      <div class="col-4">
+      <div class="col-lg-4 col-sm-12">
         <div class="card">
           <div class="card-body">
             <h5 class="card-title fw-bold">Desktop environments</h5>
@@ -110,7 +110,7 @@ It is a simple Bash script developed from many Arch Linux Wiki pages that fully 
           </div>
         </div>
       </div>
-      <div class="col-4">
+      <div class="col-lg-4 col-sm-12">
         <div class="card">
           <div class="card-body">
             <h5 class="card-title fw-bold">Advanced features</h5>
@@ -118,7 +118,7 @@ It is a simple Bash script developed from many Arch Linux Wiki pages that fully 
           </div>
         </div>
       </div>
-      <div class="col-4">
+      <div class="col-lg-4 col-sm-12">
         <div class="card">
           <div class="card-body">
             <h5 class="card-title fw-bold">And much more!</h5>

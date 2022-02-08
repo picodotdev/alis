@@ -113,18 +113,36 @@ div.code {
   }
 }
 
-div.col-sidebar {
-  width: 0px;
+div.main {
+  max-width: 1320px;
 }
 
-div.sticky-sidebar {
-  width: 300px;
-  height: 600px;
+div.sidebar-sticky {
   top: 15px;
-  overflow: visible;
+  min-height: 600px;
+  max-height: 1050px;
+  display: none;
 }
 
-div.adblock-sidebar-container-left {
-  width: 300px;
-  height: 600px;
+div.adsense-vertical {
+  min-width: 120px;
+  max-width: 300px;
+  min-height: 600px;
+  max-height: 1050px;
+  display: block;
+}
+
+div.adsense-bilboard {
+  min-width: 250px;
+  max-width: 970px;
+  min-height: 60px;
+  max-height: 280px;
+  display: block;
+  margin: auto;
+}
+
+@media screen and (min-width: 1650px) {
+  div.sidebar-sticky {
+    display: block;
+  }
 }

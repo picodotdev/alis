@@ -131,6 +131,16 @@ It is a simple Bash script developed from many Arch Linux Wiki pages that fully 
   </div>
 </section>
 
+<section class="mt-4">
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        {{< ad-bilboard >}}
+      </div>
+    </div>
+  </div>
+</section>
+
 <section id="usage" class="mt-4">
   <div class="container">
     <div class="row">

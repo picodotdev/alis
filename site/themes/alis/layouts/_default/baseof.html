@@ -22,19 +22,23 @@
         </div>
       </header>
       <article>
-        <div class="row">
+        <div class="row justify-content-center">
           <div class="col">
-            <div class="container">
+            <div class="sticky-top mt-3 mb-3 sidebar-sticky">
+            </div>
+          </div>
+          <div class="col-auto main">
+            <div class="container-xxl">
               <div class="row">
                 <div class="col">
                   {{ block "main" . }}{{ end }}
                 </div>
-                <div class="col col-sidebar">
-                  <div class="sticky-top sticky-sidebar mt-3 mb-3">
-                    {{ partial "ad-sidebar.html" . }}
-                  </div>
-                </div>
               </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="sticky-top mt-3 mb-3 sidebar-sticky">
+              {{ partial "ad-sidebar.html" . }}
             </div>
           </div>
         </div>

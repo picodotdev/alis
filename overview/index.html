@@ -116,10 +116,11 @@
     <li><a href="#principles">Principles</a>
       <ul>
         <li><a href="#bash-based">Bash based</a></li>
-        <li><a href="#simple-setup">Simple setup</a></li>
+        <li><a href="#simple-configuration">Simple configuration</a></li>
         <li><a href="#unattended">Unattended</a></li>
         <li><a href="#desktop-environments">Desktop environments</a></li>
         <li><a href="#advanced-features">Advanced features</a></li>
+        <li><a href="#and-much-more">And much more!</a></li>
       </ul>
     </li>
     <li><a href="#how-you-can-collaborate">How you can collaborate</a></li>
@@ -160,7 +161,7 @@
 <p>Generally it is not needed to start a recovery but when after an update something serious happens it is necessary to recover the system to a working state, maybe downgrading packages. Also is almost unattended, it allows to collect all the script output to a log including to capture the output to an <a href="https://asciinema.org/">asciinema</a> video to review after installation if needed.</p>
 <h4 id="bash-based">Bash based</h4>
 <p>alis is a script based on the Bash shell. Contains the same commands you type on a manual install one after another. Being Bash based is easy to compare the script commands with your own manual recipe and easy to compare with the commands provided by the Arch Linux wiki pages and other installation guides. Although alis is not used can serve as a guide and documentation to do some specific tasks, because that can be known as <em>the Arch Linux executable installation guide and wiki</em>.</p>
-<h4 id="simple-setup">Simple setup</h4>
+<h4 id="simple-configuration">Simple configuration</h4>
 <p>The configuration is a simple Bash file that defines some environment variables to customize the installation to each user&rsquo;s own preferences. Simple variables but that allow most common and quite advanced configurations.</p>
 <p>Customizing the installation simply consists of changing the values of the variables for which many of them are already provided as predefined options to choose from. Other variables require the user to enter the exact values that he wants. Editing the configuration file can be done after downloading alis before starting the unattended installation but the configuration can also be downloaded from the internet as a personal GitHub repository and used multiple times.</p>
 <h4 id="unattended">Unattended</h4>
@@ -171,6 +172,9 @@
 <p>The most popular GNU/Linux desktop environments are <a href="https://www.gnome.org/">GNOME</a>, <a href="https://kde.org/">KDE</a>, <a href="https://xfce.org/">XFCE</a> but also there are many other alternative graphical environments options like <a href="https://github.com/Airblader/i3">i3-gap</a>, <a href="https://www.deepin.org/en/dde/">Deepin</a>, <a href="https://github.com/BuddiesOfBudgie/budgie-desktop">Budgie</a> and others. alis supports more than 10 environments.</p>
 <h4 id="advanced-features">Advanced features</h4>
 <p>Using some advanced features of a system requires additional configuration. Some are likely to be the standard in a few years like <a href="https://pipewire.org/">PipeWire</a> server for audio and video likely to replace Pulseaudio sound server in most distributions, same for BTRFS file system with subvolumes as replacement for ext4, systemd-boot as loader boot instead of Grub, systemd-homed to make user directories portable and system-independent. In addition, alis offers support for installation via SSH with cloud-init, which is very useful for installing and automating it also on local virtual machines or in the cloud.</p>
+<h4 id="and-much-more">And much more!</h4>
+<p>But alis offers many more options like support for systems with BIOS or UEFI, different combinations of partitions with or without LVM and LUKS, different file systems like ext4, btrfs (with subvols), xfs, f2fs, reiserfs, the installation of additional kernels with the possibility of adding boot parameters in the configuration or compression programs for the initramfs, graphics drivers for Intel, AMD, and Nvidia, various boot loaders, customizing the command line interpreter between bash, zsh, dash or fish and support for installing packages during or after the base system install from the Arch Linux and AUR repositories, from Flatpak, or from SDKMAN.</p>
+<p>In addition to other features such as support for TRIM on SSD drives to keep them in optimal working order, microcode for Intel and AMD processors, optionally swap with file, file provisioning to provide some configuration file among a few others.</p>
 <h3 id="how-you-can-collaborate">How you can collaborate</h3>
 <p>If you use alis and find it useful, there are several ways you can collaborate and give something back in exchange for using the script. Some very simple ones that do not require much effort is to share it on social networks or forums when other users ask for help installing Arch Linux. If you have a blog you can also write an article or if you have a YouTube channel upload a video so that other users when they look for information on how to install Arch Linux quickly and easily find the script in one way or another.</p>
 <p>If you make a change to the script and it is interesting for other users, you can send me a pull request so that I can merge it and in this way you do not have to keep the change in your fork. You can also create a issue or open a <a href="https://github.com/picodotdev/alis/discussions">discussion</a> thread on GitHub.</p>

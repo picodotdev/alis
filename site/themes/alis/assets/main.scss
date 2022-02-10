@@ -141,6 +141,13 @@ div.adsense-bilboard {
   margin: auto;
 }
 
+div.tableofcontents {
+  border: 1px solid #ddd;
+  border-radius: 0em;
+  background-color: #f7f7f7;
+  display: inline-block;
+}
+
 @media screen and (min-width: 1650px) {
   div.sidebar-sticky {
     display: block;

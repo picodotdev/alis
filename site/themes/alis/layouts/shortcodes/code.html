@@ -1,5 +1,9 @@
 {{ $file := print "code/" .Params.file }}
 {{ $resource := .Page.Resources.GetMatch $file }}
+{{- if eq $resource nil -}}
+    {{ $file = print .Params.file }}
+    {{ $resource = .Page.Resources.GetMatch $file }}
+{{- end -}}
 {{- if eq $resource nil -}}{{- errorf "Resource not found '%s'" $file -}}{{- end -}}
 {{ $content := $resource.Content }}
 {{ $lines := len (findRE "\n" $content) }}

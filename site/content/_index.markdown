@@ -1,12 +1,10 @@
 ---
 pid: 0
 title: "alis :. Arch Linux Install Script"
-type: "pages"
 url: "/"
 date: 2022-02-04T16:00:00+01:00
 updated: 2022-02-04T16:00:00+01:00
 index: true
-sharing: true
 tags: []
 ---
 
@@ -77,7 +75,7 @@ It is a simple Bash script developed from many Arch Linux Wiki pages that fully 
         <div class="card">
           <div class="card-body">
             <h5 class="card-title fw-bold">Bash based</h5>
-            <p class="card-text">Contains the same commands you type on a manual install one after another. Being Bash based is easy to compare the script commands with your own manual recipe and easy to compare with the commands provided by the Arch Linux wiki pages and other installation guides.</p>
+            <p class="card-text">Contains the same commands you type on a manual install one after another. Being Bash based is easy to compare the script commands with your own manual recipe and easy to compare with the commands provided by the Arch Linux wiki pages and other installation guides, ecause that can be known as _the Arch Linux executable installation guide and wiki_.</p>
             <a href="https://github.com/picodotdev/alis" class="card-link">Source code</a>
           </div>
         </div>

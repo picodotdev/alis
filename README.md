@@ -50,6 +50,7 @@ For new features, improvements and bugs fill an issue in GitHub or make a pull r
 * Allow to customize the installation to cover the most common cases
 * Provide support for system recovery
 * Provide support for installation log
+* Use sane configuration default values
 
 ## Features
 
@@ -214,7 +215,7 @@ Type the system installation commands and wait to the installation complete. Aft
 
 There are other quite good similar projects that can be used as alternative to install a vanilla Arch Linux without any additions.
 
-* [Arch Installer](https://github.com/archlinux/archinstall) (included in the installation media)
+* [Arch Installer](https://github.com/archlinux/archinstall) (archinstall) (maybe is the most relevant as is included in the official installation media)
 * [archfi](https://github.com/MatMoul/archfi/)
 * [Archlinux Ultimate Installer (aui)](https://github.com/helmuthdu/aui) (only accepts patches)
 

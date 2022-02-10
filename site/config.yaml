@@ -15,19 +15,18 @@ disableKinds:
 - taxonomyTerm
 
 markup:
+  defaultMarkdownHandler: goldmark
+  blackFriday:
   goldmark:
+    extensions:
+      linkify: false
     renderer:
-      unsafe: true # Allows you to write raw html in your md files
-  highlight:
-    codeFences: true
-    guessSyntax: false
-    hl_Lines: ""
-    lineNoStart: 1
-    lineNos: false
-    lineNumbersInTable: true
-    noClasses: false
-    style: github
-    tabWidth: 4
+      unsafe: true
+      xHTML: true
+  tableOfContents:
+    startLevel: 3
+    endLevel: 4
+    ordered: false
 
 pygmentsUseClasses: true
 pygmentsOptions: linenos=table,linenostart=1
@@ -45,9 +44,12 @@ menu:
     - Name: "What is alis?"
       URL: "/#what-is"
       Weight: 2
+    - Name: "Overview"
+      URL: "/overview/"
+      Weight: 3
     - Name: "Source code"
       URL: "https://github.com/picodotdev/alis/"
-      Weight: 3
+      Weight: 4
   footer:
     - Name: "Home"
       URL: "/"
@@ -55,9 +57,12 @@ menu:
     - Name: "What is alis?"
       URL: "/#what-is"
       Weight: 2
+    - Name: "Overview"
+      URL: "/overview/"
+      Weight: 3
     - Name: "Source code"
       URL: "https://github.com/picodotdev/alis/"
-      Weight: 3
+      Weight: 4
 
 params:
   description: "A simple powerful Bash based script for an unattended, easy and fast way to install Arch Linux. Developed from many Arch Linux Wiki pages that fully automates the installation of a Arch Linux system after booting from the original Arch Linux installation media."

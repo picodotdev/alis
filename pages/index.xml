@@ -6,7 +6,16 @@
     <description>Recent content in Pages on alis :. Arch Linux Install Script</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Fri, 04 Feb 2022 16:00:00 +0100</lastBuildDate><atom:link href="https://picodotdev.github.io/alis/pages/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 10 Feb 2022 19:00:00 +0100</lastBuildDate><atom:link href="https://picodotdev.github.io/alis/pages/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Overview</title>
+      <link>https://picodotdev.github.io/alis/overview/</link>
+      <pubDate>Thu, 10 Feb 2022 19:00:00 +0100</pubDate>
+      
+      <guid>https://picodotdev.github.io/alis/overview/</guid>
+      <description>(adsbygoogle = window.adsbygoogle || []).push({});      Overview The Arch Linux distribution can be intimidating for users who want to use it as it does not offer a graphical installer and the officially recommended option is to read a few dozen pages of the wiki to complete the installation and then type many commands interactively from the terminal in which the installation media is launched.</description>
+    </item>
+    
     <item>
       <title>alis :. Arch Linux Install Script</title>
       <link>https://picodotdev.github.io/alis/</link>

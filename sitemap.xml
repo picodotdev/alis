@@ -2,16 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://picodotdev.github.io/alis/</loc>
-    <lastmod>2022-02-10T19:00:00+01:00</lastmod>
-  </url><url>
     <loc>https://picodotdev.github.io/alis/overview/</loc>
     <lastmod>2022-02-10T19:00:00+01:00</lastmod>
   </url><url>
     <loc>https://picodotdev.github.io/alis/pages/</loc>
     <lastmod>2022-02-10T19:00:00+01:00</lastmod>
   </url><url>
-    <loc>https://picodotdev.github.io/alis/index.html/</loc>
+    <loc>https://picodotdev.github.io/alis/</loc>
     <lastmod>2022-02-04T16:00:00+01:00</lastmod>
   </url>
 </urlset>

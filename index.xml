@@ -18,10 +18,10 @@
     
     <item>
       <title>alis :. Arch Linux Install Script</title>
-      <link>https://picodotdev.github.io/alis/</link>
+      <link>https://picodotdev.github.io/alis/index.html/</link>
       <pubDate>Fri, 04 Feb 2022 16:00:00 +0100</pubDate>
       
-      <guid>https://picodotdev.github.io/alis/</guid>
+      <guid>https://picodotdev.github.io/alis/index.html/</guid>
       <description>Arch Linux Install Script A simple powerful Bash based script for an unattended, easy and fast way to install Arch Linux.
 Boot. Get. Configure. Install. Enjoy.
 Usage See it in video                      What is alis? Arch Linux Install Script (or alis, also known as the Arch Linux executable installation guide and wiki) installs unattended, automated and customized Arch Linux system.</description>

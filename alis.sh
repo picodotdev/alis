@@ -735,7 +735,7 @@ function users() {
         create_user "$USER" "$PASSWORD" "$USERS_GROUPS"
     done
 
-    arch-chroot /mnt sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers
+    arch-chroot /mnt sed -i 's/# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
 
     pacman_install "xdg-user-dirs"
 

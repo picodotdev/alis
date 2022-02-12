@@ -134,6 +134,9 @@ function packages_pacman() {
             if [ -n "$(echo "$PACKAGES_PACMAN_PIPEWIRE" | grep -F -w "pipewire-pulse")" ]; then
                 pacman_uninstall "pulseaudio pulseaudio-bluetooth"
             fi
+            if [ -n "$(echo "$PACKAGES_PACMAN_PIPEWIRE" | grep -F -w "pipewire-jack")" ]; then
+                pacman_uninstall "jack2"
+            fi
             pacman_install "$PACKAGES_PACMAN_PIPEWIRE"
             #if [ -n "$(echo "$PACKAGES_PACMAN_PIPEWIRE" | grep -F -w "pipewire-pulse")" ]; then
             #    execute_user "$USER_NAME" "systemctl enable --user pipewire-pulse.service"

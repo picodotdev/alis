@@ -10,9 +10,9 @@ tags: []
 
 <div class="container">
   <div class="row">
-    <div class="col">
+    <div class="col-12">
       <div class="p-5">
-        <div class="container-fluid py-5 text-center">
+        <div class="py-5 text-center">
           <h1>Arch Linux Install Script</h1>
           <p class="fs-3 text-muted">A simple powerful Bash based script for an unattended, easy and fast way to install Arch Linux.</p>
           <p class="fs-3 text-muted">Boot. Get. Configure. Install. Enjoy.</p>
@@ -28,24 +28,24 @@ tags: []
 
 <div class="container mt-4">
   <div class="row justify-content-center">
-    <div class="col col-auto">
+    <div class="col-auto">
       <figure class="text-center">
         <a href="https://www.archlinux.org/"><img src="images/logotypes/archlinux-logo-dark.svg" width="400" alt="Arch Linux"></a>
       </figure>
     </div>
-    <div class="col col-auto">
+    <div class="col-auto">
       <figure class="text-center">
         <a href="https://www.gnu.org/software/bash/"><img src="images/logotypes/bash.svg" width="300" alt="Bash"></a>
       </figure>
     </div>
   </div>
   <div class="row justify-content-center">
-    <div class="col col-auto">
+    <div class="col-auto">
       <figure class="text-center">
         <a href="https://www.gnu.org/"><img src="images/logotypes/gnu.svg" width="150" alt="GNU"></a>
       </figure>
     </div>
-    <div class="col col-auto">
+    <div class="col-auto">
       <figure class="text-center">
         <a href="https://www.kernel.org/"><img src="images/logotypes/linux.svg" width="150" alt="Linux"></a>
       </figure>
@@ -56,7 +56,7 @@ tags: []
 <section id="what-is" class="mt-4">
   <div class="container">
     <div class="row">
-      <div class="col">
+      <div class="col-12">
         <h2 class="fs-3 fw-bold">What is alis?</h2>
 {{< markdown >}}
 Arch Linux Install Script (or alis, also known as _the Arch Linux executable installation guide and wiki_) installs unattended, automated and customized Arch Linux system.
@@ -71,7 +71,7 @@ It is a simple Bash script developed from many Arch Linux Wiki pages that fully 
 <section id="higlights" class="mt-4">
   <div class="container">
     <div class="row justify-content-around">
-      <div class="col-lg-4 col-sm-12">
+      <div class="col-lg-4 col-xs-12">
         <div class="card">
           <div class="card-body">
             <h5 class="card-title fw-bold">Bash based</h5>
@@ -80,7 +80,7 @@ It is a simple Bash script developed from many Arch Linux Wiki pages that fully 
           </div>
         </div>
       </div>
-      <div class="col-lg-4 col-sm-12">
+      <div class="col-lg-4 col-xs-12">
         <div class="card">
           <div class="card-body">
             <h5 class="card-title fw-bold">Simple configuration</h5>
@@ -89,7 +89,7 @@ It is a simple Bash script developed from many Arch Linux Wiki pages that fully 
           </div>
         </div>
       </div>
-      <div class="col-lg-4 col-sm-12">
+      <div class="col-lg-4 col-xs-12">
         <div class="card">
           <div class="card-body">
             <h5 class="card-title fw-bold">Unattended</h5>
@@ -100,7 +100,7 @@ It is a simple Bash script developed from many Arch Linux Wiki pages that fully 
       </div>
     </div>
     <div class="row justify-content-around mt-4">
-      <div class="col-lg-4 col-sm-12">
+      <div class="col-lg-4 col-xs-12">
         <div class="card">
           <div class="card-body">
             <h5 class="card-title fw-bold">Desktop environments</h5>
@@ -108,7 +108,7 @@ It is a simple Bash script developed from many Arch Linux Wiki pages that fully 
           </div>
         </div>
       </div>
-      <div class="col-lg-4 col-sm-12">
+      <div class="col-lg-4 col-xs-12">
         <div class="card">
           <div class="card-body">
             <h5 class="card-title fw-bold">Advanced features</h5>
@@ -116,7 +116,7 @@ It is a simple Bash script developed from many Arch Linux Wiki pages that fully 
           </div>
         </div>
       </div>
-      <div class="col-lg-4 col-sm-12">
+      <div class="col-lg-4 col-xs-12">
         <div class="card">
           <div class="card-body">
             <h5 class="card-title fw-bold">And much more!</h5>
@@ -132,7 +132,7 @@ It is a simple Bash script developed from many Arch Linux Wiki pages that fully 
 <section class="mt-4">
   <div class="container">
     <div class="row">
-      <div class="col">
+      <div class="col-12">
         {{< ad-bilboard >}}
       </div>
     </div>
@@ -142,7 +142,7 @@ It is a simple Bash script developed from many Arch Linux Wiki pages that fully 
 <section id="usage" class="mt-4">
   <div class="container">
     <div class="row">
-      <div class="col">
+      <div class="col-12">
         <h2 class="fs-3 fw-bold">Usage</h2>
         <p>Only 4 commands away to have a vanilla Arch Linux system.</p>
         {{< code file="install.sh" language="bash" options="" >}}
@@ -154,7 +154,7 @@ It is a simple Bash script developed from many Arch Linux Wiki pages that fully 
 <section id="video" class="mt-4">
   <div class="container">
     <div class="row">
-      <div class="col">
+      <div class="col-12">
         <h2 class="fs-3 fw-bold">Video</h2>
         <p>Arch Linux base installation installed in less than 4 minutes with a fiber internet connection and a NVMe SSD. Don't trust? See the video.</p>
         <p>Type the system installation commands and wait to the installation complete. After a reboot the system is ready to use and customized with your choosen preferences.</p>
@@ -167,7 +167,7 @@ It is a simple Bash script developed from many Arch Linux Wiki pages that fully 
 <section id="screenshots" class="mt-4">
   <div class="container">
     <div class="row">
-      <div class="col">
+      <div class="col-12">
         <h2 class="fs-3 fw-bold">Screenshots</h2>
         <p>Once the installation ends you have a ready to use system with your choosen preferences including all the free software latest version you wish to do produtive task from browsing, multimedia and office programs, to programming languages, compilers and server software and tools for creative and artistic tasks.</p>
         <p>These are some desktop environments that can be installed.</p>

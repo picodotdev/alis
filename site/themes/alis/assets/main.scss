@@ -113,10 +113,6 @@ div.code {
   }
 }
 
-div.main {
-  max-width: 1320px;
-}
-
 div.sidebar-sticky {
   top: 15px;
   min-height: 600px;
@@ -148,7 +144,17 @@ div.tableofcontents {
   display: inline-block;
 }
 
+@media screen and (max-width: 576px) {
+  h1 {
+    font-size: 4em;;
+  }
+}
+
 @media screen and (min-width: 1650px) {
+  div.main {
+    max-width: 1320px;
+  }
+
   div.sidebar-sticky {
     display: block;
   }

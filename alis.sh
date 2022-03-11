@@ -534,6 +534,8 @@ function install() {
         done
         pacman -Sy --noconfirm reflector
         reflector "${COUNTRIES[@]}" --latest 25 --age 24 --protocol https --completion-percent 100 --sort rate --save /etc/pacman.d/mirrorlist
+        echo "${COUNTRIES[@]} --latest 25 --age 24 --protocol https --completion-percent 100 --sort rate --save /etc/pacman.d/mirrorlist" > /mnt/etc/xdg/reflector/reflector.conf
+        arch-chroot /mnt systemctl enable reflector.timer
     fi
 
     sed -i 's/#Color/Color/' /etc/pacman.conf

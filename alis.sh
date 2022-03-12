@@ -521,6 +521,7 @@ function partition() {
 
 function install() {
     print_step "install()"
+    local COUNTRIES=()
 
     pacman -Sy --noconfirm archlinux-keyring
 
@@ -528,7 +529,6 @@ function install() {
         echo "Server = $PACMAN_MIRROR" > /etc/pacman.d/mirrorlist
     fi
     if [ "$REFLECTOR" == "true" ]; then
-        local COUNTRIES=()
         for COUNTRY in "${REFLECTOR_COUNTRIES[@]}"; do
             local COUNTRIES+=(--country "${COUNTRY}")
         done
@@ -550,6 +550,21 @@ function install() {
         sed -i 's/#ParallelDownloads/ParallelDownloads/' /mnt/etc/pacman.conf
     else
         sed -i 's/#ParallelDownloads\(.*\)/#ParallelDownloads\1\nDisableDownloadTimeout/' /mnt/etc/pacman.conf
+    fi
+
+    if [ "$REFLECTOR" == "true" ]; then
+        pacman_install "reflector"
+        cat <<EOT > /mnt/etc/xdg/reflector/reflector.conf
+${COUNTRIES[@]}
+--latest 25
+--age 24
+--protocol https
+--completion-percent 100
+--sort rate
+--save /etc/pacman.d/mirrorlist
+EOT
+        arch-chroot /mnt reflector "${COUNTRIES[@]}" --latest 25 --age 24 --protocol https --completion-percent 100 --sort rate --save /mnt/etc/pacman.d/mirrorlist
+        arch-chroot /mnt systemctl enable reflector.timer
     fi
 
     if [ "$PACKAGES_MULTILIB" == "true" ]; then

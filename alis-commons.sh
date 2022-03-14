@@ -162,8 +162,7 @@ function init_log() {
     local ENABLE="$1"
     local FILE="$2"
     if [ "$ENABLE" == "true" ]; then
-        exec > >(tee -a $FILE)
-        exec 2> >(tee -a $FILE >&2)
+        exec > >(tee -a $FILE) 2> >(tee -a $FILE >&2)
     fi
     set -o xtrace
 }

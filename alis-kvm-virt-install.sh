@@ -26,7 +26,7 @@ virt-install \
     --ram=4096 \
     --boot uefi \
     --disk path="$DISK_DIRECTORY/archlinux-alis.qcow2,format=qcow2,size=40,sparse=yes" \
-    --cdrom "$ISO_DIRECTORY/archlinux-2022.02.01-x86_64.iso" \
+    --cdrom "$ISO_DIRECTORY/archlinux-2022.03.01-x86_64.iso" \
     --disk cloud-init/alis-cloud-init.iso,device=cdrom,bus=sata \
     --network bridge=virbr0 \
     --noautoconsole 

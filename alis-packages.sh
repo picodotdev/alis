@@ -73,7 +73,8 @@ function check_variables() {
 }
 
 function init() {
-    init_log "$LOG" "$PACKAGES_LOG_FILE"
+    init_log_trace "$LOG_TRACE"
+    init_log_file "$LOG_FILE" "$PACKAGES_LOG_FILE"
 }
 
 function facts() {

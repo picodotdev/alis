@@ -69,7 +69,8 @@ function sanitize_variables() {
 
 function check_variables() {
     check_variables_value "KEYS" "$KEYS"
-    check_variables_boolean "LOG" "$LOG"
+    check_variables_boolean "LOG_TRACE" "$LOG_TRACE"
+    check_variables_boolean "LOG_FILE" "$LOG_FILE"
     check_variables_value "DEVICE" "$DEVICE"
     check_variables_boolean "DEVICE_TRIM" "$DEVICE_TRIM"
     check_variables_boolean "LVM" "$LVM"
@@ -107,7 +108,8 @@ function warning() {
 function init() {
     print_step "init()"
 
-    init_log "$LOG" "$RECOVERY_LOG_FILE"
+    init_log_trace "$LOG_TRACE"
+    init_log_file "$LOG_FILE" "$RECOVERY_LOG_FILE"
     loadkeys "$KEYS"
 }
 

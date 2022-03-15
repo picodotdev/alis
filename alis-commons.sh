@@ -158,13 +158,19 @@ function facts_commons() {
     fi
 }
 
-function init_log() {
+function init_log_trace() {
+    local ENABLE="$1"
+    if [ "$ENABLE" == "true" ]; then
+        set -o xtrace
+    fi
+}
+
+function init_log_file() {
     local ENABLE="$1"
     local FILE="$2"
     if [ "$ENABLE" == "true" ]; then
-        exec > >(tee -a $FILE) 2> >(tee -a $FILE >&2)
+        exec &> >(tee -a $File)
     fi
-    set -o xtrace
 }
 
 function pacman_uninstall() {

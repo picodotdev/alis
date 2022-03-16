@@ -20,7 +20,6 @@ ISO_DIRECTORY="/run/media/picodotdev/BMOVENEGRO/Iso"
 virt-install \
     --connect=qemu:///session \
     --name=archlinux-alis \
-    --os-type=Linux \
     --os-variant=archlinux \
     --vcpu=2 \
     --ram=4096 \

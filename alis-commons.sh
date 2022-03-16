@@ -169,7 +169,7 @@ function init_log_file() {
     local ENABLE="$1"
     local FILE="$2"
     if [ "$ENABLE" == "true" ]; then
-        exec &> >(tee -a $File)
+        exec &> >(tee -a $FILE)
     fi
 }
 

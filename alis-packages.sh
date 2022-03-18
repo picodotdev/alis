@@ -41,15 +41,15 @@ set -eu
 # # vim alis-packages.conf
 # # ./alis-packages.sh
 
+PACKAGES_STANDALONE="false"
+
 function init_config() {
     local COMMONS_FILE="alis-commons.sh"
 
     source "$COMMONS_FILE"
-    set +u
-    if [ "$COMMOMS_LOADED" != "true" ]; then
+    if [ "$PACKAGES_STANDALONE" == "true" ]; then
         source "$COMMONS_CONF_FILE"
     fi
-    set -u
     source "$PACKAGES_CONF_FILE"
 }
 
@@ -73,8 +73,10 @@ function check_variables() {
 }
 
 function init() {
-    init_log_trace "$LOG_TRACE"
-    init_log_file "$LOG_FILE" "$PACKAGES_LOG_FILE"
+    if [ "$PACKAGES_STANDALONE" == "true" ]; then
+        init_log_trace "$LOG_TRACE"
+        init_log_file "$LOG_FILE" "$PACKAGES_LOG_FILE"
+    fi
 }
 
 function facts() {
@@ -270,6 +272,12 @@ function end() {
 
 function main() {
     local START_TIMESTAMP=$(date -u +"%F %T")
+    set +u
+    if [ "$COMMOMS_LOADED" != "true" ]; then
+        PACKAGES_STANDALONE="true"
+    fi
+    set -u
+
     init_config
     execute_step "sanitize_variables"
     execute_step "check_variables"

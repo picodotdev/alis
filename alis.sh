@@ -463,10 +463,10 @@ function partition() {
     fi
 
     # format
-
-    # Is this workaround really necessary?
-    #wipefs -a -f $PARTITION_BOOT || true
-    #wipefs -a -f $DEVICE_ROOT || true
+    # Delete patition filesystem in case is reinstalling in an already existing system
+    # Not failt in error case
+    wipefs -a -f $PARTITION_BOOT || true
+    wipefs -a -f $DEVICE_ROOT || true
 
     if [ "$BIOS_TYPE" == "uefi" ]; then
         mkfs.fat -n ESP -F32 $PARTITION_BOOT
@@ -475,7 +475,7 @@ function partition() {
         mkfs.ext4 -L boot $PARTITION_BOOT
     fi
     if [ "$FILE_SYSTEM_TYPE" == "reiserfs" ]; then
-        mkfs."$FILE_SYSTEM_TYPE" -f -l root $DEVICE_ROOT
+        mkfs."$FILE_SYSTEM_TYPE" -l root $DEVICE_ROOT
     elif [ "$FILE_SYSTEM_TYPE" == "f2fs" ]; then
         mkfs."$FILE_SYSTEM_TYPE" -l root $DEVICE_ROOT
     else

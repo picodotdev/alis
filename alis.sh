@@ -464,7 +464,7 @@ function partition() {
 
     # format
     # Delete patition filesystem in case is reinstalling in an already existing system
-    # Not failt in error case
+    # Not fail on error
     wipefs -a -f $PARTITION_BOOT || true
     wipefs -a -f $DEVICE_ROOT || true
 

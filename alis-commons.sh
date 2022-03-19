@@ -377,19 +377,19 @@ function partition_device() {
     local PARTITION_DEVICE=""
 
     if [ "$DEVICE_SDA" == "true" ]; then
-        PARTITION_DEVICE="${DEVICE}${PARTITION_BOOT_NUMBER}"
+        PARTITION_DEVICE="${DEVICE}${NUMBER}"
     fi
 
     if [ "$DEVICE_NVME" == "true" ]; then
-        PARTITION_DEVICE="${DEVICE}p${PARTITION_BOOT_NUMBER}"
+        PARTITION_DEVICE="${DEVICE}p${NUMBER}"
     fi
 
     if [ "$DEVICE_VDA" == "true" ]; then
-        PARTITION_DEVICE="${DEVICE}${PARTITION_BOOT_NUMBER}"
+        PARTITION_DEVICE="${DEVICE}${NUMBER}"
     fi
 
     if [ "$DEVICE_MMC" == "true" ]; then
-        PARTITION_DEVICE="${DEVICE}p${PARTITION_BOOT_NUMBER}"
+        PARTITION_DEVICE="${DEVICE}p${NUMBER}"
     fi
 
     echo "$PARTITION_DEVICE"
@@ -437,12 +437,15 @@ function partition_mount() {
         mkdir -p /mnt/boot
         mount -o "$PARTITION_OPTIONS_BOOT" "$PARTITION_BOOT" /mnt/boot
 
-        # mount ponits
+        # mount points
         for I in "${PARTITION_MOUNT_POINTS[@]}"; do
-            if [[ "$I" =~ ^!* ]]; then
+            if [[ "$I" =~ ^!.* ]]; then
                 continue
             fi
             IFS='=' PARTITION_MOUNT_POINT=($I)
+            if [ "${PARTITION_MOUNT_POINT[1]}" == "/boot" -o "${PARTITION_MOUNT_POINT[1]}" == "/" ]; then
+                continue
+            fi
             local PARTITION_DEVICE="$(partition_device "${DEVICE}" "${PARTITION_MOUNT_POINT[0]}")"
             mkdir -p "/mnt${PARTITION_MOUNT_POINT[1]}"
             mount -o "$PARTITION_OPTIONS" "${PARTITION_DEVICE}" "/mnt${PARTITION_MOUNT_POINT[1]}"

@@ -146,7 +146,7 @@ function check_variables() {
         check_variables_size "SUBVOLUME" ${#SUBVOLUME[@]} 3
     done
     check_variables_list "PARTITION_MODE" "$PARTITION_MODE" "auto custom manual" "true" "true"
-    check_variables_value "PARTITION_ROOT_NUMBER" "$PARTITION_BOOT_NUMBER"
+    check_variables_value "PARTITION_BOOT_NUMBER" "$PARTITION_BOOT_NUMBER"
     check_variables_value "PARTITION_ROOT_NUMBER" "$PARTITION_ROOT_NUMBER"
     check_variables_equals "WIFI_KEY" "WIFI_KEY_RETYPE" "$WIFI_KEY" "$WIFI_KEY_RETYPE"
     check_variables_value "PING_HOSTNAME" "$PING_HOSTNAME"
@@ -202,7 +202,8 @@ function warning() {
     echo -e "${RED}This script can delete all partitions of the persistent${NC}"
     echo -e "${RED}storage and continuing all your data can be lost.${NC}"
     echo ""
-    echo -e "${RED}Install device: $DEVICE.${NC}"
+    echo -e "Install device: $DEVICE."
+    echo -e "Mount points: ${PARTITION_MOUNT_POINTS[@]}."
     echo ""
     if [ "$WARNING_CONFIRM" == "true" ]; then
         read -p "Do you want to continue? [y/N] " yn
@@ -529,10 +530,13 @@ function partition() {
     fi
     ## mountpoint
     for I in "${PARTITION_MOUNT_POINTS[@]}"; do
-        if [[ "$I" =~ ^!* ]]; then
+        if [[ "$I" =~ ^!.* ]]; then
             continue
         fi
         IFS='=' PARTITION_MOUNT_POINT=($I)
+        if [ "${PARTITION_MOUNT_POINT[1]}" == "/boot" -o "${PARTITION_MOUNT_POINT[1]}" == "/" ]; then
+            continue
+        fi
         local PARTITION_DEVICE="$(partition_device "${DEVICE}" "${PARTITION_MOUNT_POINT[0]}")"
         if [ "$FILE_SYSTEM_TYPE" == "reiserfs" ]; then
             mkfs."$FILE_SYSTEM_TYPE" -f $PARTITION_DEVICE

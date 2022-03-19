@@ -475,7 +475,7 @@ function partition() {
         mkfs.ext4 -L boot $PARTITION_BOOT
     fi
     if [ "$FILE_SYSTEM_TYPE" == "reiserfs" ]; then
-        mkfs."$FILE_SYSTEM_TYPE" -l root $DEVICE_ROOT
+        mkfs."$FILE_SYSTEM_TYPE" -f -l root $DEVICE_ROOT
     elif [ "$FILE_SYSTEM_TYPE" == "f2fs" ]; then
         mkfs."$FILE_SYSTEM_TYPE" -l root $DEVICE_ROOT
     else
@@ -1665,6 +1665,8 @@ function end() {
                 echo "Reboot aborted. You will must do a explicit reboot (./alis-reboot.sh)."
                 echo ""
             fi
+
+            copy_logs
         fi
     else
         if [ "$ASCIINEMA" == "true" ]; then
@@ -1674,6 +1676,8 @@ function end() {
             echo "No reboot. You will must do a explicit reboot (./alis-reboot.sh)."
             echo ""
         fi
+
+        copy_logs
     fi
 }
 

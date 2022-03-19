@@ -44,7 +44,7 @@ draft: true
         <li><b>System</b>: UEFI, BIOS</li>
         <li><b>Storage</b>: SATA, NVMe and MMC</li>
         <li><b>Encryption</b>: root partition encrypted and no encrypted</li>
-        <li><b>Partition</b>: no LVM, LVM, LVM on LUKS, GPT on UEFI, MBR on BIOS</li>
+        <li><b>Partition</b>: no LVM, LVM, LVM on LUKS, GPT on UEFI, MBR on BIOS, custom partition scheme and mountpoints</li>
         <li><b>File system</b>: ext4, btrfs (with subvols), xfs, f2fs, reiserfs</li>
         <li><b>Kernels</b>: linux, linux-lts, linux-hardened, linux-zen</li>
         <li><b>Desktop environment</b>: GNOME, KDE, XFCE, Mate, Cinnamon, LXDE, i3-wm, i3-gaps, Deepin, Budgie, Bspwm, Awesome, Qtile, Openbox</li>

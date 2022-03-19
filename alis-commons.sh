@@ -347,52 +347,52 @@ function partition_setup() {
     fi
 
     if [ "$DEVICE_SDA" == "true" ]; then
-        PARTITION_BOOT="$(partition_path "${DEVICE}" "${PARTITION_BOOT_NUMBER}")"
-        PARTITION_ROOT="$(partition_path "${DEVICE}" "${PARTITION_ROOT_NUMBER}")"
-        DEVICE_ROOT="$(partition_path "${DEVICE}" "${PARTITION_ROOT_NUMBER}")"
+        PARTITION_BOOT="$(partition_device "${DEVICE}" "${PARTITION_BOOT_NUMBER}")"
+        PARTITION_ROOT="$(partition_device "${DEVICE}" "${PARTITION_ROOT_NUMBER}")"
+        DEVICE_ROOT="$(partition_device "${DEVICE}" "${PARTITION_ROOT_NUMBER}")"
     fi
 
     if [ "$DEVICE_NVME" == "true" ]; then
-        PARTITION_BOOT="$(partition_path "${DEVICE}" "p${PARTITION_BOOT_NUMBER}")"
-        PARTITION_ROOT="$(partition_path "${DEVICE}" "p${PARTITION_ROOT_NUMBER}")"
-        DEVICE_ROOT="$(partition_path "${DEVICE}" "p${PARTITION_ROOT_NUMBER}")"
+        PARTITION_BOOT="$(partition_device "${DEVICE}" "p${PARTITION_BOOT_NUMBER}")"
+        PARTITION_ROOT="$(partition_device "${DEVICE}" "p${PARTITION_ROOT_NUMBER}")"
+        DEVICE_ROOT="$(partition_device "${DEVICE}" "p${PARTITION_ROOT_NUMBER}")"
     fi
 
     if [ "$DEVICE_VDA" == "true" ]; then
-        PARTITION_BOOT="$(partition_path "${DEVICE}" "${PARTITION_BOOT_NUMBER}")"
-        PARTITION_ROOT="$(partition_path "${DEVICE}" "${PARTITION_ROOT_NUMBER}")"
-        DEVICE_ROOT="$(partition_path "${DEVICE}" "${PARTITION_ROOT_NUMBER}")"
+        PARTITION_BOOT="$(partition_device "${DEVICE}" "${PARTITION_BOOT_NUMBER}")"
+        PARTITION_ROOT="$(partition_device "${DEVICE}" "${PARTITION_ROOT_NUMBER}")"
+        DEVICE_ROOT="$(partition_device "${DEVICE}" "${PARTITION_ROOT_NUMBER}")"
     fi
 
     if [ "$DEVICE_MMC" == "true" ]; then
-        PARTITION_BOOT="$(partition_path "${DEVICE}" "p${PARTITION_BOOT_NUMBER}")"
-        PARTITION_ROOT="$(partition_path "${DEVICE}" "p${PARTITION_ROOT_NUMBER}")"
-        DEVICE_ROOT="$(partition_path "${DEVICE}" "p${PARTITION_ROOT_NUMBER}")"
+        PARTITION_BOOT="$(partition_device "${DEVICE}" "p${PARTITION_BOOT_NUMBER}")"
+        PARTITION_ROOT="$(partition_device "${DEVICE}" "p${PARTITION_ROOT_NUMBER}")"
+        DEVICE_ROOT="$(partition_device "${DEVICE}" "p${PARTITION_ROOT_NUMBER}")"
     fi
 }
 
-function partition_path() {
+function partition_device() {
     local DEVICE="$1"
     local NUMBER="$2"
-    local DEVICE_PATH=""
+    local PARTITION_DEVICE=""
 
     if [ "$DEVICE_SDA" == "true" ]; then
-        DEVICE_PATH="${DEVICE}${PARTITION_BOOT_NUMBER}"
+        PARTITION_DEVICE="${DEVICE}${PARTITION_BOOT_NUMBER}"
     fi
 
     if [ "$DEVICE_NVME" == "true" ]; then
-        DEVICE_PATH="${DEVICE}p${PARTITION_BOOT_NUMBER}"
+        PARTITION_DEVICE="${DEVICE}p${PARTITION_BOOT_NUMBER}"
     fi
 
     if [ "$DEVICE_VDA" == "true" ]; then
-        DEVICE_PATH="${DEVICE}${PARTITION_BOOT_NUMBER}"
+        PARTITION_DEVICE="${DEVICE}${PARTITION_BOOT_NUMBER}"
     fi
 
     if [ "$DEVICE_MMC" == "true" ]; then
-        DEVICE_PATH="${DEVICE}p${PARTITION_BOOT_NUMBER}"
+        PARTITION_DEVICE="${DEVICE}p${PARTITION_BOOT_NUMBER}"
     fi
 
-    echo "$DEVICE_PATH"
+    echo "$PARTITION_DEVICE"
 }
 
 function partition_options() {
@@ -443,7 +443,7 @@ function partition_mount() {
                 continue
             fi
             IFS='=' PARTITION_MOUNT_POINT=($I)
-            local PARTITION_DEVICE="$(partition_path "${DEVICE}" "${PARTITION_MOUNT_POINT[0]}")"
+            local PARTITION_DEVICE="$(partition_device "${DEVICE}" "${PARTITION_MOUNT_POINT[0]}")"
             mkdir -p "/mnt${PARTITION_MOUNT_POINT[1]}"
             mount -o "$PARTITION_OPTIONS" "${PARTITION_DEVICE}" "/mnt${PARTITION_MOUNT_POINT[1]}"
         done

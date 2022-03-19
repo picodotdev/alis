@@ -533,7 +533,7 @@ function partition() {
             continue
         fi
         IFS='=' PARTITION_MOUNT_POINT=($I)
-        local PARTITION_DEVICE="$(partition_path "${DEVICE}" "${PARTITION_MOUNT_POINT[0]}")"
+        local PARTITION_DEVICE="$(partition_device "${DEVICE}" "${PARTITION_MOUNT_POINT[0]}")"
         if [ "$FILE_SYSTEM_TYPE" == "reiserfs" ]; then
             mkfs."$FILE_SYSTEM_TYPE" -f $PARTITION_DEVICE
         elif [ "$FILE_SYSTEM_TYPE" == "f2fs" ]; then

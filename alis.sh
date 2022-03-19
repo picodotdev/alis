@@ -512,12 +512,14 @@ function partition() {
     wipefs -a -f $PARTITION_BOOT || true
     wipefs -a -f $DEVICE_ROOT || true
 
+    ## boot
     if [ "$BIOS_TYPE" == "uefi" ]; then
         mkfs.fat -n ESP -F32 $PARTITION_BOOT
     fi
     if [ "$BIOS_TYPE" == "bios" ]; then
         mkfs.ext4 -L boot $PARTITION_BOOT
     fi
+    ## root
     if [ "$FILE_SYSTEM_TYPE" == "reiserfs" ]; then
         mkfs."$FILE_SYSTEM_TYPE" -f -l root $DEVICE_ROOT
     elif [ "$FILE_SYSTEM_TYPE" == "f2fs" ]; then
@@ -525,6 +527,21 @@ function partition() {
     else
         mkfs."$FILE_SYSTEM_TYPE" -L root $DEVICE_ROOT
     fi
+    ## mountpoint
+    for I in "${PARTITION_MOUNT_POINTS[@]}"; do
+        if [[ "$I" =~ ^!* ]]; then
+            continue
+        fi
+        IFS='=' PARTITION_MOUNT_POINT=($I)
+        local PARTITION_DEVICE="$(partition_path "${DEVICE}" "${PARTITION_MOUNT_POINT[0]}")"
+        if [ "$FILE_SYSTEM_TYPE" == "reiserfs" ]; then
+            mkfs."$FILE_SYSTEM_TYPE" -f $PARTITION_DEVICE
+        elif [ "$FILE_SYSTEM_TYPE" == "f2fs" ]; then
+            mkfs."$FILE_SYSTEM_TYPE" $PARTITION_DEVICE
+        else
+            mkfs."$FILE_SYSTEM_TYPE" $PARTITION_DEVICE
+        fi
+    done
 
     # options
     partition_options

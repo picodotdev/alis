@@ -443,9 +443,9 @@ function partition_mount() {
                 continue
             fi
             IFS='=' PARTITION_MOUNT_POINT=($I)
-            local PARTITION_PATH="$(partition_path "${DEVICE}" "${PARTITION_MOUNT_POINT[0]}")"
+            local PARTITION_DEVICE="$(partition_path "${DEVICE}" "${PARTITION_MOUNT_POINT[0]}")"
             mkdir -p "/mnt${PARTITION_MOUNT_POINT[1]}"
-            mount -o "$PARTITION_OPTIONS" "${PARTITION_PATH}" "/mnt${PARTITION_MOUNT_POINT[1]}"
+            mount -o "$PARTITION_OPTIONS" "${PARTITION_DEVICE}" "/mnt${PARTITION_MOUNT_POINT[1]}"
         done
     fi
 }

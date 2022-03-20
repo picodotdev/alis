@@ -144,6 +144,59 @@ div.tableofcontents {
   display: inline-block;
 }
 
+div.media {
+  display: block;
+  text-align: center;
+  margin-bottom: 1em;
+
+  iframe[id^="asciicast-iframe"], amp-iframe[id^="asciicast-iframe"] {
+    border: 0em solid white;
+    box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.15);
+  }
+
+  img, video, iframe, amp-img, amp-video, amp-iframe, amp-ad {
+    background-color: white;
+    border: 0.5em solid white;
+    border-radius: 0.3em;
+    box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.15);
+    box-sizing: content-box;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    vertical-align: middle;
+
+    &.white-background {
+      background-color: white;
+    }
+  
+    &.black-background {
+      background-color: black;
+    }
+  }
+
+  figure {
+    clear: both;
+
+    p {
+      a {
+        display: inline-block;
+      }
+    }
+
+    figcaption {
+      font-size: 0.8em;
+    }
+  }
+}
+
+div.media-amazon.float-right {
+  margin-left: 20px;
+}
+
+div.media-twitter {
+  text-align: left;
+}
+
 @media screen and (max-width: 576px) {
   h1 {
     font-size: 4em;;

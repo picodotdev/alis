@@ -1,0 +1,118 @@
+{{- $links := .Page.Site.Data.theme.conf.links.html -}}
+{{- $tags := .Page.Site.Data.theme.conf.tags.html -}}
+{{- $imgtagopen := $tags.imgtagopen -}}
+{{- $imgtagclose := $tags.imgtagclose -}}
+{{- $imgtagsrc := $tags.imgtagsrc -}}
+
+{{- $nil := default nil nil -}}
+{{- $src := $nil -}}
+{{- $srcthumb := $nil -}}
+{{- $width := $nil -}}
+{{- $height := $nil -}}
+{{- $title := .Title -}}
+
+{{- $strings := split .Destination "," -}}
+{{- $attributes := dict -}}
+{{- range $i := $strings -}}
+  {{- $key := index (split $i "=") 0 -}}
+  {{- $value := index (split $i "=") 1 -}}
+  {{- $attributes = merge $attributes (dict $key $value) -}}
+{{- end -}}
+{{- $page := default "" (index $attributes "page") -}}
+{{- $url := index $attributes "url" -}}
+{{- $size := index $attributes "size" -}}
+{{- $width := index (split $size "x") 0 -}}
+{{- $height := index (split $size "x") 1 -}}
+{{- $command := default "Fit" (index $attributes "command") -}}
+{{- $commandthumb := default "Fit" (index $attributes "commandthumb") -}}
+{{- $options := default "2560x1440" (index $attributes "options") -}}
+{{- $optionsthumb := index $attributes "size" -}}
+{{- $gallery := eq "true" (index $attributes "gallery") -}}
+{{- $class := index $attributes "class" -}}
+{{- $class := replace $class "." " " -}}
+{{- $layout := index $attributes "layout" -}}
+{{- $loading := default "lazy" (index $attributes "lazy") -}}
+
+{{- if (eq $loading "false") -}}
+  {{- $loading := $nil -}}
+{{- end -}}
+
+{{- if or (hasPrefix $url "logotype:") (hasPrefix $url "resource:") (hasPrefix $url "image:") (hasPrefix $url "asset:") -}}
+  {{- $binding := index (split $url ":") 0 -}}
+  {{- $image := index (split $url ":") 1 -}}
+  {{- $imagethumb := index (split $url ":") 2 -}}
+
+  {{- if eq $binding "logotype" -}}
+    {{- $src = print "assets/images/logotypes/" $image | relURL -}}
+    {{- $srcthumb = cond (eq $imagethumb nil) $src (print "assets/images/logotypes/" $imagethumb | relURL) -}}
+  {{- else if or (eq $binding "resource") (eq $binding "image") -}}
+    {{- $p := cond (eq $page "") .Page (.Page.GetPage $page) -}}
+    {{- $path := cond (eq $binding "image") "images/" "" -}}
+
+    {{- if (findRE "\\.svg$|\\.webp$|\\.gif" $image) -}}
+      {{- $base := replace .Page.Permalink "/index-amp.html" "/" -}}
+      {{- $src = print $base $path $image | relURL -}}
+      {{- $srcthumb = cond (eq $imagethumb nil) $src (print $base $path $imagethumb | relURL) -}}
+    {{- else -}}
+      {{- $resource := $p.Resources.GetMatch (print $path $image) -}}
+      {{- $resourcethumb := $p.Resources.GetMatch (print $path $image) -}}
+      {{- $scaled := $nil -}}
+      {{- $scaledhumb := $nil -}}
+
+      {{- if eq $resource nil -}}{{- errorf "Invalid resource '%s'" $image -}}{{- end -}}
+      {{- if eq $optionsthumb nil -}}{{- errorf "Invalid thumb optionsthumb '%s'" $optionsthumb -}}{{- end -}}
+
+      {{- if eq $command "Fit" -}}
+        {{- $scaled = $resource.Fit $options -}}
+      {{- else if eq $command "Resize" -}}
+        {{- $scaled = $resource.Resize $options -}}
+      {{- else if eq $command "Fill" -}}
+        {{- $scaled = $resource.Fill $options -}}
+      {{- else -}}
+        {{- errorf "Invalid image processing command: Must be one of Fit, Fill or Resize '%s'" .Destination -}}
+      {{- end -}}
+
+      {{- if eq $commandthumb "Fit" -}}
+        {{- $scaledhumb = $resourcethumb.Fit $optionsthumb -}}
+      {{- else if eq $commandthumb "Resize" -}}
+        {{- $scaledhumb = $resourcethumb.Resize $optionsthumb -}}
+      {{- else if eq $commandthumb "Fill" -}}
+        {{- $scaledhumb = $resourcethumb.Fill $optionsthumb -}}
+      {{- else -}}
+        {{- errorf "Invalid image processing command: Must be one of Fit, Fill or Resize '%s'" .Destination -}}
+      {{- end -}}
+
+      {{- $src = $scaled.RelPermalink -}}
+      {{- $srcthumb = $scaledhumb.RelPermalink -}}
+      {{- $width = $scaledhumb.Width -}}
+      {{- $height = $scaledhumb.Height -}}
+      
+      {{- if eq $layout "fixed-height" -}}
+        {{- $width = $nil -}}
+      {{- end -}}
+    {{- end -}}
+  {{- else if eq $binding "asset" -}}
+    {{- $src = $image | relURL -}}
+    {{- $srcthumb = cond (eq $imagethumb nil) $src (print "assets/images/logotypes/" $imagethumb | relURL) -}}
+  {{- end -}}
+{{- else -}}
+  {{- errorf "Malformed image destination '%s'" .Destination -}}
+{{- end -}}
+
+{{- $srcimg := default .Destination $src -}}
+{{- $srca := $nil -}}
+
+{{- if and $gallery (ne $src nil) (ne $srcthumb nil) -}}
+  {{- $srcimg = $srcthumb -}}
+  {{- $srca = $src -}}
+{{- end -}}
+{{- if eq $links.absolute "true" -}}
+  {{- $srcimg = absURL $srcimg -}}
+  {{- $srca = absURL $srca -}}
+{{- end -}}
+{{ $srcimg = replace $srcimg "/index-amp.html" "/" }}
+{{ $srca = replace $srca "/index-amp.html" "/" }}
+
+{{- if $gallery }}<a href="{{ $srca }}" data-gallery="data-gallery"{{ with $title }} title="{{ . }}"{{ end }}>{{ end -}}
+  {{- $imgtagopen | safeHTML }} {{ $imgtagsrc }}="{{ $srcimg }}"{{ with $width }} width="{{ . }}"{{ end }}{{ with $height }} height="{{ . }}"{{ end }}{{ with $title }} alt="{{ . }}" title="{{ . }}"{{ end }}{{ with $layout }} layout="{{ . }}"{{ end }} class="{{ with $class }}{{ . }} {{ end }}"{{ with $loading }} loading="{{ . }}"{{ end }}>{{ $imgtagclose | safeHTML -}}
+{{- if $gallery }}</a>{{ end -}}

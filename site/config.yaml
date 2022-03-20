@@ -47,9 +47,12 @@ menu:
     - Name: "Overview"
       URL: "/overview/"
       Weight: 3
+    - Name: "User Guide"
+      URL: "/user-guide/"
+      Weight: 4
     - Name: "Source code"
       URL: "https://github.com/picodotdev/alis/"
-      Weight: 4
+      Weight: 5
   footer:
     - Name: "Home"
       URL: "/"
@@ -60,9 +63,12 @@ menu:
     - Name: "Overview"
       URL: "/overview/"
       Weight: 3
+    - Name: "User Guide"
+      URL: "/user-guide/"
+      Weight: 4
     - Name: "Source code"
       URL: "https://github.com/picodotdev/alis/"
-      Weight: 4
+      Weight: 5
 
 params:
   description: "A simple powerful Bash based script for an unattended, easy and fast way to install Arch Linux. Developed from many Arch Linux Wiki pages that fully automates the installation of a Arch Linux system after booting from the original Arch Linux installation media."

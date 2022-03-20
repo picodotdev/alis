@@ -1,0 +1,12 @@
+<div class="media">
+<figure>
+
+{{ $class1 := replace $.Params.class1 " " "." }}
+{{ $class2 := replace $.Params.class2 " " "." }}
+{{ $class3 := replace $.Params.class3 " " "." }}
+{{ with .Params.image1 }}![](url={{ . }}{{ with $.Params.thumb1 }}:{{ . }}{{ end }},size={{ $.Params.optionsthumb1 }},gallery={{ $.Params.gallery }},class={{ $class1 }} "{{ $.Params.title1 }}"){{ end }}
+{{ with .Params.image2 }}![](url={{ . }}{{ with $.Params.thumb2 }}:{{ . }}{{ end }},size={{ $.Params.optionsthumb2 }},gallery={{ $.Params.gallery }},class={{ $class2 }} "{{ $.Params.title2 }}"){{ end }}
+{{ with .Params.image3 }}![](url={{ . }}{{ with $.Params.thumb3 }}:{{ . }}{{ end }},size={{ $.Params.optionsthumb3 }},gallery={{ $.Params.gallery }},class={{ $class3 }} "{{ $.Params.title3 }}"){{ end }}
+{{ with .Params.caption }}<figcaption>{{ . }}{{ with $.Params.source }} <br>{{ i18n "source" }}: {{ . }}{{ end -}}</figcaption>{{ end }}
+</figure>
+</div>

@@ -1,0 +1,57 @@
+{{- $links := .Page.Site.Data.theme.conf.links.html -}}
+{{- $noLinks := .Page.Site.Data.theme.conf.links.amp -}}
+{{- $href := .Destination -}}
+{{- $title := .Title -}}
+{{- $text := .Text -}}
+
+{{- $nil := default nil nil -}}
+{{- $binding := $nil -}}
+{{- $attributes := dict -}}
+
+{{- if or (eq (len (findRE "javadoc\\d+:" $href)) 1) (hasPrefix $href "javaee8:") (hasPrefix $href "tapestry:") (hasPrefix $href "spring-boot:") (hasPrefix $href "spring-framework:") -}}
+  {{- $binding = index (split $href ":") 0 -}}
+  {{- $href = index (split $href ":") 1 -}}
+{{- end -}}
+
+{{- $strings := split $href "," -}}
+{{- range $i,$v := $strings -}}
+  {{- if eq $i 0 -}}
+    {{- $href = index (split $v ",") 0 -}}
+  {{- else -}}
+    {{- $key := index (split $v "=") 0 -}}
+    {{- $value := index (split $v "=") 1 -}}
+    {{- $attributes = merge $attributes (dict $key $value) -}}
+  {{- end -}}
+{{- end -}}
+
+{{- if in (slice "javadoc8" "javadoc9" "javadoc10") $binding -}}
+{{- $version := replace $binding "javadoc" "" -}}
+{{- $href = print "https://docs.oracle.com/javase/" $version "/docs/api/" $href -}}
+{{- else if (eq (len (findRE "javadoc\\d+" $binding)) 1) -}}
+{{- $version := replace $binding "javadoc" "" -}}
+{{- $href = print "https://docs.oracle.com/en/java/javase/" $version "/docs/api/" $href -}}
+{{- else if eq $binding "javaee8" -}}
+{{- $href = print "https://javaee.github.io/javaee-spec/javadocs/" $href -}}
+{{- else if eq $binding "tapestry" -}}
+{{- $href = print "https://tapestry.apache.org/current/apidocs/" $href -}}
+{{- else if eq $binding "spring-boot" -}}
+{{- $href = print "https://docs.spring.io/spring-boot/docs/current/api/" $href -}}
+{{- else if eq $binding "spring-framework" -}}
+{{- $href = print "https://docs.spring.io/spring-framework/docs/current/javadoc-api/" $href -}}
+{{- end -}}
+
+{{- if eq $links.absolute "true" -}}
+  {{- $href = absURL $href -}}
+{{- end -}}
+{{- if and (findRE (print "^" .Page.Site.BaseURL) $href) (strings.HasSuffix $href $noLinks.suffix) -}}
+  {{- $href = replaceRE (print $noLinks.suffix "$") $links.suffix $href -}}
+{{- end -}}
+{{- $rel := index $attributes "rel" -}}
+{{- $target := index $attributes "target" -}}
+{{- $class := index $attributes "class" -}}
+
+{{- if findRE (print "^" .Page.Site.Params.misc.sponsoredlink) $href -}}
+  {{- $rel = strings.TrimLeft " " (print (default "" $rel) " " "sponsored") -}}
+{{- end -}}
+
+<a href="{{ $href }}"{{ with $title }} title="{{ . }}"{{ end }}{{ with $rel }} rel="{{ . }}"{{ end }}{{ with $target }} target="{{ . }}"{{ end }}{{ with $class }} class="{{ . }}"{{ end }}>{{ $text }}</a>

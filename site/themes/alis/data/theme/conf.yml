@@ -1,0 +1,48 @@
+---
+links:
+  html:
+    suffix: "/"
+    absolute: "false"
+  xml:
+    suffix: "/"
+    absolute: "true"
+  amp:
+    suffix: "/index-amp.html"
+    absolute: "false"
+tags:
+  html:
+    imgtag: "img"
+    imgtagopen: "<img"
+    imgtagclose: ""
+    imgtagsrc: "src"
+    iframetag: "iframe"
+    iframetagopen: "<iframe"
+    iframetagclose: "</iframe>"
+    iframetagsrc: "data-src"
+    audiotag: "audio"
+    audiotagopen: "<audio"
+    audiotagclose: "</audio>"
+  xml:
+    imgtag: "img"
+    imgtagopen: "<img"
+    imgtagclose: ""
+    imgtagsrc: "src"
+    iframetag: "iframe"
+    iframetagopen: "<iframe"
+    iframetagclose: "</iframe>"
+    iframetagsrc: "src"
+    audiotag: "audio"
+    audiotagopen: "<audio"
+    audiotagclose: "</audio>"
+  amp:
+    imgtag: "amp-img"
+    imgtagopen: "<amp-img"
+    imgtagclose: "</amp-img>"
+    imgtagsrc: "src"
+    iframetag: "amp-iframe"
+    iframetagopen: "<amp-iframe"
+    iframetagclose: "</amp-iframe>"
+    iframetagsrc: "src"
+    audiotag: "amp-audio"
+    audiotagopen: "<amp-audio"
+    audiotagclose: "</amp-audio>"

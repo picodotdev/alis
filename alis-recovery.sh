@@ -65,6 +65,15 @@ function sanitize_variables() {
             BTRFS_SUBVOLUME_SWAP=("${SUBVOLUME[@]}")
         fi
     done
+
+    for I in "${PARTITION_MOUNT_POINTS[@]}"; do
+        IFS='=' PARTITION_MOUNT_POINT=($I)
+        if [ ${PARTITION_MOUNT_POINT[1]} == "/boot" ]; then
+            PARTITION_BOOT_NUMBER="${PARTITION_MOUNT_POINT[0]}"
+        elif [ ${PARTITION_MOUNT_POINT[1]} == "/" ]; then
+            PARTITION_ROOT_NUMBER="${PARTITION_MOUNT_POINT[0]}"
+        fi
+    done
 }
 
 function check_variables() {
@@ -72,6 +81,45 @@ function check_variables() {
     check_variables_boolean "LOG_TRACE" "$LOG_TRACE"
     check_variables_boolean "LOG_FILE" "$LOG_FILE"
     check_variables_value "DEVICE" "$DEVICE"
+    if [ "$DEVICE" == "auto" ]; then
+        local DEVICE_DETECTED="false"
+        if [ -e "/dev/sda" ]; then
+            if [ "$DEVICE_DETECTED" == "true" ]; then
+                echo "Auto device is ambigous, detected $DEVICE and /dev/sda."
+                exit 1
+            fi
+            DEVICE_DETECTED="true"
+            DEVICE_SDA="true"
+            DEVICE="/dev/sda"
+        fi
+        if [ -e "/dev/nvme0n1" ]; then
+            if [ "$DEVICE_DETECTED" == "true" ]; then
+                echo "Auto device is ambigous, detected $DEVICE and /dev/nvme0n1."
+                exit 1
+            fi
+            DEVICE_DETECTED="true"
+            DEVICE_NVME="true"
+            DEVICE="/dev/nvme0n1"
+        fi
+        if [ -e "/dev/vda" ]; then
+            if [ "$DEVICE_DETECTED" == "true" ]; then
+                echo "Auto device is ambigous, detected $DEVICE and /dev/vda."
+                exit 1
+            fi
+            DEVICE_DETECTED="true"
+            DEVICE_VDA="true"
+            DEVICE="/dev/vda"
+        fi
+        if [ -e "/dev/mmcblk0" ]; then
+            if [ "$DEVICE_DETECTED" == "true" ]; then
+                echo "Auto device is ambigous, detected $DEVICE and /dev/mmcblk0."
+                exit 1
+            fi
+            DEVICE_DETECTED="true"
+            DEVICE_MMC="true"
+            DEVICE="/dev/mmcblk0"
+        fi
+    fi
     check_variables_boolean "DEVICE_TRIM" "$DEVICE_TRIM"
     check_variables_boolean "LVM" "$LVM"
     check_variables_equals "LUKS_PASSWORD" "LUKS_PASSWORD_RETYPE" "$LUKS_PASSWORD" "$LUKS_PASSWORD_RETYPE"
@@ -86,6 +134,8 @@ function check_variables() {
         check_variables_size "SUBVOLUME" ${#SUBVOLUME[@]} 3
     done
     check_variables_list "PARTITION_MODE" "$PARTITION_MODE" "auto custom manual" "true" "true"
+    check_variables_value "PARTITION_BOOT_NUMBER" "$PARTITION_BOOT_NUMBER"
+    check_variables_value "PARTITION_ROOT_NUMBER" "$PARTITION_ROOT_NUMBER"
     check_variables_boolean "CHROOT" "$CHROOT"
 }
 
@@ -118,10 +168,12 @@ function facts() {
 
     facts_commons
 
-    if [ -n "$(echo "$DEVICE" | grep "^/dev/[a-z]d[a-z]")" ]; then
-        DEVICE_SATA="true"
+    if [ -n "$(echo "$DEVICE" | grep "^/dev/sd[a-z]")" ]; then
+        DEVICE_SDA="true"
     elif [ -n "$(echo "$DEVICE" | grep "^/dev/nvme")" ]; then
         DEVICE_NVME="true"
+    elif [ -n "$(echo "$DEVICE" | grep "^/dev/vd[a-z]")" ]; then
+        DEVICE_VDA="true"
     elif [ -n "$(echo "$DEVICE" | grep "^/dev/mmc")" ]; then
         DEVICE_MMC="true"
     fi

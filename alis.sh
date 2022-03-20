@@ -54,8 +54,6 @@ function sanitize_variables() {
     PARTITION_MODE=$(sanitize_variable "$PARTITION_MODE")
     PARTITION_CUSTOM_PARTED_UEFI=$(sanitize_variable "$PARTITION_CUSTOM_PARTED_UEFI")
     PARTITION_CUSTOM_PARTED_BIOS=$(sanitize_variable "$PARTITION_CUSTOM_PARTED_BIOS")
-    PARTITION_CUSTOMMANUAL_BOOT=$(sanitize_variable "$PARTITION_CUSTOMMANUAL_BOOT")
-    PARTITION_CUSTOMMANUAL_ROOT=$(sanitize_variable "$PARTITION_CUSTOMMANUAL_ROOT")
     FILE_SYSTEM_TYPE=$(sanitize_variable "$FILE_SYSTEM_TYPE")
     SWAP_SIZE=$(sanitize_variable "$SWAP_SIZE")
     KERNELS=$(sanitize_variable "$KERNELS")
@@ -79,6 +77,15 @@ function sanitize_variables() {
             BTRFS_SUBVOLUME_SWAP=("${SUBVOLUME[@]}")
         fi
     done
+
+    for I in "${PARTITION_MOUNT_POINTS[@]}"; do
+        IFS='=' PARTITION_MOUNT_POINT=($I)
+        if [ ${PARTITION_MOUNT_POINT[1]} == "/boot" ]; then
+            PARTITION_BOOT_NUMBER="${PARTITION_MOUNT_POINT[0]}"
+        elif [ ${PARTITION_MOUNT_POINT[1]} == "/" ]; then
+            PARTITION_ROOT_NUMBER="${PARTITION_MOUNT_POINT[0]}"
+        fi
+    done
 }
 
 function check_variables() {
@@ -86,6 +93,45 @@ function check_variables() {
     check_variables_boolean "LOG_TRACE" "$LOG_TRACE"
     check_variables_boolean "LOG_FILE" "$LOG_FILE"
     check_variables_value "DEVICE" "$DEVICE"
+    if [ "$DEVICE" == "auto" ]; then
+        local DEVICE_DETECTED="false"
+        if [ -e "/dev/sda" ]; then
+            if [ "$DEVICE_DETECTED" == "true" ]; then
+                echo "Auto device is ambigous, detected $DEVICE and /dev/sda."
+                exit 1
+            fi
+            DEVICE_DETECTED="true"
+            DEVICE_SDA="true"
+            DEVICE="/dev/sda"
+        fi
+        if [ -e "/dev/nvme0n1" ]; then
+            if [ "$DEVICE_DETECTED" == "true" ]; then
+                echo "Auto device is ambigous, detected $DEVICE and /dev/nvme0n1."
+                exit 1
+            fi
+            DEVICE_DETECTED="true"
+            DEVICE_NVME="true"
+            DEVICE="/dev/nvme0n1"
+        fi
+        if [ -e "/dev/vda" ]; then
+            if [ "$DEVICE_DETECTED" == "true" ]; then
+                echo "Auto device is ambigous, detected $DEVICE and /dev/vda."
+                exit 1
+            fi
+            DEVICE_DETECTED="true"
+            DEVICE_VDA="true"
+            DEVICE="/dev/vda"
+        fi
+        if [ -e "/dev/mmcblk0" ]; then
+            if [ "$DEVICE_DETECTED" == "true" ]; then
+                echo "Auto device is ambigous, detected $DEVICE and /dev/mmcblk0."
+                exit 1
+            fi
+            DEVICE_DETECTED="true"
+            DEVICE_MMC="true"
+            DEVICE="/dev/mmcblk0"
+        fi
+    fi
     check_variables_boolean "DEVICE_TRIM" "$DEVICE_TRIM"
     check_variables_boolean "LVM" "$LVM"
     check_variables_equals "LUKS_PASSWORD" "LUKS_PASSWORD_RETYPE" "$LUKS_PASSWORD" "$LUKS_PASSWORD_RETYPE"
@@ -100,14 +146,8 @@ function check_variables() {
         check_variables_size "SUBVOLUME" ${#SUBVOLUME[@]} 3
     done
     check_variables_list "PARTITION_MODE" "$PARTITION_MODE" "auto custom manual" "true" "true"
-    if [ "$PARTITION_MODE" == "custom" ]; then
-        check_variables_value "PARTITION_CUSTOM_PARTED_UEFI" "$PARTITION_CUSTOM_PARTED_UEFI"
-        check_variables_value "PARTITION_CUSTOM_PARTED_BIOS" "$PARTITION_CUSTOM_PARTED_BIOS"
-    fi
-    if [ "$PARTITION_MODE" == "custom" -o "$PARTITION_MODE" == "manual" ]; then
-        check_variables_value "PARTITION_CUSTOMMANUAL_BOOT" "$PARTITION_CUSTOMMANUAL_BOOT"
-        check_variables_value "PARTITION_CUSTOMMANUAL_ROOT" "$PARTITION_CUSTOMMANUAL_ROOT"
-    fi
+    check_variables_value "PARTITION_BOOT_NUMBER" "$PARTITION_BOOT_NUMBER"
+    check_variables_value "PARTITION_ROOT_NUMBER" "$PARTITION_ROOT_NUMBER"
     check_variables_equals "WIFI_KEY" "WIFI_KEY_RETYPE" "$WIFI_KEY" "$WIFI_KEY_RETYPE"
     check_variables_value "PING_HOSTNAME" "$PING_HOSTNAME"
     check_variables_boolean "REFLECTOR" "$REFLECTOR"
@@ -159,8 +199,11 @@ function warning() {
     echo -e "${BLUE}Welcome to Arch Linux Install Script${NC}"
     echo ""
     echo -e "${RED}Warning"'!'"${NC}"
-    echo -e "${RED}This script deletes all partitions of the persistent${NC}"
-    echo -e "${RED}storage and continuing all your data in it will be lost.${NC}"
+    echo -e "${RED}This script can delete all partitions of the persistent${NC}"
+    echo -e "${RED}storage and continuing all your data can be lost.${NC}"
+    echo ""
+    echo -e "Install device: $DEVICE."
+    echo -e "Mount points: ${PARTITION_MOUNT_POINTS[@]}."
     echo ""
     if [ "$WARNING_CONFIRM" == "true" ]; then
         read -p "Do you want to continue? [y/N] " yn
@@ -193,10 +236,12 @@ function facts() {
 
     facts_commons
 
-    if [ -n "$(echo "$DEVICE" | grep "^/dev/[a-z]d[a-z]")" ]; then
-        DEVICE_SATA="true"
+    if [ -n "$(echo "$DEVICE" | grep "^/dev/sd[a-z]")" ]; then
+        DEVICE_SDA="true"
     elif [ -n "$(echo "$DEVICE" | grep "^/dev/nvme")" ]; then
         DEVICE_NVME="true"
+    elif [ -n "$(echo "$DEVICE" | grep "^/dev/vd[a-z]")" ]; then
+        DEVICE_VDA="true"
     elif [ -n "$(echo "$DEVICE" | grep "^/dev/mmc")" ]; then
         DEVICE_MMC="true"
     fi
@@ -468,12 +513,14 @@ function partition() {
     wipefs -a -f $PARTITION_BOOT || true
     wipefs -a -f $DEVICE_ROOT || true
 
+    ## boot
     if [ "$BIOS_TYPE" == "uefi" ]; then
         mkfs.fat -n ESP -F32 $PARTITION_BOOT
     fi
     if [ "$BIOS_TYPE" == "bios" ]; then
         mkfs.ext4 -L boot $PARTITION_BOOT
     fi
+    ## root
     if [ "$FILE_SYSTEM_TYPE" == "reiserfs" ]; then
         mkfs."$FILE_SYSTEM_TYPE" -f -l root $DEVICE_ROOT
     elif [ "$FILE_SYSTEM_TYPE" == "f2fs" ]; then
@@ -481,6 +528,24 @@ function partition() {
     else
         mkfs."$FILE_SYSTEM_TYPE" -L root $DEVICE_ROOT
     fi
+    ## mountpoint
+    for I in "${PARTITION_MOUNT_POINTS[@]}"; do
+        if [[ "$I" =~ ^!.* ]]; then
+            continue
+        fi
+        IFS='=' PARTITION_MOUNT_POINT=($I)
+        if [ "${PARTITION_MOUNT_POINT[1]}" == "/boot" -o "${PARTITION_MOUNT_POINT[1]}" == "/" ]; then
+            continue
+        fi
+        local PARTITION_DEVICE="$(partition_device "${DEVICE}" "${PARTITION_MOUNT_POINT[0]}")"
+        if [ "$FILE_SYSTEM_TYPE" == "reiserfs" ]; then
+            mkfs."$FILE_SYSTEM_TYPE" -f $PARTITION_DEVICE
+        elif [ "$FILE_SYSTEM_TYPE" == "f2fs" ]; then
+            mkfs."$FILE_SYSTEM_TYPE" $PARTITION_DEVICE
+        else
+            mkfs."$FILE_SYSTEM_TYPE" $PARTITION_DEVICE
+        fi
+    done
 
     # options
     partition_options

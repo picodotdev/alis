@@ -341,67 +341,58 @@ function partition_setup() {
         fi
         PARTITION_PARTED_UEFI="mklabel gpt mkpart ESP fat32 1MiB 512MiB mkpart root $PARTITION_PARTED_FILE_SYSTEM_TYPE 512MiB 100% set 1 esp on"
         PARTITION_PARTED_BIOS="mklabel msdos mkpart primary ext4 4MiB 512MiB mkpart primary $PARTITION_PARTED_FILE_SYSTEM_TYPE 512MiB 100% set 1 boot on"
-
-        if [ "$BIOS_TYPE" == "uefi" ]; then
-            if [ "$DEVICE_SATA" == "true" ]; then
-                PARTITION_BOOT="${DEVICE}1"
-                PARTITION_ROOT="${DEVICE}2"
-                DEVICE_ROOT="${DEVICE}2"
-            fi
-
-            if [ "$DEVICE_NVME" == "true" ]; then
-                PARTITION_BOOT="${DEVICE}p1"
-                PARTITION_ROOT="${DEVICE}p2"
-                DEVICE_ROOT="${DEVICE}p2"
-            fi
-
-            if [ "$DEVICE_MMC" == "true" ]; then
-                PARTITION_BOOT="${DEVICE}p1"
-                PARTITION_ROOT="${DEVICE}p2"
-                DEVICE_ROOT="${DEVICE}p2"
-            fi
-        fi
-
-        if [ "$BIOS_TYPE" == "bios" ]; then
-            if [ "$DEVICE_SATA" == "true" ]; then
-                PARTITION_BOOT="${DEVICE}1"
-                PARTITION_ROOT="${DEVICE}2"
-                DEVICE_ROOT="${DEVICE}2"
-            fi
-
-            if [ "$DEVICE_NVME" == "true" ]; then
-                PARTITION_BOOT="${DEVICE}p1"
-                PARTITION_ROOT="${DEVICE}p2"
-                DEVICE_ROOT="${DEVICE}p2"
-            fi
-
-            if [ "$DEVICE_MMC" == "true" ]; then
-                PARTITION_BOOT="${DEVICE}p1"
-                PARTITION_ROOT="${DEVICE}p2"
-                DEVICE_ROOT="${DEVICE}p2"
-            fi
-        fi
     elif [ "$PARTITION_MODE" == "custom" ]; then
         PARTITION_PARTED_UEFI="$PARTITION_CUSTOM_PARTED_UEFI"
         PARTITION_PARTED_BIOS="$PARTITION_CUSTOM_PARTED_BIOS"
     fi
 
-    if [ "$PARTITION_MODE" == "custom" -o "$PARTITION_MODE" == "manual" ]; then
-        PARTITION_BOOT="$PARTITION_CUSTOMMANUAL_BOOT"
-        PARTITION_ROOT="$PARTITION_CUSTOMMANUAL_ROOT"
-        DEVICE_ROOT="${PARTITION_ROOT}"
+    if [ "$DEVICE_SDA" == "true" ]; then
+        PARTITION_BOOT="$(partition_device "${DEVICE}" "${PARTITION_BOOT_NUMBER}")"
+        PARTITION_ROOT="$(partition_device "${DEVICE}" "${PARTITION_ROOT_NUMBER}")"
+        DEVICE_ROOT="$(partition_device "${DEVICE}" "${PARTITION_ROOT_NUMBER}")"
     fi
 
-    PARTITION_BOOT_NUMBER="$PARTITION_BOOT"
-    PARTITION_ROOT_NUMBER="$PARTITION_ROOT"
-    PARTITION_BOOT_NUMBER="${PARTITION_BOOT_NUMBER//\/dev\/sda/}"
-    PARTITION_BOOT_NUMBER="${PARTITION_BOOT_NUMBER//\/dev\/nvme0n1p/}"
-    PARTITION_BOOT_NUMBER="${PARTITION_BOOT_NUMBER//\/dev\/vda/}"
-    PARTITION_BOOT_NUMBER="${PARTITION_BOOT_NUMBER//\/dev\/mmcblk0p/}"
-    PARTITION_ROOT_NUMBER="${PARTITION_ROOT_NUMBER//\/dev\/sda/}"
-    PARTITION_ROOT_NUMBER="${PARTITION_ROOT_NUMBER//\/dev\/nvme0n1p/}"
-    PARTITION_ROOT_NUMBER="${PARTITION_ROOT_NUMBER//\/dev\/vda/}"
-    PARTITION_ROOT_NUMBER="${PARTITION_ROOT_NUMBER//\/dev\/mmcblk0p/}"
+    if [ "$DEVICE_NVME" == "true" ]; then
+        PARTITION_BOOT="$(partition_device "${DEVICE}" "p${PARTITION_BOOT_NUMBER}")"
+        PARTITION_ROOT="$(partition_device "${DEVICE}" "p${PARTITION_ROOT_NUMBER}")"
+        DEVICE_ROOT="$(partition_device "${DEVICE}" "p${PARTITION_ROOT_NUMBER}")"
+    fi
+
+    if [ "$DEVICE_VDA" == "true" ]; then
+        PARTITION_BOOT="$(partition_device "${DEVICE}" "${PARTITION_BOOT_NUMBER}")"
+        PARTITION_ROOT="$(partition_device "${DEVICE}" "${PARTITION_ROOT_NUMBER}")"
+        DEVICE_ROOT="$(partition_device "${DEVICE}" "${PARTITION_ROOT_NUMBER}")"
+    fi
+
+    if [ "$DEVICE_MMC" == "true" ]; then
+        PARTITION_BOOT="$(partition_device "${DEVICE}" "p${PARTITION_BOOT_NUMBER}")"
+        PARTITION_ROOT="$(partition_device "${DEVICE}" "p${PARTITION_ROOT_NUMBER}")"
+        DEVICE_ROOT="$(partition_device "${DEVICE}" "p${PARTITION_ROOT_NUMBER}")"
+    fi
+}
+
+function partition_device() {
+    local DEVICE="$1"
+    local NUMBER="$2"
+    local PARTITION_DEVICE=""
+
+    if [ "$DEVICE_SDA" == "true" ]; then
+        PARTITION_DEVICE="${DEVICE}${NUMBER}"
+    fi
+
+    if [ "$DEVICE_NVME" == "true" ]; then
+        PARTITION_DEVICE="${DEVICE}p${NUMBER}"
+    fi
+
+    if [ "$DEVICE_VDA" == "true" ]; then
+        PARTITION_DEVICE="${DEVICE}${NUMBER}"
+    fi
+
+    if [ "$DEVICE_MMC" == "true" ]; then
+        PARTITION_DEVICE="${DEVICE}p${NUMBER}"
+    fi
+
+    echo "$PARTITION_DEVICE"
 }
 
 function partition_options() {
@@ -439,9 +430,25 @@ function partition_mount() {
             mount -o "subvol=${SUBVOLUME[1]},$PARTITION_OPTIONS,compress=zstd" "$DEVICE_ROOT" "/mnt${SUBVOLUME[2]}"
         done
     else
+        # root
         mount -o "$PARTITION_OPTIONS" "$DEVICE_ROOT" /mnt
 
+        # boot
         mkdir -p /mnt/boot
         mount -o "$PARTITION_OPTIONS_BOOT" "$PARTITION_BOOT" /mnt/boot
+
+        # mount points
+        for I in "${PARTITION_MOUNT_POINTS[@]}"; do
+            if [[ "$I" =~ ^!.* ]]; then
+                continue
+            fi
+            IFS='=' PARTITION_MOUNT_POINT=($I)
+            if [ "${PARTITION_MOUNT_POINT[1]}" == "/boot" -o "${PARTITION_MOUNT_POINT[1]}" == "/" ]; then
+                continue
+            fi
+            local PARTITION_DEVICE="$(partition_device "${DEVICE}" "${PARTITION_MOUNT_POINT[0]}")"
+            mkdir -p "/mnt${PARTITION_MOUNT_POINT[1]}"
+            mount -o "$PARTITION_OPTIONS" "${PARTITION_DEVICE}" "/mnt${PARTITION_MOUNT_POINT[1]}"
+        done
     fi
 }

@@ -8,6 +8,15 @@
     <language>en</language>
     <lastBuildDate>Fri, 04 Feb 2022 16:00:00 +0100</lastBuildDate><atom:link href="https://picodotdev.github.io/alis/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>User guide</title>
+      <link>https://picodotdev.github.io/alis/user-guide/</link>
+      <pubDate>Sun, 20 Mar 2022 01:00:00 +0100</pubDate>
+      
+      <guid>https://picodotdev.github.io/alis/user-guide/</guid>
+      <description>(adsbygoogle = window.adsbygoogle || []).push({});      User Guide Installing Arch Linux with alis only requires the use of four commands and depending on the speed of the internet connection a few minutes, more important than the speed of installation is that the script completely automates the installation. Apart from the four commands, it is necessary to edit a configuration file in which to declaratively specify the values ​​of the variables to customize the configuration of the system to be installed according to preferences.</description>
+    </item>
+    
+    <item>
       <title>Overview</title>
       <link>https://picodotdev.github.io/alis/overview/</link>
       <pubDate>Thu, 10 Feb 2022 19:00:00 +0100</pubDate>

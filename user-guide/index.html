@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="base" href="/alis/">
+<meta name="description" content="A simple powerful Bash based script for an unattended, easy and fast way to install Arch Linux. Developed from many Arch Linux Wiki pages that fully automates the installation of a Arch Linux system after booting from the original Arch Linux installation media.">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<link rel="icon" type="image/png" href="/alis/images/favicon.png" />
+    <title>alis :. Arch Linux Install Script</title>
+    
+
+<link href="https://fonts.googleapis.com/css?family=Open&#43;Sans:400,600" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+<link rel="stylesheet" type="text/css" href="/alis/syntax.css" integrity="">
+<link rel="stylesheet" type="text/css" href="/alis/css/main.css" integrity="">
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3533636310991304" crossorigin="anonymous"></script>
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-12874075-6"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-12874075-6');
+</script>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <header>
+        <div class="row">
+          <div class="col-12">
+            <div class="container">
+              <div class="row">
+                <div class="col-12">
+                  <nav class="navbar navbar-expand-lg navbar-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/alis/">alis</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        
+        <li class="nav-item">
+          <a class="nav-link" aria-current="page" href="/alis/">Home</a>
+        </li>
+        
+        <li class="nav-item">
+          <a class="nav-link" aria-current="page" href="/alis/#what-is">What is alis?</a>
+        </li>
+        
+        <li class="nav-item">
+          <a class="nav-link" aria-current="page" href="/alis/overview/">Overview</a>
+        </li>
+        
+        <li class="nav-item">
+          <a class="nav-link" aria-current="page" href="/alis/user-guide/">User Guide</a>
+        </li>
+        
+        <li class="nav-item">
+          <a class="nav-link" aria-current="page" href="https://github.com/picodotdev/alis/">Source code</a>
+        </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+      <article>
+        <div class="row justify-content-center">
+          <div class="col">
+            <div class="sticky-top mt-3 mb-3 sidebar-sticky">
+            </div>
+          </div>
+          <div class="col-auto main">
+            <div class="container main">
+              <div class="row">
+                <div class="col-12">
+                  
+<section class="mt-4">
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <div class="adsense adsense-bilboard">
+  <ins class="adsbygoogle"
+    style="display:block"
+    data-ad-client="ca-pub-3533636310991304"
+    data-ad-slot="8430508513"
+    data-ad-format="auto"
+    data-full-width-responsive="true"></ins>
+</div>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      </div>
+    </div>
+  </div>
+</section>
+<h1 id="user-guide">User Guide</h1>
+<p>Installing Arch Linux with alis only requires the use of four commands and depending on the speed of the internet connection a few minutes, more important than the speed of installation is that the script completely automates the installation. Apart from the four commands, it is necessary to edit a configuration file in which to declaratively specify the values ​​of the variables to customize the configuration of the system to be installed according to preferences.</p>
+<p>Aside from the four proper commands to run alis, there are some additional tasks common to any way you use to install Arch Linux such as backing up your data, checking the minimum system requirements, and learning about the hardware components of your system. to install, download the installation media, and create a USB drive to start the installation. After the installation, the user will surely have to do some additional customization in terms of desktop configuration, finally Arch Linux periodically requires some maintenance tasks such as updating the packages to the latest versions.</p>
+<div class="alert alert-warning tableofcontents">
+    <h2></h2>
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#pre-installation-steps">Pre-Installation steps</a>
+      <ul>
+        <li><a href="#minimum-requirements">Minimum requirements</a></li>
+        <li><a href="#download-the-official-arch-linux-media">Download the official Arch Linux media</a></li>
+        <li><a href="#create-the-installation-media-on-a-usb-stick">Create the installation media on a USB stick</a></li>
+        <li><a href="#start-a-virtual-machine">Start a virtual machine</a></li>
+        <li><a href="#boot-a-real-machine-from-the-installation-media">Boot a real machine from the installation media</a></li>
+      </ul>
+    </li>
+    <li><a href="#starting-the-arch-linux-installation-with-alis">Starting the Arch Linux installation with alis</a>
+      <ul>
+        <li><a href="#keyboard-layout-configuration">Keyboard layout configuration</a></li>
+        <li><a href="#download-alis-script">Download alis script</a></li>
+        <li><a href="#alis-configuration">alis configuration</a></li>
+        <li><a href="#start-the-installation">Start the installation</a></li>
+        <li><a href="#desktop-environment">Desktop environment</a></li>
+      </ul>
+    </li>
+    <li><a href="#steps-after-installation">Steps after installation</a>
+      <ul>
+        <li><a href="#upgrade-system">Upgrade system</a></li>
+        <li><a href="#installing-and-uninstalling-programs">Installing and uninstalling programs</a></li>
+        <li><a href="#how-to-start-recovery">How to start recovery</a></li>
+      </ul>
+    </li>
+    <li><a href="#install-on-virtual-machine-or-cloud-with-ssh-install-and-cloud-init">Install on virtual machine or cloud with SSH install and cloud-init</a></li>
+  </ul>
+</nav>
+</div>
+<h3 id="pre-installation-steps">Pre-Installation steps</h3>
+<p>Before starting the installation of Arch Linux with alis, it is convenient to carry out some previous steps, since once the installation has started, the system will not be usable until the installation is finished correctly. These steps are convenient to try to ensure that the installation process is satisfactory on the first attempt, avoiding errors as much as possible and being prepared in case there are any.</p>
+<p>Once you have made the decision of wanting to install Arch Linux as an operating system on a system, first of all, it is advisable to make a backup copy of all the important data to keep on an external storage unit of the system, since replacing the existing operating system of the system it is an operation that usually involves partitioning and formatting the operating system partitions on which the data is stored. A graphical interface program for backup is <a href="https://freefilesync.org/">FreeFileSync</a>.</p>
+<p>Knowing the specifications of the system and of the main components of the hardware is convenient, although most of the hardware is detected by Linux without the need to install additional drivers if it may be necessary to indicate the graphic driver. Some details of the main components of a system are make and model of the computer, whether it is a laptop or desktop, make and model of processor (<a href="https://www.intel.es">Intel</a>, <a href="https://www.amd.com">AMD</a>, <a href="https://www.arm.com/">ARM</a>), amount of memory and type, make and model of motherboard , brand and model of the storage unit (hard drive, SSD) along with the interface used (SATA, M.2, NVMe) and capacity (in GB or TB) and brand and model of the graphics card (Intel, AMD, Nvidia) along with whether it is an integrated or discrete graphics card connected to the PCIe port. If the system has a Wi-Fi connection and if Ethernet cable or Wi-Fi is used for the connection. In addition to the drivers, knowing the specifications allows you to give additional information in case you need to ask for help, since an error may be related to the specific combination of system components.</p>
+<p>In the case of Arch Linux, regardless of how the installation is carried out, it is convenient to know the manual installation process offered and the necessary commands to execute in each step. Arch Linux has a wiki with information on numerous topics in great detail, usually including several sample commands to perform the most common actions on that topic. The commands to perform the manual installation are included in the installation guide wiki. Reading the wiki allows you to learn what happens during the installation, and again knowing some details allows you to know what could be wrong in case of an error.</p>
+<p>Another important step is to decide what features are desired for the new Arch Linux system. One of the characteristics of Arch Linux is that the user decides how he wants his system to be from the boot loader to the desktop environment and installed programs among numerous other customizations. alis is flexible enough to cover the most common use cases and customizations that most users want for their system, it only requires indicating them to install the appropriate system.</p>
+<p>To become familiar with the installation process without the risk of doing it for the first time on the system, it is possible to use a virtual machine in which to carry out the process. The installation on the real system is somewhat different in terms of hardware characteristics, but performing an installation on a virtual machine allows you to eliminate most of the doubts you may have.</p>
+<p>Finally, given that while the system is being installed it remains unusable until it is properly finished, having another system or a support smartphone available to consult the internet if necessary is of great help.</p>
+<h4 id="minimum-requirements">Minimum requirements</h4>
+<p>Depending on the technical specifications of the system, it is possible to adapt the most suitable software components so that the system has good performance, a light desktop environment for systems with specifications already considered low, or more capable desktop environments that require a more efficient system. powerful enough to also deliver good performance.</p>
+<p>For a light desktop environment the minimum requirements start from the following:</p>
+<ul>
+<li>Dual core CPU</li>
+<li>Memory of at least 2 GB</li>
+<li>Storage of at least 40 GB</li>
+<li>USB stick and USB ports</li>
+<li>Internet connection via wifi or ethernet cable</li>
+</ul>
+<p>For modern GNOME and KDE desktop environments the minimum requirements are increased slightly:</p>
+<ul>
+<li>Dual or quad core CPU</li>
+<li>Memory of at least 4 GB</li>
+<li>Storage of at least 60 GB</li>
+<li>USB stick and USB ports</li>
+<li>Internet connection via wifi or ethernet cable</li>
+</ul>
+<h4 id="download-the-official-arch-linux-media">Download the official Arch Linux media</h4>
+<p>To start the installation you need to <a href="https://archlinux.org/download/">download the official installation media</a>. Downloading is possible via direct web browser download from one of the many mirrors offered around the world, downloading is also possible via torrent file sharing networks.</p>
+<p>The installation media is a disk image file that is about 800 MB in size. Once the installation medium has been downloaded, to check the integrity of the medium and ensure that it is the original and there have been no errors in the download, a program can be used to obtain the digital fingerprint of the medium and compare it with the one offered on the download page of Arch Linux as the correct one, if the one obtained and the one offered on the download page coincide, the medium has been downloaded correctly.</p>
+<div class="media">
+<figure>
+<p>
+<a href="/alis/user-guide/images/archlinux-media_hu435aaaf117dfd397edcd1aa64544d31b_14098_2560x1440_fit_box_3.png" data-gallery="data-gallery" title="Arch Linux installation start"><img src="/alis/user-guide/images/archlinux-media_hu435aaaf117dfd397edcd1aa64544d31b_14098_750x550_fit_box_3.png" width="645" height="278" alt="Arch Linux installation start" title="Arch Linux installation start" class="" loading="lazy"></a></p>
+</figure>
+</div>
+
+
+
+
+
+
+
+
+
+
+<div class="code">
+    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ sha1sum archlinux-2022.03.01-x86_64.iso &#10;</span></span><span class="line"><span class="cl">64070acf60ac342d7aaddddfa0448f5900c4a0a5  archlinux-2022.03.01-x86_64.iso&#10;</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
+    <div class="highlight-meta">
+        <span>media-fingerprint.sh</span>
+    </div>
+</div>
+<h4 id="create-the-installation-media-on-a-usb-stick">Create the installation media on a USB stick</h4>
+<p>Once the installation medium has been downloaded, it must be recorded on a USB memory that allows the Arch Linux installation process to start. The USB drive must have at least 2 GB of storage capacity. The graphical program <a href="https://www.balena.io/etcher/">Balena Etchet</a> allows you to burn the installation media to the USB stick. When recording the installation medium on the USB memory, all the data it had, so it is necessary to make a backup copy of the data it had if you wish to keep any of it.</p>
+<div class="media">
+<figure>
+<p>
+<a href="/alis/user-guide/images/balena-etcher_hud1efc75fd83991b95378722c43d35468_21408_2560x1440_fit_box_3.png" data-gallery="data-gallery" title="Arch Linux installation start"><img src="/alis/user-guide/images/balena-etcher_hud1efc75fd83991b95378722c43d35468_21408_750x550_fit_box_3.png" width="750" height="485" alt="Arch Linux installation start" title="Arch Linux installation start" class="" loading="lazy"></a></p>
+</figure>
+</div>
+
+<h4 id="start-a-virtual-machine">Start a virtual machine</h4>
+<p>Using a program to run virtual machines allows you to install on a fictitious machine. The virtual machine behaves like a real machine from the operating system to the programs and graphic environment. The virtual machine, except for some of the hardware components that are also virtualized and different from those of the real system, allows testing the installation and once the resulting system is finished.</p>
+<p>Some virtualization software programs are [GNOME Boxes][gnome-boxes], <a href="https://www.virtualbox.org/">VirtualBox</a> and <a href="https://virt-manager.org/">virt-manager</a>. VirtualBox is even available for non <a href="https://www.gnu.org/">GNU</a>/<a href="https://www.kernel.org/">Linux</a> operating systems like <a href="https://www.microsoft.com/">Windows</a> or <a href="https://www.apple.com/">macOS</a>.</p>
+<div class="media">
+<figure>
+<p>
+<a href="/alis/user-guide/images/arch-linux-installation_hu7d1af452533057fdc7bc424a4ce5d374_22315_2560x1440_fit_box_3.png" data-gallery="data-gallery" title="Arch Linux installation start"><img src="/alis/user-guide/images/arch-linux-installation_hu7d1af452533057fdc7bc424a4ce5d374_22315_750x550_fit_box_3.png" width="650" height="550" alt="Arch Linux installation start" title="Arch Linux installation start" class="" loading="lazy"></a></p>
+</figure>
+</div>
+
+<h4 id="boot-a-real-machine-from-the-installation-media">Boot a real machine from the installation media</h4>
+<p>Windows systems require to have the option called Secure Boot enabled, alis requires disabling this option in the system BIOS before starting the installation. When starting the system, it is usually indicated which key must be pressed to enter the BIOS and change this option, save the changes and restart the system.</p>
+<p>Starting the installation on the current system requires a reboot and booting from the previously created USB stick. Making the system use memory as the boot device typically requires a key press that varies depending on the make of system and motherboard. With the system turned off and the USB stick with the installation media inserted into a USB port, to select the boot drive, you have to press a key that is usually indicated in the first graphic image on the monitor provided by the system for a short period of time. weather. The key is usually F2, F4, F7, F8, F12 or another.</p>
+<h3 id="starting-the-arch-linux-installation-with-alis">Starting the Arch Linux installation with alis</h3>
+<p>Arch Linux does not offer a graphical installer with which to install the system more easily but much less customizable than is possible with the command line where the Arch Linux installation media is launched. The system boots to a terminal from which the user must enter the commands to perform the installation. The installation guide on the wiki provides the steps and commands required to perform the installation along with other wiki pages on specific topics that are desired. Alternatively, Arch Linux includes [arch-install] on the installation media, it is an interactive, guided text-based installer that asks a series of questions until the installation is complete.</p>
+<div class="media">
+<figure>
+<p>
+<a href="/alis/user-guide/images/archlinux-installation-start_hu7d1af452533057fdc7bc424a4ce5d374_22315_2560x1440_fit_box_3.png" data-gallery="data-gallery" title="Arch Linux installation start"><img src="/alis/user-guide/images/archlinux-installation-start_hu7d1af452533057fdc7bc424a4ce5d374_22315_750x550_fit_box_3.png" width="650" height="550" alt="Arch Linux installation start" title="Arch Linux installation start" class="" loading="lazy"></a></p>
+</figure>
+</div>
+
+<p>With alis, the installation only consists of four commands and the edition of one or two configuration files with the desired preferences of the system to be installed. The first command is to set the keyboard layout, the second to download the alis files from the internet, the third to edit the configuration file, and finally to start the installation that requires no further interaction until it is complete.</p>
+
+
+
+
+
+
+
+
+
+<div class="code">
+    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span><span class="lnt">3&#10;</span><span class="lnt">4&#10;</span><span class="lnt">5&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Start the system with latest Arch Linux installation media</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># loadkeys [keymap]&nbsp;&nbsp;&nbsp;&nbsp;   # Load keyboard keymap, eg. loadkeys es, loadkeys us, loadkeys de</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># curl -sL https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash&nbsp;&nbsp;&nbsp;&nbsp; # Download alis scripts</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># vim alis.conf&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   # Edit configuration and change variables values with your preferences (system configuration)</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># ./alis.sh&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   # Start installation</span></span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
+    <div class="highlight-meta">
+        <span>install.sh</span>
+    </div>
+</div>
+<h4 id="keyboard-layout-configuration">Keyboard layout configuration</h4>
+<p>To list the available keyboard layouts on the system you can use the following command and set the appropriate one with the <em>loadkeys</em> command.</p>
+
+
+
+
+
+
+
+
+
+<div class="code">
+    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># loadkeys [keymap]</span>&#10;</span></span><span class="line"><span class="cl">&#10;</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
+    <div class="highlight-meta">
+        <span>loadkeys.sh</span>
+    </div>
+</div>
+<h4 id="download-alis-script">Download alis script</h4>
+<p>To install Arch Linux with alis requires downloading the script from its source code repository with one of the following two commands.</p>
+
+
+
+
+
+
+
+
+
+<div class="code">
+    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># curl -sL https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash</span>&#10;</span></span><span class="line"><span class="cl">&#10;</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
+    <div class="highlight-meta">
+        <span>download.sh</span>
+    </div>
+</div>
+<p>The above command downloads the alis script files to the system.</p>
+
+
+
+
+
+
+
+
+
+<div class="code">
+    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt"> 1&#10;</span><span class="lnt"> 2&#10;</span><span class="lnt"> 3&#10;</span><span class="lnt"> 4&#10;</span><span class="lnt"> 5&#10;</span><span class="lnt"> 6&#10;</span><span class="lnt"> 7&#10;</span><span class="lnt"> 8&#10;</span><span class="lnt"> 9&#10;</span><span class="lnt">10&#10;</span><span class="lnt">11&#10;</span><span class="lnt">12&#10;</span><span class="lnt">13&#10;</span><span class="lnt">14&#10;</span><span class="lnt">15&#10;</span><span class="lnt">16&#10;</span><span class="lnt">17&#10;</span><span class="lnt">18&#10;</span><span class="lnt">19&#10;</span><span class="lnt">20&#10;</span><span class="lnt">21&#10;</span><span class="lnt">22&#10;</span><span class="lnt">23&#10;</span><span class="lnt">24&#10;</span><span class="lnt">25&#10;</span><span class="lnt">26&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ ls -l&#10;</span></span><span class="line"><span class="cl">total 1520&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 506 mar 20 11:40 alis-asciinema.sh&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 415 mar 20 11:40 alis-cloud-init-iso.sh&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp;1252 mar 20 11:40 alis-cloud-init-ssh.sh&#10;</span></span><span class="line"><span class="cl">-rw-r--r-- 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 981 mar 20 11:40 alis-commons.conf&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev   13336 mar 20 11:40 alis-commons.sh&#10;</span></span><span class="line"><span class="cl">-rw-r--r-- 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp;9319 mar 20 11:40 alis.conf&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 975 mar 20 11:40 alis-kvm-virt-install.sh&#10;</span></span><span class="line"><span class="cl">drwxr-xr-x 8 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp;4096 mar 20 11:04 alis-master&#10;</span></span><span class="line"><span class="cl">-rw-r--r-- 1 picodotdev picodotdev 1354656 mar 20 11:40 alis-master.zip&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 514 mar 20 11:40 alis-packages-asciinema.sh&#10;</span></span><span class="line"><span class="cl">-rw-r--r-- 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp;5672 mar 20 11:40 alis-packages.conf&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 548 mar 20 11:40 alis-packages-exit.sh&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp;9004 mar 20 11:40 alis-packages.sh&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 670 mar 20 11:40 alis-packer.sh&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 201 mar 20 11:40 alis-reboot.sh&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 524 mar 20 11:40 alis-recovery-asciinema.sh&#10;</span></span><span class="line"><span class="cl">-rw-r--r-- 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp;2738 mar 20 11:40 alis-recovery.conf&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 864 mar 20 11:40 alis-recovery-reboot.sh&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp;8702 mar 20 11:40 alis-recovery.sh&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev   67840 mar 20 11:40 alis.sh&#10;</span></span><span class="line"><span class="cl">drwxr-xr-x 2 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp;4096 mar 20 11:40 configs&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 647 mar 20 11:40 download.sh&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 645 mar 20 11:40 download-sid.sh&#10;</span></span><span class="line"><span class="cl">drwxr-xr-x 3 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp;4096 mar 20 11:40 files</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
+    <div class="highlight-meta">
+        <span>ls-alis.sh</span>
+    </div>
+</div>
+<h4 id="alis-configuration">alis configuration</h4>
+<p>All configuration options allowed by alis are provided declaratively in a file that contains multiple environment variables. The configuration file is divided into several groups of various related variables from storage partitioning to desktop environment and boot loader. Each group of variables is preceded by a few lines of comments that briefly indicate what the variable does but with some knowledge of GNU/Linux they should be familiar to any user, some variables may require consulting the Arch Linux wiki or some command.</p>
+<p>Variable values ​​can be as simple as true or false, some allow a single value, some allow multiple variables, some allow multiple variables but are a bash array. To facilitate the editing of the files, all the variables have a default value that forms a reasonable and common configuration for a system, normally it is not necessary to modify the values ​​of all the variables, just those in which another configuration is wanted. Another way provided for editing the files is that many variables offer the option of ignoring values ​​by preceding them with the character !, just select the desired value and comment the default one, when starting alis the values ​​are processed and these are preceded with ! are discarded from the value used for the variable.</p>
+<p>The config file is just a text file, you really don&rsquo;t even need to edit the user every time you install Arch with alis. It is possible to configure a file according to your preferences, host it in your own repository and download it with a curl command when starting the installation in the same way that you download alis.</p>
+
+
+
+
+
+
+
+
+
+<div class="code">
+    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># curl -sL https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash -s -u picodotdev</span>&#10;</span></span><span class="line"><span class="cl">&#10;</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
+    <div class="highlight-meta">
+        <span>download-conf.sh</span>
+    </div>
+</div>
+<p>To avoid errors during the installation, when starting, alis makes some checks on the values ​​of the variables so that the value assigned to the variable is among one of the possible ones and has a value if it is required. Not all invalid values ​​are detected but many variables do have checks.</p>
+<p>The configuration file can be edited with a console based text editor such as <em>vim</em> which is pre-installed on the Arch Linux installation media.</p>
+
+
+
+
+
+
+
+
+
+<div class="code">
+    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># vim alis.conf</span>&#10;</span></span><span class="line"><span class="cl">&#10;</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
+    <div class="highlight-meta">
+        <span>vim-alis-conf.sh</span>
+    </div>
+</div>
+<p>For package installation, which is used during system installation for the installation of selected packages, but can also be used after the base installation is done and the desktop environment is started. Installing Arch Linux packages is allowed, from the [AUR repository] and installing an AUR utility, Flatpak packages and installing the <a href="https://sdkman.io/">SDKMAN</a> utility is installing packages offered in this SDK manager mostly from the Java platform.</p>
+<p>
+
+
+
+
+
+
+
+
+<div class="code">
+    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># vim alis-packages.conf</span>&#10;</span></span><span class="line"><span class="cl">&#10;</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
+    <div class="highlight-meta">
+        <span>vim-alis-packages-conf.sh</span>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+<div class="code">
+    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ ./alis.packages.sh&#10;</span></span><span class="line"><span class="cl">&#10;</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
+    <div class="highlight-meta">
+        <span>alis-packages.sh</span>
+    </div>
+</div></p>
+<h4 id="start-the-installation">Start the installation</h4>
+<p>Finally, the installation starts with another command.</p>
+
+
+
+
+
+
+
+
+
+<div class="code">
+    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># alis.sh</span>&#10;</span></span><span class="line"><span class="cl">&#10;</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
+    <div class="highlight-meta">
+        <span>alis.sh</span>
+    </div>
+</div>
+<p>After this command the user no longer requires any additional interaction, the script performs the installation tasks in a completely unattended and automated way until the installation is successfully completed, if everything works correctly. The time it takes to perform the installation depends mainly on the speed of the internet connection and the download of the installation packages. With a fiber internet connection, with ethernet cable and SSD, the installation only takes 4 minutes or even less. During the installation, the console displays the commands that the script executes and all the output that those commands emit.</p>
+<p>This is a real-time video captured with ascinema in text format with all the output emitted during the installation.</p>
+<script type="text/javascript" src="https://asciinema.org/a/444025.js" data-size="medium" data-cols="160" data-rows="40" id="asciicast-444025" async></script>
+<h4 id="desktop-environment">Desktop environment</h4>
+<p>Once the installation is finished and after the system has restarted, it starts up to the graphical environment selected to install or if none has been installed until the login to the terminal in which to enter the username and password of one of the created users in the installation.</p>
+<div class="media">
+<figure>
+<p>
+<a href="/alis/user-guide/images/arch-linux-installation_hu7d1af452533057fdc7bc424a4ce5d374_22315_2560x1440_fit_box_3.png" data-gallery="data-gallery" title="Arch Linux terminal login"><img src="/alis/user-guide/images/arch-linux-installation_hu7d1af452533057fdc7bc424a4ce5d374_22315_750x550_fit_box_3.png" width="650" height="550" alt="Arch Linux terminal login" title="Arch Linux terminal login" class="" loading="lazy"></a></p>
+<figcaption>Arch Linux terminal login</figcaption>
+</figure>
+</div>
+<div class="media">
+<figure>
+<p>
+<a href="/alis/user-guide/images/gnome-desktop_hu53b6cfbb23a7931544efc544ba20b2dc_1783530_2560x1440_fit_box_3.png" data-gallery="data-gallery" title="Arch Linux GNOME desktop environment"><img src="/alis/user-guide/images/gnome-desktop_hu53b6cfbb23a7931544efc544ba20b2dc_1783530_750x550_fit_box_3.png" width="750" height="422" alt="Arch Linux GNOME desktop environment" title="Arch Linux GNOME desktop environment" class="" loading="lazy"></a></p>
+<figcaption>Arch Linux GNOME desktop environment</figcaption>
+</figure>
+</div>
+
+<h3 id="steps-after-installation">Steps after installation</h3>
+<p>After having carried out the installation when using the system over time, some maintenance tasks are necessary so that the system continues to function as newly installed. And maybe some customization tasks that alis does not perform or support such as an icon canvas, font and other types of exclusive user settings.</p>
+<p>alis allows installing packages during system installation, but it also supports installing packages after the basic installation with the command ./alis-packages.sh and is the recommended way to do it because it is more reliable and safe for packages of AUR.</p>
+<h4 id="upgrade-system">Upgrade system</h4>
+<p>Arch Linux is a constantly updated rolling release distribution with daily package updates with bug fixes and updates to new versions, usually to the latest version released by the package author. It is advisable to update the packages installed on the system at least every few weeks so that the number of them does not accumulate, because on some rare occasions it is necessary to update the system before a certain date or simply to get the security fixes discovered and corrected. .</p>
+<p>Updating the system is a potential operation that is occasionally capable of producing an error and rarely, in the most serious cases, causes the system to fail in the boot process, leaving the computer inoperative. For this reason, before carrying out a system update, it is advisable to make a backup copy of the data. In Arch Linux, the system update must be done completely for all packages, updating the system partially or individual packages can generate small or serious errors and conflicts between dependencies.</p>
+<p>On the main page of the Arch Linux website, among the news, when necessary, messages are published in case you have to carry out any manual operation.</p>
+<p>Fortunately, Arch Linux, even though it is a rolling release distribution, is a very stable distribution, there are not many errors that occur after an update, most of them are usually minor and are corrected in a short time with a new version of the problematic package. and serious errors are very rare in common system configurations, serious errors when they do occur are almost more usually caused by the user than by the update itself. In any case, if you are affected by an error in an update, it will surely have happened to another user, possibly there is already a recent thread in the discussion forums or a bug will have been created in the request system.</p>
+<p>The command to update the system completely is the following with the package manager that in Arch Linux is pacman.</p>
+
+
+
+
+
+
+
+
+
+<div class="code">
+    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ pacman -Syu&#10;</span></span><span class="line"><span class="cl">&#10;</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
+    <div class="highlight-meta">
+        <span>pacman-update.sh</span>
+    </div>
+</div>
+<h4 id="installing-and-uninstalling-programs">Installing and uninstalling programs</h4>
+<p>For most users, the most important part of a system is not the operating system they use, but the productive tasks they perform with it. And productivity tasks are done through programs. Like many other GNU/Linux distributions, the Arch Linux distribution offers <a href="https://wiki.archlinux.org/title/List_of_applications">a large collection of programs</a> with both graphical and command-line interfaces to perform any task that needs to be done. In addition, most programs are free software or open source, generally free, and there is always a free alternative that is almost good or better than any proprietary program that a user is used to using in another operating system.</p>
+<p>Here are some program categories.</p>
+<ul>
+<li>Office automation, documents and desk
+<ul>
+<li>Office document editor</li>
+<li>Advanced text editor</li>
+<li>E-books and comics</li>
+<li>Screen capture</li>
+<li>Backups</li>
+</ul>
+</li>
+<li>Internet and communications
+<ul>
+<li>Browser</li>
+<li>Email</li>
+<li>Feed reader</li>
+<li>Download torrent files and direct downloads</li>
+<li>Instant messaging</li>
+<li>Videoconference</li>
+<li>Private cloud</li>
+</ul>
+</li>
+<li>Photos and graphics
+<ul>
+<li>Photo retouching</li>
+</ul>
+</li>
+<li>Multimedia, video and audio
+<ul>
+<li>Video, audio, movie and music player</li>
+<li>Video editor</li>
+<li>Video and audio converter</li>
+<li>Other specific programs</li>
+</ul>
+</li>
+<li>Games
+<ul>
+<li>Programming and development</li>
+<li>Compilers</li>
+<li>Integrated development environment</li>
+<li>Databases and server software</li>
+<li>Virtualization</li>
+</ul>
+</li>
+<li>Security and privacy
+<ul>
+<li>Password manager</li>
+<li>File encryption and decryption</li>
+<li>Firewalls</li>
+</ul>
+</li>
+</ul>
+<p>There are different forms and sources of software packages. On the one hand, there are the Arch Linux distribution packages that are installed with the pacman command.</p>
+
+
+
+
+
+
+
+
+
+<div class="code">
+    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ pacman -S <span class="o">[</span>package<span class="o">]</span>&#10;</span></span><span class="line"><span class="cl">$ pacman -S firefox&#10;</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
+    <div class="highlight-meta">
+        <span>pacman-package-install.sh</span>
+    </div>
+</div>
+<p>In Arch Linux there is also the AUR repository maintained by the distribution&rsquo;s own users. Some are compiled from source code so their installation requires compilation and takes time. The packages in the AUR repository are usually managed with their own utility that takes care of satisfying the necessary dependencies. Due to the fact that some packages are installed from source code and the AUR repository contains packages from any user so it is not completely reliable, the AUR repository is not the first option to use, if there is an alternative it is better to use the package from Pacman or Flatpack.</p>
+
+
+
+
+
+
+
+
+
+<div class="code">
+    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ paru -S <span class="o">[</span>package<span class="o">]</span>&#10;</span></span><span class="line"><span class="cl">$ yay -S <span class="o">[</span>package<span class="o">]</span>&#10;</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
+    <div class="highlight-meta">
+        <span>aur-package-install.sh</span>
+    </div>
+</div>
+<p>Another possibility is to install <a href="https://www.flatpak.org/">Flatpak</a> packages which are distribution independent and can be installed with the graphical package manager offered by the <a href="https://www.gnome.org/">GNOME</a> desktop environment with the Software program.</p>
+<div class="media">
+<figure>
+<p>
+<a href="/alis/user-guide/images/gnome-software_hu2b4cd2d849ce3a6e4133dc9fa25d58ec_179270_2560x1440_fit_box_3.png" data-gallery="data-gallery" title="GNOME Software"><img src="/alis/user-guide/images/gnome-software_hu2b4cd2d849ce3a6e4133dc9fa25d58ec_179270_750x550_fit_box_3.png" width="576" height="550" alt="GNOME Software" title="GNOME Software" class="" loading="lazy"></a></p>
+</figure>
+</div>
+
+<p>You already will have the basics of the system and with the programs you want but there are still more customization options that you will have to do for yourself. Managing dotfiles or add some theme to the login manager is something left for the user.</p>
+<h4 id="how-to-start-recovery">How to start recovery</h4>
+<p>In the event that the error in an update is so serious that the system fails in the boot process and is not resolved with a reboot, it is necessary to recover the system manually. The recovery process consists of booting the system with the Arch Linux installation media itself, mounting the file system, and running the necessary commands to resolve the issue. Generally, if the error occurred after a system update, the problem is a package that has a bug, and the solution is usually to downgrade that package to the correct previous version.</p>
+<p>Depending on the system configuration mounting the file system is more or less complicated depending on the disk partitioning, whether LVM or LUKS encryption is used. alis offers a recovery utility that makes it very easy to mount the file system according to the configuration with which it was installed. Starting the recovery script starts with the same steps as installing the system with alis but instead by editing the alis-recovery.conf configuration file and running the alis-recovery.sh command.</p>
+
+
+
+
+
+
+
+
+
+<div class="code">
+    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ vim alis-recovery.conf&#10;</span></span><span class="line"><span class="cl">$ ./alis-recovery.sh&#10;</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
+    <div class="highlight-meta">
+        <span>recovery.sh</span>
+    </div>
+</div>
+<p>Once the file system is mounted, disabling a package is done with the following command. The package and version to be downgraded is obtained from the local package cache, in this example it is indicated how to downgrade the linux kernel package.</p>
+
+
+
+
+
+
+
+
+
+<div class="code">
+    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ pacman -U <span class="o">[</span>package<span class="o">]</span>&#10;</span></span><span class="line"><span class="cl">$ pacman -U /var/cache/pacman/pkg/linux-5.16.15.arch1-1-x86_64.pkg.tar.zst&#10;</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
+    <div class="highlight-meta">
+        <span>package-downgrade.sh</span>
+    </div>
+</div>
+<h3 id="install-on-virtual-machine-or-cloud-with-ssh-install-and-cloud-init">Install on virtual machine or cloud with SSH install and cloud-init</h3>
+<p>alis also offers support to install Arch Linux in an automated and easy way on a local virtual machine on your own computer virtualized with KVM, QEMU, VirtualBox or other virtualization software and also on virtual machines in the cloud. With this support offered via SSH install and cloud-init it is possible to install after booting the virtual machine with SSH either to a local virtual machine or to a cloud machine over the internet.</p>
+<p>For installation on virtual machines alis offers three scripts.</p>
+<ul>
+<li><a href="https://github.com/picodotdev/alis/blob/master/alis-cloud-init-iso.sh">alis-cloud-init-iso.sh</a> which creates a private and public key pair for the SSH connection and creates a disk image that includes the public key and other instructions for virtual machine initialization provided with cloud-init. The iso image has to be mounted on the virtual machine.</li>
+<li><a href="https://github.com/picodotdev/alis/blob/master/alis-kvm-virt-install.sh">alis-kvm-virt-install.sh</a> contains the command to create a virtual machine with KVM on GNU/Linux and the definition of the characteristics of the virtual machine in terms of memory size, virtual CPUs, system BIOS, and storage space as well as network connection. The virtual machine mounts the iso image created in the previous command.</li>
+<li><a href="https://github.com/picodotdev/alis/blob/master/alis-cloud-init-ssh.sh">alis-cloud-init-ssh.sh</a> once the virtual machine is started and knowing the IP address assigned to it, this command makes the SSH connection using the private key SSH to perform authentication. And perform the alis script download. In addition, the command with an option allows you to start the installation by applying the changes with the desired configuration to the configuration file and start the installation.</li>
+</ul>
+<p>The commands to execute are the following:</p>
+
+
+
+
+
+
+
+
+
+<div class="code">
+    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span><span class="lnt">3&#10;</span><span class="lnt">4&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ ./alis-cloud-init-iso.sh&#10;</span></span><span class="line"><span class="cl">$ ./alis-cloud-kvm-virt-installsh&#10;</span></span><span class="line"><span class="cl">$ ./alis-cloud-init-ssh.sh -i IP&#10;</span></span><span class="line"><span class="cl">$ ./alis-cloud-init-ssh.sh -i IP -c <span class="o">[</span>configuration to apply<span class="o">]</span></span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
+    <div class="highlight-meta">
+        <span>alis-cloud.sh</span>
+    </div>
+</div>
+<div class="media">
+<figure>
+<p>
+<a href="/alis/user-guide/images/alis-cloud-init-ssh_hu46f547f9105cfc080fec03803bca6183_3711724_2560x1440_fit_box_3.png" data-gallery="data-gallery" title="Installing Arch Linux on a remote virtual machine via SSH install and cloud-init"><img src="/alis/user-guide/images/alis-cloud-init-ssh_hu46f547f9105cfc080fec03803bca6183_3711724_750x550_fit_box_3.png" width="750" height="422" alt="Installing Arch Linux on a remote virtual machine via SSH install and cloud-init" title="Installing Arch Linux on a remote virtual machine via SSH install and cloud-init" class="" loading="lazy"></a></p>
+<figcaption>Installing Arch Linux on a remote virtual machine via SSH install and cloud-init</figcaption>
+</figure>
+</div>
+
+<section class="mt-4">
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <div class="adsense adsense-bilboard">
+  <ins class="adsbygoogle"
+    style="display:block"
+    data-ad-client="ca-pub-3533636310991304"
+    data-ad-slot="8430508513"
+    data-ad-format="auto"
+    data-full-width-responsive="true"></ins>
+</div>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="sticky-top mt-3 mb-3 sidebar-sticky">
+              <div class="adsense adsense-vertical">
+  <ins class="adsbygoogle"
+    style="display:block"
+    data-ad-client="ca-pub-3533636310991304"
+    data-ad-slot="3667532428"
+    data-ad-format="auto"
+    data-full-width-responsive="true"></ins>
+</div>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+            </div>
+          </div>
+        </div>
+      </article>
+      <footer>
+        <div class="row">
+          <div class="col-12">
+            <div class="container pt-3">
+              <div class="row justify-content-around">
+                <div class="col-lg-4 col-xs-12">
+                  <p class="fw-bold">alis</p>
+                  <p>A simple powerful Bash based script for an unattended, easy and fast way to install Arch Linux. Developed from many Arch Linux Wiki pages that fully automates the installation of a Arch Linux system after booting from the original Arch Linux installation media.</p>
+                </div>
+                <div class="col-lg-2 col-xs-12 offset-1 text-center">
+                  <ul class="list-unstyled">
+                    
+                    <li><a href="/alis/">Home</a></li>
+                    
+                    <li><a href="/alis/#what-is">What is alis?</a></li>
+                    
+                    <li><a href="/alis/overview/">Overview</a></li>
+                    
+                    <li><a href="/alis/user-guide/">User Guide</a></li>
+                    
+                    <li><a href="https://github.com/picodotdev/alis/">Source code</a></li>
+                    
+                  </ul>
+                </div>
+                <div class="col-lg-4 col-xs-12 offset-1 text-center">
+                  <a href="https://www.archlinux.org/"><img src="/alis/images/logotypes/archlinux-logo-light.svg" width="200" alt="Arch Linux"></a>
+                  <a href="https://www.gnu.org/software/bash/"><img src="/alis/images/logotypes/bash.svg" width="150" alt="Bash"></a>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-12">
+                  <p>
+                    <a href="https://github.com/picodotdev/alis">alis</a> by <a href="https://twitter.com/picodotdev">pico.dev</a> and other contributors is licensed under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public License v3.0</a>.<br>
+                    Site powered by <a href="https://gohugo.io/">Hugo</a>, <a href="https://github.com">GitHub</a>, <a href="https://pages.github.com/">GitHub Pages</a> and <a href="https://getbootstrap.com/">Bootstrap</a>.<br>
+                    Arch Linux Install Script is based on Arch Linux but is NOT approved, sponsored, or affiliated with Arch Linux or its related projects.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>

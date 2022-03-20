@@ -151,7 +151,7 @@ The configuration file can be edited with a console based text editor such as _v
 
 {{< code file="vim-alis-conf.sh" language="bash" options="" >}}
 
-For package installation, which is used during system installation for the installation of selected packages, but can also be used after the base installation is done and the desktop environment is started. Installing Arch Linux packages is allowed, from the [AUR repository] and installing an AUR utility, Flatpak packages and installing the [SDKMAN][sdkman] utility is installing packages offered in this SDK manager mostly from the Java platform.
+For package installation, which is used during system installation for the installation of selected packages, but can also be used after the base installation is done and the desktop environment is started. Installing Arch Linux packages is allowed, from the [AUR repository][archlinux-aur] and installing an AUR utility, Flatpak packages and installing the [SDKMAN][sdkman] utility is installing packages offered in this SDK manager mostly from the Java platform.
 
 {{< code file="vim-alis-packages-conf.sh" language="bash" options="" >}}
 {{< code file="alis-packages.sh" language="bash" options="" >}}
@@ -303,6 +303,7 @@ The commands to execute are the following:
 </section>
 
 [archlinux-download]: https://archlinux.org/download/
+[archlinux-aur]: https://aur.archlinux.org/
 [freefilesync]: https://freefilesync.org/
 [balena-etcher]: https://www.balena.io/etcher/
 [Intel]: https://www.intel.es

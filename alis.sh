@@ -94,8 +94,9 @@ function check_variables() {
     check_variables_boolean "LOG_FILE" "$LOG_FILE"
     check_variables_value "DEVICE" "$DEVICE"
     if [ "$DEVICE" == "auto" ]; then
+        local DEVICE_BOOT=$(eval $(lsblk -oMOUNTPOINT,PKNAME -P -M | grep 'MOUNTPOINT="/boot"'); echo "/dev/$PKNAME")
         local DEVICE_DETECTED="false"
-        if [ -e "/dev/sda" ]; then
+        if [ -e "/dev/sda" -a "$DEVICE_BOOT" != "/dev/sda" ]; then
             if [ "$DEVICE_DETECTED" == "true" ]; then
                 echo "Auto device is ambigous, detected $DEVICE and /dev/sda."
                 exit 1
@@ -104,7 +105,7 @@ function check_variables() {
             DEVICE_SDA="true"
             DEVICE="/dev/sda"
         fi
-        if [ -e "/dev/nvme0n1" ]; then
+        if [ -e "/dev/nvme0n1" -a "$DEVICE_BOOT" != "/dev/nvme0n1" ]; then
             if [ "$DEVICE_DETECTED" == "true" ]; then
                 echo "Auto device is ambigous, detected $DEVICE and /dev/nvme0n1."
                 exit 1
@@ -113,7 +114,7 @@ function check_variables() {
             DEVICE_NVME="true"
             DEVICE="/dev/nvme0n1"
         fi
-        if [ -e "/dev/vda" ]; then
+        if [ -e "/dev/vda" -a "$DEVICE_BOOT" != "/dev/vda" ]; then
             if [ "$DEVICE_DETECTED" == "true" ]; then
                 echo "Auto device is ambigous, detected $DEVICE and /dev/vda."
                 exit 1
@@ -122,7 +123,7 @@ function check_variables() {
             DEVICE_VDA="true"
             DEVICE="/dev/vda"
         fi
-        if [ -e "/dev/mmcblk0" ]; then
+        if [ -e "/dev/mmcblk0" -a "$DEVICE_BOOT" != "/dev/mmcblk0" ]; then
             if [ "$DEVICE_DETECTED" == "true" ]; then
                 echo "Auto device is ambigous, detected $DEVICE and /dev/mmcblk0."
                 exit 1

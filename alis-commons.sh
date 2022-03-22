@@ -353,9 +353,9 @@ function partition_setup() {
     fi
 
     if [ "$DEVICE_NVME" == "true" ]; then
-        PARTITION_BOOT="$(partition_device "${DEVICE}" "p${PARTITION_BOOT_NUMBER}")"
-        PARTITION_ROOT="$(partition_device "${DEVICE}" "p${PARTITION_ROOT_NUMBER}")"
-        DEVICE_ROOT="$(partition_device "${DEVICE}" "p${PARTITION_ROOT_NUMBER}")"
+        PARTITION_BOOT="$(partition_device "${DEVICE}" "${PARTITION_BOOT_NUMBER}")"
+        PARTITION_ROOT="$(partition_device "${DEVICE}" "${PARTITION_ROOT_NUMBER}")"
+        DEVICE_ROOT="$(partition_device "${DEVICE}" "${PARTITION_ROOT_NUMBER}")"
     fi
 
     if [ "$DEVICE_VDA" == "true" ]; then
@@ -365,9 +365,9 @@ function partition_setup() {
     fi
 
     if [ "$DEVICE_MMC" == "true" ]; then
-        PARTITION_BOOT="$(partition_device "${DEVICE}" "p${PARTITION_BOOT_NUMBER}")"
-        PARTITION_ROOT="$(partition_device "${DEVICE}" "p${PARTITION_ROOT_NUMBER}")"
-        DEVICE_ROOT="$(partition_device "${DEVICE}" "p${PARTITION_ROOT_NUMBER}")"
+        PARTITION_BOOT="$(partition_device "${DEVICE}" "${PARTITION_BOOT_NUMBER}")"
+        PARTITION_ROOT="$(partition_device "${DEVICE}" "${PARTITION_ROOT_NUMBER}")"
+        DEVICE_ROOT="$(partition_device "${DEVICE}" "${PARTITION_ROOT_NUMBER}")"
     fi
 }
 

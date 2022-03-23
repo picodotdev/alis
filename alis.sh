@@ -94,7 +94,10 @@ function check_variables() {
     check_variables_boolean "LOG_FILE" "$LOG_FILE"
     check_variables_value "DEVICE" "$DEVICE"
     if [ "$DEVICE" == "auto" ]; then
-        local DEVICE_BOOT=$(eval $(lsblk -oMOUNTPOINT,PKNAME -P -M | grep 'MOUNTPOINT="/boot"'); echo "/dev/$PKNAME")
+        local DEVICE_BOOT=$(PKNAME=""; eval $(lsblk -oMOUNTPOINT,PKNAME -P -M | grep 'MOUNTPOINT="/boot"'); echo "$PKNAME")
+        if [ -n "$DEVICE_BOOT" ]; then
+            local DEVICE_BOOT="/dev/$DEVICE_BOOT"
+        fi
         local DEVICE_DETECTED="false"
         if [ -e "/dev/sda" -a "$DEVICE_BOOT" != "/dev/sda" ]; then
             if [ "$DEVICE_DETECTED" == "true" ]; then

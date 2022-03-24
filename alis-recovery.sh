@@ -82,7 +82,7 @@ function check_variables() {
     check_variables_boolean "LOG_FILE" "$LOG_FILE"
     check_variables_value "DEVICE" "$DEVICE"
     if [ "$DEVICE" == "auto" ]; then
-        local DEVICE_BOOT=$(PKNAME=""; eval $(lsblk -oMOUNTPOINT,PKNAME -P -M | grep 'MOUNTPOINT="/boot"'); echo "$PKNAME")
+        local DEVICE_BOOT=$(PKNAME=""; eval $(lsblk -oMOUNTPOINT,PKNAME -P -M | grep 'MOUNTPOINT="/run/archiso/bootmnt"'); echo "$PKNAME")
         if [ -n "$DEVICE_BOOT" ]; then
             local DEVICE_BOOT="/dev/$DEVICE_BOOT"
         fi

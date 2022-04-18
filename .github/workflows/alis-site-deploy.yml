@@ -7,7 +7,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      HUGO_VERSION: 0.94.2
+      HUGO_VERSION: 0.97.3
     steps:
       - uses: actions/checkout@v2
         with:

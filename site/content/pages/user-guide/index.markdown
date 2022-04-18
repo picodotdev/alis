@@ -175,7 +175,7 @@ Once the installation is finished and after the system has restarted, it starts 
 {{< markdown >}}
 {{< image
     gallery="true"
-    image1="image:arch-linux-installation.png" optionsthumb1="750x550" title1="Arch Linux terminal login"
+    image1="image:arch-linux-terminal-login.png" optionsthumb1="750x550" title1="Arch Linux terminal login"
     caption="Arch Linux terminal login" >}}
 {{< image
     gallery="true"

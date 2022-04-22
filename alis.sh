@@ -939,6 +939,17 @@ function user_add_groups() {
     fi
 }
 
+function user_add_groups_lightdm() {
+    arch-chroot /mnt groupadd -r "autologin"
+    user_add_groups "$USER_NAME" "autologin"
+
+    for U in ${ADDITIONAL_USERS[@]}; do
+        IFS='=' local S=(${U})
+        local USER=${S[0]}
+        user_add_groups "$USER" "autologin"
+    done
+}
+
 
 function display_driver() {
     print_step "display_driver()"
@@ -1598,16 +1609,19 @@ function desktop_environment_kde() {
 function desktop_environment_xfce() {
     pacman_install "xfce4 xfce4-goodies lightdm lightdm-gtk-greeter xorg-server pavucontrol pulseaudio"
     arch-chroot /mnt systemctl enable lightdm.service
+    user_add_groups_lightdm
 }
 
 function desktop_environment_mate() {
     pacman_install "mate mate-extra lightdm lightdm-gtk-greeter xorg-server"
     arch-chroot /mnt systemctl enable lightdm.service
+    user_add_groups_lightdm
 }
 
 function desktop_environment_cinnamon() {
     pacman_install "cinnamon gnome-terminal lightdm lightdm-gtk-greeter xorg-server"
     arch-chroot /mnt systemctl enable lightdm.service
+    user_add_groups_lightdm
 }
 
 function desktop_environment_lxde() {
@@ -1618,17 +1632,20 @@ function desktop_environment_lxde() {
 function desktop_environment_i3_wm() {
     pacman_install "i3-wm i3blocks i3lock i3status dmenu rxvt-unicode lightdm lightdm-gtk-greeter xorg-server"
     arch-chroot /mnt systemctl enable lightdm.service
+    user_add_groups_lightdm
 }
 
 function desktop_environment_i3_gaps() {
     pacman_install "i3-gaps i3blocks i3lock i3status dmenu rxvt-unicode lightdm lightdm-gtk-greeter xorg-server"
     arch-chroot /mnt systemctl enable lightdm.service
+    user_add_groups_lightdm
 }
 
 function desktop_environment_deepin() {
     pacman_install "deepin deepin-extra deepin-kwin xorg xorg-server"
     arch-chroot /mnt sed -i 's/^#greeter-session=.*/greeter-session=lightdm-deepin-greeter/' /etc/lightdm/lightdm.conf
     arch-chroot /mnt systemctl enable lightdm.service
+    user_add_groups_lightdm
 }
 
 function desktop_environment_budgie() {
@@ -1639,31 +1656,37 @@ function desktop_environment_budgie() {
 function desktop_environment_bspwm() {
     pacman_install "bspwm lightdm lightdm-gtk-greeter"
     arch-chroot /mnt systemctl enable lightdm.service
+    user_add_groups_lightdm
 }
 
 function desktop_environment_awesome() {
     pacman_install "awesome vicious xterm lightdm lightdm-gtk-greeter xorg-server"
     arch-chroot /mnt systemctl enable lightdm.service
+    user_add_groups_lightdm
 }
 
 function desktop_environment_qtile() {
     pacman_install "qtile xterm lightdm lightdm-gtk-greeter xorg-server"
     arch-chroot /mnt systemctl enable lightdm.service
+    user_add_groups_lightdm
 }
 
 function desktop_environment_openbox() {
     pacman_install "openbox obconf xterm lightdm lightdm-gtk-greeter xorg-server"
     arch-chroot /mnt systemctl enable lightdm.service
+    user_add_groups_lightdm
 }
 
 function desktop_environment_leftwm() {
     aur_install "leftwm-git leftwm-theme-git dmenu xterm lightdm lightdm-gtk-greeter xorg-server"
     arch-chroot /mnt systemctl enable lightdm.service
+    user_add_groups_lightdm
 }
 
 function desktop_environment_dusk() {
     aur_install "dusk-git dmenu xterm lightdm lightdm-gtk-greeter xorg-server"
     arch-chroot /mnt systemctl enable lightdm.service
+    user_add_groups_lightdm
 }
 
 function packages() {

@@ -67,6 +67,7 @@ function sanitize_variables() {
     BOOTLOADER=$(sanitize_variable "$BOOTLOADER")
     CUSTOM_SHELL=$(sanitize_variable "$CUSTOM_SHELL")
     DESKTOP_ENVIRONMENT=$(sanitize_variable "$DESKTOP_ENVIRONMENT")
+    DISPLAY_MANAGER=$(sanitize_variable "$DISPLAY_MANAGER")
     SYSTEMD_UNITS=$(sanitize_variable "$SYSTEMD_UNITS")
 
     for I in "${BTRFS_SUBVOLUMES_MOUNTPOINTS[@]}"; do
@@ -192,6 +193,7 @@ function check_variables() {
     check_variables_list "BOOTLOADER" "$BOOTLOADER" "auto grub refind systemd" "true" "true"
     check_variables_list "CUSTOM_SHELL" "$CUSTOM_SHELL" "bash zsh dash fish" "true" "true"
     check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde i3-wm i3-gaps deepin budgie bspwm awesome qtile openbox leftwm dusk" "false" "true"
+    check_variables_list "DISPLAY_MANAGER" "$DISPLAY_MANAGER" "auto gdm sddm lightdm lxdm" "true" "true"
     check_variables_boolean "PACKAGES_MULTILIB" "$PACKAGES_MULTILIB"
     check_variables_boolean "PACKAGES_INSTALL" "$PACKAGES_INSTALL"
     check_variables_boolean "PROVISION" "$PROVISION"
@@ -1598,95 +1600,162 @@ function desktop_environment() {
 
 function desktop_environment_gnome() {
     pacman_install "gnome"
-    arch-chroot /mnt systemctl enable gdm.service
 }
 
 function desktop_environment_kde() {
     pacman_install "plasma-meta plasma-wayland-session kde-system-meta kde-utilities-meta kde-graphics-meta kde-multimedia-meta kde-network-meta"
-    arch-chroot /mnt systemctl enable sddm.service
 }
 
 function desktop_environment_xfce() {
-    pacman_install "xfce4 xfce4-goodies lightdm lightdm-gtk-greeter xorg-server pavucontrol pulseaudio"
-    arch-chroot /mnt systemctl enable lightdm.service
-    user_add_groups_lightdm
+    pacman_install "xfce4 xfce4-goodies xorg-server pavucontrol pulseaudio"
 }
 
 function desktop_environment_mate() {
-    pacman_install "mate mate-extra lightdm lightdm-gtk-greeter xorg-server"
-    arch-chroot /mnt systemctl enable lightdm.service
-    user_add_groups_lightdm
+    pacman_install "mate mate-extra xorg-server"
 }
 
 function desktop_environment_cinnamon() {
-    pacman_install "cinnamon gnome-terminal lightdm lightdm-gtk-greeter xorg-server"
-    arch-chroot /mnt systemctl enable lightdm.service
-    user_add_groups_lightdm
+    pacman_install "cinnamon gnome-terminal xorg-server"
 }
 
 function desktop_environment_lxde() {
-    pacman_install "lxde lxdm"
-    arch-chroot /mnt systemctl enable lxdm.service
+    pacman_install "lxde"
 }
 
 function desktop_environment_i3_wm() {
-    pacman_install "i3-wm i3blocks i3lock i3status dmenu rxvt-unicode lightdm lightdm-gtk-greeter xorg-server"
-    arch-chroot /mnt systemctl enable lightdm.service
-    user_add_groups_lightdm
+    pacman_install "i3-wm i3blocks i3lock i3status dmenu rxvt-unicode xorg-server"
 }
 
 function desktop_environment_i3_gaps() {
-    pacman_install "i3-gaps i3blocks i3lock i3status dmenu rxvt-unicode lightdm lightdm-gtk-greeter xorg-server"
-    arch-chroot /mnt systemctl enable lightdm.service
-    user_add_groups_lightdm
+    pacman_install "i3-gaps i3blocks i3lock i3status dmenu rxvt-unicode xorg-server"
 }
 
 function desktop_environment_deepin() {
     pacman_install "deepin deepin-extra deepin-kwin xorg xorg-server"
-    arch-chroot /mnt sed -i 's/^#greeter-session=.*/greeter-session=lightdm-deepin-greeter/' /etc/lightdm/lightdm.conf
-    arch-chroot /mnt systemctl enable lightdm.service
-    user_add_groups_lightdm
 }
 
 function desktop_environment_budgie() {
     pacman_install "budgie-desktop budgie-desktop-view budgie-screensaver gnome-control-center network-manager-applet gnome"
-    arch-chroot /mnt systemctl enable gdm.service
 }
 
 function desktop_environment_bspwm() {
-    pacman_install "bspwm lightdm lightdm-gtk-greeter"
-    arch-chroot /mnt systemctl enable lightdm.service
-    user_add_groups_lightdm
+    pacman_install "bspwm"
 }
 
 function desktop_environment_awesome() {
-    pacman_install "awesome vicious xterm lightdm lightdm-gtk-greeter xorg-server"
-    arch-chroot /mnt systemctl enable lightdm.service
-    user_add_groups_lightdm
+    pacman_install "awesome vicious xterm xorg-server"
 }
 
 function desktop_environment_qtile() {
-    pacman_install "qtile xterm lightdm lightdm-gtk-greeter xorg-server"
-    arch-chroot /mnt systemctl enable lightdm.service
-    user_add_groups_lightdm
+    pacman_install "qtile xterm xorg-server"
 }
 
 function desktop_environment_openbox() {
-    pacman_install "openbox obconf xterm lightdm lightdm-gtk-greeter xorg-server"
-    arch-chroot /mnt systemctl enable lightdm.service
-    user_add_groups_lightdm
+    pacman_install "openbox obconf xterm xorg-server"
 }
 
 function desktop_environment_leftwm() {
-    aur_install "leftwm-git leftwm-theme-git dmenu xterm lightdm lightdm-gtk-greeter xorg-server"
-    arch-chroot /mnt systemctl enable lightdm.service
-    user_add_groups_lightdm
+    aur_install "leftwm-git leftwm-theme-git dmenu xterm xorg-server"
 }
 
 function desktop_environment_dusk() {
-    aur_install "dusk-git dmenu xterm lightdm lightdm-gtk-greeter xorg-server"
+    aur_install "dusk-git dmenu xterm xorg-server"
+}
+
+function display_manager() {
+    if [ "$DISPLAY_MANAGER" == "auto" ]; then
+        case "$DESKTOP_ENVIRONMENT" in
+            "gnome" )
+                display_manager_gdm
+                ;;
+            "kde" )
+                display_manager_sddm
+                ;;
+            "xfce" )
+                display_manager_lightdm
+                ;;
+            "mate" )
+                display_manager_lightdm
+                ;;
+            "cinnamon" )
+                display_manager_lightdm
+                ;;
+            "lxde" )
+                display_manager_lxdm
+                ;;
+            "i3-wm" )
+                display_manager_lightdm
+                ;;
+            "i3-gaps" )
+                display_manager_lightdm
+                ;;
+            "deepin" )
+                display_manager_lightdm
+                ;;
+            "budgie" )
+                display_manager_gdm
+                ;;
+            "bspwm" )
+                display_manager_lightdm
+                ;;
+            "awesome" )
+                display_manager_lightdm
+                ;;
+            "qtile" )
+                display_manager_lightdm
+                ;;
+            "openbox" )
+                display_manager_lightdm
+                ;;
+            "leftwm" )
+                display_manager_lightdm
+                ;;
+            "dusk" )
+                display_manager_lightdm
+                ;;
+        esac
+    else
+        case "$DISPLAY_MANAGER" in
+            "gdm" )
+                display_manager_gdm
+                ;;
+            "sddm" )
+                display_manager_sddm
+                ;;
+            "lightdm" )
+                display_manager_lightdm
+                ;;
+            "lxdm" )
+                display_manager_lxdm
+                ;;
+        esac
+    fi
+}
+
+function display_manager_gdm() {
+    pacman_install "gdm"
+    arch-chroot /mnt systemctl enable gdm.service
+}
+
+function display_manager_sddm() {
+    pacman_install "sddm"
+    arch-chroot /mnt systemctl enable sddm.service
+}
+
+function display_manager_lightdm() {
+    pacman_install "lightdm lightdm-gtk-greeter"
     arch-chroot /mnt systemctl enable lightdm.service
     user_add_groups_lightdm
+
+    if [ "$DESKTOP_ENVIRONMENT" == "deepin" ]; then
+        arch-chroot /mnt sed -i 's/^#greeter-session=.*/greeter-session=lightdm-deepin-greeter/' /etc/lightdm/lightdm.conf
+        arch-chroot /mnt systemctl enable lightdm.service
+    fi
+}
+
+function display_manager_lxdm() {
+    pacman_install "lxdm"
+    arch-chroot /mnt systemctl enable lxdm.service
 }
 
 function packages() {
@@ -1876,6 +1945,7 @@ function main() {
     fi
     if [ -n "$DESKTOP_ENVIRONMENT" ]; then
         execute_step "desktop_environment"
+        execute_step "display_manager"
     fi
     execute_step "packages"
     if [ "$PROVISION" == "true" ]; then

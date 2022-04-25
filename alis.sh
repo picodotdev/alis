@@ -1663,6 +1663,8 @@ function desktop_environment_dusk() {
 }
 
 function display_manager() {
+    print_step "display_manager()"
+
     if [ "$DISPLAY_MANAGER" == "auto" ]; then
         case "$DESKTOP_ENVIRONMENT" in
             "gnome" )

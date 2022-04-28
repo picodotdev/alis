@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -eu
 
+. alis-commons.conf
 # Arch Linux Install Script (alis) installs unattended, automated
 # and customized Arch Linux system.
 # Copyright (C) 2022 picodotdev

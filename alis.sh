@@ -317,7 +317,9 @@ function prepare() {
 
 function configure_reflector() {
     if [ "$REFLECTOR" == "false" ]; then
-        systemctl stop reflector.service
+        if systemctl is-active --quiet reflector.service; then
+            systemctl stop reflector.service
+        fi
     fi
 }
 

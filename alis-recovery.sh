@@ -192,9 +192,9 @@ function prepare() {
 }
 
 function prepare_partition() {
-    if [ -d /mnt/boot ]; then
-        umount /mnt/boot
-        umount /mnt
+    if [ -d ${MNT_DIR}/boot ]; then
+        umount ${MNT_DIR}/boot
+        umount ${MNT_DIR}
     fi
     if [ -e "/dev/mapper/$LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL" ]; then
         umount "/dev/mapper/$LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL"
@@ -249,7 +249,7 @@ function partition() {
 }
 
 function recovery() {
-    arch-chroot /mnt
+    arch-chroot ${MNT_DIR}
 }
 
 function end() {

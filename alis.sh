@@ -576,15 +576,15 @@ function partition() {
     # swap
     if [ -n "$SWAP_SIZE" ]; then
         if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
-            SWAPFILE="${BTRFS_SUBVOLUME_SWAP[2]}$SWAPFILE"
-            truncate -s 0 ${MNT_DIR}$SWAPFILE
-            chattr +C ${MNT_DIR}$SWAPFILE
-            btrfs property set ${MNT_DIR}$SWAPFILE compression none
+            SWAPFILE="${BTRFS_SUBVOLUME_SWAP[2]}${SWAPFILE}"
+            truncate -s 0 ${MNT_DIR}${SWAPFILE}
+            chattr +C ${MNT_DIR}${SWAPFILE}
+            btrfs property set ${MNT_DIR}${SWAPFILE} compression none
         fi
 
-        dd if=/dev/zero of=${MNT_DIR}$SWAPFILE bs=1M count=$SWAP_SIZE status=progress
-        chmod 600 ${MNT_DIR}$SWAPFILE
-        mkswap ${MNT_DIR}$SWAPFILE
+        dd if=/dev/zero of=${MNT_DIR}${SWAPFILE} bs=1M count=$SWAP_SIZE status=progress
+        chmod 600 ${MNT_DIR}${SWAPFILE}
+        mkswap ${MNT_DIR}${SWAPFILE}
     fi
 
     # set variables
@@ -673,7 +673,7 @@ function configuration() {
 
     if [ -n "$SWAP_SIZE" ]; then
         echo "# swap" >> ${MNT_DIR}/etc/fstab
-        echo "$SWAPFILE none swap defaults 0 0" >> ${MNT_DIR}/etc/fstab
+        echo "${SWAPFILE} none swap defaults 0 0" >> ${MNT_DIR}/etc/fstab
         echo "" >> ${MNT_DIR}/etc/fstab
     fi
 

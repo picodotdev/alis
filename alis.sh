@@ -1770,6 +1770,7 @@ function packages() {
         USER_PASSWORD="$USER_PASSWORD" \
         PACKAGES_PIPEWIRE="$PACKAGES_PIPEWIRE" \
         COMMOMS_LOADED="$COMMOMS_LOADED" \
+        MNT_DIR="$MNT_DIR" \
             ./alis-packages.sh
         if [ "$?" != "0" ]; then
             exit 1

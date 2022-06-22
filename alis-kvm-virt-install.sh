@@ -14,8 +14,8 @@ set -eu
 # Host and guest shared clipboard
 # Host and guest file sharing
 
-DISK_DIRECTORY="/run/media/picodotdev/BMOVENEGRO/KVM VMs"
-ISO_DIRECTORY="/run/media/picodotdev/BMOVENEGRO/Iso"
+DISK_DIRECTORY="/run/media/picodotdev/Samsung microSD/KVM VMs"
+ISO_DIRECTORY="/run/media/picodotdev/Samsung microSD/Iso"
 
 virt-install \
     --connect=qemu:///session \
@@ -25,7 +25,7 @@ virt-install \
     --ram=4096 \
     --boot uefi \
     --disk path="$DISK_DIRECTORY/archlinux-alis.qcow2,format=qcow2,size=40,sparse=yes" \
-    --cdrom "$ISO_DIRECTORY/archlinux-2022.03.01-x86_64.iso" \
+    --cdrom "$ISO_DIRECTORY/archlinux-2022.06.01-x86_64.iso" \
     --disk cloud-init/alis-cloud-init.iso,device=cdrom,bus=sata \
     --network bridge=virbr0 \
     --noautoconsole 

@@ -2,7 +2,7 @@
 set -eu
 
 sed -i "s/LOG=.*/LOG=\"false\"/" ./alis.conf
-sed -i "s#DEVICE=.*#DEVICE=\"/dev/sda\"#" ./alis.conf
+sed -i "s#DEVICE=.*#DEVICE=\"auto\"#" ./alis.conf
 sed -i "s/FILE_SYSTEM_TYPE=.*/FILE_SYSTEM_TYPE=\"ext4\"/" ./alis.conf
 sed -i "s/LVM=.*/LVM=\"false\"/" ./alis.conf
 sed -i "s/LUKS_PASSWORD=.*/LUKS_PASSWORD=\"\"/" ./alis.conf

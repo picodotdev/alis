@@ -579,7 +579,6 @@ function partition() {
     if [ -n "$SWAP_SIZE" ]; then
         if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
             SWAPFILE="${BTRFS_SUBVOLUME_SWAP[2]}${SWAPFILE}"
-            truncate -s 0 ${MNT_DIR}${SWAPFILE}
             chattr +C ${MNT_DIR}
         fi
 

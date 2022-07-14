@@ -17,6 +17,6 @@ hugo --destination="deploy"
 
 cd deploy/
 git add -A
-git commit -m "Site reset at `LC_ALL=en_US.utf8 date +%Y-%m-%dT%H:%M:%S%z`"
+git commit -m "Site reset at $(LC_ALL=en_US.utf8 date +%Y-%m-%dT%H:%M:%S%z)"
 git push --force origin gh-pages
 cd ..

@@ -1,3 +1,6 @@
+# shellcheck disable=SC2148,SC2215
+# SC2148: Tips depend on target shell and yours is unknown. Add a shebang.
+# SC2215: This flag is used as a command name. Bad line break or missing [ .. ]?
 $ ls -l
 total 1520
 -rwxr-xr-x 1 picodotdev picodotdev     506 mar 20 11:40 alis-asciinema.sh

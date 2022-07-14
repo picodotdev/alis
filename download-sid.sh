@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+#shellcheck disable=SC2034
+#SC2034: foo appears unused. Verify it or export it.
 set -eu
 
 # Arch Linux Install Script (alis) installs unattended, automated
@@ -29,14 +31,14 @@ done
 
 set -o xtrace
 if [ -n "$HASH" ]; then
-  curl -sL -o "alis-$HASH.zip" https://github.com/$GITHUB_USER/alis/archive/$HASH.zip
-  bsdtar -x -f "alis-$HASH.zip"
-  cp -R alis-$HASH/*.sh alis-$HASH/*.conf alis-$HASH/files/ alis-$HASH/configs/ ./
+  curl -sL -o "alis-${HASH}.zip" "https://github.com/${GITHUB_USER}/alis/archive/${HASH}.zip"
+  bsdtar -x -f "alis-${HASH}.zip"
+  cp -R "alis-${HASH}/*.sh" "alis-${HASH}/*.conf" "alis-${HASH}/files/" "alis-${HASH}/configs/" ./
 else
-  curl -sL -o "alis-$BRANCH.zip" https://github.com/$GITHUB_USER/alis/archive/refs/heads/$BRANCH.zip
-  bsdtar -x -f "alis-$BRANCH.zip"
-  cp -R alis-$BRANCH/*.sh alis-$BRANCH/*.conf alis-$BRANCH/files/ alis-$BRANCH/configs/ ./
+  curl -sL -o "alis-${BRANCH}.zip" "https://github.com/${GITHUB_USER}/alis/archive/refs/heads/${BRANCH}.zip"
+  bsdtar -x -f "alis-${BRANCH}.zip"
+  cp -R "alis-${BRANCH}/*.sh" "alis-${BRANCH}/*.conf" "alis-${BRANCH}/files/" "alis-${BRANCH}/configs/" ./
 fi
 chmod +x configs/*.sh
-chmod +x *.sh
+chmod +x ./*.sh
 

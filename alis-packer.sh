@@ -18,6 +18,10 @@ while getopts "b:c:" arg; do
     c)
       CONFIG_FILE_SH="$OPTARG"
       ;;
+    *) 
+      echo "Unknown option: $arg"
+      exit 1
+      ;;
   esac
 done
 

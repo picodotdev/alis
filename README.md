@@ -7,20 +7,20 @@ Arch Linux Install Script (or alis, also known as _the Arch Linux executable ins
 
 It is a simple Bash script developed from many Arch Linux Wiki pages that fully automates the installation of an [Arch Linux](https://archlinux.org/) system after booting from the original Arch Linux installation media. It contains the same commands that you would type and execute one by one interactively to complete the installation. The only user intervention needed is to edit a configuration file to choose the installation options and preferences from partitioning, to encryption, bootloader, file system, language and keyboard mapping, desktop environment, kernels, packages to install and graphic drivers. This automation makes the installation easy and fast, as fast as your internet connection allows.
 
-If some time later after a system update for any reason the system does not boot correctly a recovery script is also provided to enter in a recovery mode that allows to downgrade packages or execute any other commands to restore the system. Also, a log of the installation can be taken with <a href="https://asciinema.org/">asciinema</a>.
+If some time later after a system update, for any reason the system does not boot correctly, a recovery script is also provided to enter into a recovery mode that allows you to downgrade packages or execute any other commands to restore the system. Also, a log of the installation can be taken with <a href="https://asciinema.org/">asciinema</a>.
 
 A simple powerful Bash based script for an unattended, easy and fast way to install Arch Linux.
 Boot. Get. Configure. Install. Enjoy.
 
 **Warning! This script can delete all partitions of the persistent storage. It is recommended to test it first in a virtual machine like <a href="https://www.virtualbox.org/">VirtualBox</a>.**
 
-Currently these scripts are for me but maybe they are useful for you too.
+Currently these scripts are for me, but maybe they are useful for you too.
 
 Follow the [Arch Way](https://wiki.archlinux.org/title/Arch_Linux) of doing things and learn what this script does. This will allow you to know what is happening.
 
 Please, don't ask for support for this script in Arch Linux forums, first read the [Arch Linux wiki](https://wiki.archlinux.org), the [Installation Guide](https://wiki.archlinux.org/title/Installation_guide) and the [General Recommendations](https://wiki.archlinux.org/title/General_recommendations), later compare those commands with the commands of this script.
 
-For new features, improvements and bugs fill an issue in GitHub or make a pull request. You can test it in a virtual machine (strongly recommended) like [VirtualBox](https://www.virtualbox.org/) before run it in real hardware. If you test it in real hardware please send me an email to pico.dev@gmail.com with the machine description and tell me if something goes wrong or all works fine. [Pull request](https://github.com/picodotdev/alis/pulls) and [new feature request](https://github.com/picodotdev/alis/issues) are welcome!
+For new features, improvements and bugs, fill an issue in GitHub or make a pull request. You can test it in a virtual machine (strongly recommended) like [VirtualBox](https://www.virtualbox.org/) before you run it in real hardware. If you test it in real hardware, please send me an email to pico.dev@gmail.com with the machine description and tell me if something goes wrong or all works fine. [Pull request](https://github.com/picodotdev/alis/pulls) and [new feature request](https://github.com/picodotdev/alis/issues) are welcome!
 
 **Arch Linux Install Script (alis) is based on Arch Linux but is NOT approved, sponsored, or affiliated with Arch Linux or its related projects.**
 

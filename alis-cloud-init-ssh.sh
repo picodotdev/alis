@@ -9,7 +9,7 @@ VM_TYPE="virtualbox"
 VM_NAME="Arch Linux"
 CONFIG_FILE_SH=""
 
-while getopts "b:c:i:t:n:u:" arg; do
+while getopts "b:c:i:n:t:u:" arg; do
   case $arg in
     b)
       BRANCH="$OPTARG"
@@ -40,7 +40,7 @@ if [ "$BRANCH" == "sid" ]; then
   BRANCH_QUALIFIER="-sid"
 fi
 
-if [ "$IP_ADDRESS" == "" ] && [ "$VM_TYPE" != "" ]&& [ "$VM_NAME" != "" ]; then
+if [ "$IP_ADDRESS" == "" ] && [ "$VM_TYPE" != "" ] && [ "$VM_NAME" != "" ]; then
   IP_ADDRESS=$(VBoxManage guestproperty get "${VM_NAME}" "/VirtualBox/GuestInfo/Net/0/V4/IP" | cut -f2 -d " ")
 fi
 

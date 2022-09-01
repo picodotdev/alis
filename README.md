@@ -89,6 +89,7 @@ For new features, improvements and bugs, fill an issue in GitHub or make a pull 
 * **Installation log** with all commands executed and output in a file and/or **asciinema video**
 * Wait after installation for an **abortable reboot**
 * **Use your own configuration**
+* Bash scripts validated by [Shellcheck](https://www.shellcheck.net/)
 
 ## System installation
 

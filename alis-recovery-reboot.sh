@@ -13,7 +13,7 @@ function copy_logs() {
         SOURCE_FILE="$LOG_FILE"
         FILE="${MNT_DIR}/var/log/alis/$LOG_FILE"
 
-        mkdir -p ${MNT_DIR}/var/log/alis
+        mkdir -p "${MNT_DIR}/var/log/alis"
         cp "$SOURCE_FILE" "$FILE"
         chown root:root "$FILE"
         chmod 600 "$FILE"
@@ -22,7 +22,7 @@ function copy_logs() {
         SOURCE_FILE="$ASCIINEMA_FILE"
         FILE="${MNT_DIR}/var/log/alis/$ASCIINEMA_FILE"
 
-        mkdir -p ${MNT_DIR}/var/log/alis
+        mkdir -p "${MNT_DIR}/var/log/alis"
         cp "$SOURCE_FILE" "$FILE"
         chown root:root "$FILE"
         chmod 600 "$FILE"
@@ -30,8 +30,8 @@ function copy_logs() {
 }
 
 function do_reboot() {
-    umount -R ${MNT_DIR}/boot
-    umount -R ${MNT_DIR}
+    umount -R "${MNT_DIR}"/boot
+    umount -R "${MNT_DIR}"
     reboot
 }
 

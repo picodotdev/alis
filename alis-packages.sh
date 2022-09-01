@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC1090,SC2155,SC2034
+# SC1090: Can't follow non-constant source. Use a directive to specify location.
+# SC2155 Declare and assign separately to avoid masking return values
+# SC2034: foo appears unused. Verify it or export it.
 set -eu
 
 # Arch Linux Install Script Packages (alis-packages) installs software
@@ -134,10 +138,10 @@ function packages_pacman() {
         fi
 
         if [[ ("$PACKAGES_PIPEWIRE" == "true" || "$PACKAGES_PACMAN_INSTALL_PIPEWIRE" == "true") && -n "$PACKAGES_PACMAN_PIPEWIRE" ]]; then
-            if [ -n "$(echo "$PACKAGES_PACMAN_PIPEWIRE" | grep -F -w "pipewire-pulse")" ]; then
+            if echo "$PACKAGES_PACMAN_PIPEWIRE" | grep -F -qw "pipewire-pulse"; then
                 pacman_uninstall "pulseaudio pulseaudio-bluetooth"
             fi
-            if [ -n "$(echo "$PACKAGES_PACMAN_PIPEWIRE" | grep -F -w "pipewire-jack")" ]; then
+            if echo "$PACKAGES_PACMAN_PIPEWIRE" | grep -F -qw "pipewire-jack"; then
                 pacman_uninstall "jack2"
             fi
             pacman_install "$PACKAGES_PACMAN_PIPEWIRE"
@@ -181,7 +185,8 @@ function packages_aur() {
     print_step "packages_aur()"
 
     if [ "$PACKAGES_AUR_INSTALL" == "true" ]; then
-        IFS=' ' local COMMANDS=($PACKAGES_AUR_COMMAND)
+        local COMMANDS=()
+        IFS=' ' read -ra COMMANDS <<< "$PACKAGES_AUR_COMMAND"
         for COMMAND in "${COMMANDS[@]}"
         do
             aur_command_install "$USER_NAME" "$COMMAND"
@@ -220,13 +225,13 @@ function flatpak_install() {
     fi
 
     local ERROR="true"
+    local PACKAGES=()
     set +e
-    IFS=' ' local PACKAGES=($1)
+    IFS=' ' read -ra PACKAGES <<< "$1"
     for VARIABLE in {1..5}
     do
-        local COMMAND="flatpak install $OPTIONS -y flathub ${PACKAGES[@]}"
-        execute_flatpak "$COMMAND"
-        if [ $? == 0 ]; then
+        local COMMAND="flatpak install $OPTIONS -y flathub ${PACKAGES[*]}"
+        if ! execute_flatpak "$COMMAND"; then
             local ERROR="false"
             break
         else
@@ -241,16 +246,18 @@ function flatpak_install() {
 
 function sdkman_install() {
     local ERROR="true"
+    local PACKAGES=()
+    local PACKAGE=""
+    local I=()
     set +e
-    IFS=' ' local PACKAGES=($1)
+    IFS=' ' read -ra PACKAGES <<< "$1"
     for PACKAGE in "${PACKAGES[@]}"
     do
-        IFS=':' local PACKAGE=($PACKAGE)
+        IFS=':' read -ra I <<< "$PACKAGE"
         for VARIABLE in {1..5}
         do
-            local COMMAND="source /home/$USER_NAME/.sdkman/bin/sdkman-init.sh && sdk install ${PACKAGE[@]}"
-            execute_user "$USER_NAME" "$COMMAND"
-            if [ $? == 0 ]; then
+            local COMMAND="source /home/$USER_NAME/.sdkman/bin/sdkman-init.sh && sdk install ${I[*]}"
+            if ! execute_user "$USER_NAME" "$COMMAND"; then
                 local ERROR="false"
                 break
             else
@@ -293,5 +300,6 @@ function main() {
     execute_step "end"
 }
 
-main $@
+main 
 
+"$@"

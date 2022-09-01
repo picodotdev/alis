@@ -48,7 +48,7 @@ set -o xtrace
 ssh-keygen -R "$IP_ADDRESS"
 ssh-keyscan -H "$IP_ADDRESS" >> ~/.ssh/known_hosts
 
-ssh -t -i cloud-init/alis.key root@"$IP_ADDRESS" "bash -c \"curl -sL https://raw.githubusercontent.com/${GITHUB_USER}/alis/${BRANCH}/download${BRANCH_QUALIFIER}.sh | bash\""
+ssh -t -i cloud-init/alis.key root@"$IP_ADDRESS" "bash -c \"curl -sL https://raw.githubusercontent.com/${GITHUB_USER}/alis/${BRANCH}/download${BRANCH_QUALIFIER}.sh | bash -s -- -b ${BRANCH}\""
 
 if [ -z "$CONFIG_FILE_SH" ]; then
   ssh -t -i cloud-init/alis.key root@"$IP_ADDRESS"

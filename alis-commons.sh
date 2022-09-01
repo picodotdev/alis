@@ -181,8 +181,9 @@ function init_log_file() {
 
 function pacman_uninstall() {
     local ERROR="true"
+    local PACKAGES=()
     set +e
-    IFS=' ' local PACKAGES="$1"
+    IFS=' ' read -ra PACKAGES <<< "$1"
     local PACKAGES_UNINSTALL=()
     for PACKAGE in "${PACKAGES[@]}"
     do
@@ -207,8 +208,9 @@ function pacman_uninstall() {
 
 function pacman_install() {
     local ERROR="true"
+    local PACKAGES=()
     set +e
-    IFS=' ' local PACKAGES="$1"
+    IFS=' ' read -ra PACKAGES <<< "$1"
     for VARIABLE in {1..5}
     do
         local COMMAND="pacman -Syu --noconfirm --needed ${PACKAGES[*]}"
@@ -227,12 +229,13 @@ function pacman_install() {
 
 function aur_install() {
     local ERROR="true"
+    local PACKAGES=()
     set +e
     which "$AUR_COMMAND"
     if [ "$AUR_COMMAND" != "0" ]; then
         aur_command_install "$USER_NAME" "$AUR_PACKAGE"
     fi
-    IFS=' ' local PACKAGES="$1"
+    IFS=' ' read -ra PACKAGES <<< "$1"
     for VARIABLE in {1..5}
     do
         local COMMAND="$AUR_COMMAND -Syu --noconfirm --needed ${PACKAGES[*]}"
@@ -257,7 +260,8 @@ function aur_command_install() {
 }
 
 function systemd_units() {
-    IFS=' ' local UNITS="$SYSTEMD_UNITS"
+    local UNITS=()
+    IFS=' ' read -ra UNITS <<< "$SYSTEMD_UNITS"
     for U in "${UNITS[@]}"; do
         local ACTION=""
         local UNIT=${U}
@@ -281,7 +285,7 @@ function systemd_units() {
 function execute_flatpak() {
     local COMMAND="$1"
     if [ "$SYSTEM_INSTALLATION" == "true" ]; then
-        arch-chroot "$MNT_DIR" bash -c "$COMMAND"
+        arch-chroot "${MNT_DIR}" bash -c "$COMMAND"
     else
         bash -c "$COMMAND"
     fi
@@ -290,9 +294,9 @@ function execute_flatpak() {
 function execute_aur() {
     local COMMAND="$1"
     if [ "$SYSTEM_INSTALLATION" == "true" ]; then
-        arch-chroot "$MNT_DIR" sed -i 's/^%wheel ALL=(ALL:ALL) ALL$/%wheel ALL=(ALL:ALL) NOPASSWD: ALL/' /etc/sudoers
-        arch-chroot "$MNT_DIR" bash -c "echo -e \"$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n\" | su $USER_NAME -s /usr/bin/bash -c \"$COMMAND\""
-        arch-chroot "$MNT_DIR" sed -i 's/^%wheel ALL=(ALL:ALL) NOPASSWD: ALL$/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
+        arch-chroot "${MNT_DIR}" sed -i 's/^%wheel ALL=(ALL:ALL) ALL$/%wheel ALL=(ALL:ALL) NOPASSWD: ALL/' /etc/sudoers
+        arch-chroot "${MNT_DIR}" bash -c "echo -e \"$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\n\" | su $USER_NAME -s /usr/bin/bash -c \"$COMMAND\""
+        arch-chroot "${MNT_DIR}" sed -i 's/^%wheel ALL=(ALL:ALL) NOPASSWD: ALL$/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
     else
         bash -c "$COMMAND"
     fi
@@ -301,7 +305,7 @@ function execute_aur() {
 function execute_sudo() {
     local COMMAND="$1"
     if [ "$SYSTEM_INSTALLATION" == "true" ]; then
-        arch-chroot "$MNT_DIR" bash -c "$COMMAND"
+        arch-chroot "${MNT_DIR}" bash -c "$COMMAND"
     else
         sudo bash -c "$COMMAND"
     fi
@@ -311,15 +315,15 @@ function execute_user() {
     local USER_NAME="$1"
     local COMMAND="$2"
     if [ "$SYSTEM_INSTALLATION" == "true" ]; then
-        arch-chroot "$MNT_DIR" bash -c "su $USER_NAME -s /usr/bin/bash -c \"$COMMAND\""
+        arch-chroot "${MNT_DIR}" bash -c "su $USER_NAME -s /usr/bin/bash -c \"$COMMAND\""
     else
         bash -c "$COMMAND"
     fi
 }
 
 function do_reboot() {
-    umount -R "$MNT_DIR"/boot
-    umount -R "$MNT_DIR"
+    umount -R "${MNT_DIR}"/boot
+    umount -R "${MNT_DIR}"
     reboot
 }
 
@@ -414,11 +418,11 @@ function partition_options() {
 function partition_mount() {
     if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
         # mount subvolumes
-        mount -o "subvol=${BTRFS_SUBVOLUME_ROOT[1]},$PARTITION_OPTIONS,compress=zstd" "$DEVICE_ROOT" "$MNT_DIR"
-        mkdir -p "$MNT_DIR"/boot
-        mount -o "$PARTITION_OPTIONS_BOOT" "$PARTITION_BOOT" "$MNT_DIR"/boot
+        mount -o "subvol=${BTRFS_SUBVOLUME_ROOT[1]},$PARTITION_OPTIONS,compress=zstd" "$DEVICE_ROOT" "${MNT_DIR}"
+        mkdir -p "${MNT_DIR}"/boot
+        mount -o "$PARTITION_OPTIONS_BOOT" "$PARTITION_BOOT" "${MNT_DIR}"/boot
         for I in "${BTRFS_SUBVOLUMES_MOUNTPOINTS[@]}"; do
-            IFS=',' SUBVOLUME=("$I")
+            IFS=',' read -ra SUBVOLUME <<< "$I"
             if [ "${SUBVOLUME[0]}" == "root" ]; then
                 continue
             fi
@@ -426,33 +430,33 @@ function partition_mount() {
                 continue
             fi
             if [ "${SUBVOLUME[0]}" == "swap" ]; then
-                mkdir -p "$MNT_DIR${SUBVOLUME[2]}"
-                chmod 0755 "$MNT_DIR${SUBVOLUME[2]}"
+                mkdir -p "${MNT_DIR}${SUBVOLUME[2]}"
+                chmod 0755 "${MNT_DIR}${SUBVOLUME[2]}"
             else
-                mkdir -p "$MNT_DIR${SUBVOLUME[2]}"
+                mkdir -p "${MNT_DIR}${SUBVOLUME[2]}"
             fi
-            mount -o "subvol=${SUBVOLUME[1]},$PARTITION_OPTIONS,compress=zstd" "$DEVICE_ROOT" "$MNT_DIR${SUBVOLUME[2]}"
+            mount -o "subvol=${SUBVOLUME[1]},$PARTITION_OPTIONS,compress=zstd" "$DEVICE_ROOT" "${MNT_DIR}${SUBVOLUME[2]}"
         done
     else
         # root
-        mount -o "$PARTITION_OPTIONS" "$DEVICE_ROOT" "$MNT_DIR"
+        mount -o "$PARTITION_OPTIONS" "$DEVICE_ROOT" "${MNT_DIR}"
 
         # boot
-        mkdir -p "$MNT_DIR"/boot
-        mount -o "$PARTITION_OPTIONS_BOOT" "$PARTITION_BOOT" "$MNT_DIR"/boot
+        mkdir -p "${MNT_DIR}"/boot
+        mount -o "$PARTITION_OPTIONS_BOOT" "$PARTITION_BOOT" "${MNT_DIR}"/boot
 
         # mount points
         for I in "${PARTITION_MOUNT_POINTS[@]}"; do
             if [[ "$I" =~ ^!.* ]]; then
                 continue
             fi
-            IFS='=' PARTITION_MOUNT_POINT=("$I")
+            IFS='=' read -ra PARTITION_MOUNT_POINT <<< "$I"
             if [ "${PARTITION_MOUNT_POINT[1]}" == "/boot" ] || [ "${PARTITION_MOUNT_POINT[1]}" == "/" ]; then
                 continue
             fi
             local PARTITION_DEVICE="$(partition_device "${DEVICE}" "${PARTITION_MOUNT_POINT[0]}")"
-            mkdir -p "$MNT_DIR${PARTITION_MOUNT_POINT[1]}"
-            mount -o "$PARTITION_OPTIONS" "${PARTITION_DEVICE}" "$MNT_DIR${PARTITION_MOUNT_POINT[1]}"
+            mkdir -p "${MNT_DIR}${PARTITION_MOUNT_POINT[1]}"
+            mount -o "$PARTITION_OPTIONS" "${PARTITION_DEVICE}" "${MNT_DIR}${PARTITION_MOUNT_POINT[1]}"
         done
     fi
 }

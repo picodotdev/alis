@@ -185,7 +185,8 @@ function packages_aur() {
     print_step "packages_aur()"
 
     if [ "$PACKAGES_AUR_INSTALL" == "true" ]; then
-        IFS=' ' local COMMANDS="$PACKAGES_AUR_COMMAND"
+        local COMMANDS=()
+        IFS=' ' read -ra COMMANDS <<< "$PACKAGES_AUR_COMMAND"
         for COMMAND in "${COMMANDS[@]}"
         do
             aur_command_install "$USER_NAME" "$COMMAND"
@@ -224,8 +225,9 @@ function flatpak_install() {
     fi
 
     local ERROR="true"
+    local PACKAGES=()
     set +e
-    IFS=' ' local PACKAGES=("$1")
+    IFS=' ' read -ra PACKAGES <<< "$1"
     for VARIABLE in {1..5}
     do
         local COMMAND="flatpak install $OPTIONS -y flathub ${PACKAGES[*]}"
@@ -244,14 +246,17 @@ function flatpak_install() {
 
 function sdkman_install() {
     local ERROR="true"
+    local PACKAGES=()
+    local PACKAGE=""
+    local I=()
     set +e
-    IFS=' ' local PACKAGES=("$1")
+    IFS=' ' read -ra PACKAGES <<< "$1"
     for PACKAGE in "${PACKAGES[@]}"
     do
-        IFS=':' local PACKAGE=("$PACKAGE")
+        IFS=':' read -ra I <<< "$PACKAGE"
         for VARIABLE in {1..5}
         do
-            local COMMAND="source /home/$USER_NAME/.sdkman/bin/sdkman-init.sh && sdk install ${PACKAGE[*]}"
+            local COMMAND="source /home/$USER_NAME/.sdkman/bin/sdkman-init.sh && sdk install ${I[*]}"
             if ! execute_user "$USER_NAME" "$COMMAND"; then
                 local ERROR="false"
                 break

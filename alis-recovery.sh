@@ -63,7 +63,7 @@ function sanitize_variables() {
     PARTITION_CUSTOMMANUAL_ROOT=$(sanitize_variable "$PARTITION_CUSTOMMANUAL_ROOT")
 
     for I in "${BTRFS_SUBVOLUMES_MOUNTPOINTS[@]}"; do
-        IFS=',' SUBVOLUME="$I"
+        IFS=',' read -ra SUBVOLUME <<< "$I"
         if [ "${SUBVOLUME[0]}" == "root" ]; then
             BTRFS_SUBVOLUME_ROOT=("${SUBVOLUME[@]}")
         elif [ "${SUBVOLUME[0]}" == "swap" ]; then
@@ -72,7 +72,7 @@ function sanitize_variables() {
     done
 
     for I in "${PARTITION_MOUNT_POINTS[@]}"; do
-        IFS='=' PARTITION_MOUNT_POINT="$I"
+        IFS='=' read -ra PARTITION_MOUNT_POINT <<< "$I"
         if [ "${PARTITION_MOUNT_POINT[1]}" == "/boot" ]; then
             PARTITION_BOOT_NUMBER="${PARTITION_MOUNT_POINT[0]}"
         elif [ "${PARTITION_MOUNT_POINT[1]}" == "/" ]; then
@@ -139,7 +139,7 @@ function check_variables() {
         check_variables_size "BTRFS_SUBVOLUME_SWAP" ${#BTRFS_SUBVOLUME_SWAP[@]} 3
     fi
     for I in "${BTRFS_SUBVOLUMES_MOUNTPOINTS[@]}"; do
-        IFS=',' SUBVOLUME="$I"
+        IFS=',' read -ra SUBVOLUME <<< "$I"
         check_variables_size "SUBVOLUME" ${#SUBVOLUME[@]} 3
     done
     check_variables_list "PARTITION_MODE" "$PARTITION_MODE" "auto custom manual" "true" "true"
@@ -197,9 +197,9 @@ function prepare() {
 }
 
 function prepare_partition() {
-    if [ -d "$MNT_DIR"/boot ]; then
-        umount "$MNT_DIR"/boot
-        umount "$MNT_DIR"
+    if [ -d "${MNT_DIR}"/boot ]; then
+        umount "${MNT_DIR}"/boot
+        umount "${MNT_DIR}"
     fi
     if [ -e "/dev/mapper/$LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL" ]; then
         umount "/dev/mapper/$LVM_VOLUME_GROUP-$LVM_VOLUME_LOGICAL"
@@ -254,7 +254,7 @@ function partition() {
 }
 
 function recovery() {
-    arch-chroot "$MNT_DIR"
+    arch-chroot "${MNT_DIR}"
 }
 
 function end() {

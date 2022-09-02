@@ -473,6 +473,6 @@ function ask_password() {
         VARIABLE="$PASSWORD1"
     else
         echo "${PASSWORD_NAME} password don't match. Please, type again."
-        ask_password "${PASSWORD_NAME}"
+        ask_password "${PASSWORD_NAME}" "${PASSWORD_VARIABLE}"
     fi
 }

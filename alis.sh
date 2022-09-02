@@ -358,63 +358,19 @@ function prepare_partition() {
 
 function ask_passwords() {
     if [ "$LUKS_PASSWORD" == "ask" ]; then
-        local PASSWORD_TYPED="false"
-        while [ "$PASSWORD_TYPED" != "true" ]; do
-            read -r -sp 'Type LUKS password: ' LUKS_PASSWORD
-            echo ""
-            read -r -sp 'Retype LUKS password: ' LUKS_PASSWORD_RETYPE
-            echo ""
-            if [ "$LUKS_PASSWORD" == "$LUKS_PASSWORD_RETYPE" ]; then
-                local PASSWORD_TYPED="true"
-            else
-                echo "LUKS password don't match. Please, type again."
-            fi
-        done
+        ask_password "LUKS"
     fi
 
     if [ -n "$WIFI_INTERFACE" ] && [ "$WIFI_KEY" == "ask" ]; then
-        local PASSWORD_TYPED="false"
-        while [ "$PASSWORD_TYPED" != "true" ]; do
-            read -r -sp 'Type WIFI key: ' WIFI_KEY
-            echo ""
-            read -r -sp 'Retype WIFI key: ' WIFI_KEY_RETYPE
-            echo ""
-            if [ "$WIFI_KEY" == "$WIFI_KEY_RETYPE" ]; then
-                local PASSWORD_TYPED="true"
-            else
-                echo "WIFI key don't match. Please, type again."
-            fi
-        done
+        ask_password "WIFI"
     fi
 
     if [ "$ROOT_PASSWORD" == "ask" ]; then
-        local PASSWORD_TYPED="false"
-        while [ "$PASSWORD_TYPED" != "true" ]; do
-            read -r -sp 'Type root password: ' ROOT_PASSWORD
-            echo ""
-            read -r -sp 'Retype root password: ' ROOT_PASSWORD_RETYPE
-            echo ""
-            if [ "$ROOT_PASSWORD" == "$ROOT_PASSWORD_RETYPE" ]; then
-                local PASSWORD_TYPED="true"
-            else
-                echo "Root password don't match. Please, type again."
-            fi
-        done
+        ask_password "ROOT"
     fi
 
     if [ "$USER_PASSWORD" == "ask" ]; then
-        local PASSWORD_TYPED="false"
-        while [ "$PASSWORD_TYPED" != "true" ]; do
-            read -r -sp 'Type user password: ' USER_PASSWORD
-            echo ""
-            read -r -sp 'Retype user password: ' USER_PASSWORD_RETYPE
-            echo ""
-            if [ "$USER_PASSWORD" == "$USER_PASSWORD_RETYPE" ]; then
-                local PASSWORD_TYPED="true"
-            else
-                echo "User password don't match. Please, type again."
-            fi
-        done
+        ask_password "USER"
     fi
 
     for I in "${!ADDITIONAL_USERS[@]}"; do

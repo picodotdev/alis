@@ -460,3 +460,21 @@ function partition_mount() {
         done
     fi
 }
+
+function ask_password() {
+    read -r -sp "Type ${1,,} password: " PASSWORD1
+    echo ""
+    read -r -sp "Retype ${1,,} password: " PASSWORD2
+    echo ""
+    if [[ "$PASSWORD1" == "$PASSWORD2" ]]; then
+            if [[ "$1" != "WIFI" ]];then
+                declare -n REF="$1"_PASSWORD
+                REF="$PASSWORD1"
+            else
+                WIFI_KEY="$PASSWORD1"
+            fi
+    else
+        echo "${1,,} password don't match. Please, type again."
+        ask_password "$1"
+    fi
+}

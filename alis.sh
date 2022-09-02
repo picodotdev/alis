@@ -358,19 +358,19 @@ function prepare_partition() {
 
 function ask_passwords() {
     if [ "$LUKS_PASSWORD" == "ask" ]; then
-        ask_password "LUKS"
+        ask_password "LUKS" "LUKS_PASSWORD"
     fi
 
     if [ -n "$WIFI_INTERFACE" ] && [ "$WIFI_KEY" == "ask" ]; then
-        ask_password "WIFI"
+        ask_password "WIFI" "WIFI_KEY"
     fi
 
     if [ "$ROOT_PASSWORD" == "ask" ]; then
-        ask_password "ROOT"
+        ask_password "root" "ROOT_PASSWORD"
     fi
 
     if [ "$USER_PASSWORD" == "ask" ]; then
-        ask_password "USER"
+        ask_password "user" "USER_PASSWORD"
     fi
 
     for I in "${!ADDITIONAL_USERS[@]}"; do

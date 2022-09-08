@@ -197,7 +197,7 @@ function check_variables() {
         fi
     fi
     check_variables_value "HOOKS" "$HOOKS"
-    check_variables_list "BOOTLOADER" "$BOOTLOADER" "auto grub refind systemd" "true" "true"
+    check_variables_list "BOOTLOADER" "$BOOTLOADER" "auto grub refind systemd efistub" "true" "true"
     check_variables_list "CUSTOM_SHELL" "$CUSTOM_SHELL" "bash zsh dash fish" "true" "true"
     check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde i3-wm i3-gaps deepin budgie bspwm awesome qtile openbox leftwm dusk" "false" "true"
     check_variables_list "DISPLAY_MANAGER" "$DISPLAY_MANAGER" "auto gdm sddm lightdm lxdm" "true" "true"
@@ -597,13 +597,14 @@ function install() {
     fi
 
     pacstrap "${MNT_DIR}" base base-devel linux linux-firmware "${PACKAGES[@]}"
+    # Copy already modified pacman.conf
+    cp /etc/pacman.conf "${MNT_DIR}"/etc/pacman.conf
 
-    sed -i 's/#Color/Color/' "${MNT_DIR}"/etc/pacman.conf
-    if [ "$PACMAN_PARALLEL_DOWNLOADS" == "true" ]; then
-        sed -i 's/#ParallelDownloads/ParallelDownloads/' "${MNT_DIR}"/etc/pacman.conf
-    else
-        sed -i 's/#ParallelDownloads\(.*\)/#ParallelDownloads\1\nDisableDownloadTimeout/' "${MNT_DIR}"/etc/pacman.conf
-    fi
+    # if [ "$PACMAN_PARALLEL_DOWNLOADS" == "true" ]; then
+    #     sed -i 's/#ParallelDownloads/ParallelDownloads/' "${MNT_DIR}"/etc/pacman.conf
+    # else
+    #     sed -i 's/#ParallelDownloads\(.*\)/#ParallelDownloads\1\nDisableDownloadTimeout/' "${MNT_DIR}"/etc/pacman.conf
+    # fi
 
     if [ "$REFLECTOR" == "true" ]; then
         pacman_install "reflector"
@@ -634,7 +635,7 @@ function configuration() {
         {
             echo "# swap"
             echo "$SWAPFILE none swap defaults 0 0"
-            echo "" 
+            echo ""
         }>> "${MNT_DIR}"/etc/fstab
     fi
 
@@ -1158,6 +1159,13 @@ function bootloader() {
                 fi
                 CMDLINE_LINUX="rd.luks.name=$UUID_ROOT=$LUKS_DEVICE_NAME$BOOTLOADER_ALLOW_DISCARDS"
                 ;;
+            "efistub")
+                if [ "$DEVICE_TRIM" == "true" ]; then
+                    BOOTLOADER_ALLOW_DISCARDS=" rd.luks.options=allow-discards"
+                fi
+                CMDLINE_LINUX="cryptdevice=UUID=$UUID_ROOT:$LUKS_DEVICE_NAME$BOOTLOADER_ALLOW_DISCARDS"
+                ;;
+
         esac
     fi
     if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
@@ -1187,9 +1195,42 @@ function bootloader() {
         "systemd" )
             bootloader_systemd
             ;;
+        "efistub")
+            bootloader_efistub
+            ;;
     esac
 
     arch-chroot "${MNT_DIR}" systemctl set-default multi-user.target
+}
+
+function bootloader_efistub() {
+    pacman_install "efibootmgr"
+    list_kernels
+
+    for KERNEL in "${KERNELS[@]}"; do
+        case "$KERNEL" in
+        "linux-zen")
+            POSTFIX="$KERNEL"
+            LABEL=" (zen)"
+            ;;
+        "linux-lts")
+            POSTFIX="$KERNEL"
+            LABEL=" (lts)"
+            ;;
+        "linux-hardened")
+            POSTFIX="$KERNEL"
+            LABEL=" (hardened)"
+            ;;
+        *)
+            POSTFIX="linux"
+            LABEL=""
+            ;;
+        esac
+        check_microcode "EFISTUB"
+
+        arch-chroot "${MNT_DIR}" efibootmgr --disk "$DEVICE" --part 1 --create --label "Arch Linux Fallback$LABEL" --loader /vmlinuz-"$POSTFIX" --unicode "$CMDLINE_LINUX $CMDLINE_LINUX_ROOT rw $EFISTUB_MICROCODE initrd=\initramfs-$POSTFIX-fallback.img" --verbose
+        arch-chroot "${MNT_DIR}" efibootmgr --disk "$DEVICE"--part 1 --create --label "Arch Linux$LABEL" --loader /vmlinuz-"$POSTFIX" --unicode "$CMDLINE_LINUX $CMDLINE_LINUX_ROOT rw $EFISTUB_MICROCODE initrd=\initramfs-$POSTFIX.img" --verbose
+    done
 }
 
 function bootloader_grub() {
@@ -1231,86 +1272,25 @@ function bootloader_refind() {
 
     local REFIND_MICROCODE=""
 
-    if [ "$VIRTUALBOX" != "true" ] && [ "$VMWARE" != "true" ]; then
-        if [ "$CPU_VENDOR" == "intel" ]; then
-            local REFIND_MICROCODE="initrd=/intel-ucode.img"
-        fi
-        if [ "$CPU_VENDOR" == "amd" ]; then
-            local REFIND_MICROCODE="initrd=/amd-ucode.img"
-        fi
-    fi
+    check_microcode "REFIND"
+    list_kernels
 
-    cat <<EOT >> "${MNT_DIR}${ESP_DIRECTORY}/EFI/refind/refind.conf"
-# alis
-menuentry "Arch Linux" {
-    volume   $PARTUUID_BOOT
-    loader   /vmlinuz-linux
-    initrd   /initramfs-linux.img
-    icon     /EFI/refind/icons/os_arch.png
-    options  "$REFIND_MICROCODE $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX"
-    submenuentry "Boot using fallback initramfs"
-        initrd /initramfs-linux-fallback.img"
-    }
-    submenuentry "Boot to terminal"
-        add_options "systemd.unit=multi-user.target"
-    }
-}
-
-EOT
-    if [[ $KERNELS =~ .*linux-lts.* ]]; then
-        cat <<EOT >> "${MNT_DIR}${ESP_DIRECTORY}/EFI/refind/refind.conf"
-menuentry "Arch Linux (lts)" {
-    volume   $PARTUUID_BOOT
-    loader   /vmlinuz-linux-lts
-    initrd   /initramfs-linux-lts.img
-    icon     /EFI/refind/icons/os_arch.png
-    options  "$REFIND_MICROCODE $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX"
-    submenuentry "Boot using fallback initramfs" {
-        initrd /initramfs-linux-lts-fallback.img
-    }
-    submenuentry "Boot to terminal" {
-        add_options "systemd.unit=multi-user.target"
-    }
-}
-
-EOT
-    fi
-    if [[ $KERNELS =~ .*linux-hardened.* ]]; then
-        cat <<EOT >> "${MNT_DIR}${ESP_DIRECTORY}/EFI/refind/refind.conf"
-menuentry "Arch Linux (hardened)" {
-    volume   $PARTUUID_BOOT
-    loader   /vmlinuz-linux-hardened
-    initrd   /initramfs-linux-hardened.img
-    icon     /EFI/refind/icons/os_arch.png
-    options  "$REFIND_MICROCODE $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX"
-    submenuentry "Boot using fallback initramfs" {
-        initrd /initramfs-linux-lts-fallback.img
-    }
-    submenuentry "Boot to terminal" {
-        add_options "systemd.unit=multi-user.target"
-    }
-}
-
-EOT
-    fi
-    if [[ $KERNELS =~ .*linux-zen.* ]]; then
-        cat <<EOT >> "${MNT_DIR}${ESP_DIRECTORY}/EFI/refind/refind.conf"
-menuentry "Arch Linux (zen)" {
-    volume   $PARTUUID_BOOT
-    loader   /vmlinuz-linux-zen
-    initrd   /initramfs-linux-zen.img
-    icon     /EFI/refind/icons/os_arch.png
-    options  "$REFIND_MICROCODE $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX"
-    submenuentry "Boot using fallback initramfs" {
-        initrd /initramfs-linux-lts-fallback.img
-    }
-    submenuentry "Boot to terminal" {
-        add_options "systemd.unit=multi-user.target"
-    }
-}
-
-EOT
-    fi
+    for KERNEL in "${KERNELS[@]}"; do
+        case $KERNEL in
+        "linux-zen")
+            write_refind "$KERNEL"
+            ;;
+        "linux-lts")
+            write_refind "$KERNEL"
+            ;;
+        "linux-hardened")
+            write_refind "$KERNEL"
+            ;;
+        *)
+            write_refind "linux"
+            ;;
+        esac
+    done
 
     if [ "$VIRTUALBOX" == "true" ]; then
         echo -ne "\EFI\refind\refind_x64.efi" > "${MNT_DIR}${ESP_DIRECTORY}/startup.nsh"
@@ -1346,119 +1326,25 @@ Description = Updating systemd-boot...
 When = PostTransaction
 Exec = /usr/bin/systemctl restart systemd-boot-update.service
 EOT
+    check_microcode "SYSTEMD"
+    list_kernels
 
-    local SYSTEMD_MICROCODE=""
-
-    if [ "$VIRTUALBOX" != "true" ] && [ "$VMWARE" != "true" ]; then
-        if [ "$CPU_VENDOR" == "intel" ]; then
-            local SYSTEMD_MICROCODE="/intel-ucode.img"
-        fi
-        if [ "$CPU_VENDOR" == "amd" ]; then
-            local SYSTEMD_MICROCODE="/amd-ucode.img"
-        fi
-    fi
-
-    echo "title Arch Linux" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux.conf"
-    echo "efi /vmlinuz-linux" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux.conf"
-    if [ -n "$SYSTEMD_MICROCODE" ]; then
-        echo "initrd $SYSTEMD_MICROCODE" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux.conf"
-    fi
-    echo "initrd /initramfs-linux.img" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux.conf"
-    echo "options initrd=initramfs-linux.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux.conf"
-
-    echo "title Arch Linux (terminal)" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-terminal.conf"
-    echo "efi /vmlinuz-linux" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-terminal.conf"
-    if [ -n "$SYSTEMD_MICROCODE" ]; then
-        echo "initrd $SYSTEMD_MICROCODE" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-terminal.conf"
-    fi
-    echo "initrd /initramfs-linux.img" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-terminal.conf"
-    echo "options initrd=initramfs-linux.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX systemd.unit=multi-user.target" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-terminal.conf"
-
-    echo "title Arch Linux (fallback)" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-fallback.conf"
-    echo "efi /vmlinuz-linux" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-fallback.conf"
-    if [ -n "$SYSTEMD_MICROCODE" ]; then
-        echo "initrd $SYSTEMD_MICROCODE" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-fallback.conf"
-    fi
-    echo "initrd /initramfs-linux-fallback.img" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-fallback.conf"
-    echo "options initrd=initramfs-linux-fallback.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-fallback.conf"
-
-    if [[ $KERNELS =~ .*linux-lts.* ]]; then
-        echo "title Arch Linux (lts)" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-lts.conf"
-        echo "efi /vmlinuz-linux-lts" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-lts.conf"
-        if [ -n "$SYSTEMD_MICROCODE" ]; then
-            echo "initrd $SYSTEMD_MICROCODE" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-lts.conf"
-        fi
-        echo "initrd /initramfs-linux-lts.img" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-lts.conf"
-        echo "options initrd=initramfs-linux-lts.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-lts.conf"
-
-        echo "title Arch Linux (lts, terminal)" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-lts-terminal.conf"
-        echo "efi /vmlinuz-linux-lts" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-lts-terminal.conf"
-        if [ -n "$SYSTEMD_MICROCODE" ]; then
-            echo "initrd $SYSTEMD_MICROCODE" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-lts-terminal.conf"
-        fi
-        echo "initrd /initramfs-linux-lts.img" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-lts-terminal.conf"
-        echo "options initrd=initramfs-linux-lts.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX systemd.unit=multi-user.target" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-lts-terminal.conf"
-
-        echo "title Arch Linux (lts-fallback)" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-lts-fallback.conf"
-        echo "efi /vmlinuz-linux-lts" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-lts-fallback.conf"
-        if [ -n "$SYSTEMD_MICROCODE" ]; then
-            echo "initrd $SYSTEMD_MICROCODE" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-lts-fallback.conf"
-        fi
-        echo "initrd /initramfs-linux-lts-fallback.img" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-lts-fallback.conf"
-        echo "options initrd=initramfs-linux-lts-fallback.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-lts-fallback.conf"
-    fi
-
-    if [[ $KERNELS =~ .*linux-hardened.* ]]; then
-        echo "title Arch Linux (hardened)" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-hardened.conf"
-        echo "efi /vmlinuz-linux-hardened" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-hardened.conf"
-        if [ -n "$SYSTEMD_MICROCODE" ]; then
-            echo "initrd $SYSTEMD_MICROCODE" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-hardened.conf"
-        fi
-        echo "initrd /initramfs-linux-hardened.img" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-hardened.conf"
-        echo "options initrd=initramfs-linux-hardened.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-hardened.conf"
-
-        echo "title Arch Linux (hardened, terminal)" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-hardened-terminal.conf"
-        echo "efi /vmlinuz-linux-hardened" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-hardened-terminal.conf"
-        if [ -n "$SYSTEMD_MICROCODE" ]; then
-            echo "initrd $SYSTEMD_MICROCODE" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-hardened-terminal.conf"
-        fi
-        echo "initrd /initramfs-linux-hardened.img" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-hardened-terminal.conf"
-        echo "options initrd=initramfs-linux-hardened.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX systemd.unit=multi-user.target" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-hardened-terminal.conf"
-
-        echo "title Arch Linux (hardened-fallback)" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-hardened-fallback.conf"
-        echo "efi /vmlinuz-linux-hardened" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-hardened-fallback.conf"
-        if [ -n "$SYSTEMD_MICROCODE" ]; then
-            echo "initrd $SYSTEMD_MICROCODE" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-hardened-fallback.conf"
-        fi
-        echo "initrd /initramfs-linux-hardened-fallback.img" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-hardened-fallback.conf"
-        echo "options initrd=initramfs-linux-hardened-fallback.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-hardened-fallback.conf"
-    fi
-
-    if [[ $KERNELS =~ .*linux-zen.* ]]; then
-        echo "title Arch Linux (zen)" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-zen.conf"
-        echo "efi /vmlinuz-linux-zen" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-zen.conf"
-        if [ -n "$SYSTEMD_MICROCODE" ]; then
-            echo "initrd $SYSTEMD_MICROCODE" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-zen.conf"
-        fi
-        echo "initrd /initramfs-linux-zen.img" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-zen.conf"
-        echo "options initrd=initramfs-linux-zen.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-zen.conf"
-
-        echo "title Arch Linux (zen, terminal)" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-zen-terminal.conf"
-        echo "efi /vmlinuz-linux-zen" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-zen-terminal.conf"
-        if [ -n "$SYSTEMD_MICROCODE" ]; then
-            echo "initrd $SYSTEMD_MICROCODE" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-zen-terminal.conf"
-        fi
-        echo "initrd /initramfs-linux-zen.img" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-zen-terminal.conf"
-        echo "options initrd=initramfs-linux-zen.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX systemd.unit=multi-user.target" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-zen-terminal.conf"
-
-        echo "title Arch Linux (zen-fallback)" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-zen-fallback.conf"
-        echo "efi /vmlinuz-linux-zen" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-zen-fallback.conf"
-        if [ -n "$SYSTEMD_MICROCODE" ]; then
-            echo "initrd $SYSTEMD_MICROCODE" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-zen-fallback.conf"
-        fi
-        echo "initrd /initramfs-linux-zen-fallback.img" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-zen-fallback.conf"
-        echo "options initrd=initramfs-linux-zen-fallback.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX" >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/archlinux-zen-fallback.conf"
-    fi
+    for KERNEL in "${KERNELS[@]}"; do
+        case $KERNEL in
+        "linux-zen")
+            write_systemd "$KERNEL"
+            ;;
+        "linux-lts")
+            write_systemd "$KERNEL"
+            ;;
+        "linux-hardened")
+            write_systemd "$KERNEL"
+            ;;
+        *)
+            write_systemd "linux"
+            ;;
+        esac
+    done
 
     if [ "$VIRTUALBOX" == "true" ]; then
         echo -n "\EFI\systemd\systemd-bootx64.efi" > "${MNT_DIR}${ESP_DIRECTORY}/startup.nsh"

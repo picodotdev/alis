@@ -141,6 +141,9 @@ function packages_pacman() {
             if echo "$PACKAGES_PACMAN_PIPEWIRE" | grep -F -qw "pipewire-pulse"; then
                 pacman_uninstall "pulseaudio pulseaudio-bluetooth"
             fi
+            if echo "$PACKAGES_PACMAN_PIPEWIRE" | grep -F -qw "wireplumber"; then
+                pacman_uninstall "pipewire-media-session"
+            fi
             if echo "$PACKAGES_PACMAN_PIPEWIRE" | grep -F -qw "pipewire-jack"; then
                 pacman_uninstall "jack2"
             fi

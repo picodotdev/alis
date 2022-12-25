@@ -390,7 +390,7 @@ function ask_passwords() {
                 echo ""
                 if [ "$PASSWORD" == "$PASSWORD_RETYPE" ]; then
                     local PASSWORD_TYPED="true"
-                    ADDITIONAL_USERS[$I]="$USER=$PASSWORD"
+                    ADDITIONAL_USERS[I]="$USER=$PASSWORD"
                 else
                     echo "User ($USER) password don't match. Please, type again."
                 fi
@@ -402,17 +402,17 @@ function ask_passwords() {
 function partition() {
     print_step "partition()"
 
-    partprobe -s $DEVICE
+    partprobe -s "$DEVICE"
 
     # setup
     partition_setup
 
     # partition
     if [ "$PARTITION_MODE" == "auto" ]; then
-        sgdisk --zap-all $DEVICE
-        sgdisk -o $DEVICE
-        wipefs -a -f $DEVICE
-        partprobe -s $DEVICE
+        sgdisk --zap-all "$DEVICE"
+        sgdisk -o "$DEVICE"
+        wipefs -a -f "$DEVICE"
+        partprobe -s "$DEVICE"
     fi
     if [ "$PARTITION_MODE" == "auto" ] || [ "$PARTITION_MODE" == "custom" ]; then
         if [ "$BIOS_TYPE" == "uefi" ]; then
@@ -1206,11 +1206,11 @@ function bootloader_grub() {
 
     if [ "$BIOS_TYPE" == "uefi" ]; then
         pacman_install "efibootmgr"
-        arch-chroot "${MNT_DIR}" grub-install --target=x86_64-efi --bootloader-id=grub --efi-directory=$ESP_DIRECTORY --recheck
+        arch-chroot "${MNT_DIR}" grub-install --target=x86_64-efi --bootloader-id=grub --efi-directory="$ESP_DIRECTORY" --recheck
         #arch-chroot "${MNT_DIR}" efibootmgr --create --disk $DEVICE --part $PARTITION_BOOT_NUMBER --loader /EFI/grub/grubx64.efi --label "GRUB Boot Manager"
     fi
     if [ "$BIOS_TYPE" == "bios" ]; then
-        arch-chroot "${MNT_DIR}" grub-install --target=i386-pc --recheck $DEVICE
+        arch-chroot "${MNT_DIR}" grub-install --target=i386-pc --recheck "$DEVICE"
     fi
 
     arch-chroot "${MNT_DIR}" grub-mkconfig -o "$BOOT_DIRECTORY/grub/grub.cfg"

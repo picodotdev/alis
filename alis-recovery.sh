@@ -207,7 +207,7 @@ function prepare_partition() {
     if [ -e "/dev/mapper/$LUKS_DEVICE_NAME" ]; then
         cryptsetup close "$LUKS_DEVICE_NAME"
     fi
-    partprobe $DEVICE
+    partprobe "$DEVICE"
 }
 
 function ask_passwords() {

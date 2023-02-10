@@ -1317,7 +1317,7 @@ function bootloader_refind_entry() {
 
     if [ -n "$INITRD_MICROCODE" ]; then
         MICROCODE="initrd=/$INITRD_MICROCODE"
-    done
+    fi
 
     cat <<EOT >> "${MNT_DIR}${ESP_DIRECTORY}/EFI/refind/refind.conf"
 # alis
@@ -1343,7 +1343,7 @@ function bootloader_systemd_entry() {
 
     if [ -n "$INITRD_MICROCODE" ]; then
         MICROCODE="initrd /$INITRD_MICROCODE"
-    done
+    fi
 
     cat <<EOT >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/arch-$KERNEL.conf"
 title Arch Linux ($KERNEL)

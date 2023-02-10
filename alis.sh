@@ -858,7 +858,7 @@ function create_user_homectl() {
     local CIFS_USERNAME=""
     local CIFS_SERVICE=""
     local TZ=${TIMEZONE//\/usr\/share\/zoneinfo\//}
-    local L=${LOCALE_CONF[0]//LANG=//}
+    local L=${LOCALE_CONF[0]//LANG=/}
 
     if [ "$SYSTEMD_HOMED_STORAGE" != "auto" ]; then
         local STORAGE="--storage=$SYSTEMD_HOMED_STORAGE"
@@ -880,7 +880,7 @@ function create_user_homectl() {
 
     systemctl start systemd-homed.service
     sleep 10 # #151 avoid Operation on home <USER> failed: Transport endpoint is not conected.
-    homectl create "$USER" --enforce-password-policy=no --timezone="$TZ" --language="$L" "$STORAGE" "$IMAGE_PATH" "$FS_TYPE" "$CIFS_DOMAIN" "$CIFS_USERNAME" "$CIFS_SERVICE" -G "$USER_GROUPS"
+    homectl create "$USER" --enforce-password-policy=no --real-name="$USER" --timezone="$TZ" --language="$L" "$STORAGE" "$IMAGE_PATH" "$FS_TYPE" "$CIFS_DOMAIN" "$CIFS_USERNAME" "$CIFS_SERVICE" -G "$USER_GROUPS"
     sleep 10 # #151 avoid Operation on home <USER> failed: Transport endpoint is not conected.
     cp -a "/var/lib/systemd/home/." "${MNT_DIR}/var/lib/systemd/home/"
 }
@@ -889,7 +889,7 @@ function create_user_useradd() {
     local USER=$1
     local PASSWORD=$2
     local USER_GROUPS=$3
-    arch-chroot "${MNT_DIR}" useradd -m -G "$USER_GROUPS" -s /bin/bash "$USER"
+    arch-chroot "${MNT_DIR}" useradd -m -G "$USER_GROUPS" -c "$USER" -s /bin/bash "$USER"
     printf "%s\n%s" "$USER_PASSWORD" "$USER_PASSWORD" | arch-chroot "${MNT_DIR}" passwd "$USER"
 }
 

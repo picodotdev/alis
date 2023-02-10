@@ -64,7 +64,7 @@ For new features, improvements and bugs, fill an issue in GitHub or make a pull 
 * **Desktop environment**: GNOME, KDE, XFCE, Mate, Cinnamon, LXDE, i3-wm, i3-gaps, Deepin, Budgie, Bspwm, Awesome, Qtile, Openbox, Leftwm, Dusk
 * **Display managers**: GDM, SDDM, Lightdm, lxdm
 * **Graphics controller**: intel, nvidia and amd with optionally early KMS start. With intel optionally fastboot, hardware video acceleration and framebuffer compression.
-* **Bootloader**: GRUB, rEFInd, systemd-boot
+* **Bootloader**: GRUB, rEFInd, systemd-boot, efistub
 * **Custom shell**: bash, zsh, dash, fish
 * **WPA WIFI network** installation
 * **Periodic TRIM** for SSD storage

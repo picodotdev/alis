@@ -156,6 +156,14 @@ function facts_commons() {
         VMWARE="true"
     fi
 
+    if [ "$VIRTUALBOX" != "true" ] && [ "$VMWARE" != "true" ]; then
+        if [ "$CPU_VENDOR" == "intel" ]; then
+            INITRD_MICROCODE="initrd=/intel-ucode.img"
+        else
+            INITRD_MICROCODE="initrd=/amd-ucode.img"
+        fi
+    fi
+
     USER_NAME_INSTALL="$(whoami)"
     if [ "$USER_NAME_INSTALL" == "root" ]; then
         SYSTEM_INSTALLATION="true"
@@ -475,85 +483,4 @@ function ask_password() {
         echo "${PASSWORD_NAME} password don't match. Please, type again."
         ask_password "${PASSWORD_NAME}" "${PASSWORD_VARIABLE}"
     fi
-}
-
-function write_refind() {
-    POSTFIX="$1"
-    LABEL=" ($(echo "$POSTFIX" | cut -d '-' -f 2))"
-
-    if [[ "$POSTFIX" =~ linux ]]; then
-        LABEL=""
-    fi
-        cat <<EOT >> "${MNT_DIR}${ESP_DIRECTORY}/EFI/refind/refind.conf"
-# alis
-menuentry "Arch Linux$LABEL" {
-    volume   $PARTUUID_BOOT
-    loader   /vmlinuz-$POSTFIX
-    initrd   /initramfs-$POSTFIX.img
-    icon     /EFI/refind/icons/os_arch.png
-    options  "$REFIND_MICROCODE $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX"
-    submenuentry "Boot using fallback initramfs"
-        initrd /initramfs-$POSTFIX-fallback.img"
-    }
-    submenuentry "Boot to terminal"
-        add_options "systemd.unit=multi-user.target"
-    }
-}
-EOT
-}
-
-function write_systemd() {
-    POSTFIX="$1"
-    if [[ "$POSTFIX" =~ linux ]]; then
-        LABEL=""
-
-    else
-        LABEL="$(echo "$POSTFIX" | cut -d '-' -f 2)-"
-    fi
-
-    FILE="${MNT_DIR}${ESP_DIRECTORY}/loader/entries/arch$POSTFIX.conf"
-    TERMINAL="${MNT_DIR}${ESP_DIRECTORY}/loader/entries/arch$POSTFIX-terminal.conf"
-    FALLBACK="${MNT_DIR}${ESP_DIRECTORY}/loader/entries/arch$POSTFIX-fallback.conf"
-
-
-    echo "title Arch Linux$LABEL" >> "$FILE"
-    echo "efi /vmlinuz-linux" >> "$FILE"
-    if [ -n "$SYSTEMD_MICROCODE" ]; then
-        echo "initrd $SYSTEMD_MICROCODE" >> "$FILE"
-    fi
-    echo "initrd /initramfs-linux.img" >> "$FILE"
-    echo "options initrd=initramfs-linux.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX" >> "$FILE"
-
-    echo "title Arch Linux (${LABEL}terminal)" >> "$TERMINAL"
-    echo "efi /vmlinuz-linux" >> "$TERMINAL"
-    if [ -n "$SYSTEMD_MICROCODE" ]; then
-        echo "initrd $SYSTEMD_MICROCODE" >> "$TERMINAL"
-    fi
-    echo "initrd /initramfs-linux.img" >> "$TERMINAL"
-    echo "options initrd=initramfs-linux.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX systemd.unit=multi-user.target" >> "$TERMINAL"
-
-    echo "title Arch Linux (${LABEL}fallback)" >> "$FALLBACK"
-    echo "efi /vmlinuz-linux" >> "$FALLBACK"
-    if [ -n "$SYSTEMD_MICROCODE" ]; then
-        echo "initrd $SYSTEMD_MICROCODE" >> "$FALLBACK"
-    fi
-    echo "initrd /initramfs-linux-fallback.img" >> "$FALLBACK"
-    echo "options initrd=initramfs-linux-fallback.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX" >> "$FALLBACK"
-
-}
-
-function check_microcode() {
-    if [ "$VIRTUALBOX" != "true" ] && [ "$VMWARE" != "true" ]; then
-        if [ "$CPU_VENDOR" == "intel" ]; then
-            declare -n VAR="$1"_MICROCODE
-            VAR="initrd=/intel-ucode.img"
-        else
-            declare -n VAR="$1"_MICROCODE
-            VAR="initrd=/amd-ucode.img"
-        fi
-    fi
-}
-
-function list_kernels() {
-    KERNELS=$(echo "$KERNELS" | tr ' ' '\n' | grep -v "headers" | tr '\n' ' ')
 }

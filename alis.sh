@@ -597,14 +597,12 @@ function install() {
     fi
 
     pacstrap "${MNT_DIR}" base base-devel linux linux-firmware "${PACKAGES[@]}"
-    # Copy already modified pacman.conf
-    cp /etc/pacman.conf "${MNT_DIR}"/etc/pacman.conf
 
-    # if [ "$PACMAN_PARALLEL_DOWNLOADS" == "true" ]; then
-    #     sed -i 's/#ParallelDownloads/ParallelDownloads/' "${MNT_DIR}"/etc/pacman.conf
-    # else
-    #     sed -i 's/#ParallelDownloads\(.*\)/#ParallelDownloads\1\nDisableDownloadTimeout/' "${MNT_DIR}"/etc/pacman.conf
-    # fi
+    if [ "$PACMAN_PARALLEL_DOWNLOADS" == "true" ]; then
+        sed -i 's/#ParallelDownloads/ParallelDownloads/' "${MNT_DIR}"/etc/pacman.conf
+    else
+        sed -i 's/#ParallelDownloads\(.*\)/#ParallelDownloads\1\nDisableDownloadTimeout/' "${MNT_DIR}"/etc/pacman.conf
+    fi
 
     if [ "$REFLECTOR" == "true" ]; then
         pacman_install "reflector"
@@ -1161,7 +1159,7 @@ function bootloader() {
                 ;;
             "efistub")
                 if [ "$DEVICE_TRIM" == "true" ]; then
-                    BOOTLOADER_ALLOW_DISCARDS=" rd.luks.options=allow-discards"
+                    BOOTLOADER_ALLOW_DISCARDS=":allow-discards"
                 fi
                 CMDLINE_LINUX="cryptdevice=UUID=$UUID_ROOT:$LUKS_DEVICE_NAME$BOOTLOADER_ALLOW_DISCARDS"
                 ;;
@@ -1203,36 +1201,6 @@ function bootloader() {
     arch-chroot "${MNT_DIR}" systemctl set-default multi-user.target
 }
 
-function bootloader_efistub() {
-    pacman_install "efibootmgr"
-    list_kernels
-
-    for KERNEL in "${KERNELS[@]}"; do
-        case "$KERNEL" in
-        "linux-zen")
-            POSTFIX="$KERNEL"
-            LABEL=" (zen)"
-            ;;
-        "linux-lts")
-            POSTFIX="$KERNEL"
-            LABEL=" (lts)"
-            ;;
-        "linux-hardened")
-            POSTFIX="$KERNEL"
-            LABEL=" (hardened)"
-            ;;
-        *)
-            POSTFIX="linux"
-            LABEL=""
-            ;;
-        esac
-        check_microcode "EFISTUB"
-
-        arch-chroot "${MNT_DIR}" efibootmgr --disk "$DEVICE" --part 1 --create --label "Arch Linux Fallback$LABEL" --loader /vmlinuz-"$POSTFIX" --unicode "$CMDLINE_LINUX $CMDLINE_LINUX_ROOT rw $EFISTUB_MICROCODE initrd=\initramfs-$POSTFIX-fallback.img" --verbose
-        arch-chroot "${MNT_DIR}" efibootmgr --disk "$DEVICE"--part 1 --create --label "Arch Linux$LABEL" --loader /vmlinuz-"$POSTFIX" --unicode "$CMDLINE_LINUX $CMDLINE_LINUX_ROOT rw $EFISTUB_MICROCODE initrd=\initramfs-$POSTFIX.img" --verbose
-    done
-}
-
 function bootloader_grub() {
     pacman_install "grub dosfstools"
     arch-chroot "${MNT_DIR}" sed -i 's/GRUB_DEFAULT=0/GRUB_DEFAULT=saved/' /etc/default/grub
@@ -1248,7 +1216,7 @@ function bootloader_grub() {
     if [ "$BIOS_TYPE" == "uefi" ]; then
         pacman_install "efibootmgr"
         arch-chroot "${MNT_DIR}" grub-install --target=x86_64-efi --bootloader-id=grub --efi-directory="$ESP_DIRECTORY" --recheck
-        #arch-chroot "${MNT_DIR}" efibootmgr --create --disk $DEVICE --part $PARTITION_BOOT_NUMBER --loader /EFI/grub/grubx64.efi --label "GRUB Boot Manager"
+        #arch-chroot "${MNT_DIR}" efibootmgr --create --disk $DEVICE --part $PARTITION_BOOT_NUMBER --loader /EFI/grub/grubx64.efi --label "GRUB Boot Manager" --verbose
     fi
     if [ "$BIOS_TYPE" == "bios" ]; then
         arch-chroot "${MNT_DIR}" grub-install --target=i386-pc --recheck "$DEVICE"
@@ -1270,26 +1238,14 @@ function bootloader_refind() {
     arch-chroot "${MNT_DIR}" sed -i 's/^#scan_all_linux_kernels.*/scan_all_linux_kernels false/' "$ESP_DIRECTORY/EFI/refind/refind.conf"
     #arch-chroot "${MNT_DIR}" sed -i 's/^#default_selection "+,bzImage,vmlinuz"/default_selection "+,bzImage,vmlinuz"/' "$ESP_DIRECTORY/EFI/refind/refind.conf"
 
-    local REFIND_MICROCODE=""
+    bootloader_refind_entry "linux"
 
-    check_microcode "REFIND"
-    list_kernels
-
+    IFS=' ' read -ra KS <<< "$KERNELS"
     for KERNEL in "${KERNELS[@]}"; do
-        case $KERNEL in
-        "linux-zen")
-            write_refind "$KERNEL"
-            ;;
-        "linux-lts")
-            write_refind "$KERNEL"
-            ;;
-        "linux-hardened")
-            write_refind "$KERNEL"
-            ;;
-        *)
-            write_refind "linux"
-            ;;
-        esac
+        if [[ "$KERNEL" =~ ^.*-headers$ ]]; then
+            continue
+        fi
+        bootloader_refind_entry "$KERNEL"
     done
 
     if [ "$VIRTUALBOX" == "true" ]; then
@@ -1314,7 +1270,6 @@ EOT
     #arch-chroot "${MNT_DIR}" systemctl enable systemd-boot-update.service
 
     arch-chroot "${MNT_DIR}" mkdir -p "/etc/pacman.d/hooks/"
-
     cat <<EOT > "${MNT_DIR}/etc/pacman.d/hooks/systemd-boot.hook"
 [Trigger]
 Type = Package
@@ -1326,29 +1281,95 @@ Description = Updating systemd-boot...
 When = PostTransaction
 Exec = /usr/bin/systemctl restart systemd-boot-update.service
 EOT
-    check_microcode "SYSTEMD"
-    list_kernels
 
+    bootloader_systemd_entry "linux"
+
+    IFS=' ' read -ra KS <<< "$KERNELS"
     for KERNEL in "${KERNELS[@]}"; do
-        case $KERNEL in
-        "linux-zen")
-            write_systemd "$KERNEL"
-            ;;
-        "linux-lts")
-            write_systemd "$KERNEL"
-            ;;
-        "linux-hardened")
-            write_systemd "$KERNEL"
-            ;;
-        *)
-            write_systemd "linux"
-            ;;
-        esac
+        if [[ "$KERNEL" =~ ^.*-headers$ ]]; then
+            continue
+        fi
+        bootloader_systemd_entry "$KERNEL"
     done
 
     if [ "$VIRTUALBOX" == "true" ]; then
         echo -n "\EFI\systemd\systemd-bootx64.efi" > "${MNT_DIR}${ESP_DIRECTORY}/startup.nsh"
     fi
+}
+
+function bootloader_efistub() {
+    pacman_install "efibootmgr"
+
+    bootloader_efistub_entry "linux"
+
+    IFS=' ' read -ra KS <<< "$KERNELS"
+    for KERNEL in "${KERNELS[@]}"; do
+        if [[ "$KERNEL" =~ ^.*-headers$ ]]; then
+            continue
+        fi
+        bootloader_efistub_entry "$KERNEL"
+    done
+}
+
+function bootloader_refind_entry() {
+    local KERNEL="$1"
+
+    cat <<EOT >> "${MNT_DIR}${ESP_DIRECTORY}/EFI/refind/refind.conf"
+# alis
+menuentry "Arch Linux ($KERNEL)" {
+    volume   $PARTUUID_BOOT
+    loader   /vmlinuz-$KERNEL
+    initrd   /initramfs-$KERNEL.img
+    icon     /EFI/refind/icons/os_arch.png
+    options  "$REFIND_MICROCODE $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX"
+    submenuentry "Boot using fallback initramfs"
+        initrd /initramfs-$KERNEL-fallback.img"
+    }
+    submenuentry "Boot to terminal"
+        add_options "systemd.unit=multi-user.target"
+    }
+}
+EOT
+}
+
+function bootloader_systemd_entry() {
+    local KERNEL="$1"
+    local MICROCODE=""
+
+    if [ -n "$SYSTEMD_MICROCODE" ]; then
+        MICROCODE="initrd $SYSTEMD_MICROCODE"
+    fi
+
+    cat <<EOT >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/arch-$KERNEL.conf"
+title Arch Linux ($KERNEL)
+efi /vmlinuz-linux
+$MICROCODE
+initrd /initramfs-$KERNEL.img
+options initrd=initramfs-$KERNEL.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX"
+EOT
+
+    cat <<EOT >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/arch-$KERNEL-terminal.conf"
+title Arch Linux ($KERNEL, terminal)
+efi /vmlinuz-linux
+$MICROCODE
+initrd /initramfs-$KERNEL-terminal.img
+options initrd=initramfs-$KERNEL-terminal.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX"
+EOT
+
+    cat <<EOT >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/arch-$KERNEL-fallback.conf"
+title Arch Linux ($KERNEL, fallback)
+efi /vmlinuz-linux
+$MICROCODE
+initrd /initramfs-$KERNEL-fallback.img
+options initrd=initramfs-$KERNEL-fallback.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX"
+EOT
+}
+
+function bootloader_efistub_entry() {
+    local KERNEL="$1"
+
+    arch-chroot "${MNT_DIR}" efibootmgr --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL)" --loader /vmlinuz-"$KERNEL" --unicode "$CMDLINE_LINUX $CMDLINE_LINUX_ROOT rw $EFISTUB_MICROCODE initrd=\initramfs-$POSTFIX.img" --verbose
+    arch-chroot "${MNT_DIR}" efibootmgr --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL fallback)" --loader /vmlinuz-"$KERNEL" --unicode "$CMDLINE_LINUX $CMDLINE_LINUX_ROOT rw $EFISTUB_MICROCODE initrd=\initramfs-$POSTFIX-fallback.img" --verbose
 }
 
 function custom_shell() {

@@ -1313,6 +1313,11 @@ function bootloader_efistub() {
 
 function bootloader_refind_entry() {
     local KERNEL="$1"
+    local MICROCODE=""
+
+    if [ -n "$INITRD_MICROCODE" ]; then
+        MICROCODE="initrd=/$INITRD_MICROCODE"
+    done
 
     cat <<EOT >> "${MNT_DIR}${ESP_DIRECTORY}/EFI/refind/refind.conf"
 # alis
@@ -1321,7 +1326,7 @@ menuentry "Arch Linux ($KERNEL)" {
     loader   /vmlinuz-$KERNEL
     initrd   /initramfs-$KERNEL.img
     icon     /EFI/refind/icons/os_arch.png
-    options  "$REFIND_MICROCODE $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX"
+    options  "$MICROCODE $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX"
     submenuentry "Boot using fallback initramfs"
         initrd /initramfs-$KERNEL-fallback.img"
     }
@@ -1336,9 +1341,9 @@ function bootloader_systemd_entry() {
     local KERNEL="$1"
     local MICROCODE=""
 
-    if [ -n "$SYSTEMD_MICROCODE" ]; then
-        MICROCODE="initrd $SYSTEMD_MICROCODE"
-    fi
+    if [ -n "$INITRD_MICROCODE" ]; then
+        MICROCODE="initrd /$INITRD_MICROCODE"
+    done
 
     cat <<EOT >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/arch-$KERNEL.conf"
 title Arch Linux ($KERNEL)

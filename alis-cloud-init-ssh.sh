@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
 set -eu
 
+ # ./alis-cloud-init-ssh.sh -b sid -i 192.168.122.61 -c alis-config-efi-ext4-luks-systemd.sh
+
 GITHUB_USER="picodotdev"
 BRANCH="master"
 BRANCH_QUALIFIER=""
 IP_ADDRESS=""
 VM_TYPE="virtualbox"
 VM_NAME="Arch Linux"
-CONFIG_FILE_SH=""
+CONFIG_FILE_SH="alis-config-efi-ext4-systemd.sh"
 
 while getopts "b:c:i:n:t:u:" arg; do
   case $arg in

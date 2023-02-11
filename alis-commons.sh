@@ -156,6 +156,14 @@ function facts_commons() {
         VMWARE="true"
     fi
 
+    if [ "$VIRTUALBOX" != "true" ] && [ "$VMWARE" != "true" ]; then
+        if [ "$CPU_VENDOR" == "intel" ]; then
+            INITRD_MICROCODE="intel-ucode.img"
+        else
+            INITRD_MICROCODE="amd-ucode.img"
+        fi
+    fi
+
     USER_NAME_INSTALL="$(whoami)"
     if [ "$USER_NAME_INSTALL" == "root" ]; then
         SYSTEM_INSTALLATION="true"

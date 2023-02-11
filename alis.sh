@@ -1239,14 +1239,15 @@ function bootloader_refind() {
     #arch-chroot "${MNT_DIR}" sed -i 's/^#default_selection "+,bzImage,vmlinuz"/default_selection "+,bzImage,vmlinuz"/' "$ESP_DIRECTORY/EFI/refind/refind.conf"
 
     bootloader_refind_entry "linux"
-
-    IFS=' ' read -ra KS <<< "$KERNELS"
-    for KERNEL in "${KERNELS[@]}"; do
-        if [[ "$KERNEL" =~ ^.*-headers$ ]]; then
-            continue
-        fi
-        bootloader_refind_entry "$KERNEL"
-    done
+    if [ -n "$KERNELS" ]; then
+        IFS=' ' read -ra KS <<< "$KERNELS"
+        for KERNEL in "${KERNELS[@]}"; do
+            if [[ "$KERNEL" =~ ^.*-headers$ ]]; then
+                continue
+            fi
+            bootloader_refind_entry "$KERNEL"
+        done
+    fi
 
     if [ "$VIRTUALBOX" == "true" ]; then
         echo -ne "\EFI\refind\refind_x64.efi" > "${MNT_DIR}${ESP_DIRECTORY}/startup.nsh"
@@ -1283,14 +1284,15 @@ Exec = /usr/bin/systemctl restart systemd-boot-update.service
 EOT
 
     bootloader_systemd_entry "linux"
-
-    IFS=' ' read -ra KS <<< "$KERNELS"
-    for KERNEL in "${KERNELS[@]}"; do
-        if [[ "$KERNEL" =~ ^.*-headers$ ]]; then
-            continue
-        fi
-        bootloader_systemd_entry "$KERNEL"
-    done
+    if [ -n "$KERNELS" ]; then
+        IFS=' ' read -ra KS <<< "$KERNELS"
+        for KERNEL in "${KERNELS[@]}"; do
+            if [[ "$KERNEL" =~ ^.*-headers$ ]]; then
+                continue
+            fi
+            bootloader_systemd_entry "$KERNEL"
+        done
+    fi
 
     if [ "$VIRTUALBOX" == "true" ]; then
         echo -n "\EFI\systemd\systemd-bootx64.efi" > "${MNT_DIR}${ESP_DIRECTORY}/startup.nsh"
@@ -1301,14 +1303,15 @@ function bootloader_efistub() {
     pacman_install "efibootmgr"
 
     bootloader_efistub_entry "linux"
-
-    IFS=' ' read -ra KS <<< "$KERNELS"
-    for KERNEL in "${KERNELS[@]}"; do
-        if [[ "$KERNEL" =~ ^.*-headers$ ]]; then
-            continue
-        fi
-        bootloader_efistub_entry "$KERNEL"
-    done
+    if [ -n "$KERNELS" ]; then
+        IFS=' ' read -ra KS <<< "$KERNELS"
+        for KERNEL in "${KERNELS[@]}"; do
+            if [[ "$KERNEL" =~ ^.*-headers$ ]]; then
+                continue
+            fi
+            bootloader_efistub_entry "$KERNEL"
+        done
+    fi
 }
 
 function bootloader_refind_entry() {

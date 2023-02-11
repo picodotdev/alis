@@ -150,10 +150,14 @@ function facts_commons() {
 
     if systemd-detect-virt | grep -qi "oracle"; then
         VIRTUALBOX="true"
+    else
+        VIRTUALBOX="false"
     fi
 
     if systemd-detect-virt | grep -qi "vmware"; then
         VMWARE="true"
+    else
+        VMWARE="false"
     fi
 
     if [ "$VIRTUALBOX" != "true" ] && [ "$VMWARE" != "true" ]; then
@@ -162,6 +166,8 @@ function facts_commons() {
         else
             INITRD_MICROCODE="amd-ucode.img"
         fi
+    else
+        INITRD_MICROCODE=""
     fi
 
     USER_NAME_INSTALL="$(whoami)"

@@ -879,7 +879,8 @@ function create_user_homectl() {
 
     systemctl start systemd-homed.service
     sleep 10 # #151 avoid Operation on home <USER> failed: Transport endpoint is not conected.
-    homectl create "$USER" --enforce-password-policy=no --real-name="$USER" --timezone="$TZ" --language="$L" "$STORAGE" "$IMAGE_PATH" "$FS_TYPE" "$CIFS_DOMAIN" "$CIFS_USERNAME" "$CIFS_SERVICE" -G "$USER_GROUPS"
+    # shellcheck disable=SC2086
+    homectl create "$USER" --enforce-password-policy=no --real-name="$USER" --timezone="$TZ" --language="$L" $STORAGE $IMAGE_PATH $FS_TYPE $CIFS_DOMAIN $CIFS_USERNAME $CIFS_SERVICE -G "$USER_GROUPS"
     sleep 10 # #151 avoid Operation on home <USER> failed: Transport endpoint is not conected.
     cp -a "/var/lib/systemd/home/." "${MNT_DIR}/var/lib/systemd/home/"
 }
@@ -1319,7 +1320,7 @@ function bootloader_refind_entry() {
     local MICROCODE=""
 
     if [ -n "$INITRD_MICROCODE" ]; then
-        MICROCODE="initrd=/$INITRD_MICROCODE"
+        local MICROCODE="initrd=/$INITRD_MICROCODE"
     fi
 
     cat <<EOT >> "${MNT_DIR}${ESP_DIRECTORY}/EFI/refind/refind.conf"
@@ -1345,7 +1346,7 @@ function bootloader_systemd_entry() {
     local MICROCODE=""
 
     if [ -n "$INITRD_MICROCODE" ]; then
-        MICROCODE="initrd /$INITRD_MICROCODE"
+        local MICROCODE="initrd /$INITRD_MICROCODE"
     fi
 
     cat <<EOT >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/arch-$KERNEL.conf"

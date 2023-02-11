@@ -879,7 +879,8 @@ function create_user_homectl() {
 
     systemctl start systemd-homed.service
     sleep 10 # #151 avoid Operation on home <USER> failed: Transport endpoint is not conected.
-    homectl create "$USER" --enforce-password-policy=no --real-name="$USER" --timezone="$TZ" --language="$L" "$STORAGE" "$IMAGE_PATH" $FS_TYPE $CIFS_DOMAIN $CIFS_USERNAME $CIFS_SERVICE -G "$USER_GROUPS"
+    # shellcheck disable=SC2086
+    homectl create "$USER" --enforce-password-policy=no --real-name="$USER" --timezone="$TZ" --language="$L" $STORAGE $IMAGE_PATH $FS_TYPE $CIFS_DOMAIN $CIFS_USERNAME $CIFS_SERVICE -G "$USER_GROUPS"
     sleep 10 # #151 avoid Operation on home <USER> failed: Transport endpoint is not conected.
     cp -a "/var/lib/systemd/home/." "${MNT_DIR}/var/lib/systemd/home/"
 }

@@ -1140,13 +1140,7 @@ function bootloader() {
     fi
     if [ -n "$LUKS_PASSWORD" ]; then
         case "$BOOTLOADER" in
-            "grub" )
-                if [ "$DEVICE_TRIM" == "true" ]; then
-                    BOOTLOADER_ALLOW_DISCARDS=":allow-discards"
-                fi
-                CMDLINE_LINUX="cryptdevice=UUID=$UUID_ROOT:$LUKS_DEVICE_NAME$BOOTLOADER_ALLOW_DISCARDS"
-                ;;
-            "refind" )
+            "grub" | "refind" | "efistub" )
                 if [ "$DEVICE_TRIM" == "true" ]; then
                     BOOTLOADER_ALLOW_DISCARDS=":allow-discards"
                 fi
@@ -1158,13 +1152,6 @@ function bootloader() {
                 fi
                 CMDLINE_LINUX="rd.luks.name=$UUID_ROOT=$LUKS_DEVICE_NAME$BOOTLOADER_ALLOW_DISCARDS"
                 ;;
-            "efistub")
-                if [ "$DEVICE_TRIM" == "true" ]; then
-                    BOOTLOADER_ALLOW_DISCARDS=":allow-discards"
-                fi
-                CMDLINE_LINUX="cryptdevice=UUID=$UUID_ROOT:$LUKS_DEVICE_NAME$BOOTLOADER_ALLOW_DISCARDS"
-                ;;
-
         esac
     fi
     if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then
@@ -1241,8 +1228,8 @@ function bootloader_refind() {
 
     bootloader_refind_entry "linux"
     if [ -n "$KERNELS" ]; then
-        IFS=' ' read -ra KS <<< "$KERNELS"
-        for KERNEL in "${KERNELS[@]}"; do
+        IFS=' ' read -r -a KS <<< "$KERNELS"
+        for KERNEL in "${KS[@]}"; do
             if [[ "$KERNEL" =~ ^.*-headers$ ]]; then
                 continue
             fi
@@ -1286,8 +1273,8 @@ EOT
 
     bootloader_systemd_entry "linux"
     if [ -n "$KERNELS" ]; then
-        IFS=' ' read -ra KS <<< "$KERNELS"
-        for KERNEL in "${KERNELS[@]}"; do
+        IFS=' ' read -r -a KS <<< "$KERNELS"
+        for KERNEL in "${KS[@]}"; do
             if [[ "$KERNEL" =~ ^.*-headers$ ]]; then
                 continue
             fi
@@ -1305,8 +1292,8 @@ function bootloader_efistub() {
 
     bootloader_efistub_entry "linux"
     if [ -n "$KERNELS" ]; then
-        IFS=' ' read -ra KS <<< "$KERNELS"
-        for KERNEL in "${KERNELS[@]}"; do
+        IFS=' ' read -r -a KS <<< "$KERNELS"
+        for KERNEL in "${KS[@]}"; do
             if [[ "$KERNEL" =~ ^.*-headers$ ]]; then
                 continue
             fi
@@ -1376,9 +1363,14 @@ EOT
 
 function bootloader_efistub_entry() {
     local KERNEL="$1"
+    local MICROCODE=""
 
-    arch-chroot "${MNT_DIR}" efibootmgr --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL)" --loader /vmlinuz-"$KERNEL" --unicode "$CMDLINE_LINUX $CMDLINE_LINUX_ROOT rw $EFISTUB_MICROCODE initrd=\initramfs-$POSTFIX.img" --verbose
-    arch-chroot "${MNT_DIR}" efibootmgr --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL fallback)" --loader /vmlinuz-"$KERNEL" --unicode "$CMDLINE_LINUX $CMDLINE_LINUX_ROOT rw $EFISTUB_MICROCODE initrd=\initramfs-$POSTFIX-fallback.img" --verbose
+    if [ -n "$INITRD_MICROCODE" ]; then
+        local MICROCODE="initrd=\\$INITRD_MICROCODE"
+    fi
+
+    arch-chroot "${MNT_DIR}" efibootmgr --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL)" --loader /vmlinuz-"$KERNEL" --unicode "$CMDLINE_LINUX $CMDLINE_LINUX_ROOT rw $MICROCODE initrd=\initramfs-$KERNEL.img" --verbose
+    arch-chroot "${MNT_DIR}" efibootmgr --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL fallback)" --loader /vmlinuz-"$KERNEL" --unicode "$CMDLINE_LINUX $CMDLINE_LINUX_ROOT rw $MICROCODE initrd=\initramfs-$KERNEL-fallback.img" --verbose
 }
 
 function custom_shell() {
@@ -1550,52 +1542,16 @@ function display_manager() {
 
     if [ "$DISPLAY_MANAGER" == "auto" ]; then
         case "$DESKTOP_ENVIRONMENT" in
-            "gnome" )
+            "gnome" | "budgie" )
                 display_manager_gdm
                 ;;
             "kde" )
                 display_manager_sddm
                 ;;
-            "xfce" )
-                display_manager_lightdm
-                ;;
-            "mate" )
-                display_manager_lightdm
-                ;;
-            "cinnamon" )
-                display_manager_lightdm
-                ;;
             "lxde" )
                 display_manager_lxdm
                 ;;
-            "i3-wm" )
-                display_manager_lightdm
-                ;;
-            "i3-gaps" )
-                display_manager_lightdm
-                ;;
-            "deepin" )
-                display_manager_lightdm
-                ;;
-            "budgie" )
-                display_manager_gdm
-                ;;
-            "bspwm" )
-                display_manager_lightdm
-                ;;
-            "awesome" )
-                display_manager_lightdm
-                ;;
-            "qtile" )
-                display_manager_lightdm
-                ;;
-            "openbox" )
-                display_manager_lightdm
-                ;;
-            "leftwm" )
-                display_manager_lightdm
-                ;;
-            "dusk" )
+            "xfce" | "mate" | "cinnamon" | "i3-wm" | "i3-gaps" | "deepin" | "bspwm" | "awesome" | "qtile" | "openbox" | "leftwm" | "dusk" )
                 display_manager_lightdm
                 ;;
         esac

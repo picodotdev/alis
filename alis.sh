@@ -1557,54 +1557,58 @@ function display_manager() {
 
     if [ "$DISPLAY_MANAGER" == "auto" ]; then
         case "$DESKTOP_ENVIRONMENT" in
-            "gnome" )
+            "gnome" | "budgie" )
                 display_manager_gdm
                 ;;
+            # "budgie" )
+            #     display_manager_gdm
+            #     ;;
             "kde" )
                 display_manager_sddm
-                ;;
-            "xfce" )
-                display_manager_lightdm
-                ;;
-            "mate" )
-                display_manager_lightdm
-                ;;
-            "cinnamon" )
-                display_manager_lightdm
                 ;;
             "lxde" )
                 display_manager_lxdm
                 ;;
-            "i3-wm" )
+            * )
+                # For everything else use lightdm
                 display_manager_lightdm
                 ;;
-            "i3-gaps" )
-                display_manager_lightdm
-                ;;
-            "deepin" )
-                display_manager_lightdm
-                ;;
-            "budgie" )
-                display_manager_gdm
-                ;;
-            "bspwm" )
-                display_manager_lightdm
-                ;;
-            "awesome" )
-                display_manager_lightdm
-                ;;
-            "qtile" )
-                display_manager_lightdm
-                ;;
-            "openbox" )
-                display_manager_lightdm
-                ;;
-            "leftwm" )
-                display_manager_lightdm
-                ;;
-            "dusk" )
-                display_manager_lightdm
-                ;;
+            # "xfce" )
+            #     display_manager_lightdm
+            #     ;;
+            # "mate" )
+            #     display_manager_lightdm
+            #     ;;
+            # "cinnamon" )
+            #     display_manager_lightdm
+            #     ;;
+            # "i3-wm" )
+            #     display_manager_lightdm
+            #     ;;
+            # "i3-gaps" )
+            #     display_manager_lightdm
+            #     ;;
+            # "deepin" )
+            #     display_manager_lightdm
+            #     ;;
+            # "bspwm" )
+            #     display_manager_lightdm
+            #     ;;
+            # "awesome" )
+            #     display_manager_lightdm
+            #     ;;
+            # "qtile" )
+            #     display_manager_lightdm
+            #     ;;
+            # "openbox" )
+            #     display_manager_lightdm
+            #     ;;
+            # "leftwm" )
+            #     display_manager_lightdm
+            #     ;;
+            # "dusk" )
+            #     display_manager_lightdm
+            #     ;;
         esac
     else
         case "$DISPLAY_MANAGER" in

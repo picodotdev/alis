@@ -1140,31 +1140,31 @@ function bootloader() {
     fi
     if [ -n "$LUKS_PASSWORD" ]; then
         case "$BOOTLOADER" in
-            "grub" )
+            "grub" | "refind" | "efistub" )
                 if [ "$DEVICE_TRIM" == "true" ]; then
                     BOOTLOADER_ALLOW_DISCARDS=":allow-discards"
                 fi
                 CMDLINE_LINUX="cryptdevice=UUID=$UUID_ROOT:$LUKS_DEVICE_NAME$BOOTLOADER_ALLOW_DISCARDS"
                 ;;
-            "refind" )
-                if [ "$DEVICE_TRIM" == "true" ]; then
-                    BOOTLOADER_ALLOW_DISCARDS=":allow-discards"
-                fi
-                CMDLINE_LINUX="cryptdevice=UUID=$UUID_ROOT:$LUKS_DEVICE_NAME$BOOTLOADER_ALLOW_DISCARDS"
-                ;;
+            # Using or because the requirement is same.
+            # "refind" )
+            #     if [ "$DEVICE_TRIM" == "true" ]; then
+            #         BOOTLOADER_ALLOW_DISCARDS=":allow-discards"
+            #     fi
+            #     CMDLINE_LINUX="cryptdevice=UUID=$UUID_ROOT:$LUKS_DEVICE_NAME$BOOTLOADER_ALLOW_DISCARDS"
+            #     ;;
+            # "efistub")
+            #     if [ "$DEVICE_TRIM" == "true" ]; then
+            #         BOOTLOADER_ALLOW_DISCARDS=":allow-discards"
+            #     fi
+            #     CMDLINE_LINUX="cryptdevice=UUID=$UUID_ROOT:$LUKS_DEVICE_NAME$BOOTLOADER_ALLOW_DISCARDS"
+            #     ;;
             "systemd" )
                 if [ "$DEVICE_TRIM" == "true" ]; then
                     BOOTLOADER_ALLOW_DISCARDS=" rd.luks.options=discard"
                 fi
                 CMDLINE_LINUX="rd.luks.name=$UUID_ROOT=$LUKS_DEVICE_NAME$BOOTLOADER_ALLOW_DISCARDS"
                 ;;
-            "efistub")
-                if [ "$DEVICE_TRIM" == "true" ]; then
-                    BOOTLOADER_ALLOW_DISCARDS=":allow-discards"
-                fi
-                CMDLINE_LINUX="cryptdevice=UUID=$UUID_ROOT:$LUKS_DEVICE_NAME$BOOTLOADER_ALLOW_DISCARDS"
-                ;;
-
         esac
     fi
     if [ "$FILE_SYSTEM_TYPE" == "btrfs" ]; then

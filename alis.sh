@@ -1146,19 +1146,6 @@ function bootloader() {
                 fi
                 CMDLINE_LINUX="cryptdevice=UUID=$UUID_ROOT:$LUKS_DEVICE_NAME$BOOTLOADER_ALLOW_DISCARDS"
                 ;;
-            # Using or because the requirement is same.
-            # "refind" )
-            #     if [ "$DEVICE_TRIM" == "true" ]; then
-            #         BOOTLOADER_ALLOW_DISCARDS=":allow-discards"
-            #     fi
-            #     CMDLINE_LINUX="cryptdevice=UUID=$UUID_ROOT:$LUKS_DEVICE_NAME$BOOTLOADER_ALLOW_DISCARDS"
-            #     ;;
-            # "efistub")
-            #     if [ "$DEVICE_TRIM" == "true" ]; then
-            #         BOOTLOADER_ALLOW_DISCARDS=":allow-discards"
-            #     fi
-            #     CMDLINE_LINUX="cryptdevice=UUID=$UUID_ROOT:$LUKS_DEVICE_NAME$BOOTLOADER_ALLOW_DISCARDS"
-            #     ;;
             "systemd" )
                 if [ "$DEVICE_TRIM" == "true" ]; then
                     BOOTLOADER_ALLOW_DISCARDS=" rd.luks.options=discard"
@@ -1241,10 +1228,8 @@ function bootloader_refind() {
 
     bootloader_refind_entry "linux"
     if [ -n "$KERNELS" ]; then
-        # Code is converting string to array but it is not using KS variable in for loop
-        # I have changed it to KERNEL_ARRAY, for being easy to understand.
-        IFS=' ' read -r -a KERNEL_ARRAY <<< "$KERNELS"
-        for KERNEL in "${KERNEL_ARRAY[@]}"; do
+        IFS=' ' read -r -a KS <<< "$KERNELS"
+        for KERNEL in "${KS[@]}"; do
             if [[ "$KERNEL" =~ ^.*-headers$ ]]; then
                 continue
             fi
@@ -1288,8 +1273,8 @@ EOT
 
     bootloader_systemd_entry "linux"
     if [ -n "$KERNELS" ]; then
-      IFS=' ' read -r -a KERNEL_ARRAY <<< "$KERNELS"
-        for KERNEL in "${KERNEL_ARRAY[@]}"; do
+        IFS=' ' read -r -a KS <<< "$KERNELS"
+        for KERNEL in "${KS[@]}"; do
             if [[ "$KERNEL" =~ ^.*-headers$ ]]; then
                 continue
             fi
@@ -1307,8 +1292,8 @@ function bootloader_efistub() {
 
     bootloader_efistub_entry "linux"
     if [ -n "$KERNELS" ]; then
-      IFS=' ' read -r -a KERNEL_ARRAY <<< "$KERNELS"
-        for KERNEL in "${KERNEL_ARRAY[@]}"; do
+        IFS=' ' read -r -a KS <<< "$KERNELS"
+        for KERNEL in "${KS[@]}"; do
             if [[ "$KERNEL" =~ ^.*-headers$ ]]; then
                 continue
             fi
@@ -1381,7 +1366,7 @@ function bootloader_efistub_entry() {
     local MICROCODE=""
 
     if [ -n "$INITRD_MICROCODE" ]; then
-        local MICROCODE="initrd /$INITRD_MICROCODE"
+        local MICROCODE="initrd=\\$INITRD_MICROCODE"
     fi
 
     arch-chroot "${MNT_DIR}" efibootmgr --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL)" --loader /vmlinuz-"$KERNEL" --unicode "$CMDLINE_LINUX $CMDLINE_LINUX_ROOT rw $MICROCODE initrd=\initramfs-$KERNEL.img" --verbose
@@ -1560,55 +1545,15 @@ function display_manager() {
             "gnome" | "budgie" )
                 display_manager_gdm
                 ;;
-            # "budgie" )
-            #     display_manager_gdm
-            #     ;;
             "kde" )
                 display_manager_sddm
                 ;;
             "lxde" )
                 display_manager_lxdm
                 ;;
-            * )
-                # For everything else use lightdm
+            "xfce" | "mate" | "cinnamon" | "i3-wm" | "i3-gaps" | "deepin" | "bspwm" | "awesome" | "qtile" | "openbox" | "leftwm" | "dusk" )
                 display_manager_lightdm
                 ;;
-            # "xfce" )
-            #     display_manager_lightdm
-            #     ;;
-            # "mate" )
-            #     display_manager_lightdm
-            #     ;;
-            # "cinnamon" )
-            #     display_manager_lightdm
-            #     ;;
-            # "i3-wm" )
-            #     display_manager_lightdm
-            #     ;;
-            # "i3-gaps" )
-            #     display_manager_lightdm
-            #     ;;
-            # "deepin" )
-            #     display_manager_lightdm
-            #     ;;
-            # "bspwm" )
-            #     display_manager_lightdm
-            #     ;;
-            # "awesome" )
-            #     display_manager_lightdm
-            #     ;;
-            # "qtile" )
-            #     display_manager_lightdm
-            #     ;;
-            # "openbox" )
-            #     display_manager_lightdm
-            #     ;;
-            # "leftwm" )
-            #     display_manager_lightdm
-            #     ;;
-            # "dusk" )
-            #     display_manager_lightdm
-            #     ;;
         esac
     else
         case "$DISPLAY_MANAGER" in

@@ -1378,9 +1378,14 @@ EOT
 
 function bootloader_efistub_entry() {
     local KERNEL="$1"
+    local MICROCODE=""
 
-    arch-chroot "${MNT_DIR}" efibootmgr --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL)" --loader /vmlinuz-"$KERNEL" --unicode "$CMDLINE_LINUX $CMDLINE_LINUX_ROOT rw $EFISTUB_MICROCODE initrd=\initramfs-$POSTFIX.img" --verbose
-    arch-chroot "${MNT_DIR}" efibootmgr --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL fallback)" --loader /vmlinuz-"$KERNEL" --unicode "$CMDLINE_LINUX $CMDLINE_LINUX_ROOT rw $EFISTUB_MICROCODE initrd=\initramfs-$POSTFIX-fallback.img" --verbose
+    if [ -n "$INITRD_MICROCODE" ]; then
+        local MICROCODE="initrd /$INITRD_MICROCODE"
+    fi
+
+    arch-chroot "${MNT_DIR}" efibootmgr --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL)" --loader /vmlinuz-"$KERNEL" --unicode "$CMDLINE_LINUX $CMDLINE_LINUX_ROOT rw $MICROCODE initrd=\initramfs-$KERNEL.img" --verbose
+    arch-chroot "${MNT_DIR}" efibootmgr --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL fallback)" --loader /vmlinuz-"$KERNEL" --unicode "$CMDLINE_LINUX $CMDLINE_LINUX_ROOT rw $MICROCODE initrd=\initramfs-$KERNEL-fallback.img" --verbose
 }
 
 function custom_shell() {

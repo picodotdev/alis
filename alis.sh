@@ -1241,8 +1241,10 @@ function bootloader_refind() {
 
     bootloader_refind_entry "linux"
     if [ -n "$KERNELS" ]; then
-        IFS=' ' read -ra KS <<< "$KERNELS"
-        for KERNEL in "${KERNELS[@]}"; do
+        # Code is converting string to array but it is not using KS variable in for loop
+        # I have changed it to KERNEL_ARRAY, for being easy to understand.
+        IFS=' ' read -r -a KERNEL_ARRAY <<< "$KERNELS"
+        for KERNEL in "${KERNEL_ARRAY[@]}"; do
             if [[ "$KERNEL" =~ ^.*-headers$ ]]; then
                 continue
             fi
@@ -1286,8 +1288,8 @@ EOT
 
     bootloader_systemd_entry "linux"
     if [ -n "$KERNELS" ]; then
-        IFS=' ' read -ra KS <<< "$KERNELS"
-        for KERNEL in "${KERNELS[@]}"; do
+      IFS=' ' read -r -a KERNEL_ARRAY <<< "$KERNELS"
+        for KERNEL in "${KERNEL_ARRAY[@]}"; do
             if [[ "$KERNEL" =~ ^.*-headers$ ]]; then
                 continue
             fi
@@ -1305,8 +1307,8 @@ function bootloader_efistub() {
 
     bootloader_efistub_entry "linux"
     if [ -n "$KERNELS" ]; then
-        IFS=' ' read -ra KS <<< "$KERNELS"
-        for KERNEL in "${KERNELS[@]}"; do
+      IFS=' ' read -r -a KERNEL_ARRAY <<< "$KERNELS"
+        for KERNEL in "${KERNEL_ARRAY[@]}"; do
             if [[ "$KERNEL" =~ ^.*-headers$ ]]; then
                 continue
             fi

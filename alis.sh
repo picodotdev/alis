@@ -1341,7 +1341,7 @@ title Arch Linux ($KERNEL)
 efi /vmlinuz-linux
 $MICROCODE
 initrd /initramfs-$KERNEL.img
-options initrd=initramfs-$KERNEL.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX"
+options initrd=initramfs-$KERNEL.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX
 EOT
 
     cat <<EOT >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/arch-$KERNEL-terminal.conf"
@@ -1349,7 +1349,7 @@ title Arch Linux ($KERNEL, terminal)
 efi /vmlinuz-linux
 $MICROCODE
 initrd /initramfs-$KERNEL-terminal.img
-options initrd=initramfs-$KERNEL-terminal.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX"
+options initrd=initramfs-$KERNEL-terminal.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX
 EOT
 
     cat <<EOT >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/arch-$KERNEL-fallback.conf"
@@ -1357,7 +1357,7 @@ title Arch Linux ($KERNEL, fallback)
 efi /vmlinuz-linux
 $MICROCODE
 initrd /initramfs-$KERNEL-fallback.img
-options initrd=initramfs-$KERNEL-fallback.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX"
+options initrd=initramfs-$KERNEL-fallback.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX
 EOT
 }
 

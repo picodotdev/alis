@@ -629,16 +629,16 @@ EOT
 function configuration() {
     print_step "configuration()"
 
-    genfstab -U "${MNT_DIR}" >> "${MNT_DIR}"/etc/fstab
+    genfstab -U "${MNT_DIR}" >> "${MNT_DIR}/etc/fstab"
 
-    cat <<EOT >> "${MNT_DIR}"/etc/fstab"
+    cat <<EOT >> "${MNT_DIR}/etc/fstab"
 # efivars
 efivarfs /sys/firmware/efi/efivars efivarfs ro,nosuid,nodev,noexec 0 0
 
 EOT
 
     if [ -n "$SWAP_SIZE" ]; then
-        cat <<EOT >> "${MNT_DIR}"/etc/fstab"
+        cat <<EOT >> "${MNT_DIR}/etc/fstab"
 # swap
 $SWAPFILE none swap defaults 0 0
 

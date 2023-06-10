@@ -53,7 +53,7 @@ For new features, improvements and bugs, fill an issue in GitHub or make a pull 
 * Allow to customize the installation to cover the most common cases
 * Provide support for system recovery
 * Provide support for installation log
-* Use same configuration default values
+* Use sane configuration default values
 
 ## Features
 

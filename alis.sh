@@ -1295,16 +1295,6 @@ function bootloader_systemd() {
     arch-chroot "${MNT_DIR}" systemd-machine-id-setup
     arch-chroot "${MNT_DIR}" bootctl install
 
-    arch-chroot "${MNT_DIR}" mkdir -p "$ESP_DIRECTORY/loader/"
-    arch-chroot "${MNT_DIR}" mkdir -p "$ESP_DIRECTORY/loader/entries/"
-
-    cat <<EOT > "${MNT_DIR}${ESP_DIRECTORY}/loader/loader.conf"
-# alis
-timeout 5
-default archlinux.conf
-editor 0
-EOT
-
     #arch-chroot "${MNT_DIR}" systemctl enable systemd-boot-update.service
 
     arch-chroot "${MNT_DIR}" mkdir -p "/etc/pacman.d/hooks/"
@@ -1320,19 +1310,36 @@ When = PostTransaction
 Exec = /usr/bin/systemctl restart systemd-boot-update.service
 EOT
 
-    bootloader_systemd_entry "linux"
-    if [ -n "$KERNELS" ]; then
-        IFS=' ' read -r -a KS <<< "$KERNELS"
-        for KERNEL in "${KS[@]}"; do
-            if [[ "$KERNEL" =~ ^.*-headers$ ]]; then
-                continue
-            fi
-            bootloader_systemd_entry "$KERNEL"
-        done
-    fi
+    if [ "$UKI" == "true" ]; then
+        cat <<EOT > "${MNT_DIR}${ESP_DIRECTORY}/loader/loader.conf"
+# alis
+timeout 5
+editor 0
+EOT
+    else
+        cat <<EOT > "${MNT_DIR}${ESP_DIRECTORY}/loader/loader.conf"
+# alis
+timeout 5
+default archlinux.conf
+editor 0
+EOT
 
-    if [ "$VIRTUALBOX" == "true" ]; then
-        echo -n "\EFI\systemd\systemd-bootx64.efi" > "${MNT_DIR}${ESP_DIRECTORY}/startup.nsh"
+        arch-chroot "${MNT_DIR}" mkdir -p "$ESP_DIRECTORY/loader/entries/"
+
+        bootloader_systemd_entry "linux"
+        if [ -n "$KERNELS" ]; then
+            IFS=' ' read -r -a KS <<< "$KERNELS"
+            for KERNEL in "${KS[@]}"; do
+                if [[ "$KERNEL" =~ ^.*-headers$ ]]; then
+                    continue
+                fi
+                bootloader_systemd_entry "$KERNEL"
+            done
+        fi
+
+        if [ "$VIRTUALBOX" == "true" ]; then
+            echo -n "\EFI\systemd\systemd-bootx64.efi" > "${MNT_DIR}${ESP_DIRECTORY}/startup.nsh"
+        fi
     fi
 }
 

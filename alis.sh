@@ -1275,19 +1275,21 @@ function bootloader_refind() {
     arch-chroot "${MNT_DIR}" sed -i 's/^#scan_all_linux_kernels.*/scan_all_linux_kernels false/' "$ESP_DIRECTORY/EFI/refind/refind.conf"
     #arch-chroot "${MNT_DIR}" sed -i 's/^#default_selection "+,bzImage,vmlinuz"/default_selection "+,bzImage,vmlinuz"/' "$ESP_DIRECTORY/EFI/refind/refind.conf"
 
-    bootloader_refind_entry "linux"
-    if [ -n "$KERNELS" ]; then
-        IFS=' ' read -r -a KS <<< "$KERNELS"
-        for KERNEL in "${KS[@]}"; do
-            if [[ "$KERNEL" =~ ^.*-headers$ ]]; then
-                continue
-            fi
-            bootloader_refind_entry "$KERNEL"
-        done
-    fi
+    if [ "$UKI" == "false" ]; then
+        bootloader_refind_entry "linux"
+        if [ -n "$KERNELS" ]; then
+            IFS=' ' read -r -a KS <<< "$KERNELS"
+            for KERNEL in "${KS[@]}"; do
+                if [[ "$KERNEL" =~ ^.*-headers$ ]]; then
+                    continue
+                fi
+                bootloader_refind_entry "$KERNEL"
+            done
+        fi
 
-    if [ "$VIRTUALBOX" == "true" ]; then
-        echo -ne "\EFI\refind\refind_x64.efi" > "${MNT_DIR}${ESP_DIRECTORY}/startup.nsh"
+        if [ "$VIRTUALBOX" == "true" ]; then
+            echo -ne "\EFI\refind\refind_x64.efi" > "${MNT_DIR}${ESP_DIRECTORY}/startup.nsh"
+        fi
     fi
 }
 

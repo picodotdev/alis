@@ -196,6 +196,7 @@ function check_variables() {
             check_variables_value "SYSTEMD_HOMED_CIFS[\"service\"]" "${SYSTEMD_HOMED_CIFS_SERVICE["size"]}"
         fi
     fi
+    check_variables_boolean "UKI" "$UKI"
     check_variables_value "HOOKS" "$HOOKS"
     check_variables_list "BOOTLOADER" "$BOOTLOADER" "auto grub refind systemd efistub" "true" "true"
     check_variables_list "CUSTOM_SHELL" "$CUSTOM_SHELL" "bash zsh dash fish" "true" "true"
@@ -560,6 +561,10 @@ function install() {
     print_step "install()"
     local COUNTRIES=()
 
+    while [ "$(systemctl is-active multi-user.target)" == "inactive" ]; do
+        sleep 1
+    done
+
     pacman-key --init
     pacman-key --populate
 
@@ -781,6 +786,21 @@ function mkinitcpio_configuration() {
     fi
     if [ "$KERNELS_COMPRESSION" == "zstd" ]; then
         pacman_install "zstd"
+    fi
+
+    if [ "$UKI" == "true" ]; then
+        mkdir -p "${MNT_DIR}$ESP_DIRECTORY/EFI/Linux"
+
+        mkinitcpio_preset "linux"
+        if [ -n "$KERNELS" ]; then
+            IFS=' ' read -r -a KS <<< "$KERNELS"
+            for KERNEL in "${KS[@]}"; do
+                if [[ "$KERNEL" =~ ^.*-headers$ ]]; then
+                    continue
+                fi
+                mkinitcpio_preset "$KERNEL"
+            done
+        fi
     fi
 }
 
@@ -1097,6 +1117,23 @@ function mkinitcpio() {
     arch-chroot "${MNT_DIR}" mkinitcpio -P
 }
 
+function mkinitcpio_preset() {
+    local KERNEL="$1"
+
+    cat <<EOT > "${MNT_DIR}/etc/mkinitcpio.d/$KERNEL.preset"
+ALL_config="/etc/mkinitcpio.conf"
+ALL_kver="/boot/vmlinuz-$KERNEL"
+ALL_microcode=(/boot/*-ucode.img)
+
+PRESETS=('default' 'fallback')
+
+default_uki="$ESP_DIRECTORY/EFI/Linux/archlinux-$KERNEL.efi"
+
+fallback_uki="$ESP_DIRECTORY/EFI/Linux/archlinux-$KERNEL-fallback.efi"
+fallback_options="-S autodetect"
+EOT
+}
+
 function network() {
     print_step "network()"
 
@@ -1194,6 +1231,10 @@ function bootloader() {
             ;;
     esac
 
+    if [ "$UKI" == "true" ]; then
+        echo "$CMDLINE_LINUX $CMDLINE_LINUX_ROOT rw" > "${MNT_DIR}/etc/kernel/cmdline" 
+    fi
+
     arch-chroot "${MNT_DIR}" systemctl set-default multi-user.target
 }
 
@@ -1234,35 +1275,27 @@ function bootloader_refind() {
     arch-chroot "${MNT_DIR}" sed -i 's/^#scan_all_linux_kernels.*/scan_all_linux_kernels false/' "$ESP_DIRECTORY/EFI/refind/refind.conf"
     #arch-chroot "${MNT_DIR}" sed -i 's/^#default_selection "+,bzImage,vmlinuz"/default_selection "+,bzImage,vmlinuz"/' "$ESP_DIRECTORY/EFI/refind/refind.conf"
 
-    bootloader_refind_entry "linux"
-    if [ -n "$KERNELS" ]; then
-        IFS=' ' read -r -a KS <<< "$KERNELS"
-        for KERNEL in "${KS[@]}"; do
-            if [[ "$KERNEL" =~ ^.*-headers$ ]]; then
-                continue
-            fi
-            bootloader_refind_entry "$KERNEL"
-        done
-    fi
+    if [ "$UKI" == "false" ]; then
+        bootloader_refind_entry "linux"
+        if [ -n "$KERNELS" ]; then
+            IFS=' ' read -r -a KS <<< "$KERNELS"
+            for KERNEL in "${KS[@]}"; do
+                if [[ "$KERNEL" =~ ^.*-headers$ ]]; then
+                    continue
+                fi
+                bootloader_refind_entry "$KERNEL"
+            done
+        fi
 
-    if [ "$VIRTUALBOX" == "true" ]; then
-        echo -ne "\EFI\refind\refind_x64.efi" > "${MNT_DIR}${ESP_DIRECTORY}/startup.nsh"
+        if [ "$VIRTUALBOX" == "true" ]; then
+            echo -ne "\EFI\refind\refind_x64.efi" > "${MNT_DIR}${ESP_DIRECTORY}/startup.nsh"
+        fi
     fi
 }
 
 function bootloader_systemd() {
     arch-chroot "${MNT_DIR}" systemd-machine-id-setup
     arch-chroot "${MNT_DIR}" bootctl install
-
-    arch-chroot "${MNT_DIR}" mkdir -p "$ESP_DIRECTORY/loader/"
-    arch-chroot "${MNT_DIR}" mkdir -p "$ESP_DIRECTORY/loader/entries/"
-
-    cat <<EOT > "${MNT_DIR}${ESP_DIRECTORY}/loader/loader.conf"
-# alis
-timeout 5
-default archlinux.conf
-editor 0
-EOT
 
     #arch-chroot "${MNT_DIR}" systemctl enable systemd-boot-update.service
 
@@ -1279,19 +1312,36 @@ When = PostTransaction
 Exec = /usr/bin/systemctl restart systemd-boot-update.service
 EOT
 
-    bootloader_systemd_entry "linux"
-    if [ -n "$KERNELS" ]; then
-        IFS=' ' read -r -a KS <<< "$KERNELS"
-        for KERNEL in "${KS[@]}"; do
-            if [[ "$KERNEL" =~ ^.*-headers$ ]]; then
-                continue
-            fi
-            bootloader_systemd_entry "$KERNEL"
-        done
-    fi
+    if [ "$UKI" == "true" ]; then
+        cat <<EOT > "${MNT_DIR}${ESP_DIRECTORY}/loader/loader.conf"
+# alis
+timeout 5
+editor 0
+EOT
+    else
+        cat <<EOT > "${MNT_DIR}${ESP_DIRECTORY}/loader/loader.conf"
+# alis
+timeout 5
+default archlinux.conf
+editor 0
+EOT
 
-    if [ "$VIRTUALBOX" == "true" ]; then
-        echo -n "\EFI\systemd\systemd-bootx64.efi" > "${MNT_DIR}${ESP_DIRECTORY}/startup.nsh"
+        arch-chroot "${MNT_DIR}" mkdir -p "$ESP_DIRECTORY/loader/entries/"
+
+        bootloader_systemd_entry "linux"
+        if [ -n "$KERNELS" ]; then
+            IFS=' ' read -r -a KS <<< "$KERNELS"
+            for KERNEL in "${KS[@]}"; do
+                if [[ "$KERNEL" =~ ^.*-headers$ ]]; then
+                    continue
+                fi
+                bootloader_systemd_entry "$KERNEL"
+            done
+        fi
+
+        if [ "$VIRTUALBOX" == "true" ]; then
+            echo -n "\EFI\systemd\systemd-bootx64.efi" > "${MNT_DIR}${ESP_DIRECTORY}/startup.nsh"
+        fi
     fi
 }
 
@@ -1373,12 +1423,17 @@ function bootloader_efistub_entry() {
     local KERNEL="$1"
     local MICROCODE=""
 
-    if [ -n "$INITRD_MICROCODE" ]; then
-        local MICROCODE="initrd=\\$INITRD_MICROCODE"
-    fi
+    if [ "$UKI" == "true" ]; then
+        arch-chroot "${MNT_DIR}" efibootmgr --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL fallback)" --loader "EFI\Linux\archlinux-$KERNEL-fallback.efi" --unicode --verbose
+        arch-chroot "${MNT_DIR}" efibootmgr --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL)" --loader "EFI\Linux\archlinux-$KERNEL.efi" --unicode --verbose
+    else
+        if [ -n "$INITRD_MICROCODE" ]; then
+            local MICROCODE="initrd=\\$INITRD_MICROCODE"
+        fi
 
-    arch-chroot "${MNT_DIR}" efibootmgr --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL)" --loader /vmlinuz-"$KERNEL" --unicode "$CMDLINE_LINUX $CMDLINE_LINUX_ROOT rw $MICROCODE initrd=\initramfs-$KERNEL.img" --verbose
-    arch-chroot "${MNT_DIR}" efibootmgr --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL fallback)" --loader /vmlinuz-"$KERNEL" --unicode "$CMDLINE_LINUX $CMDLINE_LINUX_ROOT rw $MICROCODE initrd=\initramfs-$KERNEL-fallback.img" --verbose
+        arch-chroot "${MNT_DIR}" efibootmgr --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL)" --loader /vmlinuz-"$KERNEL" --unicode "$CMDLINE_LINUX $CMDLINE_LINUX_ROOT rw $MICROCODE initrd=\initramfs-$KERNEL.img" --verbose
+        arch-chroot "${MNT_DIR}" efibootmgr --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL fallback)" --loader /vmlinuz-"$KERNEL" --unicode "$CMDLINE_LINUX $CMDLINE_LINUX_ROOT rw $MICROCODE initrd=\initramfs-$KERNEL-fallback.img" --verbose
+    fi
 }
 
 function custom_shell() {
@@ -1776,13 +1831,11 @@ function main() {
     execute_step "partition"
     execute_step "install"
     execute_step "configuration"
-    execute_step "mkinitcpio_configuration"
     execute_step "users"
     if [ -n "$DISPLAY_DRIVER" ]; then
         execute_step "display_driver"
     fi
     execute_step "kernels"
-    execute_step "mkinitcpio"
     execute_step "network"
     if [ "$VIRTUALBOX" == "true" ]; then
         execute_step "virtualbox"
@@ -1791,6 +1844,8 @@ function main() {
         execute_step "vmware"
     fi
     execute_step "bootloader"
+    execute_step "mkinitcpio_configuration"
+    execute_step "mkinitcpio"
     if [ -n "$CUSTOM_SHELL" ]; then
         execute_step "custom_shell"
     fi

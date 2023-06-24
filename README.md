@@ -62,7 +62,7 @@ For new features, improvements and bugs, fill an issue in GitHub or make a pull 
 * **Encryption**: root partition encrypted and no encrypted
 * **Partition**: no LVM, LVM, LVM on LUKS, GPT on UEFI, MBR on BIOS, custom partition scheme and mountpoints
 * **File system**: ext4, btrfs (with subvols), xfs, f2fs, reiserfs
-* **Kernels**: linux, linux-lts, linux-hardened, linux-zen
+* **Kernels**: linux, linux-lts, linux-hardened, linux-zen. Supports Unified Kernel Image (UKI).
 * **Desktop environment**: GNOME, KDE, XFCE, Mate, Cinnamon, LXDE, i3-wm, i3-gaps, Deepin, Budgie, Bspwm, Awesome, Qtile, Openbox, Leftwm, Dusk
 * **Display managers**: GDM, SDDM, Lightdm, lxdm
 * **Graphics controller**: intel, nvidia and amd with optionally early KMS start. With intel optionally fastboot, hardware video acceleration and framebuffer compression.

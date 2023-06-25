@@ -756,12 +756,16 @@ function mkinitcpio_configuration() {
     if [ "$LVM" == "true" ]; then
         HOOKS=${HOOKS//!lvm2/lvm2}
     fi
-    if [ "$BOOTLOADER" == "systemd" ] || [ "$GPT_AUTOMOUNT" == "true" ]; then
+    if [ "$BOOTLOADER" == "systemd" ]; then
         HOOKS=${HOOKS//!systemd/systemd}
         HOOKS=${HOOKS//!sd-vconsole/sd-vconsole}
         if [ -n "$LUKS_PASSWORD" ]; then
             HOOKS=${HOOKS//!sd-encrypt/sd-encrypt}
         fi
+    elif [ "$GPT_AUTOMOUNT" == "true" ] && [ -n "$LUKS_PASSWORD" ]; then
+        HOOKS=${HOOKS//!systemd/systemd}
+        HOOKS=${HOOKS//!sd-vconsole/sd-vconsole}
+        HOOKS=${HOOKS//!sd-encrypt/sd-encrypt}
     else
         HOOKS=${HOOKS//!udev/udev}
         HOOKS=${HOOKS//!usr/usr}

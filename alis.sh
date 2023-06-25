@@ -201,8 +201,8 @@ function check_variables() {
             check_variables_value "SYSTEMD_HOMED_CIFS[\"service\"]" "${SYSTEMD_HOMED_CIFS_SERVICE["size"]}"
         fi
     fi
-    check_variables_boolean "UKI" "$UKI"
     check_variables_value "HOOKS" "$HOOKS"
+    check_variables_boolean "UKI" "$UKI"
     check_variables_list "BOOTLOADER" "$BOOTLOADER" "auto grub refind systemd efistub" "true" "true"
     check_variables_list "CUSTOM_SHELL" "$CUSTOM_SHELL" "bash zsh dash fish" "true" "true"
     check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde i3-wm i3-gaps deepin budgie bspwm awesome qtile openbox leftwm dusk" "false" "true"
@@ -798,7 +798,7 @@ function mkinitcpio_configuration() {
     fi
 
     if [ "$UKI" == "true" ]; then
-        mkdir -p "${MNT_DIR}$ESP_DIRECTORY/EFI/Linux"
+        mkdir -p "${MNT_DIR}$ESP_DIRECTORY/EFI/linux"
 
         mkinitcpio_preset "linux"
         if [ -n "$KERNELS" ]; then
@@ -1136,9 +1136,9 @@ ALL_microcode=(/boot/*-ucode.img)
 
 PRESETS=('default' 'fallback')
 
-default_uki="$ESP_DIRECTORY/EFI/Linux/archlinux-$KERNEL.efi"
+default_uki="$ESP_DIRECTORY/EFI/linux/archlinux-$KERNEL.efi"
 
-fallback_uki="$ESP_DIRECTORY/EFI/Linux/archlinux-$KERNEL-fallback.efi"
+fallback_uki="$ESP_DIRECTORY/EFI/linux/archlinux-$KERNEL-fallback.efi"
 fallback_options="-S autodetect"
 EOT
 }
@@ -1437,8 +1437,8 @@ function bootloader_efistub_entry() {
     local MICROCODE=""
 
     if [ "$UKI" == "true" ]; then
-        arch-chroot "${MNT_DIR}" efibootmgr --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL fallback)" --loader "EFI\Linux\archlinux-$KERNEL-fallback.efi" --unicode --verbose
-        arch-chroot "${MNT_DIR}" efibootmgr --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL)" --loader "EFI\Linux\archlinux-$KERNEL.efi" --unicode --verbose
+        arch-chroot "${MNT_DIR}" efibootmgr --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL fallback)" --loader "EFI\linux\archlinux-$KERNEL-fallback.efi" --unicode --verbose
+        arch-chroot "${MNT_DIR}" efibootmgr --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL)" --loader "EFI\linux\archlinux-$KERNEL.efi" --unicode --verbose
     else
         if [ -n "$INITRD_MICROCODE" ]; then
             local MICROCODE="initrd=\\$INITRD_MICROCODE"

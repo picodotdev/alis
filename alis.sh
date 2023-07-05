@@ -160,6 +160,11 @@ function check_variables() {
     check_variables_list "PARTITION_MODE" "$PARTITION_MODE" "auto custom manual" "true" "true"
     check_variables_value "PARTITION_BOOT_NUMBER" "$PARTITION_BOOT_NUMBER"
     check_variables_value "PARTITION_ROOT_NUMBER" "$PARTITION_ROOT_NUMBER"
+    check_variables_boolean "GPT_AUTOMOUNT" "$GPT_AUTOMOUNT"
+    if [ "$GPT_AUTOMOUNT" == "true" ] && [ "$LVM" == "true" ]; then
+        echo "LVM not possible in combination with GPT partition automounting."
+        exit 1
+    fi
     check_variables_equals "WIFI_KEY" "WIFI_KEY_RETYPE" "$WIFI_KEY" "$WIFI_KEY_RETYPE"
     check_variables_value "PING_HOSTNAME" "$PING_HOSTNAME"
     check_variables_boolean "REFLECTOR" "$REFLECTOR"
@@ -419,7 +424,7 @@ function partition() {
         if [ "$BIOS_TYPE" == "uefi" ]; then
             parted -s "$DEVICE" "$PARTITION_PARTED_UEFI"
             if [ -n "$LUKS_PASSWORD" ]; then
-                sgdisk -t="$PARTITION_ROOT_NUMBER":8309 "$DEVICE"
+                sgdisk -t="$PARTITION_ROOT_NUMBER":8304 "$DEVICE"
             elif [ "$LVM" == "true" ]; then
                 sgdisk -t="$PARTITION_ROOT_NUMBER":8e00 "$DEVICE"
             fi
@@ -634,27 +639,31 @@ EOT
 function configuration() {
     print_step "configuration()"
 
-    genfstab -U "${MNT_DIR}" >> "${MNT_DIR}/etc/fstab"
+    if [ "$GPT_AUTOMOUNT" != "true" ]; then
+        genfstab -U "${MNT_DIR}" >> "${MNT_DIR}/etc/fstab"
 
-    cat <<EOT >> "${MNT_DIR}/etc/fstab"
+        cat <<EOT >> "${MNT_DIR}/etc/fstab"
 # efivars
 efivarfs /sys/firmware/efi/efivars efivarfs ro,nosuid,nodev,noexec 0 0
 
 EOT
 
-    if [ -n "$SWAP_SIZE" ]; then
-        cat <<EOT >> "${MNT_DIR}/etc/fstab"
+        if [ -n "$SWAP_SIZE" ]; then
+            cat <<EOT >> "${MNT_DIR}/etc/fstab"
 # swap
 $SWAPFILE none swap defaults 0 0
 
 EOT
+        fi
     fi
 
     if [ "$DEVICE_TRIM" == "true" ]; then
-        if [ "$FILE_SYSTEM_TYPE" == "f2fs" ]; then
-            sed -i 's/relatime/noatime,nodiscard/' "${MNT_DIR}"/etc/fstab
-        else
-            sed -i 's/relatime/noatime/' "${MNT_DIR}"/etc/fstab
+        if [ "$GPT_AUTOMOUNT" != "true" ]; then
+            if [ "$FILE_SYSTEM_TYPE" == "f2fs" ]; then
+                sed -i 's/relatime/noatime,nodiscard/' "${MNT_DIR}"/etc/fstab
+            else
+                sed -i 's/relatime/noatime/' "${MNT_DIR}"/etc/fstab
+            fi
         fi
         arch-chroot "${MNT_DIR}" systemctl enable fstrim.timer
     fi
@@ -753,6 +762,10 @@ function mkinitcpio_configuration() {
         if [ -n "$LUKS_PASSWORD" ]; then
             HOOKS=${HOOKS//!sd-encrypt/sd-encrypt}
         fi
+    elif [ "$GPT_AUTOMOUNT" == "true" ] && [ -n "$LUKS_PASSWORD" ]; then
+        HOOKS=${HOOKS//!systemd/systemd}
+        HOOKS=${HOOKS//!sd-vconsole/sd-vconsole}
+        HOOKS=${HOOKS//!sd-encrypt/sd-encrypt}
     else
         HOOKS=${HOOKS//!udev/udev}
         HOOKS=${HOOKS//!usr/usr}
@@ -1232,7 +1245,11 @@ function bootloader() {
     esac
 
     if [ "$UKI" == "true" ]; then
-        echo "$CMDLINE_LINUX $CMDLINE_LINUX_ROOT rw" > "${MNT_DIR}/etc/kernel/cmdline" 
+        if [ "$GPT_AUTOMOUNT" == "true" ]; then
+            echo "$CMDLINE_LINUX rw" > "${MNT_DIR}/etc/kernel/cmdline"
+        else
+            echo "$CMDLINE_LINUX $CMDLINE_LINUX_ROOT rw" > "${MNT_DIR}/etc/kernel/cmdline" 
+        fi
     fi
 
     arch-chroot "${MNT_DIR}" systemctl set-default multi-user.target

@@ -77,6 +77,7 @@ For new features, improvements and bugs, fill an issue in GitHub or make a pull 
 * **Users creation** and **add to sudoers**
 * **systemd units enable or disable**
 * **systemd-homed** support
+* **systemd GPT partition automounting** support
 * **PipeWire** support
 * **Multilib** support
 * **Files provision** support
@@ -326,6 +327,7 @@ https://www.archlinux.org/download/
 * https://wiki.archlinux.org/title/Solid_State_Drives
 * https://wiki.archlinux.org/title/Swap
 * https://wiki.archlinux.org/title/Systemd
+* https://wiki.archlinux.org/title/Systemd#GPT_partition_automounting
 * https://wiki.archlinux.org/title/Systemd-boot
 * https://wiki.archlinux.org/title/Systemd-homed
 * https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface

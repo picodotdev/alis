@@ -227,10 +227,10 @@ There are other quite good similar projects that can be used as alternative to i
 
 Also, if you prefer to install an Arch Linux using a guided graphical installer you can choose an [Arch based distribution](https://wiki.archlinux.org/title/Arch-based_distributions#Active). 
 
-* [GarudaLinux](https://garudalinux.org/)
 * [ArcoLinux](https://arcolinux.com/)
 * [Manjaro](https://manjaro.org/)
 * [EndeavourOS](https://endeavouros.com/)
+* [GarudaLinux](https://garudalinux.org/)
 * [Archlabs](https://archlabslinux.com/)
 * [RebornOS](https://rebornos.org/)
 * [BlackArch](https://blackarch.org/)

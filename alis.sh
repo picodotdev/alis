@@ -204,6 +204,7 @@ function check_variables() {
     check_variables_value "HOOKS" "$HOOKS"
     check_variables_boolean "UKI" "$UKI"
     check_variables_list "BOOTLOADER" "$BOOTLOADER" "auto grub refind systemd efistub" "true" "true"
+    check_variables_boolean "SECURE_BOOT" "$SECURE_BOOT"
     check_variables_list "CUSTOM_SHELL" "$CUSTOM_SHELL" "bash zsh dash fish" "true" "true"
     check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde i3-wm i3-gaps deepin budgie bspwm awesome qtile openbox leftwm dusk" "false" "true"
     check_variables_list "DISPLAY_MANAGER" "$DISPLAY_MANAGER" "auto gdm sddm lightdm lxdm" "true" "true"
@@ -315,6 +316,10 @@ function checks() {
 function check_facts() {
     if [ "$BIOS_TYPE" == "bios" ]; then
         check_variables_list "BOOTLOADER" "$BOOTLOADER" "grub" "true" "true"
+    fi
+
+    if [ "$SECURE_BOOT" == "true" ]; then
+        check_variables_list "BOOTLOADER" "$BOOTLOADER" "grub refind systemd" "true" "true"
     fi
 }
 
@@ -802,7 +807,7 @@ function mkinitcpio_configuration() {
     fi
 
     if [ "$UKI" == "true" ]; then
-        mkdir -p "${MNT_DIR}$ESP_DIRECTORY/EFI/linux"
+        mkdir -p "${MNT_DIR}${ESP_DIRECTORY}/EFI/linux"
 
         mkinitcpio_preset "linux"
         if [ -n "$KERNELS" ]; then
@@ -1140,9 +1145,9 @@ ALL_microcode=(/boot/*-ucode.img)
 
 PRESETS=('default' 'fallback')
 
-default_uki="$ESP_DIRECTORY/EFI/linux/archlinux-$KERNEL.efi"
+default_uki="${ESP_DIRECTORY}/EFI/linux/archlinux-$KERNEL.efi"
 
-fallback_uki="$ESP_DIRECTORY/EFI/linux/archlinux-$KERNEL-fallback.efi"
+fallback_uki="${ESP_DIRECTORY}/EFI/linux/archlinux-$KERNEL-fallback.efi"
 fallback_options="-S autodetect"
 EOT
 }
@@ -1229,6 +1234,15 @@ function bootloader() {
 
     CMDLINE_LINUX=$(trim_variable "$CMDLINE_LINUX")
 
+    if [ "$SECURE_BOOT" == "true" ]; then
+        curl --output PreLoader.efi https://blog.hansenpartnership.com/wp-uploads/2013/PreLoader.efi
+        curl --output HashTool.efi https://blog.hansenpartnership.com/wp-uploads/2013/HashTool.efi
+        md5sum PreLoader.efi > PreLoader.efi.md5
+        md5sum HashTool.efi > HashTool.efi.md5
+        echo "4f7a4f566781869d252a09dc84923a82  PreLoader.efi" | md5sum -c -
+        echo "45639d23aa5f2a394b03a65fc732acf2  HashTool.efi" | md5sum -c -
+    fi
+
     case "$BOOTLOADER" in
         "grub" )
             bootloader_grub
@@ -1265,21 +1279,26 @@ function bootloader_grub() {
         echo ""
         echo "# alis"
         echo "GRUB_DISABLE_SUBMENU=y"
-     }>> "${MNT_DIR}"/etc/default/grub
+    }>> "${MNT_DIR}"/etc/default/grub
 
     if [ "$BIOS_TYPE" == "uefi" ]; then
         pacman_install "efibootmgr"
-        arch-chroot "${MNT_DIR}" grub-install --target=x86_64-efi --bootloader-id=grub --efi-directory="$ESP_DIRECTORY" --recheck
-        #arch-chroot "${MNT_DIR}" efibootmgr --create --disk $DEVICE --part $PARTITION_BOOT_NUMBER --loader /EFI/grub/grubx64.efi --label "GRUB Boot Manager" --verbose
+        arch-chroot "${MNT_DIR}" grub-install --target=x86_64-efi --bootloader-id=grub --efi-directory="${ESP_DIRECTORY}" --recheck
     fi
     if [ "$BIOS_TYPE" == "bios" ]; then
         arch-chroot "${MNT_DIR}" grub-install --target=i386-pc --recheck "$DEVICE"
     fi
 
-    arch-chroot "${MNT_DIR}" grub-mkconfig -o "$BOOT_DIRECTORY/grub/grub.cfg"
+    arch-chroot "${MNT_DIR}" grub-mkconfig -o "${BOOT_DIRECTORY}/grub/grub.cfg"
+
+    if [ "$SECURE_BOOT" == "true" ]; then
+        cp {PreLoader,HashTool}.efi "${MNT_DIR}${ESP_DIRECTORY}/EFI/grub"
+        cp "${ESP_DIRECTORY}/EFI/grub/grubx64.efi" "${MNT_DIR}${ESP_DIRECTORY}/EFI/systemd/loader.efi"
+        arch-chroot "${MNT_DIR}" efibootmgr --unicode --disk "$DEVICE" --part 1 --create --label "Arch Linux (PreLoader)" --loader "/EFI/grub/PreLoader.efi"
+    fi
 
     if [ "$VIRTUALBOX" == "true" ]; then
-        echo -n "\EFI\grub\grubx64.efi" > "${MNT_DIR}$ESP_DIRECTORY/startup.nsh"
+        echo -n "\EFI\grub\grubx64.efi" > "${MNT_DIR}${ESP_DIRECTORY}/startup.nsh"
     fi
 }
 
@@ -1288,9 +1307,15 @@ function bootloader_refind() {
     arch-chroot "${MNT_DIR}" refind-install
 
     arch-chroot "${MNT_DIR}" rm /boot/refind_linux.conf
-    arch-chroot "${MNT_DIR}" sed -i 's/^timeout.*/timeout 5/' "$ESP_DIRECTORY/EFI/refind/refind.conf"
-    arch-chroot "${MNT_DIR}" sed -i 's/^#scan_all_linux_kernels.*/scan_all_linux_kernels false/' "$ESP_DIRECTORY/EFI/refind/refind.conf"
-    #arch-chroot "${MNT_DIR}" sed -i 's/^#default_selection "+,bzImage,vmlinuz"/default_selection "+,bzImage,vmlinuz"/' "$ESP_DIRECTORY/EFI/refind/refind.conf"
+    arch-chroot "${MNT_DIR}" sed -i 's/^timeout.*/timeout 5/' "${ESP_DIRECTORY}/EFI/refind/refind.conf"
+    arch-chroot "${MNT_DIR}" sed -i 's/^#scan_all_linux_kernels.*/scan_all_linux_kernels false/' "${ESP_DIRECTORY}/EFI/refind/refind.conf"
+    #arch-chroot "${MNT_DIR}" sed -i 's/^#default_selection "+,bzImage,vmlinuz"/default_selection "+,bzImage,vmlinuz"/' "${ESP_DIRECTORY}/EFI/refind/refind.conf"
+
+    if [ "$SECURE_BOOT" == "true" ]; then
+        cp {PreLoader,HashTool}.efi "${ESP_DIRECTORY}/EFI/refind"
+        cp "${ESP_DIRECTORY}/EFI/refind/refind_x64.efi" "${MNT_DIR}${ESP_DIRECTORY}/EFI/refind/loader.efi"
+        arch-chroot "${MNT_DIR}" efibootmgr --unicode --disk "$DEVICE" --part 1 --create --label "Arch Linux (PreLoader)" --loader "/EFI/refind/PreLoader.efi"
+    fi
 
     if [ "$UKI" == "false" ]; then
         bootloader_refind_entry "linux"
@@ -1329,6 +1354,12 @@ When = PostTransaction
 Exec = /usr/bin/systemctl restart systemd-boot-update.service
 EOT
 
+    if [ "$SECURE_BOOT" == "true" ]; then
+        cp {PreLoader,HashTool}.efi "${ESP_DIRECTORY}/EFI/systemd"
+        cp "${ESP_DIRECTORY}/EFI/systemd/systemd-bootx64.efi" "${MNT_DIR}${ESP_DIRECTORY}/EFI/systemd/loader.efi"
+        arch-chroot "${MNT_DIR}" efibootmgr --unicode --disk "$DEVICE" --part 1 --create --label "Arch Linux (PreLoader)" --loader "/EFI/systemd/PreLoader.efi"
+    fi
+
     if [ "$UKI" == "true" ]; then
         cat <<EOT > "${MNT_DIR}${ESP_DIRECTORY}/loader/loader.conf"
 # alis
@@ -1343,7 +1374,7 @@ default archlinux.conf
 editor 0
 EOT
 
-        arch-chroot "${MNT_DIR}" mkdir -p "$ESP_DIRECTORY/loader/entries/"
+        arch-chroot "${MNT_DIR}" mkdir -p "${ESP_DIRECTORY}/loader/entries/"
 
         bootloader_systemd_entry "linux"
         if [ -n "$KERNELS" ]; then
@@ -1433,15 +1464,15 @@ function bootloader_efistub_entry() {
     local MICROCODE=""
 
     if [ "$UKI" == "true" ]; then
-        arch-chroot "${MNT_DIR}" efibootmgr --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL fallback)" --loader "EFI\linux\archlinux-$KERNEL-fallback.efi" --unicode --verbose
-        arch-chroot "${MNT_DIR}" efibootmgr --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL)" --loader "EFI\linux\archlinux-$KERNEL.efi" --unicode --verbose
+        arch-chroot "${MNT_DIR}" efibootmgr --unicode --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL fallback)" --loader "EFI\linux\archlinux-$KERNEL-fallback.efi" --unicode --verbose
+        arch-chroot "${MNT_DIR}" efibootmgr --unicode --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL)" --loader "EFI\linux\archlinux-$KERNEL.efi" --unicode --verbose
     else
         if [ -n "$INITRD_MICROCODE" ]; then
             local MICROCODE="initrd=\\$INITRD_MICROCODE"
         fi
 
-        arch-chroot "${MNT_DIR}" efibootmgr --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL)" --loader /vmlinuz-"$KERNEL" --unicode "$CMDLINE_LINUX $CMDLINE_LINUX_ROOT rw $MICROCODE initrd=\initramfs-$KERNEL.img" --verbose
-        arch-chroot "${MNT_DIR}" efibootmgr --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL fallback)" --loader /vmlinuz-"$KERNEL" --unicode "$CMDLINE_LINUX $CMDLINE_LINUX_ROOT rw $MICROCODE initrd=\initramfs-$KERNEL-fallback.img" --verbose
+        arch-chroot "${MNT_DIR}" efibootmgr --unicode --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL)" --loader /vmlinuz-"$KERNEL" --unicode "$CMDLINE_LINUX $CMDLINE_LINUX_ROOT rw $MICROCODE initrd=\initramfs-$KERNEL.img" --verbose
+        arch-chroot "${MNT_DIR}" efibootmgr --unicode --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL fallback)" --loader /vmlinuz-"$KERNEL" --unicode "$CMDLINE_LINUX $CMDLINE_LINUX_ROOT rw $MICROCODE initrd=\initramfs-$KERNEL-fallback.img" --verbose
     fi
 }
 

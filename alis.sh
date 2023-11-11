@@ -1292,8 +1292,8 @@ function bootloader_grub() {
     arch-chroot "${MNT_DIR}" grub-mkconfig -o "${BOOT_DIRECTORY}/grub/grub.cfg"
 
     if [ "$SECURE_BOOT" == "true" ]; then
-        cp {PreLoader,HashTool}.efi "${MNT_DIR}${ESP_DIRECTORY}/EFI/grub"
-        cp "${ESP_DIRECTORY}/EFI/grub/grubx64.efi" "${MNT_DIR}${ESP_DIRECTORY}/EFI/systemd/loader.efi"
+        mv {PreLoader,HashTool}.efi "${MNT_DIR}${ESP_DIRECTORY}/EFI/grub"
+        cp "${MNT_DIR}${ESP_DIRECTORY}/EFI/grub/grubx64.efi" "${MNT_DIR}${ESP_DIRECTORY}/EFI/systemd/loader.efi"
         arch-chroot "${MNT_DIR}" efibootmgr --unicode --disk "$DEVICE" --part 1 --create --label "Arch Linux (PreLoader)" --loader "/EFI/grub/PreLoader.efi"
     fi
 
@@ -1312,8 +1312,8 @@ function bootloader_refind() {
     #arch-chroot "${MNT_DIR}" sed -i 's/^#default_selection "+,bzImage,vmlinuz"/default_selection "+,bzImage,vmlinuz"/' "${ESP_DIRECTORY}/EFI/refind/refind.conf"
 
     if [ "$SECURE_BOOT" == "true" ]; then
-        cp {PreLoader,HashTool}.efi "${ESP_DIRECTORY}/EFI/refind"
-        cp "${ESP_DIRECTORY}/EFI/refind/refind_x64.efi" "${MNT_DIR}${ESP_DIRECTORY}/EFI/refind/loader.efi"
+        mv {PreLoader,HashTool}.efi "${MNT_DIR}${ESP_DIRECTORY}/EFI/refind"
+        cp "${MNT_DIR}${ESP_DIRECTORY}/EFI/refind/refind_x64.efi" "${MNT_DIR}${ESP_DIRECTORY}/EFI/refind/loader.efi"
         arch-chroot "${MNT_DIR}" efibootmgr --unicode --disk "$DEVICE" --part 1 --create --label "Arch Linux (PreLoader)" --loader "/EFI/refind/PreLoader.efi"
     fi
 
@@ -1355,8 +1355,8 @@ Exec = /usr/bin/systemctl restart systemd-boot-update.service
 EOT
 
     if [ "$SECURE_BOOT" == "true" ]; then
-        cp {PreLoader,HashTool}.efi "${ESP_DIRECTORY}/EFI/systemd"
-        cp "${ESP_DIRECTORY}/EFI/systemd/systemd-bootx64.efi" "${MNT_DIR}${ESP_DIRECTORY}/EFI/systemd/loader.efi"
+        mv {PreLoader,HashTool}.efi "${MNT_DIR}${ESP_DIRECTORY}/EFI/systemd"
+        cp "${MNT_DIR}${ESP_DIRECTORY}/EFI/systemd/systemd-bootx64.efi" "${MNT_DIR}${ESP_DIRECTORY}/EFI/systemd/loader.efi"
         arch-chroot "${MNT_DIR}" efibootmgr --unicode --disk "$DEVICE" --part 1 --create --label "Arch Linux (PreLoader)" --loader "/EFI/systemd/PreLoader.efi"
     fi
 

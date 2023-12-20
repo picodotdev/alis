@@ -7,7 +7,7 @@ set -eu
 # and customized Arch Linux system.
 # Copyright (C) 2022 picodotdev
 
-GITHUB_USER="picodotdev"
+GITHUB_USER="jsouthgb"
 BRANCH="master"
 HASH=""
 ARTIFACT="alis-${BRANCH}"

@@ -1,1 +1,3 @@
 xrandr --output DP-0 --off --output DP-1 --primary --mode 3840x2160 --rate 119.91 --left-of HDMI-0 --output HDMI-0 --mode 2560x1440 --rate 120
+
+xrandr --output DP-0 --mode 2560x1440 --rate 240 --output DP-1 --off --output HDMI-0 --off

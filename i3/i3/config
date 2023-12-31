@@ -1,0 +1,358 @@
+####################################
+#     MY MODS
+####################################
+focus_follows_mouse yes
+focus_wrapping no
+for_window [class="^.*"] border pixel 2
+title_align center
+######################################
+
+####################################
+#     Fonts 
+####################################
+font pango: JetBrainsMono Nerd Font Mono Bold 10
+
+################################
+#         Mod Key
+################################
+# set the mod key to the winkey:
+set $mod Mod4
+
+#####################
+# workspace layout: #
+#####################
+# default i3 tiling mode:
+workspace_layout default
+
+##############################
+#border indicator on windows:
+##############################
+default_border pixel 1
+
+# thin borders
+hide_edge_borders both
+
+###############################
+#         Gaps
+###############################
+# Set inner/outer gaps
+gaps inner 6
+gaps outer 0
+
+##############################
+#     Floating Modifier      # 
+##############################
+floating_modifier $mod
+
+##############################
+#  Switch Active Workspaces  #
+##############################
+bindsym $mod+Tab workspace next
+bindsym Mod1+Tab workspace prev
+
+##########################################
+# configuration for workspace behaviour: #
+##########################################
+
+set $ws1 "1"
+set $ws2 "2"
+set $ws3 "3"
+set $ws4 "4"
+set $ws5 "5"
+set $ws6 "6"
+set $ws7 "7"
+set $ws8 "8"
+
+##############################
+# switch to workspace        #
+##############################
+bindsym $mod+1    workspace  $ws1
+bindsym $mod+2    workspace  $ws2
+bindsym $mod+3    workspace  $ws3
+bindsym $mod+4    workspace  $ws4
+bindsym $mod+5    workspace  $ws5
+bindsym $mod+6    workspace  $ws6
+bindsym $mod+7    workspace  $ws7
+bindsym $mod+8    workspace  $ws8
+
+
+# move focused container to workspace
+bindsym $mod+Shift+1    move container to workspace  $ws1
+bindsym $mod+Shift+2    move container to workspace  $ws2
+bindsym $mod+Shift+3    move container to workspace  $ws3
+bindsym $mod+Shift+4    move container to workspace  $ws4
+bindsym $mod+Shift+5    move container to workspace  $ws5
+bindsym $mod+Shift+6    move container to workspace  $ws6
+bindsym $mod+Shift+7    move container to workspace  $ws7
+bindsym $mod+Shift+8    move container to workspace  $ws8
+
+################################
+#     Assigned Workspace       #
+################################
+
+# (W-1)
+# ========== Primary Terminal ==========
+#assign [class="kitty"] $ws1
+#for_window [class=kitty] focus
+
+#assign [class="Alacritty"] $ws1
+#for_window [class=Alacritty] focus
+
+#assign [class="Nitrogen"] $ws1
+#for_window [class=Nitrogen] focus
+
+# (W-2)
+# ========== Browsers ==========
+#assign [class="Brave"] $ws2
+#for_window [class=Brave] focus
+
+#assign [class="LibreWolf"] $ws2
+#for_window [class=LibreWolf] focus
+
+#assign [class="(?)firefox"] $ws2
+#for_window [class=firefox] focus
+
+# (W-3)
+# ========== Coding ===========
+#assign [class="Anaconda-Navigator"] $ws3
+#for_window [class=Anaconda-Navigator] focus
+
+#assign [class="(?i)Code"] $ws3
+#for_window [class=Code] focus
+
+#assign [class="Google-chrome"] $ws3
+#for_window [class=Google-chrome] focus
+
+# (W-4)
+# ========== File Manager ===========
+#assign [class="Pcmanfm"] $ws4
+#for_window [class=Pcmanfm] focus
+
+# (W-5)
+# ========== Email and Messages ===========
+#assign [class="TelegramDesktop"] $ws5
+#for_window [class=TelegramDesktop] focus
+
+#assign [class="discord"] $ws5
+#for_window [class=discord] focus
+
+#assign [class="Slack"] $ws5
+#for_window [class=Slack] focus
+
+# (W-6)
+# ========== Graphics Editor ===========
+#assign [class="Inkscape"] $ws6
+#for_window [class=Inkscape] focus
+
+#assign [class="Gimp"] $ws6
+#for_window [class=Gimp] focus
+
+#assign [class="Darktable"] $ws6
+#for_window [class=Darktable] focus
+
+# (W-7)
+# ========== Office Suits and tools ===========
+#assign [class="Soffice"] $ws7
+#for_window [class=Soffice] focus
+
+#assign [class="libreoffice-startcenter"] $ws7
+#for_window [class=libreoffice-startcenter] focus
+
+#assign [class="Zathura"] $ws7
+#for_window [class=Zathura] focus
+
+#assign [class="marktext"] $ws7
+#for_window [class=marktext] focus
+
+#assign [class="obsidian"] $ws7
+#for_window [class=obsidian] focus
+
+# (W-8)
+# ========== Settings and Misc. ===========
+#assign [class="SimpleScreenRecorder"] $ws8
+#for_window [class=SimpleScreenRecorder] focus
+
+#assign [class="Kazam"] $ws8
+#for_window [class=Kazam] focus
+
+#assign [class="Lxappearance"] $ws8
+#for_window [class=Lxappearance] focus
+
+#assign [class="stacer"] $ws8
+#for_window [class=stacer] focus
+
+#assign [class="qBittorrent"] $ws8
+#for_window [class=qBittorrent] focus
+
+#assign [class="Yad"] $ws8
+#for_window [class=Yad] focus
+
+#assign [class="Gnome-disks"] $ws8
+#for_window [class=Gnome-disks] focus
+
+##############################
+# Focus Changing
+##############################
+
+# change focus
+bindsym $mod+h focus left
+bindsym $mod+j focus down
+bindsym $mod+k focus up
+bindsym $mod+l focus right
+
+# move focused window
+bindsym $mod+Shift+h move left
+bindsym $mod+Shift+j move down
+bindsym $mod+Shift+k move up
+bindsym $mod+Shift+l move right
+
+##############################
+# Window Modifying Rules
+##############################
+
+# split in horizontal orientation
+bindsym $mod+z split h
+
+# split in vertical orientation
+bindsym $mod+a split v
+
+# enter fullscreen mode for the focused container
+bindsym $mod+m fullscreen toggle
+
+# change container layout (stacked, tabbed, toggle split)
+# bindsym $mod+s layout stacking
+bindsym $mod+e layout tabbed
+bindsym $mod+t layout toggle split
+
+# toggle tiling / floating
+bindsym $mod+space floating toggle
+
+# change focus between tiling / floating windows
+bindsym $mod+q focus mode_toggle
+
+# focus the parent container
+bindsym $mod+p focus parent
+
+##############################
+#  Window Resizing           #
+##############################
+# resize window (you can also use the mouse for that):
+bindsym $mod+Ctrl+h resize grow width 5 px or 5 ppt
+bindsym $mod+Ctrl+j resize shrink height 5 px or 5 ppt
+bindsym $mod+Ctrl+k resize grow height 5 px or 5 ppt
+bindsym $mod+Ctrl+l resize shrink width 5 px or 5 ppt
+
+##################
+# floating rules #
+##################
+
+# Default floting window size
+for_window [floating] resize set 800 500, move position center
+
+# set floating (nontiling) for apps needing it
+for_window [class="Yad" instance="yad"] floating disable
+for_window [class="Nitrogen"] floating enable
+
+# set floating (nontiling) for special apps
+for_window [class="GLava" instance="GLava"] floating enable
+
+####################################################
+# keybindings for different shortcuts and actions: #
+###################################################
+
+## App shortcuts
+
+# Browser
+bindsym $mod+w exec firefox
+
+# File Manager
+bindsym $mod+n exec dolphin
+
+# PDF Reader Zathura 
+bindsym $mod+Shift+o exec zathura
+
+# Screenshot : FlameShot
+#bindsym Print exec flameshot full --path ~/Pictures/screenshots
+bindsym $mod+F12 exec flameshot gui
+
+# start a terminal
+bindsym $mod+Return exec xfce4-terminal
+
+# ibus
+bindsym $mod+Shift+b exec ibus-setup
+
+# Network Manager Applet
+bindsym Mod1+Shift+n exec --no-startup-id nm-applet
+
+# Rofi
+bindsym $mod+d exec --no-startup-id rofi -show drun -disable-history -show-icons
+bindsym Mod1+d exec --no-startup-id rofi -show run -disable-history
+bindsym Mod1+w exec rofi -show window -show-icons
+bindsym Mod1+m exec rofi -modi emoji -show emoji
+
+# kill focused window
+bindsym $mod+Shift+q kill
+
+# exit-menu
+bindsym $mod+Shift+e exec ~/.config/i3/scripts/power.sh
+
+# Lock the system
+bindsym $mod+Shift+x exec i3lock -i ~/Pictures/backgrounds/VIM.png
+
+# reload the configuration file
+bindsym $mod+Shift+c reload
+
+# restart i3 inplace (preserves your layout/session, can be used to update i3)
+bindsym $mod+Shift+r restart
+
+# Random backgrounds
+;exec --no-startup-id feh --bg-scale /home/devu/Pictures/firewatch-dark-minimal-5k-58.jpg
+
+#############################################
+# autostart applications/services on login: #
+#############################################
+# xorg commands
+exec xrandr --output DP-0 --mode 2560x1440 --primary --rate 240 --dpi 96 --output DP-1 --off --output HDMI-0 --off
+
+#exec xset s -dpms
+#exec xset s off
+
+# network-manager applet
+exec nm-applet
+
+# compositor
+exec picom
+
+# Notification Daemon
+exec dunst
+
+# Polybar
+#exec_always --no-startup-id ~/.config/polybar/i3_bar.sh
+exec_always --no-startup-id polybar
+
+# background
+exec --no-startup-id feh --bg-scale /home/devu/Pictures/firewatch-dark-minimal-5k-58.jpg
+
+# get auth work with polkit
+exec --no-startup-id /usr/lib/mate-polkit/polkit-mate-authentication-agent-1
+
+# disable capslock
+exec setxkbmap -option ctrl:nocaps
+
+######################################
+# color settings fo windows         #
+######################################
+
+# Define colors variables:
+# bg tab mode
+set $color1     #1d2021
+set $color2     #d8a657
+set $color3     #fabd3f
+set $color4     #928374
+
+# define colors for windows:
+#class                          border          bground         text            indicator       child_border
+client.focused               $color2           $color1         $color3           $color2         $color2
+client.unfocused             $color4           $color1         $color4           $color2         $color4
+client.focused_inactive      $color4           $color1         $color4           $color4         $color4
+client.urgent                $color3           $color3         $color2           $color2         $color4

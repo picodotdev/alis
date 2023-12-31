@@ -1,0 +1,187 @@
+/**
+ * ROFI Color theme
+ * User: Habib
+ * Copyright: JuJu Ashbe !!
+ */
+
+* {
+    foreground:                        #FFFFFF;
+    backlight:                         #0f0f0f;
+    background-color:                  transparent;
+    dark:                              #0f0f0f;
+    red:                               #ea6962;
+    red-alt:                           #ca3433;
+    orange:                            #e78a4e;
+    gray-dark:                         #928374;
+    element-bg:                        #1B1B1B;
+    cream:                             #ebdbb2;
+    highlight:                         underline bold #ca3433;
+    transparent:                       #00000000;
+    font:                              "Roboto Condensed Bold 11";
+    padding:                            0px;
+    margin:                             0px;
+}
+
+configuration {
+        display-drun: "Applications: ";
+        display-run: "Commands: ";
+        display-window: "Windows: ";
+    }
+
+window {
+    width:                             24%;
+    location:                          center;
+    anchor:                            center;
+    padding:                           0px;
+    border:                            5px;
+    border-radius:                     0.2%;
+    border-color:                      @dark;
+    background-color:                  @dark;
+    spacing:                           0;
+    children:                          [mainbox];
+    orientation:                       horizontal;
+}
+
+mainbox {
+    spacing:                           0;
+    children:                          [ inputbar, message, listview ];
+}
+
+message {
+    border-color:                      @foreground;
+//  border:                            0px 2px 2px 2px;
+//  border-radius:                     10px;
+    padding:                           5;
+    background-color:                  #ccb0c4de;
+}
+
+message {
+    font:                              "Source Code Pro 8";
+    color:                             @dark;
+}
+
+inputbar {
+    color:                             @foreground;
+    padding:                           10px;
+    background-color:                  @dark;
+    border:                            2px 2px 2px 2px;
+   // border-radius:                   15px 15px 0px 0px;
+    border-color:                      @gray-dark;
+    font:                              "Source Code Pro 18";
+}
+
+entry,prompt,case-indicator {
+    text-font:                         inherit;
+    text-color:                        @red;
+}
+
+prompt {
+    margin:                            0px 0.5em 0em 0em ;
+}
+
+listview {
+    padding:                           3px;
+//    border-radius:                   0px 0px 15px 15px;
+    border-color:                      @gray-dark;
+    border:                            0px 2px 2px 2px;
+    background-color:                  @dark;
+    dynamic:                           false;
+    lines:                             10;
+    columns:                           1;
+}
+
+element {
+    padding:                           3px;
+    vertical-align:                    0.5;
+    border:                            2px;
+    border-radius:                     0px;
+    background-color:                  @element-bg;
+    color:                             @cream;
+    font:inherit;
+}
+
+element-text {
+    background-color:                  inherit;
+    text-color:                        inherit;
+}
+
+element selected.normal {
+    background-color:                  @orange;
+    text-color: @dark;
+}
+
+element normal active {
+    foreground:                        @orange;
+}
+
+element normal urgent {
+    foreground:                        @foreground;
+}
+
+element alternate normal {
+}
+
+element alternate active {
+    foreground:                        @orange;
+}
+
+element alternate urgent {
+    foreground:                        @foreground;
+}
+
+// current working window
+element selected active {
+    background-color:                  @red-alt;
+    foreground:                        @dark;
+}
+
+element selected urgent {
+    background-color:                  @foreground;
+    foreground:                        @dark;
+}
+
+element normal normal {
+
+}
+
+vertb {
+    expand:                            false;
+    children:                          [ dummy0, mode-switcher, dummy1  ];
+}
+
+dummy0,  dummy1 {
+    expand:                            true;
+}
+
+mode-switcher {
+    expand:                            false;
+    orientation:                       vertical;
+    spacing:                           0px;
+    border:                            0px 0px 0px 0px;
+}
+
+button {
+    font:                              "FontAwesome 22";
+    padding:                           6px;
+    border:                            2px 0px 2px 2px;
+    border-radius:                     4px 0px 0px 4px;
+    background-color:                  @dark;
+    border-color:                      @foreground;
+    color:                             @foreground;
+    horizontal-align:                  0.5;
+}
+
+button selected normal {
+    color:                             @dark;
+    border:                            2px 0px 2px 2px;
+    background-color:                  @dark;
+    border-color:                      @foreground;
+}
+
+error-message {
+    expand:                            true;
+    background-color:                  @red-alt;
+    border-color:                      @dark;
+    border:                            2px;
+    padding:                           1em;
+}

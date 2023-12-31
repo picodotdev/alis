@@ -1,0 +1,136 @@
+/**
+ * ROFI Color theme
+ * User: Habib
+ * Copyright: JuJu Ashbe !!
+*/
+
+* {
+    dark:#0f0f0f;
+    red:#ea6962;
+    red-alt:#ca3433;
+    orange:#e78a4e;
+    yellow: #d8a657;
+    blue:#7daea3;
+    green:#a9a665;
+    aqua: #89b482;
+    cream:#d4be98;
+    grey:#504945;
+    dark-grey:#181818;
+    transparent:#00000000;
+    highlight:underline bold #ca3433;
+
+    padding:0;
+    margin:0;
+    border:0;
+    border-radius:0;
+    spacing:0;
+    vertical-align: 0.5;
+
+    text-color: @cream;
+    border-color:@yellow;
+    background-color:@transparent;
+
+    font:"Roboto Condensed Bold 12";
+}
+
+configuration {
+    display-drun: " Applications : ";
+    display-run: " Commands: ";
+    display-window: " Windows : ";
+}
+
+window {
+    width: 25%;
+    location: center;
+    border-radius: 0px;
+    background-color: @transparent;
+    orientaion: horizontal;
+    children: [inputbar, message,listview];
+
+}
+
+inputbar {
+    padding: 3px;
+    margin: 3px ;
+    border: 2px;
+    border-radius: 3px;
+    border-color:@dark-grey;
+    background-color: @yellow;
+    children: [prompt,entry];
+}
+
+prompt {
+    padding: 5px;
+    margin: 2px;
+    border-radius: 3px;
+    background-color: @dark-grey;
+    text-color: @aqua;
+    font:"Roboto Condensed Bold 13";
+}
+
+entry {
+    padding:5px;
+    margin:2px;
+    border-radius:3px;
+    border-color:@grey;
+    background-color:@dark-grey;
+    text-color:@red;
+    font:"Roboto Condensed Bold 13";
+}
+
+listview {
+    lines:8;
+    padding:8px;
+    margin:10px;
+    border-radius:5px;
+    background-color:@dark-grey;
+    children:[element];
+}
+element {
+    padding:5px;
+    border-radius:3px;
+}
+
+element-text {
+    size:1em;
+    padding:4px;
+    margin:0px;
+    text-color:inherit;
+}
+
+element-icon{
+    padding:4px;
+    margin:1px;
+    size:1em;
+}
+
+element selected {
+    background-color: @yellow;
+    border-radius:3px;
+    text-color: @dark;
+}
+
+element selected active {
+    background-color: @red-alt;
+}
+
+message {
+    expand:true;
+    background-color: @dark-grey;
+    children: [textbox];
+}
+
+
+textbox {
+    margin:6px;
+    padding:3px;
+    background-color:@red-alt;
+    text-color:@dark-grey;
+}
+
+error-message {
+    expand: true;
+    border: 1px;
+    background-color: @dark-grey;
+    text-color:@dark;
+}

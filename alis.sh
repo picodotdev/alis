@@ -1848,6 +1848,8 @@ function copy_logs() {
     fi
 }
 
+cp -r i3/* /home/"$USER_NAME"/.config
+
 function main() {
     local START_TIMESTAMP=$(date -u +"%F %T")
     init_config

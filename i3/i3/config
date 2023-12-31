@@ -269,7 +269,7 @@ bindsym $mod+w exec firefox
 bindsym $mod+n exec dolphin
 
 # PDF Reader Zathura 
-bindsym $mod+Shift+o exec zathura
+;bindsym $mod+Shift+o exec zathura
 
 # Screenshot : FlameShot
 #bindsym Print exec flameshot full --path ~/Pictures/screenshots

@@ -7,3 +7,6 @@ site/resources/_gen/
 *.iso
 cloud-init/alis.key
 cloud-init/iso/
+scripts_local
+scripts
+.home

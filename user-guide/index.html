@@ -19,16 +19,10 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 
 
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3533636310991304" crossorigin="anonymous"></script>
 
 
-<script type="text/javascript" src="https://www.googletagmanager.com/gtag/js?id=G-71D7PJB4PJ" async></script>
-<script type="text/javascript">
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-71D7PJB4PJ');
-</script>
+
+
   </head>
   <body>
     <div class="container-fluid">
@@ -40,7 +34,7 @@
                 <div class="col-12">
                   <nav class="navbar navbar-expand-lg navbar-dark">
   <div class="container-fluid">
-    <a class="navbar-brand" href="/alis/">alis</a>
+    <a class="navbar-brand" href="/">alis</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -92,17 +86,7 @@
   <div class="container">
     <div class="row">
       <div class="col">
-        <div class="adsense adsense-bilboard">
-  <ins class="adsbygoogle"
-    style="display:block"
-    data-ad-client="ca-pub-3533636310991304"
-    data-ad-slot="8430508513"
-    data-ad-format="auto"
-    data-full-width-responsive="true"></ins>
-</div>
-<script>
-  (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
+        
       </div>
     </div>
   </div>
@@ -187,9 +171,8 @@
 
 
 
-
 <div class="code">
-    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ sha1sum archlinux-2022.03.01-x86_64.iso &#10;</span></span><span class="line"><span class="cl">64070acf60ac342d7aaddddfa0448f5900c4a0a5  archlinux-2022.03.01-x86_64.iso&#10;</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
+    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span><span class="lnt">3&#10;</span><span class="lnt">4&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># shellcheck disable=SC2148</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># SC2148: Tips depend on target shell and yours is unknown. Add a shebang.</span>&#10;</span></span><span class="line"><span class="cl">$ sha1sum archlinux-2022.03.01-x86_64.iso &#10;</span></span><span class="line"><span class="cl">64070acf60ac342d7aaddddfa0448f5900c4a0a5  archlinux-2022.03.01-x86_64.iso</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
     <div class="highlight-meta">
         <span>media-fingerprint.sh</span>
     </div>
@@ -202,7 +185,6 @@
 <a href="/alis/user-guide/images/balena-etcher_hud1efc75fd83991b95378722c43d35468_21408_2560x1440_fit_box_3.png" data-gallery="data-gallery" title="Arch Linux installation start"><img src="/alis/user-guide/images/balena-etcher_hud1efc75fd83991b95378722c43d35468_21408_750x550_fit_box_3.png" width="750" height="485" alt="Arch Linux installation start" title="Arch Linux installation start" class="" loading="lazy"></a></p>
 </figure>
 </div>
-
 <h4 id="start-a-virtual-machine">Start a virtual machine</h4>
 <p>Using a program to run virtual machines allows you to install on a fictitious machine. The virtual machine behaves like a real machine from the operating system to the programs and graphic environment. The virtual machine, except for some of the hardware components that are also virtualized and different from those of the real system, allows testing the installation and once the resulting system is finished.</p>
 <p>Some virtualization software programs are [GNOME Boxes][gnome-boxes], <a href="https://www.virtualbox.org/">VirtualBox</a> and <a href="https://virt-manager.org/">virt-manager</a>. VirtualBox is even available for non <a href="https://www.gnu.org/">GNU</a>/<a href="https://www.kernel.org/">Linux</a> operating systems like <a href="https://www.microsoft.com/">Windows</a> or <a href="https://www.apple.com/">macOS</a>.</p>
@@ -212,7 +194,6 @@
 <a href="/alis/user-guide/images/arch-linux-installation_hu7d1af452533057fdc7bc424a4ce5d374_22315_2560x1440_fit_box_3.png" data-gallery="data-gallery" title="Arch Linux installation start"><img src="/alis/user-guide/images/arch-linux-installation_hu7d1af452533057fdc7bc424a4ce5d374_22315_750x550_fit_box_3.png" width="650" height="550" alt="Arch Linux installation start" title="Arch Linux installation start" class="" loading="lazy"></a></p>
 </figure>
 </div>
-
 <h4 id="boot-a-real-machine-from-the-installation-media">Boot a real machine from the installation media</h4>
 <p>Windows systems require to have the option called Secure Boot enabled, alis requires disabling this option in the system BIOS before starting the installation. When starting the system, it is usually indicated which key must be pressed to enter the BIOS and change this option, save the changes and restart the system.</p>
 <p>Starting the installation on the current system requires a reboot and booting from the previously created USB stick. Making the system use memory as the boot device typically requires a key press that varies depending on the make of system and motherboard. With the system turned off and the USB stick with the installation media inserted into a USB port, to select the boot drive, you have to press a key that is usually indicated in the first graphic image on the monitor provided by the system for a short period of time. weather. The key is usually F2, F4, F7, F8, F12 or another.</p>
@@ -224,7 +205,6 @@
 <a href="/alis/user-guide/images/archlinux-installation-start_hu7d1af452533057fdc7bc424a4ce5d374_22315_2560x1440_fit_box_3.png" data-gallery="data-gallery" title="Arch Linux installation start"><img src="/alis/user-guide/images/archlinux-installation-start_hu7d1af452533057fdc7bc424a4ce5d374_22315_750x550_fit_box_3.png" width="650" height="550" alt="Arch Linux installation start" title="Arch Linux installation start" class="" loading="lazy"></a></p>
 </figure>
 </div>
-
 <p>With alis, the installation only consists of four commands and the edition of one or two configuration files with the desired preferences of the system to be installed. The first command is to set the keyboard layout, the second to download the alis files from the internet, the third to edit the configuration file, and finally to start the installation that requires no further interaction until it is complete.</p>
 
 
@@ -236,7 +216,7 @@
 
 
 <div class="code">
-    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span><span class="lnt">3&#10;</span><span class="lnt">4&#10;</span><span class="lnt">5&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Start the system with latest Arch Linux installation media</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># loadkeys [keymap]&nbsp;&nbsp;&nbsp;&nbsp;   # Load keyboard keymap, eg. loadkeys es, loadkeys us, loadkeys de</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># curl -sL https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash&nbsp;&nbsp;&nbsp;&nbsp; # Download alis scripts</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># vim alis.conf&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   # Edit configuration and change variables values with your preferences (system configuration)</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># ./alis.sh&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   # Start installation</span></span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
+    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span><span class="lnt">3&#10;</span><span class="lnt">4&#10;</span><span class="lnt">5&#10;</span><span class="lnt">6&#10;</span><span class="lnt">7&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># shellcheck disable=SC2148</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># SC2148: Tips depend on target shell and yours is unknown. Add a shebang.</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1">#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Start the system with latest Arch Linux installation media</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># loadkeys [keymap]&nbsp;&nbsp;&nbsp;&nbsp;   # Load keyboard keymap, eg. loadkeys es, loadkeys us, loadkeys de</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># curl -sL https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash&nbsp;&nbsp;&nbsp;&nbsp; # Download alis scripts</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># vim alis.conf&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   # Edit configuration and change variables values with your preferences (system configuration)</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># ./alis.sh&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   # Start installation</span></span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
     <div class="highlight-meta">
         <span>install.sh</span>
     </div>
@@ -253,7 +233,7 @@
 
 
 <div class="code">
-    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># loadkeys [keymap]</span>&#10;</span></span><span class="line"><span class="cl">&#10;</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
+    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span><span class="lnt">3&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># shellcheck disable=SC2148</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># SC2148: Tips depend on target shell and yours is unknown. Add a shebang.</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># loadkeys [keymap]</span></span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
     <div class="highlight-meta">
         <span>loadkeys.sh</span>
     </div>
@@ -270,7 +250,7 @@
 
 
 <div class="code">
-    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># curl -sL https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash</span>&#10;</span></span><span class="line"><span class="cl">&#10;</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
+    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span><span class="lnt">3&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># shellcheck disable=SC2148</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># SC2148: Tips depend on target shell and yours is unknown. Add a shebang.</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># curl -sL https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash</span></span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
     <div class="highlight-meta">
         <span>download.sh</span>
     </div>
@@ -286,7 +266,7 @@
 
 
 <div class="code">
-    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt"> 1&#10;</span><span class="lnt"> 2&#10;</span><span class="lnt"> 3&#10;</span><span class="lnt"> 4&#10;</span><span class="lnt"> 5&#10;</span><span class="lnt"> 6&#10;</span><span class="lnt"> 7&#10;</span><span class="lnt"> 8&#10;</span><span class="lnt"> 9&#10;</span><span class="lnt">10&#10;</span><span class="lnt">11&#10;</span><span class="lnt">12&#10;</span><span class="lnt">13&#10;</span><span class="lnt">14&#10;</span><span class="lnt">15&#10;</span><span class="lnt">16&#10;</span><span class="lnt">17&#10;</span><span class="lnt">18&#10;</span><span class="lnt">19&#10;</span><span class="lnt">20&#10;</span><span class="lnt">21&#10;</span><span class="lnt">22&#10;</span><span class="lnt">23&#10;</span><span class="lnt">24&#10;</span><span class="lnt">25&#10;</span><span class="lnt">26&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ ls -l&#10;</span></span><span class="line"><span class="cl">total 1520&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 506 mar 20 11:40 alis-asciinema.sh&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 415 mar 20 11:40 alis-cloud-init-iso.sh&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp;1252 mar 20 11:40 alis-cloud-init-ssh.sh&#10;</span></span><span class="line"><span class="cl">-rw-r--r-- 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 981 mar 20 11:40 alis-commons.conf&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev   13336 mar 20 11:40 alis-commons.sh&#10;</span></span><span class="line"><span class="cl">-rw-r--r-- 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp;9319 mar 20 11:40 alis.conf&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 975 mar 20 11:40 alis-kvm-virt-install.sh&#10;</span></span><span class="line"><span class="cl">drwxr-xr-x 8 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp;4096 mar 20 11:04 alis-master&#10;</span></span><span class="line"><span class="cl">-rw-r--r-- 1 picodotdev picodotdev 1354656 mar 20 11:40 alis-master.zip&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 514 mar 20 11:40 alis-packages-asciinema.sh&#10;</span></span><span class="line"><span class="cl">-rw-r--r-- 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp;5672 mar 20 11:40 alis-packages.conf&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 548 mar 20 11:40 alis-packages-exit.sh&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp;9004 mar 20 11:40 alis-packages.sh&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 670 mar 20 11:40 alis-packer.sh&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 201 mar 20 11:40 alis-reboot.sh&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 524 mar 20 11:40 alis-recovery-asciinema.sh&#10;</span></span><span class="line"><span class="cl">-rw-r--r-- 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp;2738 mar 20 11:40 alis-recovery.conf&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 864 mar 20 11:40 alis-recovery-reboot.sh&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp;8702 mar 20 11:40 alis-recovery.sh&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev   67840 mar 20 11:40 alis.sh&#10;</span></span><span class="line"><span class="cl">drwxr-xr-x 2 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp;4096 mar 20 11:40 configs&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 647 mar 20 11:40 download.sh&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 645 mar 20 11:40 download-sid.sh&#10;</span></span><span class="line"><span class="cl">drwxr-xr-x 3 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp;4096 mar 20 11:40 files</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
+    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt"> 1&#10;</span><span class="lnt"> 2&#10;</span><span class="lnt"> 3&#10;</span><span class="lnt"> 4&#10;</span><span class="lnt"> 5&#10;</span><span class="lnt"> 6&#10;</span><span class="lnt"> 7&#10;</span><span class="lnt"> 8&#10;</span><span class="lnt"> 9&#10;</span><span class="lnt">10&#10;</span><span class="lnt">11&#10;</span><span class="lnt">12&#10;</span><span class="lnt">13&#10;</span><span class="lnt">14&#10;</span><span class="lnt">15&#10;</span><span class="lnt">16&#10;</span><span class="lnt">17&#10;</span><span class="lnt">18&#10;</span><span class="lnt">19&#10;</span><span class="lnt">20&#10;</span><span class="lnt">21&#10;</span><span class="lnt">22&#10;</span><span class="lnt">23&#10;</span><span class="lnt">24&#10;</span><span class="lnt">25&#10;</span><span class="lnt">26&#10;</span><span class="lnt">27&#10;</span><span class="lnt">28&#10;</span><span class="lnt">29&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl"># shellcheck disable=SC2148,SC2215&#10;</span></span><span class="line"><span class="cl"># SC2148: Tips depend on target shell and yours is unknown. Add a shebang.&#10;</span></span><span class="line"><span class="cl"># SC2215: This flag is used as a command name. Bad line break or missing [ .. ]?&#10;</span></span><span class="line"><span class="cl">$ ls -l&#10;</span></span><span class="line"><span class="cl">total 1520&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 506 mar 20 11:40 alis-asciinema.sh&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 415 mar 20 11:40 alis-cloud-init-iso.sh&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp;1252 mar 20 11:40 alis-cloud-init-ssh.sh&#10;</span></span><span class="line"><span class="cl">-rw-r--r-- 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 981 mar 20 11:40 alis-commons.conf&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev   13336 mar 20 11:40 alis-commons.sh&#10;</span></span><span class="line"><span class="cl">-rw-r--r-- 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp;9319 mar 20 11:40 alis.conf&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 975 mar 20 11:40 alis-kvm-virt-install.sh&#10;</span></span><span class="line"><span class="cl">drwxr-xr-x 8 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp;4096 mar 20 11:04 alis-master&#10;</span></span><span class="line"><span class="cl">-rw-r--r-- 1 picodotdev picodotdev 1354656 mar 20 11:40 alis-master.zip&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 514 mar 20 11:40 alis-packages-asciinema.sh&#10;</span></span><span class="line"><span class="cl">-rw-r--r-- 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp;5672 mar 20 11:40 alis-packages.conf&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 548 mar 20 11:40 alis-packages-exit.sh&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp;9004 mar 20 11:40 alis-packages.sh&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 670 mar 20 11:40 alis-packer.sh&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 201 mar 20 11:40 alis-reboot.sh&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 524 mar 20 11:40 alis-recovery-asciinema.sh&#10;</span></span><span class="line"><span class="cl">-rw-r--r-- 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp;2738 mar 20 11:40 alis-recovery.conf&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 864 mar 20 11:40 alis-recovery-reboot.sh&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp;8702 mar 20 11:40 alis-recovery.sh&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev   67840 mar 20 11:40 alis.sh&#10;</span></span><span class="line"><span class="cl">drwxr-xr-x 2 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp;4096 mar 20 11:40 configs&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 647 mar 20 11:40 download.sh&#10;</span></span><span class="line"><span class="cl">-rwxr-xr-x 1 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp; 645 mar 20 11:40 download-sid.sh&#10;</span></span><span class="line"><span class="cl">drwxr-xr-x 3 picodotdev picodotdev&nbsp;&nbsp;&nbsp;&nbsp;4096 mar 20 11:40 files</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
     <div class="highlight-meta">
         <span>ls-alis.sh</span>
     </div>
@@ -305,7 +285,7 @@
 
 
 <div class="code">
-    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># curl -sL https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash -s -u picodotdev</span>&#10;</span></span><span class="line"><span class="cl">&#10;</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
+    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span><span class="lnt">3&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># shellcheck disable=SC2148</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># SC2148: Tips depend on target shell and yours is unknown. Add a shebang.</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># curl -sL https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash -s -u picodotdev</span></span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
     <div class="highlight-meta">
         <span>download-conf.sh</span>
     </div>
@@ -322,7 +302,7 @@
 
 
 <div class="code">
-    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># vim alis.conf</span>&#10;</span></span><span class="line"><span class="cl">&#10;</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
+    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span><span class="lnt">3&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># shellcheck disable=SC2148,SC2102</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># SC2148: Tips depend on target shell and yours is unknown. Add a shebang.</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># vim alis.conf</span></span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
     <div class="highlight-meta">
         <span>vim-alis-conf.sh</span>
     </div>
@@ -338,7 +318,7 @@
 
 
 <div class="code">
-    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># vim alis-packages.conf</span>&#10;</span></span><span class="line"><span class="cl">&#10;</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
+    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span><span class="lnt">3&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># shellcheck disable=SC2148,SC2102</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># SC2148: Tips depend on target shell and yours is unknown. Add a shebang.</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># vim alis-packages.conf</span></span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
     <div class="highlight-meta">
         <span>vim-alis-packages-conf.sh</span>
     </div>
@@ -353,7 +333,7 @@
 
 
 <div class="code">
-    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ ./alis.packages.sh&#10;</span></span><span class="line"><span class="cl">&#10;</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
+    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span><span class="lnt">3&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># shellcheck disable=SC2148</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># SC2148: Tips depend on target shell and yours is unknown. Add a shebang.</span>&#10;</span></span><span class="line"><span class="cl">$ ./alis.packages.sh</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
     <div class="highlight-meta">
         <span>alis-packages.sh</span>
     </div>
@@ -370,7 +350,7 @@
 
 
 <div class="code">
-    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># alis.sh</span>&#10;</span></span><span class="line"><span class="cl">&#10;</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
+    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span><span class="lnt">3&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># shellcheck disable=SC2148</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># SC2148: Tips depend on target shell and yours is unknown. Add a shebang.</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># alis.sh</span></span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
     <div class="highlight-meta">
         <span>alis.sh</span>
     </div>
@@ -414,7 +394,7 @@
 
 
 <div class="code">
-    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ pacman -Syu&#10;</span></span><span class="line"><span class="cl">&#10;</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
+    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span><span class="lnt">3&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># shellcheck disable=SC2148,SC2102</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># SC2148: Tips depend on target shell and yours is unknown. Add a shebang.</span>&#10;</span></span><span class="line"><span class="cl">$ pacman -Syu</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
     <div class="highlight-meta">
         <span>pacman-update.sh</span>
     </div>
@@ -484,7 +464,7 @@
 
 
 <div class="code">
-    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ pacman -S <span class="o">[</span>package<span class="o">]</span>&#10;</span></span><span class="line"><span class="cl">$ pacman -S firefox&#10;</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
+    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span><span class="lnt">3&#10;</span><span class="lnt">4&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># shellcheck disable=SC2148,SC2102</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># SC2148: Tips depend on target shell and yours is unknown. Add a shebang.</span>&#10;</span></span><span class="line"><span class="cl">$ pacman -S <span class="o">[</span>package<span class="o">]</span>&#10;</span></span><span class="line"><span class="cl">$ pacman -S firefox</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
     <div class="highlight-meta">
         <span>pacman-package-install.sh</span>
     </div>
@@ -500,7 +480,7 @@
 
 
 <div class="code">
-    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ paru -S <span class="o">[</span>package<span class="o">]</span>&#10;</span></span><span class="line"><span class="cl">$ yay -S <span class="o">[</span>package<span class="o">]</span>&#10;</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
+    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span><span class="lnt">3&#10;</span><span class="lnt">4&#10;</span><span class="lnt">5&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># shellcheck disable=SC2148,SC2102</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># SC2148: Tips depend on target shell and yours is unknown. Add a shebang.</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># SC2102: Ranges can only match single chars (mentioned due to duplicates).</span>&#10;</span></span><span class="line"><span class="cl">$ paru -S <span class="o">[</span>package<span class="o">]</span>&#10;</span></span><span class="line"><span class="cl">$ yay -S <span class="o">[</span>package<span class="o">]</span></span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
     <div class="highlight-meta">
         <span>aur-package-install.sh</span>
     </div>
@@ -512,7 +492,6 @@
 <a href="/alis/user-guide/images/gnome-software_hu2b4cd2d849ce3a6e4133dc9fa25d58ec_179270_2560x1440_fit_box_3.png" data-gallery="data-gallery" title="GNOME Software"><img src="/alis/user-guide/images/gnome-software_hu2b4cd2d849ce3a6e4133dc9fa25d58ec_179270_750x550_fit_box_3.png" width="576" height="550" alt="GNOME Software" title="GNOME Software" class="" loading="lazy"></a></p>
 </figure>
 </div>
-
 <p>You already will have the basics of the system and with the programs you want but there are still more customization options that you will have to do for yourself. Managing dotfiles or add some theme to the login manager is something left for the user.</p>
 <h4 id="how-to-start-recovery">How to start recovery</h4>
 <p>In the event that the error in an update is so serious that the system fails in the boot process and is not resolved with a reboot, it is necessary to recover the system manually. The recovery process consists of booting the system with the Arch Linux installation media itself, mounting the file system, and running the necessary commands to resolve the issue. Generally, if the error occurred after a system update, the problem is a package that has a bug, and the solution is usually to downgrade that package to the correct previous version.</p>
@@ -527,7 +506,7 @@
 
 
 <div class="code">
-    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ vim alis-recovery.conf&#10;</span></span><span class="line"><span class="cl">$ ./alis-recovery.sh&#10;</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
+    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span><span class="lnt">3&#10;</span><span class="lnt">4&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># shellcheck disable=SC2148,SC2102</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># SC2148: Tips depend on target shell and yours is unknown. Add a shebang.</span>&#10;</span></span><span class="line"><span class="cl">$ vim alis-recovery.conf&#10;</span></span><span class="line"><span class="cl">$ ./alis-recovery.sh</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
     <div class="highlight-meta">
         <span>recovery.sh</span>
     </div>
@@ -543,7 +522,7 @@
 
 
 <div class="code">
-    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ pacman -U <span class="o">[</span>package<span class="o">]</span>&#10;</span></span><span class="line"><span class="cl">$ pacman -U /var/cache/pacman/pkg/linux-5.16.15.arch1-1-x86_64.pkg.tar.zst&#10;</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
+    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span><span class="lnt">3&#10;</span><span class="lnt">4&#10;</span><span class="lnt">5&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># shellcheck disable=SC2148,SC2102</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># SC2148: Tips depend on target shell and yours is unknown. Add a shebang.</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># SC2102: Ranges can only match single chars (mentioned due to duplicates).</span>&#10;</span></span><span class="line"><span class="cl">$ pacman -U <span class="o">[</span>package<span class="o">]</span>&#10;</span></span><span class="line"><span class="cl">$ pacman -U /var/cache/pacman/pkg/linux-5.16.15.arch1-1-x86_64.pkg.tar.zst</span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
     <div class="highlight-meta">
         <span>package-downgrade.sh</span>
     </div>
@@ -567,7 +546,7 @@
 
 
 <div class="code">
-    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span><span class="lnt">3&#10;</span><span class="lnt">4&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ ./alis-cloud-init-iso.sh&#10;</span></span><span class="line"><span class="cl">$ ./alis-cloud-kvm-virt-installsh&#10;</span></span><span class="line"><span class="cl">$ ./alis-cloud-init-ssh.sh -i <span class="o">[</span>ip addr<span class="o">]</span>&#10;</span></span><span class="line"><span class="cl">$ ./alis-cloud-init-ssh.sh -i <span class="o">[</span>ip addr<span class="o">]</span> -c <span class="o">[</span>config<span class="o">]</span></span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
+    <div class="highlight"><div class="chroma">&#10;<table class="lntable"><tr><td class="lntd">&#10;<pre tabindex="0" class="chroma"><code><span class="lnt">1&#10;</span><span class="lnt">2&#10;</span><span class="lnt">3&#10;</span><span class="lnt">4&#10;</span><span class="lnt">5&#10;</span><span class="lnt">6&#10;</span></code></pre></td>&#10;<td class="lntd">&#10;<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># shellcheck disable=SC2148</span>&#10;</span></span><span class="line"><span class="cl"><span class="c1"># SC2148: Tips depend on target shell and yours is unknown. Add a shebang.</span>&#10;</span></span><span class="line"><span class="cl">$ ./alis-cloud-init-iso.sh&#10;</span></span><span class="line"><span class="cl">$ ./alis-cloud-kvm-virt-installsh&#10;</span></span><span class="line"><span class="cl">$ ./alis-cloud-init-ssh.sh -i <span class="o">[</span>ip addr<span class="o">]</span>&#10;</span></span><span class="line"><span class="cl">$ ./alis-cloud-init-ssh.sh -i <span class="o">[</span>ip addr<span class="o">]</span> -c <span class="o">[</span>config<span class="o">]</span></span></span></code></pre></td></tr></table>&#10;</div>&#10;</div>
     <div class="highlight-meta">
         <span>alis-cloud.sh</span>
     </div>
@@ -579,22 +558,11 @@
 <figcaption>Installing Arch Linux on a remote virtual machine via SSH install and cloud-init</figcaption>
 </figure>
 </div>
-
 <section class="mt-4">
   <div class="container">
     <div class="row">
       <div class="col">
-        <div class="adsense adsense-bilboard">
-  <ins class="adsbygoogle"
-    style="display:block"
-    data-ad-client="ca-pub-3533636310991304"
-    data-ad-slot="8430508513"
-    data-ad-format="auto"
-    data-full-width-responsive="true"></ins>
-</div>
-<script>
-  (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
+        
       </div>
     </div>
   </div>
@@ -607,17 +575,7 @@
           </div>
           <div class="col">
             <div class="sticky-top mt-3 mb-3 sidebar-sticky">
-              <div class="adsense adsense-vertical">
-  <ins class="adsbygoogle"
-    style="display:block"
-    data-ad-client="ca-pub-3533636310991304"
-    data-ad-slot="3667532428"
-    data-ad-format="auto"
-    data-full-width-responsive="true"></ins>
-</div>
-<script>
-  (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
+              
             </div>
           </div>
         </div>

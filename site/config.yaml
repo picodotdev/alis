@@ -3,16 +3,11 @@ baseURL: https://picodotdev.github.io/alis/
 languageCode: "en"
 defaultContentLanguage: "en"
 metadataformat: "yaml"
-timeout: 360000"
+timeout: 360000
 theme: "alis"
-
-author:
-  name: "picodotdev"
-  description: "Ingeniero de software. I ♥ Java, GNU/Linux and libre software."
 
 disableKinds:
 - taxonomy
-- taxonomyTerm
 
 markup:
   defaultMarkdownHandler: goldmark
@@ -31,6 +26,8 @@ markup:
 pygmentsUseClasses: true
 pygmentsOptions: linenos=table,linenostart=1
 pygmentsStyle: github
+
+copyright: https://creativecommons.org/licenses/by-sa/4.0/
 
 imaging:
   resampleFilter: "box"
@@ -72,6 +69,9 @@ menu:
 
 params:
   description: "A simple powerful Bash based script for an unattended, easy and fast way to install Arch Linux. Developed from many Arch Linux Wiki pages that fully automates the installation of a Arch Linux system after booting from the original Arch Linux installation media."
+  author:
+    name: "picodotdev"
+    description: "I ♥ Java, GNU/Linux and libre software."
   font:
     name: "Open Sans"
     sizes: [400,600]

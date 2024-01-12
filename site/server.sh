@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-hugo server --buildDrafts --buildFuture --watch --disableLiveReload
+hugo server --buildDrafts --buildFuture --watch --disableLiveReload --gc

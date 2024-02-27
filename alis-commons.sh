@@ -420,7 +420,7 @@ function partition_device() {
 }
 
 function partition_options() {
-    PARTITION_OPTIONS_BOOT="defaults"
+    PARTITION_OPTIONS_BOOT="defaults,uid=0,gid=0,fmask=0077,dmask=0077"
     PARTITION_OPTIONS="defaults"
 
     if [ "$DEVICE_TRIM" == "true" ]; then

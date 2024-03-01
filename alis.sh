@@ -1234,6 +1234,9 @@ function bootloader() {
 
     CMDLINE_LINUX=$(trim_variable "$CMDLINE_LINUX")
 
+    if [ "$BIOS_TYPE" == "uefi" ] || [ "$SECURE_BOOT" == "true" ]; then
+        pacman_install "efibootmgr"
+    fi
     if [ "$SECURE_BOOT" == "true" ]; then
         curl --output PreLoader.efi https://blog.hansenpartnership.com/wp-uploads/2013/PreLoader.efi
         curl --output HashTool.efi https://blog.hansenpartnership.com/wp-uploads/2013/HashTool.efi
@@ -1282,7 +1285,6 @@ function bootloader_grub() {
     }>> "${MNT_DIR}"/etc/default/grub
 
     if [ "$BIOS_TYPE" == "uefi" ]; then
-        pacman_install "efibootmgr"
         arch-chroot "${MNT_DIR}" grub-install --target=x86_64-efi --bootloader-id=grub --efi-directory="${ESP_DIRECTORY}" --recheck
     fi
     if [ "$BIOS_TYPE" == "bios" ]; then

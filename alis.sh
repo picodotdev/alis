@@ -571,10 +571,6 @@ function install() {
     print_step "install()"
     local COUNTRIES=()
 
-    while [ "$(systemctl is-active multi-user.target)" == "inactive" ]; do
-        sleep 1
-    done
-
     pacman-key --init
     pacman-key --populate
 

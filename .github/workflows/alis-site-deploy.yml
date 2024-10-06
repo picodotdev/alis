@@ -7,12 +7,12 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      HUGO_VERSION: 0.121.1
+      HUGO_VERSION: 0.135.0
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
-          ref: master
-      - uses: actions/checkout@v2
+          ref: main
+      - uses: actions/checkout@v4
         with:
           path: site/deploy/
           ref: gh-pages

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-git clone -b master git@github.com:picodotdev/alis.git
+git clone -b main git@github.com:picodotdev/alis.git
 cd alis || exit
 git config --local user.email "pico.dev@gmail.com"
 git config --local user.name "pico.dev"

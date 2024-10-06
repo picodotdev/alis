@@ -41,7 +41,7 @@ set -eu
 #
 # Usage:
 # # loadkeys es
-# # curl -sL https://raw.githubusercontent.com/picodotdev/alis/master/download.sh | bash
+# # curl -sL https://raw.githubusercontent.com/picodotdev/alis/main/download.sh | bash
 # # vim alis-packages.conf
 # # ./alis-packages.sh
 

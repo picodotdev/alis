@@ -8,7 +8,7 @@ set -eu
 # Copyright (C) 2022 picodotdev
 
 GITHUB_USER="picodotdev"
-BRANCH="master"
+BRANCH="main"
 HASH=""
 ARTIFACT="alis-${BRANCH}"
 

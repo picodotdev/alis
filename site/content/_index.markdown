@@ -85,7 +85,7 @@ It is a simple Bash script developed from many Arch Linux Wiki pages that fully 
           <div class="card-body">
             <h5 class="card-title fw-bold">Simple configuration</h5>
             <p class="card-text">The configuration is a simple Bash file that defines some environment variables to customize the installation to each user own preferences. Simple variables but that allow most common and quite advanced configurations.</p>
-            <a href="https://github.com/picodotdev/alis/blob/master/alis.conf" class="card-link">Configuration file</a>
+            <a href="https://github.com/picodotdev/alis/blob/main/alis.conf" class="card-link">Configuration file</a>
           </div>
         </div>
       </div>

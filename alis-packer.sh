@@ -6,7 +6,7 @@ set -eu
 # Copyright (C) 2022 picodotdev
 
 CONFIG_FILE="alis-packer.json"
-BRANCH="master"
+BRANCH="main"
 BRANCH_QUALIFIER=""
 CONFIG_FILE_SH="alis-config-efi-ext4-systemd.sh"
 

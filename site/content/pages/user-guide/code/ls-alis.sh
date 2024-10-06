@@ -10,8 +10,8 @@ total 1520
 -rwxr-xr-x 1 picodotdev picodotdev   13336 mar 20 11:40 alis-commons.sh
 -rw-r--r-- 1 picodotdev picodotdev    9319 mar 20 11:40 alis.conf
 -rwxr-xr-x 1 picodotdev picodotdev     975 mar 20 11:40 alis-kvm-virt-install.sh
-drwxr-xr-x 8 picodotdev picodotdev    4096 mar 20 11:04 alis-master
--rw-r--r-- 1 picodotdev picodotdev 1354656 mar 20 11:40 alis-master.zip
+drwxr-xr-x 8 picodotdev picodotdev    4096 mar 20 11:04 alis-main
+-rw-r--r-- 1 picodotdev picodotdev 1354656 mar 20 11:40 alis-main.zip
 -rwxr-xr-x 1 picodotdev picodotdev     514 mar 20 11:40 alis-packages-asciinema.sh
 -rw-r--r-- 1 picodotdev picodotdev    5672 mar 20 11:40 alis-packages.conf
 -rwxr-xr-x 1 picodotdev picodotdev     548 mar 20 11:40 alis-packages-exit.sh

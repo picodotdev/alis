@@ -4,24 +4,24 @@
     <title>alis :. Arch Linux Install Script</title>
     <link>https://picodotdev.github.io/alis/</link>
     <description>Recent content on alis :. Arch Linux Install Script</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <generator>Hugo</generator>
     <language>en</language>
     <copyright>https://creativecommons.org/licenses/by-sa/4.0/</copyright>
-    <lastBuildDate>Fri, 04 Feb 2022 16:00:00 +0100</lastBuildDate>
+    <lastBuildDate>Sun, 20 Mar 2022 01:00:00 +0100</lastBuildDate>
     <atom:link href="https://picodotdev.github.io/alis/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>User guide</title>
       <link>https://picodotdev.github.io/alis/user-guide/</link>
       <pubDate>Sun, 20 Mar 2022 01:00:00 +0100</pubDate>
       <guid>https://picodotdev.github.io/alis/user-guide/</guid>
-      <description>User Guide Installing Arch Linux with alis only requires the use of four commands and depending on the speed of the internet connection a few minutes, more important than the speed of installation is that the script completely automates the installation. Apart from the four commands, it is necessary to edit a configuration file in which to declaratively specify the values ​​of the variables to customize the configuration of the system to be installed according to preferences.</description>
+      <description>&lt;section class=&#34;mt-4&#34;&gt;&#xA;  &lt;div class=&#34;container&#34;&gt;&#xA;    &lt;div class=&#34;row&#34;&gt;&#xA;      &lt;div class=&#34;col&#34;&gt;&#xA;        &#xA;      &lt;/div&gt;&#xA;    &lt;/div&gt;&#xA;  &lt;/div&gt;&#xA;&lt;/section&gt;&#xA;&lt;h1 id=&#34;user-guide&#34;&gt;User Guide&lt;/h1&gt;&#xA;&lt;p&gt;Installing Arch Linux with alis only requires the use of four commands and depending on the speed of the internet connection a few minutes, more important than the speed of installation is that the script completely automates the installation. Apart from the four commands, it is necessary to edit a configuration file in which to declaratively specify the values ​​of the variables to customize the configuration of the system to be installed according to preferences.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Overview</title>
       <link>https://picodotdev.github.io/alis/overview/</link>
       <pubDate>Thu, 10 Feb 2022 19:00:00 +0100</pubDate>
       <guid>https://picodotdev.github.io/alis/overview/</guid>
-      <description>Overview The Arch Linux distribution can be intimidating for users who want to use it as it does not offer a graphical installer and the officially recommended option is to read a few dozen pages of the wiki to complete the installation and then type many commands interactively from the terminal in which the installation media is launched. An installer is not offered because one of the principles of Arch is that it adjusts to the user and not the user to Arch, with an installer it is very difficult or impossible to achieve the customization desired by all users, that is why it is left to each user the responsibility but the power to install it as you want according to your preferences.</description>
+      <description>&lt;section class=&#34;mt-4&#34;&gt;&#xA;  &lt;div class=&#34;container&#34;&gt;&#xA;    &lt;div class=&#34;row&#34;&gt;&#xA;      &lt;div class=&#34;col&#34;&gt;&#xA;        &#xA;      &lt;/div&gt;&#xA;    &lt;/div&gt;&#xA;  &lt;/div&gt;&#xA;&lt;/section&gt;&#xA;&lt;h1 id=&#34;overview&#34;&gt;Overview&lt;/h1&gt;&#xA;&lt;p&gt;The &lt;a href=&#34;https://archlinux.org/&#34;&gt;Arch Linux&lt;/a&gt; distribution can be intimidating for users who want to use it as it does not offer a graphical installer and the officially recommended option is to read a few dozen pages of the wiki to complete the installation and then type many commands interactively from the terminal in which the installation media is launched. An installer is not offered because one of the principles of Arch is that it adjusts to the user and not the user to Arch, with an installer it is very difficult or impossible to achieve the customization desired by all users, that is why it is left to each user the responsibility but the power to install it as you want according to your preferences.&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>

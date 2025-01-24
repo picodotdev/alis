@@ -29,6 +29,10 @@ if [ "$BRANCH" == "sid" ]; then
   BRANCH_QUALIFIER="-sid"
 fi
 
-packer validate "packer/$CONFIG_FILE"
-packer build -force -on-error=ask -var "branch=$BRANCH branch_qualifier=$BRANCH_QUALIFIER config_file_sh=$CONFIG_FILE_SH" "configs/$CONFIG_FILE"
+packer validate "configs/$CONFIG_FILE"
+packer build -force -on-error=ask \
+  -var "branch=$BRANCH" \
+  -var "branch_qualifier=$BRANCH_QUALIFIER" \
+  -var "config_file_sh=$CONFIG_FILE_SH" \
+  "configs/$CONFIG_FILE"
 

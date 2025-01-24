@@ -251,6 +251,7 @@ VirtualBox and [Packer](https://packer.io/) are required.
 * Desktop environment: gnome, kde, xfce, ...
 
 ```
+$ packer plugins install github.com/hashicorp/virtualbox
 $ ./alis-packer.sh -c alis-packer-efi-ext4-systemd.sh
 $ ./alis-packer.sh -c alis-packer-efi-ext4-systemd-gnome.sh
 $ ./alis-packer.sh -c alis-packer-efi-ext4-luks-lvm-grub.sh

@@ -1521,6 +1521,9 @@ function desktop_environment() {
     print_step "desktop_environment()"
 
     case "$DESKTOP_ENVIRONMENT" in
+        "hyprland" )
+            desktop_environment_hyprland
+            ;;
         "gnome" )
             desktop_environment_gnome
             ;;
@@ -1572,6 +1575,10 @@ function desktop_environment() {
     esac
 
     arch-chroot "${MNT_DIR}" systemctl set-default graphical.target
+}
+
+function desktop_environment_hyprland() {
+    pacman_install "hyprland"
 }
 
 function desktop_environment_gnome() {

@@ -1915,8 +1915,8 @@ function main() {
         execute_step "display_manager"
     fi
     execute_step "packages"
-    execute_step "dotfiles_dependencies"
-    execute_step "stow_dotfiles"
+    # execute_step "dotfiles_dependencies"
+    # execute_step "stow_dotfiles"
     
     if [ "$PROVISION" == "true" ]; then
         execute_step "provision"

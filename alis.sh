@@ -1723,22 +1723,6 @@ function packages() {
     fi
 }
 
-function dotfiles_dependencies() {
-    print_step "dotfiles_dependencies()"
-    ./setup-dotfiles-dependencies.sh
-    if [ "$?" != "0" ]; then
-        exit 1
-    fi
-}
-
-function stow_dotfiles() {
-    print_step "stow_dotfiles()"
-    ./setup-dotfiles.sh
-    if [ "$?" != "0" ]; then
-        exit 1
-    fi
-}
-
 function provision() {
     print_step "provision()"
 
@@ -1915,8 +1899,6 @@ function main() {
         execute_step "display_manager"
     fi
     execute_step "packages"
-    # execute_step "dotfiles_dependencies"
-    # execute_step "stow_dotfiles"
     
     if [ "$PROVISION" == "true" ]; then
         execute_step "provision"

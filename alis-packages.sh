@@ -45,7 +45,7 @@ set -eu
 # # vim alis-packages.conf
 # # ./alis-packages.sh
 
-PACKAGES_STANDALONE="true"
+PACKAGES_STANDALONE="false"
 
 function init_config() {
     local COMMONS_FILE="alis-commons.sh"
@@ -99,7 +99,7 @@ function checks() {
     check_variables_value "USER_NAME" "$USER_NAME"
 
     if [ -n "$PACKAGES_PACMAN" ]; then
-        execute_sudo "pacman -Syi $PACKAGES_PACMAN"
+        execute_sudo "pacman -Syi $PACKAGES_PACMAN" || echo "[WARN] pacman -Syi failed, continuing..."
     fi
 
     if [ "$SYSTEM_INSTALLATION" == "false" ]; then
@@ -297,6 +297,11 @@ function main() {
     execute_step "init"
     execute_step "facts"
     execute_step "checks"
+    
+    declare -F execute_step execute_sudo || echo "Missing functions!" 
+    set -x
+    #debugging
+
     execute_step "prepare"
     execute_step "packages"
     execute_step "systemd_units"

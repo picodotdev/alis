@@ -45,7 +45,7 @@ set -eu
 # # vim alis-packages.conf
 # # ./alis-packages.sh
 
-PACKAGES_STANDALONE="false"
+PACKAGES_STANDALONE="true"
 
 function init_config() {
     local COMMONS_FILE="alis-commons.sh"
@@ -117,6 +117,16 @@ function prepare() {
 
 function packages() {
     print_step "packages()"
+
+    # Debug info before starting installs
+    echo "SYSTEM_INSTALLATION=$SYSTEM_INSTALLATION"
+    echo "MNT_DIR=$MNT_DIR"
+    echo "--- Mounted filesystems involving $MNT_DIR ---"
+    mount | grep "$MNT_DIR" || echo "No mounts found for $MNT_DIR"
+    echo "--- Disk usage for $MNT_DIR ---"
+    df -h "$MNT_DIR" || echo "df failed for $MNT_DIR"
+    echo "---------------------------------------------"
+    sleep 5  # short pause so you can read it
 
     packages_pacman
     packages_flatpak

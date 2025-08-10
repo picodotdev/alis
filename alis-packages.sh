@@ -297,11 +297,6 @@ function main() {
     execute_step "init"
     execute_step "facts"
     execute_step "checks"
-    
-    declare -F execute_step execute_sudo || echo "Missing functions!" 
-    set -x
-    #debugging
-
     execute_step "prepare"
     execute_step "packages"
     execute_step "systemd_units"

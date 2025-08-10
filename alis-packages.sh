@@ -45,7 +45,7 @@ set -eu
 # # vim alis-packages.conf
 # # ./alis-packages.sh
 
-PACKAGES_STANDALONE="false"
+PACKAGES_STANDALONE="true"
 
 function init_config() {
     local COMMONS_FILE="alis-commons.sh"

@@ -1923,7 +1923,7 @@ function main() {
         execute_step "display_manager"
     fi
     execute_step "packages"
-    execute_step "dotfiles_setup"
+    #execute_step "dotfiles_setup"
     if [ "$PROVISION" == "true" ]; then
         execute_step "provision"
     fi

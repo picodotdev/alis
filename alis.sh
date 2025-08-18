@@ -1922,6 +1922,9 @@ function main() {
         execute_step "desktop_environment"
         execute_step "display_manager"
     fi
+
+    reboot 
+
     execute_step "packages"
     execute_step "dotfiles_setup"
     if [ "$PROVISION" == "true" ]; then

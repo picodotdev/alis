@@ -3,20 +3,42 @@
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 # --------------------------------------------------------------
-# Library
+# Detect running from live ISO
 # --------------------------------------------------------------
 
+if grep -q "archiso" /etc/os-release 2>/dev/null; then
+    echo ":: Detected running from live ISO. Will chroot into /mnt automatically."
+
+    # Ensure target is mounted
+    TARGET=/mnt
+    if [ ! -d "$TARGET" ]; then
+        echo "ERROR: Target root ($TARGET) does not exist or is not mounted."
+        exit 1
+    fi
+
+    # Mount pseudo-filesystems for chroot
+    mount --bind /dev $TARGET/dev
+    mount --bind /proc $TARGET/proc
+    mount --bind /sys $TARGET/sys
+    mount --bind /run $TARGET/run 2>/dev/null || true
+
+    # Copy script into target (optional)
+    cp -r $SCRIPT_DIR $TARGET/tmp/setup-arch
+
+    echo ":: Entering chroot..."
+    chroot $TARGET /bin/bash -c "/tmp/setup-arch/setup-arch.sh"
+    exit 0
+fi
+
+# --------------------------------------------------------------
+# Library
+# --------------------------------------------------------------
 source $SCRIPT_DIR/_lib.sh
 
 # --------------------------------------------------------------
-# General Packages
+# Arrays / packages
 # --------------------------------------------------------------
-
 source $SCRIPT_DIR/pkgs.sh
-
-# --------------------------------------------------------------
-# Distro related packages
-# --------------------------------------------------------------
 
 packages=(
     # Hyprland
@@ -58,9 +80,13 @@ packages=(
     "noto-fonts-extra"
 )
 
+# --------------------------------------------------------------
+# Functions (install, yay, etc.)
+# --------------------------------------------------------------
+
 _isInstalled() {
     package="$1"
-    check="$(sudo pacman -Qs --color always "${package}" | grep "local" | grep "${package} ")"
+    check="$(pacman -Qs --color always "${package}" | grep "local" | grep "${package} ")"
     if [ -n "${check}" ]; then
         echo 0
         return #true
@@ -71,20 +97,18 @@ _isInstalled() {
 
 _installYay() {
     if [[ ! $(_isInstalled "base-devel") == 0 ]]; then
-        sudo pacman --noconfirm -S "base-devel"
+        pacman --noconfirm -S "base-devel"
     fi
     if [[ ! $(_isInstalled "git") == 0 ]]; then
-        sudo pacman --noconfirm -S "git"
+        pacman --noconfirm -S "git"
     fi
-    if [ -d $HOME/Downloads/yay-bin ]; then
-        rm -rf $HOME/Downloads/yay-bin
-    fi
-    SCRIPT=$(realpath "$0")
-    temp_path=$(dirname "$SCRIPT")
-    git clone https://aur.archlinux.org/yay-bin.git $HOME/Downloads/yay-bin
-    cd $HOME/Downloads/yay-bin
+
+    TEMP_DIR=/tmp/yay-bin
+    rm -rf $TEMP_DIR
+    git clone https://aur.archlinux.org/yay-bin.git $TEMP_DIR
+    cd $TEMP_DIR
     makepkg -si
-    cd $temp_path
+    cd -
     echo ":: yay has been installed successfully."
 }
 
@@ -99,109 +123,48 @@ _installPackages() {
 }
 
 # --------------------------------------------------------------
-# Install Gum
+# Set HOME properly (for chroot installs, e.g., dotfiles)
 # --------------------------------------------------------------
-
-if [[ $(_checkCommandExists "gum") == 0 ]]; then
-    echo ":: gum is already installed"
-else
-    echo ":: The installer requires gum. gum will be installed now"
-    sudo pacman --noconfirm -S gum
+if [ -z "$HOME" ] || [ "$HOME" == "/root" ]; then
+    if [ -d /home/arcius ]; then
+        export HOME=/home/arcius
+    else
+        export HOME=/root
+    fi
 fi
 
-# --------------------------------------------------------------
-# Header
-# --------------------------------------------------------------
-
-_writeHeader "Arch"
+mkdir -p $HOME/.local/bin
 
 # --------------------------------------------------------------
-# Install yay if needed
+# Main installation
 # --------------------------------------------------------------
 
-if [[ $(_checkCommandExists "yay") == 0 ]]; then
-    echo ":: yay is already installed"
+# gum
+if command -v gum >/dev/null 2>&1; then
+    echo ":: gum is already installed"
 else
-    echo ":: The installer requires yay. yay will be installed now"
+    echo ":: Installing gum"
+    pacman --noconfirm -S gum
+fi
+
+# yay
+if ! command -v yay >/dev/null 2>&1; then
+    echo ":: Installing yay"
     _installYay
 fi
 
-# --------------------------------------------------------------
-# General
-# --------------------------------------------------------------
-
+# Install arrays
 _installPackages "${general[@]}"
-
-# --------------------------------------------------------------
-# Apps
-# --------------------------------------------------------------
-
 _installPackages "${apps[@]}"
-
-# --------------------------------------------------------------
-# Tools
-# --------------------------------------------------------------
-
 _installPackages "${tools[@]}"
-
-# --------------------------------------------------------------
-# Packages
-# --------------------------------------------------------------
-
 _installPackages "${packages[@]}"
 
-# --------------------------------------------------------------
-# Hyprland
-# --------------------------------------------------------------
-
-_installPackages "${hyprland[@]}"
-
-# --------------------------------------------------------------
-# Create .local/bin folder
-# --------------------------------------------------------------
-
-if [ ! -d $HOME/.local/bin ]; then
-    mkdir -p $HOME/.local/bin
-fi
-
-# --------------------------------------------------------------
-# Oh My Posh
-# --------------------------------------------------------------
-
-curl -s https://ohmyposh.dev/install.sh | bash -s -- -d ~/.local/bin
-
-# --------------------------------------------------------------
-# Prebuilt Packages
-# --------------------------------------------------------------
-
+# Other scripts
 source $SCRIPT_DIR/_prebuilt.sh
-
-# --------------------------------------------------------------
-# ML4W Apps
-# --------------------------------------------------------------
-
 source $SCRIPT_DIR/_ml4w-apps.sh
-
-# --------------------------------------------------------------
-# Flatpaks
-# --------------------------------------------------------------
-
 source $SCRIPT_DIR/_flatpaks.sh
-
-# --------------------------------------------------------------
-# Cursors
-# --------------------------------------------------------------
-
 source $SCRIPT_DIR/_cursors.sh
-
-# --------------------------------------------------------------
-# Fonts
-# --------------------------------------------------------------
-
 source $SCRIPT_DIR/_fonts.sh
 
-# --------------------------------------------------------------
 # Finish
-# --------------------------------------------------------------
-
 _finishMessage

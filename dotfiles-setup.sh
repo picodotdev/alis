@@ -1,4 +1,6 @@
+
 #!/usr/bin/env bash
+set -euo pipefail
 
 USER="arcius"
 MNT="/mnt"
@@ -24,7 +26,15 @@ arch-chroot "$MNT" sudo -u "$USER" bash -c "rm -rf '$DOTFILES_DIR' && git clone 
 arch-chroot "$MNT" sudo -u "$USER" bash "$DOTFILES_DIR/setup/setup-arch.sh"
 
 # Copy dotfiles into user home
-cp -r "$DOTFILES_DIR/dotfiles/." "$USER_HOME/"
+if [ -d "$DOTFILES_DIR/dotfiles" ]; then
+    cp -r "$DOTFILES_DIR/dotfiles/." "$USER_HOME/" || {
+        echo "Error: failed to copy dotfiles into $USER_HOME"
+        exit 1
+    }
+else
+    echo "Error: Expected directory $DOTFILES_DIR/dotfiles does not exist."
+    exit 1
+fi
 
 # Fix ownership
 chown -R "$USER:$USER" "$USER_HOME"

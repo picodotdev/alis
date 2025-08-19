@@ -1721,9 +1721,6 @@ function packages() {
             exit 1
         fi
     fi
-}
-
-
 
 function provision() {
     print_step "provision()"
@@ -1901,6 +1898,7 @@ function main() {
         execute_step "display_manager"
     fi
     execute_step "packages"
+    if [ "$PROVISION" == "true" ]; then
         execute_step "provision"
     fi
     if [ "$VAGRANT" == "true" ]; then

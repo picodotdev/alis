@@ -1723,28 +1723,6 @@ function packages() {
     fi
 }
 
-function dotfiles_setup() {
-    print_step "dotfiles_setup()"
-
-    chmod +x ./setup/setup-arch.sh  # Ensure executable
-    ./setup/setup-arch.sh
-    if [ "$?" != "0" ]; then
-        echo "Error: setup-arch.sh failed."
-        exit 1
-    fi
-
-    if [ -z "$USER_NAME" ]; then
-        echo "Error: USER_NAME variable is not set."
-        exit 1
-    fi
-
-    if [ ! -d ./dotfiles ]; then
-        echo "Warning: ./dotfiles folder not found, skipping copy."
-    else
-        cp -r ./dotfiles /home/$USER_NAME/
-        chown -R $USER_NAME:$USER_NAME /home/$USER_NAME/dotfiles
-    fi
-}
 
 
 function provision() {
@@ -1923,8 +1901,6 @@ function main() {
         execute_step "display_manager"
     fi
     execute_step "packages"
-    execute_step "dotfiles_setup"
-    if [ "$PROVISION" == "true" ]; then
         execute_step "provision"
     fi
     if [ "$VAGRANT" == "true" ]; then

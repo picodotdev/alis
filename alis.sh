@@ -1721,6 +1721,7 @@ function packages() {
             exit 1
         fi
     fi
+}
 
 function provision() {
     print_step "provision()"

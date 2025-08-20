@@ -1920,9 +1920,8 @@ arch-chroot /mnt sudo -u "$USER_NAME" mkdir -p "/home/$USER_NAME/.config/systemd
 # Copy post-install systemd unit
 arch-chroot /mnt sudo -u "$USER_NAME" cp "/home/$USER_NAME/Git/alis/post-install.service" "/home/$USER_NAME/.config/systemd/user/"
 
-# Enable the unit for one-time run
-arch-chroot /mnt sudo -u "$USER_NAME" systemctl --user enable post-install.service
-
+# Enable system-level service instead of --user
+arch-chroot /mnt systemctl enable post-install.service
 
     local END_TIMESTAMP=$(date -u +"%F %T")
     local INSTALLATION_TIME=$(date -u -d @$(($(date -d "$END_TIMESTAMP" '+%s') - $(date -d "$START_TIMESTAMP" '+%s'))) '+%T')

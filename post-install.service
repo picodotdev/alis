@@ -1,0 +1,9 @@
+[Unit]
+Description=One-time post-install dotfiles setup
+
+[Service]
+Type=oneshot
+ExecStart=%h/Git/alis/post-install.sh
+
+[Install]
+WantedBy=default.target

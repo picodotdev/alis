@@ -1906,6 +1906,27 @@ function main() {
         execute_step "vagrant"
     fi
     execute_step "systemd_units"
+
+
+# Ensure home exists
+mkdir -p /mnt/home/arcius
+chown arcius:arcius /mnt/home/arcius
+
+# Clone ALIS repo into user home
+arch-chroot /mnt sudo -u arcius git clone https://github.com/libertine89/alis /home/arcius/Git/alis || true
+
+
+# Create user systemd directory
+arch-chroot /mnt sudo -u arcius mkdir -p /home/arcius/.config/systemd/user
+
+# Copy post-install systemd unit
+arch-chroot /mnt sudo -u arcius cp /home/arcius/Git/alis/post-install.service /home/arcius/.config/systemd/user/
+
+# Enable the unit for one-time run
+arch-chroot /mnt sudo -u arcius systemctl --user enable post-install.service
+
+
+
     local END_TIMESTAMP=$(date -u +"%F %T")
     local INSTALLATION_TIME=$(date -u -d @$(($(date -d "$END_TIMESTAMP" '+%s') - $(date -d "$START_TIMESTAMP" '+%s'))) '+%T')
     echo -e "Installation start ${WHITE}$START_TIMESTAMP${NC}, end ${WHITE}$END_TIMESTAMP${NC}, time ${WHITE}$INSTALLATION_TIME${NC}"

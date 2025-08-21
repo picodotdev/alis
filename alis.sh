@@ -1906,23 +1906,6 @@ function main() {
         execute_step "vagrant"
     fi
     execute_step "systemd_units"
-
-# Ensure home exists and owned by the user
-arch-chroot /mnt mkdir -p "/home/$USER_NAME"
-arch-chroot /mnt chown "$USER_NAME:$USER_NAME" "/home/$USER_NAME"
-
-# Clone ALIS repo into user home as the user
-arch-chroot /mnt sudo -u "$USER_NAME" git clone https://github.com/libertine89/alis "/home/$USER_NAME/Git/alis" || true
-
-# Create user systemd directory as the user
-arch-chroot /mnt sudo -u "$USER_NAME" mkdir -p "/home/$USER_NAME/.config/systemd/user"
-
-# Copy post-install systemd unit
-arch-chroot /mnt sudo -u "$USER_NAME" cp "/home/$USER_NAME/Git/alis/post-install.service" "/home/$USER_NAME/.config/systemd/user/"
-
-# Enable system-level service instead of --user
-arch-chroot /mnt systemctl enable post-install.service
-
     local END_TIMESTAMP=$(date -u +"%F %T")
     local INSTALLATION_TIME=$(date -u -d @$(($(date -d "$END_TIMESTAMP" '+%s') - $(date -d "$START_TIMESTAMP" '+%s'))) '+%T')
     echo -e "Installation start ${WHITE}$START_TIMESTAMP${NC}, end ${WHITE}$END_TIMESTAMP${NC}, time ${WHITE}$INSTALLATION_TIME${NC}"

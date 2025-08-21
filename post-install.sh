@@ -7,14 +7,6 @@ GIT_DIR="$HOME_DIR/Git"
 DOTFILES_REPO="https://github.com/libertine89/dotfiles"
 ALIS_REPO="https://github.com/libertine89/alis"
 
-# Check if Hyprland is installed, install if missing
-if ! pacman -Qi hyprland &>/dev/null; then
-    echo "Installing Hyprland..."
-    sudo pacman -S --noconfirm hyprland
-else
-    echo "Hyprland already installed, skipping."
-fi
-
 # Ensure Git directory exists
 mkdir -p "$GIT_DIR"
 
@@ -36,10 +28,14 @@ else
     git -C "$GIT_DIR/alis" pull
 fi
 
-# Copy dotfiles into home directory
-echo "Copying dotfiles into $HOME_DIR..."
-cp -r "$GIT_DIR/dotfiles/dotfiles/." "$HOME_DIR/"
+# Use GNU Stow to symlink dotfiles into home directory
+echo "Stowing dotfiles into $HOME_DIR..."
+cd "$GIT_DIR/dotfiles" || exit 1
+stow --target="$HOME_DIR" dotfiles
+
+# Ensure the symlinked files are owned by the user
 chown -R "$USER_NAME:$USER_NAME" "$HOME_DIR"
+
 
 
 

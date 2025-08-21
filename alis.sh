@@ -206,7 +206,7 @@ function check_variables() {
     check_variables_list "BOOTLOADER" "$BOOTLOADER" "auto grub refind systemd efistub" "true" "true"
     check_variables_boolean "SECURE_BOOT" "$SECURE_BOOT"
     check_variables_list "CUSTOM_SHELL" "$CUSTOM_SHELL" "bash zsh dash fish" "true" "true"
-    check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde i3-wm i3-gaps deepin budgie bspwm awesome qtile openbox leftwm dusk" "false" "true"
+    check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "hyprland gnome kde xfce mate cinnamon lxde i3-wm i3-gaps deepin budgie bspwm awesome qtile openbox leftwm dusk" "false" "true"
     check_variables_list "DISPLAY_MANAGER" "$DISPLAY_MANAGER" "auto gdm sddm lightdm lxdm" "true" "true"
     check_variables_boolean "PACKAGES_MULTILIB" "$PACKAGES_MULTILIB"
     check_variables_boolean "PACKAGES_INSTALL" "$PACKAGES_INSTALL"
@@ -1521,6 +1521,9 @@ function desktop_environment() {
     print_step "desktop_environment()"
 
     case "$DESKTOP_ENVIRONMENT" in
+        "hyprland" )
+            desktop_environment_hyprland
+            ;;
         "gnome" )
             desktop_environment_gnome
             ;;
@@ -1572,6 +1575,10 @@ function desktop_environment() {
     esac
 
     arch-chroot "${MNT_DIR}" systemctl set-default graphical.target
+}
+
+function desktop_environment_hyprland() {
+    pacman_install "hyprland"
 }
 
 function desktop_environment_gnome() {

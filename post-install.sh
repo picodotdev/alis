@@ -1,27 +1,23 @@
 
 #!/usr/bin/env bash
-set -euo pipefail
 
 USER_NAME="$(whoami)"
+HOME_DIR="/home/$USER_NAME"
 GIT_DIR="$HOME/Git"
 DOTFILES_REPO="https://github.com/libertine89/dotfiles"
-DOTFILES_DIR="$GIT_DIR/dotfiles"
+ALIS_REPO="https://github.com/libertine89/alis"
 
-# Clone dotfiles
-mkdir -p "$GIT_DIR"
-if [ ! -d "$DOTFILES_DIR" ]; then
-    git clone "$DOTFILES_REPO" "$DOTFILES_DIR"
-fi
+# Install hyprland DE
+    sudo pacman -S hyprland
 
-# Run setup script
-bash "$DOTFILES_DIR/setup/setup-arch.sh"
+# Make Git directory at /home/"username"/Git
+    mkdir -p "$GIT_DIR"
+# & clone dotfiles repo
+    git clone "$DOTFILES_REPO" "$GIT_DIR"
+# & clone alis repo
+    git clone "$ALIS_REPO" "$GIT_DIR"
+# & copy dotfiles from repo to correct place in /home
+    cp -r "$GIT_DIR/dotfiles/." "$HOME_DIR/"
+    chown -R "$USER_NAME:$USER_NAME" "$HOME_DIR"
 
-# Copy dotfiles into $HOME
-if [ -d "$DOTFILES_DIR/dotfiles" ]; then
-    cp -r "$DOTFILES_DIR/dotfiles/." "$HOME/"
-fi
-
-# Disable this service so it only runs once
-systemctl --user disable post-install.service
-rm -f ~/.config/systemd/user/post-install.service
 

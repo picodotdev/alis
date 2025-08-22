@@ -62,17 +62,14 @@ stow --target="$HOME_DIR" dotfiles
 
 ########################################## SPLASH SCREEN ##########################################  
 
-# Ensure the symlinked files are owned by the user
-chown -R "$USER_NAME:$USER_NAME" "$HOME_DIR"
+# Install Plymouth and default theme directly
+pacman -S --noconfirm plymouth plymouth-theme-spinner
 
-# Install Plymouth and the default theme
-arch-chroot "$MNT_DIR" pacman -S --noconfirm plymouth plymouth-theme-spinner
-
-# Set the default theme and rebuild initramfs
-arch-chroot "$MNT_DIR" plymouth-set-default-theme -R spinner
+# Set default theme and rebuild initramfs
+plymouth-set-default-theme -R spinner
 
 # Ensure kernel options include 'quiet splash' for smooth boot
-LOADER_CONF="$MNT_DIR/boot/loader/entries/arch.conf"
+LOADER_CONF="/boot/loader/entries/arch.conf"
 if ! grep -q "splash" "$LOADER_CONF"; then
     sed -i 's/^\(options.*\)$/\1 splash/' "$LOADER_CONF"
 fi

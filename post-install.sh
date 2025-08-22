@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+########################################## VARIABLES ##########################################  
+
 USER_NAME="$(whoami)"
 HOME_DIR="/home/$USER_NAME"
 GIT_DIR="$HOME_DIR/Git"
 DOTFILES_REPO="https://github.com/libertine89/dotfiles"
 ALIS_REPO="https://github.com/libertine89/alis"
 SETUP_SCRIPT="$GIT_DIR/dotfiles/setup/setup-arch.sh"
+
+########################################## GIT & REPOS ##########################################  
 
 # Ensure Git directory exists
 mkdir -p "$GIT_DIR"
@@ -28,6 +32,8 @@ else
     echo "Alis repo already exists, pulling latest changes..."
     git -C "$GIT_DIR/alis" pull
 fi
+
+########################################## DOTFILES ##########################################  
 
 # Run setup script for dependencys for dotfiles etc
 if [ -f "$SETUP_SCRIPT" ]; then
@@ -53,12 +59,30 @@ echo "Stowing dotfiles into $HOME_DIR..."
 cd "$GIT_DIR/dotfiles" || exit 1
 stow --target="$HOME_DIR" dotfiles
 
+
+########################################## SPLASH SCREEN ##########################################  
+
 # Ensure the symlinked files are owned by the user
 chown -R "$USER_NAME:$USER_NAME" "$HOME_DIR"
 
+# Install Plymouth and the default theme
+arch-chroot "$MNT_DIR" pacman -S --noconfirm plymouth plymouth-theme-spinner
+
+# Set the default theme and rebuild initramfs
+arch-chroot "$MNT_DIR" plymouth-set-default-theme -R spinner
+
+# Ensure kernel options include 'quiet splash' for smooth boot
+LOADER_CONF="$MNT_DIR/boot/loader/entries/arch.conf"
+if ! grep -q "splash" "$LOADER_CONF"; then
+    sed -i 's/^\(options.*\)$/\1 splash/' "$LOADER_CONF"
+fi
+
+echo "Plymouth installed with default spinner theme."
+
+########################################## END ##########################################  
+
 echo "Dotfiles dependencies, setup and stow complete. Rebooting now"
 sleep 10
-
 # Remove the script itself
 rm -f "$HOME_DIR/post-install.sh"
 reboot

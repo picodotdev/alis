@@ -1903,10 +1903,15 @@ function main() {
     if [ "$PROVISION" == "true" ]; then
         execute_step "provision"
     fi
-    # set splash theme
+
+    # Set the Plymouth theme and rebuild initramfs
     arch-chroot /mnt plymouth-set-default-theme -R script
-    # Update bootloader entry to include splash
-    arch-chroot /mnt sed -i 's/^\(options.*\)$/\1 splash/' /boot/loader/entries/arch.conf
+
+    # Add 'splash' to the kernel options in the main boot entry
+    LOADER_CONF="/mnt/boot/loader/entries/arch-linux.conf"
+    if ! grep -q "splash" "$LOADER_CONF"; then
+        sed -i 's/^\(options.*\)$/\1 splash/' "$LOADER_CONF"
+    fi
 
     if [ "$VAGRANT" == "true" ]; then
         execute_step "vagrant"

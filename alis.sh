@@ -76,6 +76,7 @@ function sanitize_variables() {
     DESKTOP_ENVIRONMENT=$(sanitize_variable "$DESKTOP_ENVIRONMENT")
     DISPLAY_MANAGER=$(sanitize_variable "$DISPLAY_MANAGER")
     SYSTEMD_UNITS=$(sanitize_variable "$SYSTEMD_UNITS")
+    SYSTEMD_BOOT_TIMEOUT=$(sanitize_variable "$SYSTEMD_BOOT_TIMEOUT")
 
     for I in "${BTRFS_SUBVOLUMES_MOUNTPOINTS[@]}"; do
         IFS=',' read -ra SUBVOLUME <<< "$I"
@@ -1361,13 +1362,13 @@ EOT
     if [ "$UKI" == "true" ]; then
         cat <<EOT > "${MNT_DIR}${ESP_DIRECTORY}/loader/loader.conf"
 # alis
-timeout 5
+timeout ${SYSTEMD_BOOT_TIMEOUT}
 editor 0
 EOT
     else
         cat <<EOT > "${MNT_DIR}${ESP_DIRECTORY}/loader/loader.conf"
 # alis
-timeout 5
+timeout ${SYSTEMD_BOOT_TIMEOUT}
 default archlinux.conf
 editor 0
 EOT

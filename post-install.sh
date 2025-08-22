@@ -56,6 +56,15 @@ stow --target="$HOME_DIR" dotfiles
 # Ensure the symlinked files are owned by the user
 chown -R "$USER_NAME:$USER_NAME" "$HOME_DIR"
 
+echo "Dotfiles dependencies, setup and stow complete. Rebooting now"
+sleep 10
+
+# Remove the script itself
+rm -f "$HOME_DIR/post-install.sh"
+reboot
+
+
+
 
 
 

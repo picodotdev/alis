@@ -1904,7 +1904,7 @@ function main() {
         execute_step "provision"
     fi
     # set splash theme
-    arch-chroot /mnt plymouth-set-default-theme -R spinner
+    arch-chroot /mnt plymouth-set-default-theme -R script
     # Update bootloader entry to include splash
     arch-chroot /mnt sed -i 's/^\(options.*\)$/\1 splash/' /boot/loader/entries/arch.conf
 

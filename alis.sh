@@ -54,6 +54,7 @@ function init_config() {
     source "$COMMONS_FILE" #SC1090
     source "$COMMONS_CONF_FILE"
     source "$ALIS_CONF_FILE"
+    source "$PACKAGES_CONF_FILE" 
 }
 
 function sanitize_variables() {
@@ -77,6 +78,9 @@ function sanitize_variables() {
     DISPLAY_MANAGER=$(sanitize_variable "$DISPLAY_MANAGER")
     SYSTEMD_UNITS=$(sanitize_variable "$SYSTEMD_UNITS")
     SYSTEMD_BOOT_TIMEOUT=$(sanitize_variable "$SYSTEMD_BOOT_TIMEOUT")
+    SPLASH_SCREEN_INSTALL=$(sanitize_variable "$SPLASH_SCREEN_INSTALL")
+    SPLASH_SCREEN_THEME=$(sanitize_variable "$SPLASH_SCREEN_THEME")
+
 
     for I in "${BTRFS_SUBVOLUMES_MOUNTPOINTS[@]}"; do
         IFS=',' read -ra SUBVOLUME <<< "$I"
@@ -214,6 +218,8 @@ function check_variables() {
     check_variables_boolean "PROVISION" "$PROVISION"
     check_variables_boolean "VAGRANT" "$VAGRANT"
     check_variables_boolean "REBOOT" "$REBOOT"
+    check_variables_boolean "SPLASH_SCREEN_INSTALL" "$SPLASH_SCREEN_INSTALL"
+    check_variables_list "SPLASH_SCREEN_THEME" "$SPLASH_SCREEN_THEME" "bgrt fade-in glow script solar spinfinity text tribar" "true" "falseS"
 }
 
 function warning() {
@@ -1724,6 +1730,20 @@ function packages() {
     fi
 }
 
+function post_packages() {
+    print_step "post_packages()"
+
+    if [ "$SPLASH_SCREEN_INSTALL" == "true" ]; then
+        # Set Plymouth theme and rebuild initramfs
+        arch-chroot /mnt plymouth-set-default-theme -R "$SPLASH_SCREEN_THEME"
+        # Add 'quiet splash' to the kernel options
+        LOADER_CONF="/mnt/boot/loader/entries/arch-linux.conf"
+        if ! grep -q "splash" "$LOADER_CONF"; then
+            sed -i 's/^\(options.*\)$/\1 quiet splash/' "$LOADER_CONF"
+        fi
+    fi
+}
+
 function provision() {
     print_step "provision()"
 
@@ -1900,19 +1920,10 @@ function main() {
         execute_step "display_manager"
     fi
     execute_step "packages"
+    execute_step "post_packages"
     if [ "$PROVISION" == "true" ]; then
         execute_step "provision"
     fi
-
-    # Set the Plymouth theme and rebuild initramfs
-    arch-chroot /mnt plymouth-set-default-theme -R script
-
-    # Add 'splash' to the kernel options in the main boot entry
-    LOADER_CONF="/mnt/boot/loader/entries/arch-linux.conf"
-    if ! grep -q "splash" "$LOADER_CONF"; then
-        sed -i 's/^\(options.*\)$/\1 splash/' "$LOADER_CONF"
-    fi
-
     if [ "$VAGRANT" == "true" ]; then
         execute_step "vagrant"
     fi

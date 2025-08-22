@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
+# request sudo at start
+sudo -v 
 ########################################## VARIABLES ##########################################  
 
 USER_NAME="$(whoami)"
@@ -62,15 +63,17 @@ stow --target="$HOME_DIR" dotfiles
 
 ########################################## SPLASH SCREEN ##########################################  
 
-# Install Plymouth and default theme directly
+echo "Installing Plymouth and default theme..."
+
+# Install Plymouth and the default spinner theme
 pacman -S --noconfirm plymouth plymouth-theme-spinner
 
-# Set default theme and rebuild initramfs
+# Set the default theme and rebuild initramfs
 plymouth-set-default-theme -R spinner
 
-# Ensure kernel options include 'quiet splash' for smooth boot
+# Ensure the kernel command line includes 'quiet splash' for smooth boot
 LOADER_CONF="/boot/loader/entries/arch.conf"
-if ! grep -q "splash" "$LOADER_CONF"; then
+if [ -f "$LOADER_CONF" ] && ! grep -q "splash" "$LOADER_CONF"; then
     sed -i 's/^\(options.*\)$/\1 splash/' "$LOADER_CONF"
 fi
 

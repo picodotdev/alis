@@ -60,25 +60,6 @@ echo "Stowing dotfiles into $HOME_DIR..."
 cd "$GIT_DIR/dotfiles" || exit 1
 stow --target="$HOME_DIR" dotfiles
 
-
-########################################## SPLASH SCREEN ##########################################  
-
-echo "Installing Plymouth and default theme..."
-
-# Install Plymouth and the default spinner theme
-pacman -S --noconfirm plymouth plymouth-theme-spinner
-
-# Set the default theme and rebuild initramfs
-plymouth-set-default-theme -R spinner
-
-# Ensure the kernel command line includes 'quiet splash' for smooth boot
-LOADER_CONF="/boot/loader/entries/arch.conf"
-if [ -f "$LOADER_CONF" ] && ! grep -q "splash" "$LOADER_CONF"; then
-    sed -i 's/^\(options.*\)$/\1 splash/' "$LOADER_CONF"
-fi
-
-echo "Plymouth installed with default spinner theme."
-
 ########################################## END ##########################################  
 
 echo "Dotfiles dependencies, setup and stow complete. Rebooting now"

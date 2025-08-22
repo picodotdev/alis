@@ -1903,6 +1903,11 @@ function main() {
     if [ "$PROVISION" == "true" ]; then
         execute_step "provision"
     fi
+    # set splash theme
+    arch-chroot /mnt plymouth-set-default-theme -R spinner
+    # Update bootloader entry to include splash
+    arch-chroot /mnt sed -i 's/^\(options.*\)$/\1 splash/' /boot/loader/entries/arch.conf
+
     if [ "$VAGRANT" == "true" ]; then
         execute_step "vagrant"
     fi

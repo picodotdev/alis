@@ -126,7 +126,7 @@ function packages() {
     echo "--- Disk usage for $MNT_DIR ---"
     df -h "$MNT_DIR" || echo "df failed for $MNT_DIR"
     echo "---------------------------------------------"
-    sleep 10 # short pause so you can read it
+    sleep 30 # short pause so you can read it
 
     packages_pacman
     packages_flatpak

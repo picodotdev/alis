@@ -6,6 +6,7 @@ HOME_DIR="/home/$USER_NAME"
 GIT_DIR="$HOME_DIR/Git"
 DOTFILES_REPO="https://github.com/libertine89/dotfiles"
 ALIS_REPO="https://github.com/libertine89/alis"
+SETUP_SCRIPT="$GIT_DIR/dotfiles/setup/setup-arch.sh"
 
 # Ensure Git directory exists
 mkdir -p "$GIT_DIR"
@@ -28,6 +29,25 @@ else
     git -C "$GIT_DIR/alis" pull
 fi
 
+# Run setup script for dependencys for dotfiles etc
+if [ -f "$SETUP_SCRIPT" ]; then
+    echo "Running setup-arch.sh..."
+    chmod +x "$SETUP_SCRIPT"
+    "$SETUP_SCRIPT"
+else
+    echo "setup-arch.sh not found in $SETUP_SCRIPT"
+fi
+
+# Backup existing dotfiles if they exist
+if [ -f "$HOME_DIR/.bashrc" ]; then
+    mv "$HOME_DIR/.bashrc" "$HOME_DIR/.bashrc.backup"
+    echo "Backed up existing .bashrc to .bashrc.backup"
+fi
+
+if [ -f "$HOME_DIR/.config/hypr/hyprland.conf" ]; then
+    mv "$HOME_DIR/.config/hypr/hyprland.conf" "$HOME_DIR/.config/hypr/hyprland.conf.backup"
+    echo "Backed up existing hyprland.conf to hyprland.conf.backup"
+fi
 # Use GNU Stow to symlink dotfiles into home directory
 echo "Stowing dotfiles into $HOME_DIR..."
 cd "$GIT_DIR/dotfiles" || exit 1

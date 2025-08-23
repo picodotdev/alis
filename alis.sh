@@ -54,7 +54,6 @@ function init_config() {
     source "$COMMONS_FILE" #SC1090
     source "$COMMONS_CONF_FILE"
     source "$ALIS_CONF_FILE"
-    source "$PACKAGES_CONF_FILE" 
 }
 
 function sanitize_variables() {
@@ -1155,6 +1154,23 @@ fallback_options="-S autodetect"
 EOT
 }
 
+function splash_screen() {
+    print_step "splash_screen()"
+
+    pacman_install "plymouth"
+
+    if [ "$SPLASH_SCREEN_INSTALL" == "true" ]; then
+        # Set Plymouth theme and rebuild initramfs
+        arch-chroot "${MNT_DIR}" plymouth-set-default-theme -R "$SPLASH_SCREEN_THEME"
+
+        # Add 'quiet splash' to the kernel options
+        LOADER_CONF="${MNT_DIR}/boot/loader/entries/arch-linux.conf"
+        if ! grep -q "splash" "$LOADER_CONF"; then
+            sed -i 's/^\(options.*\)$/\1 quiet splash/' "$LOADER_CONF"
+        fi
+    fi
+}
+
 function network() {
     print_step "network()"
 
@@ -1730,20 +1746,6 @@ function packages() {
     fi
 }
 
-function post_packages() {
-    print_step "post_packages()"
-
-    if [ "$SPLASH_SCREEN_INSTALL" == "true" ]; then
-        # Set Plymouth theme and rebuild initramfs
-        arch-chroot /mnt plymouth-set-default-theme -R "$SPLASH_SCREEN_THEME"
-        # Add 'quiet splash' to the kernel options
-        LOADER_CONF="/mnt/boot/loader/entries/arch-linux.conf"
-        if ! grep -q "splash" "$LOADER_CONF"; then
-            sed -i 's/^\(options.*\)$/\1 quiet splash/' "$LOADER_CONF"
-        fi
-    fi
-}
-
 function provision() {
     print_step "provision()"
 
@@ -1912,6 +1914,7 @@ function main() {
     execute_step "bootloader"
     execute_step "mkinitcpio_configuration"
     execute_step "mkinitcpio"
+    execute_step "splash_screen"
     if [ -n "$CUSTOM_SHELL" ]; then
         execute_step "custom_shell"
     fi
@@ -1920,7 +1923,6 @@ function main() {
         execute_step "display_manager"
     fi
     execute_step "packages"
-    execute_step "post_packages"
     if [ "$PROVISION" == "true" ]; then
         execute_step "provision"
     fi

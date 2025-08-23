@@ -172,7 +172,6 @@ function facts_commons() {
             INITRD_MICROCODE="amd-ucode.img"
         fi
     fi
-
     USER_NAME_INSTALL="$(whoami)"
     if [ "$USER_NAME_INSTALL" == "root" ]; then
         SYSTEM_INSTALLATION="true"

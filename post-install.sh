@@ -10,7 +10,7 @@ DOTFILES_REPO="https://github.com/libertine89/dotfiles"
 ALIS_REPO="https://github.com/libertine89/alis"
 SETUP_SCRIPT="$GIT_DIR/dotfiles/setup/setup-arch.sh"
 SDDM_THEME="sugar-candy"
-SDDM_THEMES_DIR="$GIT_DIR/dotfiles/sddm-themes"
+SDDM_THEMES_DIR="$GIT_DIR/dotfiles/dotfiles/sddm-themes"
 THEME_DEPENDENCIES="qt5-graphicaleffects qt5-quickcontrols2 qt5-svg"
 
 ########################################## HELPERS ##########################################  

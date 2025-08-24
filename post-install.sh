@@ -110,10 +110,22 @@ install_sddm_theme() {
 
     sudo mkdir -p /usr/share/sddm/themes
 
-    # Symlink themes into /usr/share/sddm/themes
-    echo "Symlinking $SDDM_THEMES_DIR into /usr/share/sddm/themes..."
-    cd "$SDDM_THEMES_DIR" || exit 1
-    sudo stow --target=/usr/share/sddm/themes .
+    # Copy wallpapers into the selected theme folder
+    echo "Copying wallpapers from $GIT_DIR/dotfiles/.config/ml4w/wallpapers into $SDDM_THEMES_DIR/$SDDM_THEME..."
+    sudo cp -r "$GIT_DIR/dotfiles/.config/ml4w/wallpapers/"* "$SDDM_THEMES_DIR/$SDDM_THEME/"
+
+    # Update theme.conf to set Background="default.jpg"
+    THEME_CONF="$SDDM_THEMES_DIR/$SDDM_THEME/theme.conf"
+    if [ -f "$THEME_CONF" ]; then
+        echo "Updating background in $THEME_CONF..."
+        sudo sed -i 's/^Background=.*/Background="default.jpg"/' "$THEME_CONF"
+    else
+        echo "Warning: $THEME_CONF not found!"
+    fi
+
+    # Copy all themes into /usr/share/sddm/themes
+    echo "Copying all themes from $SDDM_THEMES_DIR into /usr/share/sddm/themes..."
+    sudo cp -r "$SDDM_THEMES_DIR/"* /usr/share/sddm/themes/
 
     sudo mkdir -p /etc/sddm.conf.d
 

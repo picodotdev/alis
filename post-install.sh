@@ -161,7 +161,7 @@ main(){
     sudo -v 
     execute_step "packages_check"
     execute_step "clone_gits"
-    #execute_step "install_dotfiles"
+    execute_step "install_dotfiles"
     execute_step "install_sddm_theme"
     execute_step "finish_script"
 }

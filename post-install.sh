@@ -109,12 +109,12 @@ install_sddm_theme() {
     echo "Installing SDDM theme: $SDDM_THEME"
 
     # Setting up sudoers for hyprpaper later
-    SUDOERS_FILE="/etc/sudoers.d/sddm-wallpaper"
-    if [ ! -f "$SUDOERS_FILE" ]; then
-        echo "Setting up sudoers rule for wallpaper updates..."
-        echo "$USER_NAME ALL=(ALL) NOPASSWD: /bin/cp -f * /usr/share/sddm/themes/*/default.jpg" | sudo tee "$SUDOERS_FILE" > /dev/null
-        sudo chmod 440 "$SUDOERS_FILE"
-    fi
+    #SUDOERS_FILE="/etc/sudoers.d/sddm-wallpaper"
+    #if [ ! -f "$SUDOERS_FILE" ]; then
+    #    echo "Setting up sudoers rule for wallpaper updates..."
+    #    echo "$USER_NAME ALL=(ALL) NOPASSWD: /bin/cp -f * /usr/share/sddm/themes/*/default.jpg, /usr/bin/touch /usr/share/sddm/themes/*/default.jpg" | sudo tee "$SUDOERS_FILE" > /dev/null
+    #    sudo chmod 440 "$SUDOERS_FILE"
+    #fi
 
     sudo mkdir -p /usr/share/sddm/themes
 

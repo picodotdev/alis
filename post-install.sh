@@ -112,7 +112,7 @@ install_sddm_theme() {
 
     # Copy wallpapers into the selected theme folder
     echo "Copying wallpapers from $GIT_DIR/dotfiles/.config/ml4w/wallpapers into $SDDM_THEMES_DIR/$SDDM_THEME..."
-    sudo cp -r "$GIT_DIR/dotfiles/.config/ml4w/wallpapers/"* "$SDDM_THEMES_DIR/$SDDM_THEME/"
+    sudo cp -r "$GIT_DIR/dotfiles/dotfiles/.config/ml4w/wallpapers/"* "$SDDM_THEMES_DIR/$SDDM_THEME/"
 
     # Update theme.conf to set Background="default.jpg"
     THEME_CONF="$SDDM_THEMES_DIR/$SDDM_THEME/theme.conf"

@@ -97,9 +97,14 @@ install_dotfiles(){
     fi
 
     # Use GNU Stow to symlink dotfiles into home directory
-    echo "Stowing dotfiles into $HOME_DIR..."
-    cd "$GIT_DIR/dotfiles" || exit 1
-    stow --target="$HOME_DIR" dotfiles
+    #echo "Stowing dotfiles into $HOME_DIR..."
+    #cd "$GIT_DIR/dotfiles" || exit 1
+    #stow --target="$HOME_DIR" dotfiles
+
+        # Copy all dotfiles and .config folder contents into $HOME_DIR
+    echo "Copying dotfiles into $HOME_DIR..."
+    cp -r "$GIT_DIR/dotfiles/dotfiles/"* "$HOME_DIR/"
+    echo "Dotfiles copied successfully."
 }
 
 ########################################## INSTAL SDDM THEME ##########################################  

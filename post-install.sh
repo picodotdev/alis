@@ -96,6 +96,12 @@ install_dotfiles(){
         echo "Backed up existing hyprland.conf to hyprland.conf.backup"
     fi
 
+    # Install oh-my-zsh
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+    git clone https://github.com/zsh-users/zsh-autosuggestions.git ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+    git clone https://github.com/zdharma-continuum/fast-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/fast-syntax-highlighting
+
     # Use GNU Stow to symlink dotfiles into home directory
     #echo "Stowing dotfiles into $HOME_DIR..."
     #cd "$GIT_DIR/dotfiles" || exit 1
@@ -103,7 +109,7 @@ install_dotfiles(){
 
         # Copy all dotfiles and .config folder contents into $HOME_DIR
     echo "Copying dotfiles into $HOME_DIR..."
-    cp -r "$GIT_DIR/dotfiles/dotfiles/"* "$HOME_DIR/"
+    cp -r "$GIT_DIR/dotfiles/dotfiles/." "$HOME_DIR/"
     echo "Dotfiles copied successfully."
 }
 

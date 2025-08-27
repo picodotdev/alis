@@ -25,7 +25,7 @@ print_step() {
     echo "=== $1 ==="
 }
 
-########################################## GIT & REPOS ##########################################  
+########################################## PACKAGE CHECK ##########################################  
 packages_check(){
     # Check if stow installed
     if ! command -v stow &>/dev/null; then
@@ -72,6 +72,17 @@ clone_gits(){
         echo "Alis repo already exists, pulling latest changes..."
         git -C "$GIT_DIR/alis" pull
     fi
+
+    # Clone cbonsai repo if not already present
+    if [ ! -d "$GIT_DIR/cbonsai/.git" ]; then
+        echo "Cloning cbonsai repo..."
+        git clone "https://aur.archlinux.org/cbonsai.git" "$GIT_DIR/cbonsai"
+        cd cbonsai
+        makepkg -si 
+    else
+        echo "Cbonsai repo already exists, pulling latest changes..."
+        git -C "https://aur.archlinux.org/cbonsai.git" pull
+    fi
 }
 ########################################## DOTFILES ##########################################  
 install_dotfiles(){
@@ -96,7 +107,7 @@ install_dotfiles(){
         echo "Backed up existing hyprland.conf to hyprland.conf.backup"
     fi
 
-    # Install oh-my-zsh
+    # Install oh-my-zsh & plug-ins
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
     git clone https://github.com/zsh-users/zsh-autosuggestions.git ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
     git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
@@ -107,7 +118,7 @@ install_dotfiles(){
     #cd "$GIT_DIR/dotfiles" || exit 1
     #stow --target="$HOME_DIR" dotfiles
 
-        # Copy all dotfiles and .config folder contents into $HOME_DIR
+    # Copy all dotfiles and .config folder contents into $HOME_DIR
     echo "Copying dotfiles into $HOME_DIR..."
     cp -r "$GIT_DIR/dotfiles/dotfiles/." "$HOME_DIR/"
     echo "Dotfiles copied successfully."

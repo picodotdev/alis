@@ -338,7 +338,13 @@ function execute_user() {
 }
 
 function do_reboot() {
-    umount -R "${MNT_DIR}"/boot
+    # Only disable swap if SWAP_SIZE is non-empty
+    if [ -n "$SWAP_SIZE" ]; then
+        echo "Deactivating swap..."
+        swapoff -a
+    fi
+
+    umount -R "${MNT_DIR}/boot"
     umount -R "${MNT_DIR}"
     reboot
 }

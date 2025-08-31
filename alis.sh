@@ -76,6 +76,10 @@ function sanitize_variables() {
     DESKTOP_ENVIRONMENT=$(sanitize_variable "$DESKTOP_ENVIRONMENT")
     DISPLAY_MANAGER=$(sanitize_variable "$DISPLAY_MANAGER")
     SYSTEMD_UNITS=$(sanitize_variable "$SYSTEMD_UNITS")
+    SYSTEMD_BOOT_TIMEOUT=$(sanitize_variable "$SYSTEMD_BOOT_TIMEOUT")
+    SPLASH_SCREEN_INSTALL=$(sanitize_variable "$SPLASH_SCREEN_INSTALL")
+    SPLASH_SCREEN_THEME=$(sanitize_variable "$SPLASH_SCREEN_THEME")
+
 
     for I in "${BTRFS_SUBVOLUMES_MOUNTPOINTS[@]}"; do
         IFS=',' read -ra SUBVOLUME <<< "$I"
@@ -206,13 +210,15 @@ function check_variables() {
     check_variables_list "BOOTLOADER" "$BOOTLOADER" "auto grub refind systemd efistub" "true" "true"
     check_variables_boolean "SECURE_BOOT" "$SECURE_BOOT"
     check_variables_list "CUSTOM_SHELL" "$CUSTOM_SHELL" "bash zsh dash fish" "true" "true"
-    check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde i3-wm i3-gaps deepin budgie bspwm awesome qtile openbox leftwm dusk" "false" "true"
+    check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "hyprland gnome kde xfce mate cinnamon lxde i3-wm i3-gaps deepin budgie bspwm awesome qtile openbox leftwm dusk" "false" "true"
     check_variables_list "DISPLAY_MANAGER" "$DISPLAY_MANAGER" "auto gdm sddm lightdm lxdm" "true" "true"
     check_variables_boolean "PACKAGES_MULTILIB" "$PACKAGES_MULTILIB"
     check_variables_boolean "PACKAGES_INSTALL" "$PACKAGES_INSTALL"
     check_variables_boolean "PROVISION" "$PROVISION"
     check_variables_boolean "VAGRANT" "$VAGRANT"
     check_variables_boolean "REBOOT" "$REBOOT"
+    check_variables_boolean "SPLASH_SCREEN_INSTALL" "$SPLASH_SCREEN_INSTALL"
+    check_variables_list "SPLASH_SCREEN_THEME" "$SPLASH_SCREEN_THEME" "bgrt fade-in glow script solar spinfinity text tribar" "true" "falseS"
 }
 
 function warning() {
@@ -1148,6 +1154,23 @@ fallback_options="-S autodetect"
 EOT
 }
 
+function splash_screen() {
+    print_step "splash_screen()"
+
+    pacman_install "plymouth"
+
+    if [ "$SPLASH_SCREEN_INSTALL" == "true" ]; then
+        # Set Plymouth theme and rebuild initramfs
+        arch-chroot "${MNT_DIR}" plymouth-set-default-theme -R "$SPLASH_SCREEN_THEME"
+
+        # Add 'quiet splash' to the kernel options
+        LOADER_CONF="${MNT_DIR}/boot/loader/entries/arch-linux.conf"
+        if ! grep -q "splash" "$LOADER_CONF"; then
+            sed -i 's/^\(options.*\)$/\1 quiet splash/' "$LOADER_CONF"
+        fi
+    fi
+}
+
 function network() {
     print_step "network()"
 
@@ -1361,13 +1384,13 @@ EOT
     if [ "$UKI" == "true" ]; then
         cat <<EOT > "${MNT_DIR}${ESP_DIRECTORY}/loader/loader.conf"
 # alis
-timeout 5
+timeout ${SYSTEMD_BOOT_TIMEOUT}
 editor 0
 EOT
     else
         cat <<EOT > "${MNT_DIR}${ESP_DIRECTORY}/loader/loader.conf"
 # alis
-timeout 5
+timeout ${SYSTEMD_BOOT_TIMEOUT}
 default archlinux.conf
 editor 0
 EOT
@@ -1521,6 +1544,9 @@ function desktop_environment() {
     print_step "desktop_environment()"
 
     case "$DESKTOP_ENVIRONMENT" in
+        "hyprland" )
+            desktop_environment_hyprland
+            ;;
         "gnome" )
             desktop_environment_gnome
             ;;
@@ -1572,6 +1598,10 @@ function desktop_environment() {
     esac
 
     arch-chroot "${MNT_DIR}" systemctl set-default graphical.target
+}
+
+function desktop_environment_hyprland() {
+    pacman_install "hyprland"
 }
 
 function desktop_environment_gnome() {
@@ -1884,6 +1914,7 @@ function main() {
     execute_step "bootloader"
     execute_step "mkinitcpio_configuration"
     execute_step "mkinitcpio"
+    #execute_step "splash_screen"
     if [ -n "$CUSTOM_SHELL" ]; then
         execute_step "custom_shell"
     fi

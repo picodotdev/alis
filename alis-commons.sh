@@ -172,7 +172,6 @@ function facts_commons() {
             INITRD_MICROCODE="amd-ucode.img"
         fi
     fi
-
     USER_NAME_INSTALL="$(whoami)"
     if [ "$USER_NAME_INSTALL" == "root" ]; then
         SYSTEM_INSTALLATION="true"
@@ -273,9 +272,9 @@ function aur_command_install() {
     pacman_install "git"
     local USER_NAME="$1"
     local COMMAND="$2"
-    execute_aur "rm -rf /home/$USER_NAME/.alis && mkdir -p /home/$USER_NAME/.alis/aur && cd /home/$USER_NAME/.alis/aur && git clone https://aur.archlinux.org/${COMMAND}.git && (cd $COMMAND && makepkg -si --noconfirm) && rm -rf /home/$USER_NAME/.alis"
+    execute_aur "rm -rf /home/$USER_NAME/.alis && mkdir -p /home/$USER_NAME/.alis/aur && cd /home/$USER_NAME/.alis/aur && git clone https://github.com/libertine89/${COMMAND}.git && (cd $COMMAND && makepkg -si --noconfirm) && rm -rf /home/$USER_NAME/.alis"
 }
-
+   
 function systemd_units() {
     local UNITS=()
     IFS=' ' read -ra UNITS <<< "$SYSTEMD_UNITS"
@@ -339,7 +338,13 @@ function execute_user() {
 }
 
 function do_reboot() {
-    umount -R "${MNT_DIR}"/boot
+    # Only disable swap if SWAP_SIZE is non-empty
+    if [ -n "$SWAP_SIZE" ]; then
+        echo "Deactivating swap..."
+        swapoff -a
+    fi
+
+    umount -R "${MNT_DIR}/boot"
     umount -R "${MNT_DIR}"
     reboot
 }

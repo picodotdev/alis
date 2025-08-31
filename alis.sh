@@ -1914,7 +1914,7 @@ function main() {
     execute_step "bootloader"
     execute_step "mkinitcpio_configuration"
     execute_step "mkinitcpio"
-    execute_step "splash_screen"
+    #execute_step "splash_screen"
     if [ -n "$CUSTOM_SHELL" ]; then
         execute_step "custom_shell"
     fi

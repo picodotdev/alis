@@ -1067,12 +1067,12 @@ function display_driver() {
                 fi
                 ;;
             "amdgpu" )
-                local PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
-                local PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
+                local PACKAGES_HARDWARE_ACCELERATION=""
+                local PACKAGES_HARDWARE_ACCELERATION_MULTILIB=""
                 ;;
             "ati" )
-                local PACKAGES_HARDWARE_ACCELERATION="mesa-vdpau"
-                local PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-mesa-vdpau"
+                local PACKAGES_HARDWARE_ACCELERATION=""
+                local PACKAGES_HARDWARE_ACCELERATION_MULTILIB=""
                 ;;
             "nvidia" )
                 local PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"

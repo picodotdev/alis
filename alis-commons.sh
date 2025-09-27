@@ -114,7 +114,7 @@ function configure_network() {
 
     # only one ping -c 1, ping gets stuck if -c 5
     if ! ping -c 1 -i 2 -W 5 -w 30 "$PING_HOSTNAME"; then
-        echo "Network ping check failed. Cannot continue."
+        echo "Network ping check failed. Can not continue."
         exit 1
     fi
 }

@@ -94,7 +94,7 @@ function check_variables() {
         local DEVICE_DETECTED="false"
         if [ -e "/dev/sda" ] && [ "$DEVICE_BOOT" != "/dev/sda" ]; then
             if [ "$DEVICE_DETECTED" == "true" ]; then
-                echo "Auto device is ambigous, detected $DEVICE and /dev/sda."
+                echo "Auto device is ambiguous, detected $DEVICE and /dev/sda."
                 exit 1
             fi
             DEVICE_DETECTED="true"
@@ -103,7 +103,7 @@ function check_variables() {
         fi
         if [ -e "/dev/nvme0n1" ] && [ "$DEVICE_BOOT" != "/dev/nvme0n1" ]; then
             if [ "$DEVICE_DETECTED" == "true" ]; then
-                echo "Auto device is ambigous, detected $DEVICE and /dev/nvme0n1."
+                echo "Auto device is ambiguous, detected $DEVICE and /dev/nvme0n1."
                 exit 1
             fi
             DEVICE_DETECTED="true"
@@ -112,7 +112,7 @@ function check_variables() {
         fi
         if [ -e "/dev/vda" ] && [ "$DEVICE_BOOT" != "/dev/vda" ]; then
             if [ "$DEVICE_DETECTED" == "true" ]; then
-                echo "Auto device is ambigous, detected $DEVICE and /dev/vda."
+                echo "Auto device is ambiguous, detected $DEVICE and /dev/vda."
                 exit 1
             fi
             DEVICE_DETECTED="true"
@@ -121,7 +121,7 @@ function check_variables() {
         fi
         if [ -e "/dev/mmcblk0" ] && [ "$DEVICE_BOOT" != "/dev/mmcblk0" ]; then
             if [ "$DEVICE_DETECTED" == "true" ]; then
-                echo "Auto device is ambigous, detected $DEVICE and /dev/mmcblk0."
+                echo "Auto device is ambiguous, detected $DEVICE and /dev/mmcblk0."
                 exit 1
             fi
             DEVICE_DETECTED="true"

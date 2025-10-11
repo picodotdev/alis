@@ -424,7 +424,7 @@ function partition_options() {
     PARTITION_OPTIONS="defaults"
 
     if [ "$BIOS_TYPE" == "uefi" ]; then
-        PARTITION_OPTIONS_BOOT="$PARTITION_OPTIONS_BOOT,uid=0,gid=0,fmask=0077,dmask=0077"
+        PARTITION_OPTIONS_BOOT="$PARTITION_OPTIONS_BOOT,uid=0,gid=0,fmask=0177,dmask=0077"
     fi
     if [ "$DEVICE_TRIM" == "true" ]; then
         PARTITION_OPTIONS_BOOT="$PARTITION_OPTIONS_BOOT,noatime"

@@ -171,7 +171,7 @@ function check_variables() {
     check_variables_value "PACMAN_MIRROR" "$PACMAN_MIRROR"
     check_variables_boolean "PACMAN_PARALLEL_DOWNLOADS" "$PACMAN_PARALLEL_DOWNLOADS"
     check_variables_list "KERNELS" "$KERNELS" "linux-lts linux-lts-headers linux-hardened linux-hardened-headers linux-zen linux-zen-headers" "false" "false"
-    check_variables_list "KERNELS_COMPRESSION" "$KERNELS_COMPRESSION" "gzip bzip2 lzma xz lzop lz4 zstd" "false" "true"
+    check_variables_list "KERNELS_COMPRESSION" "$KERNELS_COMPRESSION" "auto gzip bzip2 lzma xz lzop lz4 zstd" "true" "true"
     check_variables_list "AUR_PACKAGE" "$AUR_PACKAGE" "paru-bin yay-bin paru yay aurman" "true" "true"
     check_variables_list "DISPLAY_DRIVER" "$DISPLAY_DRIVER" "auto intel amdgpu ati nvidia nvidia-lts nvidia-dkms nvidia-470xx-dkms nvidia-390xx-dkms nvidia-340xx-dkms nouveau" "false" "true"
     check_variables_boolean "KMS" "$KMS"
@@ -204,6 +204,8 @@ function check_variables() {
     check_variables_value "HOOKS" "$HOOKS"
     check_variables_boolean "UKI" "$UKI"
     check_variables_list "BOOTLOADER" "$BOOTLOADER" "auto grub refind systemd efistub" "true" "true"
+    check_variables_boolean "PLYMOUTH" "$PLYMOUTH"
+    check_variables_list "PLYMOUTH_THEME" "$PLYMOUTH_THEME" "auto bgtr fade-in glow script solar spinner spinfinity tribar text details" "true" "true"
     check_variables_boolean "SECURE_BOOT" "$SECURE_BOOT"
     check_variables_list "CUSTOM_SHELL" "$CUSTOM_SHELL" "bash zsh dash fish" "true" "true"
     check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde i3-wm i3-gaps deepin budgie bspwm awesome qtile openbox leftwm dusk" "false" "true"
@@ -211,6 +213,7 @@ function check_variables() {
     check_variables_boolean "PACKAGES_MULTILIB" "$PACKAGES_MULTILIB"
     check_variables_boolean "PACKAGES_INSTALL" "$PACKAGES_INSTALL"
     check_variables_boolean "PROVISION" "$PROVISION"
+    check_variables_boolean "FWUPD" "$FWUPD"
     check_variables_boolean "VAGRANT" "$VAGRANT"
     check_variables_boolean "REBOOT" "$REBOOT"
 }
@@ -266,6 +269,14 @@ function facts() {
         DEVICE_MMC="true"
     fi
 
+    if [ "$FILE_SYSTEM_TYPE" == "auto" ]; then
+        FILE_SYSTEM_TYPE="ext4"
+    fi
+
+    if [ "$KERNELS_COMPRESSION" == "auto" ]; then
+        KERNELS_COMPRESSION="zstd"
+    fi
+
     if [ "$DISPLAY_DRIVER" == "auto" ]; then
         case "$GPU_VENDOR" in
             "intel" )
@@ -297,6 +308,10 @@ function facts() {
             AUR_COMMAND="paru"
             ;;
     esac
+
+    if [ "$PLYMOUTH_THEME" == "auto" ]; then
+        PLYMOUTH_THEME=""
+    fi
 
     if [ "$BOOTLOADER" == "auto" ]; then
         if [ "$BIOS_TYPE" == "uefi" ]; then
@@ -781,6 +796,9 @@ function mkinitcpio_configuration() {
             HOOKS=${HOOKS//!encrypt/encrypt}
         fi
     fi
+    if [ "$PLYMOUTH" == "true" ]; then
+        HOOKS=${HOOKS//!plymouth/plymouth}
+    fi
 
     HOOKS=$(sanitize_variable "$HOOKS")
     MODULES=$(sanitize_variable "$MODULES")
@@ -805,6 +823,12 @@ function mkinitcpio_configuration() {
     fi
     if [ "$KERNELS_COMPRESSION" == "zstd" ]; then
         pacman_install "zstd"
+    fi
+    if [ "$PLYMOUTH" == "true" ]; then
+        pacman_install "plymouth"
+        if [ -n "$PLYMOUTH_THEME" ]; then
+            plymouth-set-default-theme -R "$PLYMOUTH_THEME"
+        fi
     fi
 
     if [ "$UKI" == "true" ]; then
@@ -1160,6 +1184,67 @@ function network() {
     arch-chroot "${MNT_DIR}" systemctl enable NetworkManager.service
 }
 
+function misc() {
+   print_step "misc()"
+
+    if [ -n "$CUSTOM_SHELL" ]; then
+        execute_step "custom_shell"
+    fi
+    if [ "$FWUPD" == "true" ]; then
+        execute_step "fwupd"
+    fi
+    if [ "$VAGRANT" == "true" ]; then
+        execute_step "vagrant"
+    fi
+}
+
+function custom_shell() {
+    print_step "custom_shell()"
+
+    local CUSTOM_SHELL_PATH=""
+    case "$CUSTOM_SHELL" in
+        "zsh" )
+            pacman_install "zsh"
+            local CUSTOM_SHELL_PATH="/usr/bin/zsh"
+            ;;
+        "dash" )
+            pacman_install "dash"
+            local CUSTOM_SHELL_PATH="/usr/bin/dash"
+            ;;
+        "fish" )
+            pacman_install "fish"
+            local CUSTOM_SHELL_PATH="/usr/bin/fish"
+            ;;
+    esac
+
+    if [ -n "$CUSTOM_SHELL_PATH" ]; then
+        custom_shell_user "root" $CUSTOM_SHELL_PATH
+        custom_shell_user "$USER_NAME" $CUSTOM_SHELL_PATH
+        for U in "${ADDITIONAL_USERS[@]}"; do
+            local S=()
+            IFS='=' read -ra S <<< "$U"
+            local USER=${S[0]}
+            custom_shell_user "$USER" $CUSTOM_SHELL_PATH
+        done
+    fi
+}
+
+function fwupd() {
+    print_step "fwupd()"
+
+    pacman_install "fwupd"
+}
+
+function vagrant() {
+    print_step "vagrant()"
+
+    pacman_install "openssh"
+    create_user "vagrant" "vagrant"
+    arch-chroot "${MNT_DIR}" systemctl enable sshd.service
+    arch-chroot "${MNT_DIR}" ssh-keygen -A
+    arch-chroot "${MNT_DIR}" sshd -t
+}
+
 function virtualbox() {
     print_step "virtualbox()"
 
@@ -1471,38 +1556,6 @@ function bootloader_efistub_entry() {
     fi
 }
 
-function custom_shell() {
-    print_step "custom_shell()"
-
-    local CUSTOM_SHELL_PATH=""
-    case "$CUSTOM_SHELL" in
-        "zsh" )
-            pacman_install "zsh"
-            local CUSTOM_SHELL_PATH="/usr/bin/zsh"
-            ;;
-        "dash" )
-            pacman_install "dash"
-            local CUSTOM_SHELL_PATH="/usr/bin/dash"
-            ;;
-        "fish" )
-            pacman_install "fish"
-            local CUSTOM_SHELL_PATH="/usr/bin/fish"
-            ;;
-    esac
-
-    if [ -n "$CUSTOM_SHELL_PATH" ]; then
-        custom_shell_user "root" $CUSTOM_SHELL_PATH
-        custom_shell_user "$USER_NAME" $CUSTOM_SHELL_PATH
-        for U in "${ADDITIONAL_USERS[@]}"; do
-            local S=()
-            IFS='=' read -ra S <<< "$U"
-            local USER=${S[0]}
-            custom_shell_user "$USER" $CUSTOM_SHELL_PATH
-        done
-    fi
-}
-
-
 function custom_shell_user() {
     local USER="$1"
     local CUSTOM_SHELL_PATH="$2"
@@ -1697,6 +1750,7 @@ function display_manager_lxdm() {
     arch-chroot "${MNT_DIR}" systemctl enable lxdm.service
 }
 
+# @deprecated: prefer to install packages after base system installation
 function packages() {
     print_step "packages()"
 
@@ -1717,14 +1771,6 @@ function provision() {
     print_step "provision()"
 
     (cd "$PROVISION_DIRECTORY" && cp -vr --parents . "${MNT_DIR}")
-}
-
-function vagrant() {
-    pacman_install "openssh"
-    create_user "vagrant" "vagrant"
-    arch-chroot "${MNT_DIR}" systemctl enable sshd.service
-    arch-chroot "${MNT_DIR}" ssh-keygen -A
-    arch-chroot "${MNT_DIR}" sshd -t
 }
 
 function end() {
@@ -1881,19 +1927,13 @@ function main() {
     execute_step "bootloader"
     execute_step "mkinitcpio_configuration"
     execute_step "mkinitcpio"
-    if [ -n "$CUSTOM_SHELL" ]; then
-        execute_step "custom_shell"
-    fi
+    execute_step "misc"
     if [ -n "$DESKTOP_ENVIRONMENT" ]; then
         execute_step "desktop_environment"
         execute_step "display_manager"
     fi
-    execute_step "packages"
     if [ "$PROVISION" == "true" ]; then
         execute_step "provision"
-    fi
-    if [ "$VAGRANT" == "true" ]; then
-        execute_step "vagrant"
     fi
     execute_step "systemd_units"
     local END_TIMESTAMP=$(date -u +"%F %T")

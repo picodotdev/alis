@@ -70,8 +70,10 @@ For new features, improvements and bugs, fill an issue in GitHub or make a pull 
 * **Custom shell**: bash, zsh, dash, fish
 * **WPA WIFI network** installation
 * **Periodic TRIM** for SSD storage
-* Intel and AMD **processors microcode**
+* Intel and AMD **processors microcode** support
 * Optional **swap file**
+* **fwupd** support
+* **Plymouth** support
 * **PipeWire** support
 * **Secure Boot** support
 * **Kernel compression** and **custom parameters**

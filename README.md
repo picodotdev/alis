@@ -296,6 +296,7 @@ https://www.archlinux.org/download/
 * https://wiki.archlinux.org/title/F2FS
 * https://wiki.archlinux.org/title/File_systems
 * https://wiki.archlinux.org/title/Fstab
+* https://wiki.archlinux.org/title/Fwupd
 * https://wiki.archlinux.org/title/General_recommendations
 * https://wiki.archlinux.org/title/GNOME
 * https://wiki.archlinux.org/title/GRUB
@@ -325,6 +326,7 @@ https://www.archlinux.org/download/
 * https://wiki.archlinux.org/title/Partitioning
 * https://wiki.archlinux.org/title/Persistent_block_device_naming
 * https://wiki.archlinux.org/title/PipeWire
+* https://wiki.archlinux.org/title/Plymouth
 * https://wiki.archlinux.org/title/Qtile
 * https://wiki.archlinux.org/title/REFInd
 * https://wiki.archlinux.org/title/Reflector

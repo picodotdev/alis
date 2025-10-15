@@ -442,13 +442,17 @@ function partition() {
         partprobe -s "$DEVICE"
     fi
 
-    # luks and lvm
+    # luks
     if [ -n "$LUKS_PASSWORD" ]; then
         echo -n "$LUKS_PASSWORD" | cryptsetup --key-size=512 --key-file=- luksFormat --type luks2 "$PARTITION_ROOT"
         echo -n "$LUKS_PASSWORD" | cryptsetup --key-file=- open "$PARTITION_ROOT" "$LUKS_DEVICE_NAME"
         sleep 5
+        if [ "$DEVICE_TRIM" == "true" ]; then
+            cryptsetup --allow-discards --persistent refresh "$LUKS_DEVICE_NAME"
+        fi
     fi
 
+    # lvm
     if [ "$LVM" == "true" ]; then
         if [ -n "$LUKS_PASSWORD" ]; then
             DEVICE_LVM="/dev/mapper/$LUKS_DEVICE_NAME"
@@ -475,6 +479,7 @@ function partition() {
         fi
     fi
 
+    #
     if [ -n "$LUKS_PASSWORD" ]; then
         DEVICE_ROOT="/dev/mapper/$LUKS_DEVICE_NAME"
     fi
@@ -1182,8 +1187,6 @@ function vmware() {
 function bootloader() {
     print_step "bootloader()"
 
-    BOOTLOADER_ALLOW_DISCARDS=""
-
     if [ "$VIRTUALBOX" != "true" ] && [ "$VMWARE" != "true" ]; then
         if [ "$CPU_VENDOR" == "intel" ]; then
             pacman_install "intel-ucode"
@@ -1200,16 +1203,10 @@ function bootloader() {
     if [ -n "$LUKS_PASSWORD" ]; then
         case "$BOOTLOADER" in
             "grub" | "refind" | "efistub" )
-                if [ "$DEVICE_TRIM" == "true" ]; then
-                    BOOTLOADER_ALLOW_DISCARDS=":allow-discards"
-                fi
-                CMDLINE_LINUX="cryptdevice=UUID=$UUID_ROOT:$LUKS_DEVICE_NAME$BOOTLOADER_ALLOW_DISCARDS"
+                CMDLINE_LINUX="cryptdevice=UUID=$UUID_ROOT:$LUKS_DEVICE_NAME"
                 ;;
             "systemd" )
-                if [ "$DEVICE_TRIM" == "true" ]; then
-                    BOOTLOADER_ALLOW_DISCARDS=" rd.luks.options=discard"
-                fi
-                CMDLINE_LINUX="rd.luks.name=$UUID_ROOT=$LUKS_DEVICE_NAME$BOOTLOADER_ALLOW_DISCARDS"
+                CMDLINE_LINUX="rd.luks.name=$UUID_ROOT=$LUKS_DEVICE_NAME"
                 ;;
         esac
     fi

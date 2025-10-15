@@ -1,5 +1,6 @@
 packer_cache/
 output-archlinux-alis-virtualbox/
+src/
 
 site/resources/_gen/
 *.vala

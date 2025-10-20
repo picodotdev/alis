@@ -475,7 +475,7 @@ function partition() {
             DEVICE_LVM="$DEVICE_ROOT"
         fi
 
-        if [ "$PARTITION_MODE" == "auto" ]; then
+        if [ "$PARTITION_MODE" == "auto" ] || [ "$PARTITION_MODE" == "custom" ]; then
             set +e
             if lvs "$LVM_VOLUME_GROUP"-"$LVM_VOLUME_LOGICAL"; then
                 lvremove -y "$LVM_VOLUME_GROUP"/"$LVM_VOLUME_LOGICAL"

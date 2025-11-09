@@ -1490,11 +1490,6 @@ function bootloader_efistub() {
 
 function bootloader_refind_entry() {
     local KERNEL="$1"
-    local MICROCODE=""
-
-    if [ -n "$INITRD_MICROCODE" ]; then
-        local MICROCODE="initrd=/$INITRD_MICROCODE"
-    fi
 
     cat <<EOT >> "${MNT_DIR}${ESP_DIRECTORY}/EFI/refind/refind.conf"
 # alis
@@ -1503,10 +1498,6 @@ menuentry "Arch Linux ($KERNEL)" {
     loader   /vmlinuz-$KERNEL
     initrd   /initramfs-$KERNEL.img
     icon     /EFI/refind/icons/os_arch.png
-    options  "$MICROCODE $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX"
-    submenuentry "Boot using fallback initramfs"
-        initrd /initramfs-$KERNEL-fallback.img"
-    }
     submenuentry "Boot to terminal"
         add_options "systemd.unit=multi-user.target"
     }
@@ -1516,43 +1507,24 @@ EOT
 
 function bootloader_systemd_entry() {
     local KERNEL="$1"
-    local MICROCODE=""
-
-    if [ -n "$INITRD_MICROCODE" ]; then
-        local MICROCODE="initrd /$INITRD_MICROCODE"
-    fi
 
     cat <<EOT >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/arch-$KERNEL.conf"
 title Arch Linux ($KERNEL)
 efi /vmlinuz-linux
-$MICROCODE
 initrd /initramfs-$KERNEL.img
 options initrd=initramfs-$KERNEL.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX
-EOT
-
-    cat <<EOT >> "${MNT_DIR}${ESP_DIRECTORY}/loader/entries/arch-$KERNEL-fallback.conf"
-title Arch Linux ($KERNEL, fallback)
-efi /vmlinuz-linux
-$MICROCODE
-initrd /initramfs-$KERNEL-fallback.img
-options initrd=initramfs-$KERNEL-fallback.img $CMDLINE_LINUX_ROOT rw $CMDLINE_LINUX
 EOT
 }
 
 function bootloader_efistub_entry() {
     local KERNEL="$1"
-    local MICROCODE=""
 
     if [ "$UKI" == "true" ]; then
         arch-chroot "${MNT_DIR}" efibootmgr --unicode --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL fallback)" --loader "EFI\linux\archlinux-$KERNEL-fallback.efi" --unicode --verbose
         arch-chroot "${MNT_DIR}" efibootmgr --unicode --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL)" --loader "EFI\linux\archlinux-$KERNEL.efi" --unicode --verbose
     else
-        if [ -n "$INITRD_MICROCODE" ]; then
-            local MICROCODE="initrd=\\$INITRD_MICROCODE"
-        fi
-
-        arch-chroot "${MNT_DIR}" efibootmgr --unicode --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL)" --loader /vmlinuz-"$KERNEL" --unicode "$CMDLINE_LINUX $CMDLINE_LINUX_ROOT rw $MICROCODE initrd=\initramfs-$KERNEL.img" --verbose
-        arch-chroot "${MNT_DIR}" efibootmgr --unicode --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL fallback)" --loader /vmlinuz-"$KERNEL" --unicode "$CMDLINE_LINUX $CMDLINE_LINUX_ROOT rw $MICROCODE initrd=\initramfs-$KERNEL-fallback.img" --verbose
+        arch-chroot "${MNT_DIR}" efibootmgr --unicode --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL)" --loader /vmlinuz-"$KERNEL" --unicode "$CMDLINE_LINUX $CMDLINE_LINUX_ROOT rw initrd=\initramfs-$KERNEL.img" --verbose
+        arch-chroot "${MNT_DIR}" efibootmgr --unicode --disk "$DEVICE" --part 1 --create --label "Arch Linux ($KERNEL fallback)" --loader /vmlinuz-"$KERNEL" --unicode "$CMDLINE_LINUX $CMDLINE_LINUX_ROOT rw initrd=\initramfs-$KERNEL-fallback.img" --verbose
     fi
 }
 

@@ -72,6 +72,7 @@ function sanitize_variables() {
     SYSTEMD_HOMED_STORAGE=$(sanitize_variable "$SYSTEMD_HOMED_STORAGE")
     SYSTEMD_HOMED_STORAGE_LUKS_TYPE=$(sanitize_variable "$SYSTEMD_HOMED_STORAGE_LUKS_TYPE")
     BOOTLOADER=$(sanitize_variable "$BOOTLOADER")
+    PLYMOUTH_THEME=$(sanitize_variable "$PLYMOUTH_THEME")
     CUSTOM_SHELL=$(sanitize_variable "$CUSTOM_SHELL")
     DESKTOP_ENVIRONMENT=$(sanitize_variable "$DESKTOP_ENVIRONMENT")
     DISPLAY_MANAGER=$(sanitize_variable "$DISPLAY_MANAGER")

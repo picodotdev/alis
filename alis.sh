@@ -174,7 +174,7 @@ function check_variables() {
     check_variables_list "KERNELS" "$KERNELS" "linux-lts linux-lts-headers linux-hardened linux-hardened-headers linux-zen linux-zen-headers" "false" "false"
     check_variables_list "KERNELS_COMPRESSION" "$KERNELS_COMPRESSION" "auto gzip bzip2 lzma xz lzop lz4 zstd" "true" "true"
     check_variables_list "AUR_PACKAGE" "$AUR_PACKAGE" "paru-bin yay-bin paru yay aurman" "true" "true"
-    check_variables_list "DISPLAY_DRIVER" "$DISPLAY_DRIVER" "auto intel amdgpu ati nvidia nvidia-lts nvidia-dkms nvidia-470xx-dkms nvidia-390xx-dkms nvidia-340xx-dkms nouveau" "false" "true"
+    check_variables_list "DISPLAY_DRIVER" "$DISPLAY_DRIVER" "auto intel amdgpu ati nvidia-open nvidia-open-dkms nvidia-open-lts nvidia-580xx-dkms nvidia-575xx-dkms nvidia-550xx-dkms nvidia-535xx-dkms nvidia-510xx-dkms nvidia-470xx-dkms nvidia-430xx-dkms nvidia-390xx-dkms nvidia-340xx-dkms nouveau" "false" "true"
     check_variables_boolean "KMS" "$KMS"
     check_variables_boolean "FASTBOOT" "$FASTBOOT"
     check_variables_boolean "FRAMEBUFFER_COMPRESSION" "$FRAMEBUFFER_COMPRESSION"
@@ -1009,21 +1009,51 @@ function display_driver() {
         "ati" )
             local PACKAGES_DRIVER_MULTILIB="lib32-mesa"
             ;;
-        "nvidia" )
-            local PACKAGES_DRIVER="nvidia"
+        "nvidia-open" )
+            local PACKAGES_DRIVER="nvidia-open"
             local PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
             ;;
-        "nvidia-lts" )
-            local PACKAGES_DRIVER="nvidia-lts"
+        "nvidia-open-dkms" )
+            local PACKAGES_DRIVER="nvidia-open-dkms"
             local PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
             ;;
-        "nvidia-dkms" )
-            local PACKAGES_DRIVER="nvidia-dkms"
+        "nvidia-open-lts" )
+            local PACKAGES_DRIVER="nvidia-open-lts"
+            local PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
+            ;;
+        "nvidia-580xx-dkms" )
+            local PACKAGES_DRIVER_PACMAN="false"
+            local PACKAGES_DRIVER="nvidia-580xx-dkms"
+            local PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
+            ;;
+        "nvidia-575xx-dkms" )
+            local PACKAGES_DRIVER_PACMAN="false"
+            local PACKAGES_DRIVER="nvidia-575xx-dkms"
+            local PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
+            ;;
+        "nvidia-550xx-dkms" )
+            local PACKAGES_DRIVER_PACMAN="false"
+            local PACKAGES_DRIVER="nvidia-550xx-dkms"
+            local PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
+            ;;
+        "nvidia-535xx-dkms" )
+            local PACKAGES_DRIVER_PACMAN="false"
+            local PACKAGES_DRIVER="nvidia-535xx-dkms"
+            local PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
+            ;;
+        "nvidia-510xx-dkms" )
+            local PACKAGES_DRIVER_PACMAN="false"
+            local PACKAGES_DRIVER="nvidia-510xx-dkms"
             local PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
             ;;
         "nvidia-470xx-dkms" )
             local PACKAGES_DRIVER_PACMAN="false"
             local PACKAGES_DRIVER="nvidia-470xx-dkms"
+            local PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
+            ;;
+        "nvidia-430xx-dkms" )
+            local PACKAGES_DRIVER_PACMAN="false"
+            local PACKAGES_DRIVER="nvidia-430xx-dkms"
             local PACKAGES_DRIVER_MULTILIB="lib32-nvidia-utils"
             ;;
         "nvidia-390xx-dkms" )
@@ -1104,19 +1134,43 @@ function display_driver() {
                 local PACKAGES_HARDWARE_ACCELERATION=""
                 local PACKAGES_HARDWARE_ACCELERATION_MULTILIB=""
                 ;;
-            "nvidia" )
+            "nvidia-open" )
                 local PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
                 local PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
                 ;;
-            "nvidia-lts" )
+            "nvidia-open-dkms" )
                 local PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
                 local PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
                 ;;
-            "nvidia-dkms" )
+            "nvidia-open-lts" )
+                local PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
+                local PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
+                ;;
+            "nvidia-580xx-dkms" )
+                local PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
+                local PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
+                ;;
+            "nvidia-575xx-dkms" )
+                local PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
+                local PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
+                ;;
+            "nvidia-550xx-dkms" )
+                local PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
+                local PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
+                ;;
+            "nvidia-535xx-dkms" )
+                local PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
+                local PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
+                ;;
+            "nvidia-510xx-dkms" )
                 local PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
                 local PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
                 ;;
             "nvidia-470xx-dkms" )
+                local PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
+                local PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
+                ;;
+            "nvidia-430xx-dkms" )
                 local PACKAGES_HARDWARE_ACCELERATION="libva-mesa-driver"
                 local PACKAGES_HARDWARE_ACCELERATION_MULTILIB="lib32-libva-mesa-driver"
                 ;;

@@ -212,7 +212,6 @@ function check_variables() {
     check_variables_list "DESKTOP_ENVIRONMENT" "$DESKTOP_ENVIRONMENT" "gnome kde xfce mate cinnamon lxde i3-wm i3-gaps deepin budgie bspwm awesome qtile openbox leftwm dusk" "false" "true"
     check_variables_list "DISPLAY_MANAGER" "$DISPLAY_MANAGER" "auto gdm sddm lightdm lxdm" "true" "true"
     check_variables_boolean "PACKAGES_MULTILIB" "$PACKAGES_MULTILIB"
-    check_variables_boolean "PACKAGES_INSTALL" "$PACKAGES_INSTALL"
     check_variables_boolean "PROVISION" "$PROVISION"
     check_variables_boolean "FWUPD" "$FWUPD"
     check_variables_boolean "VAGRANT" "$VAGRANT"
@@ -1775,23 +1774,6 @@ function display_manager_lightdm() {
 function display_manager_lxdm() {
     pacman_install "lxdm"
     arch-chroot "${MNT_DIR}" systemctl enable lxdm.service
-}
-
-# @deprecated: prefer to install packages after base system installation
-function packages() {
-    print_step "packages()"
-
-    if [ "$PACKAGES_INSTALL" == "true" ]; then
-        USER_NAME="$USER_NAME" \
-        USER_PASSWORD="$USER_PASSWORD" \
-        PACKAGES_PIPEWIRE="$PACKAGES_PIPEWIRE" \
-        COMMOMS_LOADED="$COMMOMS_LOADED" \
-        MNT_DIR="${MNT_DIR}" \
-            ./alis-packages.sh
-        if [ "$?" != "0" ]; then
-            exit 1
-        fi
-    fi
 }
 
 function provision() {
